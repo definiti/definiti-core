@@ -3,6 +3,72 @@ package state
 import org.scalatest.{FlatSpec, Matchers}
 
 class SyntaxEnhancerSpec extends FlatSpec with Matchers {
+  "SyntaxProcessor.squashEOL" should "work" in {
+    val input = Seq(
+      EndOfLine,
+      EndOfLine,
+      VerificationKeyword,
+      Word("NonEmpty"),
+      OpenBrace,
+      EndOfLine,
+      EndOfLine,
+      QuotedString("The string is empty"),
+      EndOfLine,
+      EndOfLine,
+      EndOfLine,
+      EndOfLine,
+      EndOfLine,
+      EndOfLine,
+      EndOfLine,
+      EndOfLine,
+      OpenParenthesis,
+      Word("string"),
+      Colon,
+      EndOfLine,
+      EndOfLine,
+      Word("String"),
+      CloseParenthesis,
+      Symbol("=>"),
+      Word("string"),
+      Dot,
+      Word("nonEmpty"),
+      OpenParenthesis,
+      CloseParenthesis,
+      EndOfLine,
+      CloseBrace,
+      EndOfLine,
+      EndOfLine,
+      EndOfLine
+    )
+    val expected = Seq(
+      EndOfLine,
+      VerificationKeyword,
+      Word("NonEmpty"),
+      OpenBrace,
+      EndOfLine,
+      QuotedString("The string is empty"),
+      EndOfLine,
+      OpenParenthesis,
+      Word("string"),
+      Colon,
+      EndOfLine,
+      Word("String"),
+      CloseParenthesis,
+      Symbol("=>"),
+      Word("string"),
+      Dot,
+      Word("nonEmpty"),
+      OpenParenthesis,
+      CloseParenthesis,
+      EndOfLine,
+      CloseBrace,
+      EndOfLine
+    )
+    val result = SyntaxEnhancer.squashEOL(input)
+
+    result should ===(expected)
+  }
+
   "SyntaxProcessor.buildEnclosing" should "work" in {
     val input = Seq(
       EndOfLine,
@@ -211,6 +277,91 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
       Parameter("max", "Int")
     )
     val result = SyntaxEnhancer.extractParameterDefinition(input)
+
+    result should ===(expected)
+  }
+
+  "SyntaxProcessor.buildConditions" should "work" in {
+    val input = Seq(
+      Word("x"),
+      Symbol("="),
+      FunctionToken(
+        ParenthesisExpressionToken(Seq(
+          Word("string"),
+          Colon,
+          Word("String")
+        )),
+        BraceExpressionToken(Seq(
+          EndOfLine,
+          IfKeyword,
+          ParenthesisExpressionToken(Seq(
+            Word("x"),
+            Symbol("<"),
+            Word("y")
+          )),
+          BraceExpressionToken(Seq(
+            Word("x")
+          )),
+          EndOfLine,
+          IfKeyword,
+          ParenthesisExpressionToken(Seq(
+            Word("x"),
+            Symbol("<="),
+            Word("1")
+          )),
+          BraceExpressionToken(Seq(
+            Word("x")
+          )),
+          EndOfLine,
+          ElseKeyword,
+          BraceExpressionToken(Seq(
+            Word("y")
+          ))
+        ))
+      ),
+      EndOfLine
+    )
+    val expected = Seq(
+      Word("x"),
+      Symbol("="),
+      FunctionToken(
+        ParenthesisExpressionToken(Seq(
+          Word("string"),
+          Colon,
+          Word("String")
+        )),
+        BraceExpressionToken(Seq(
+          EndOfLine,
+          ConditionToken(
+            ParenthesisExpressionToken(Seq(
+              Word("x"),
+              Symbol("<"),
+              Word("y")
+            )),
+            BraceExpressionToken(Seq(
+              Word("x")
+            )),
+            None
+          ),
+          EndOfLine,
+          ConditionToken(
+            ParenthesisExpressionToken(Seq(
+              Word("x"),
+              Symbol("<="),
+              Word("1")
+            )),
+            BraceExpressionToken(Seq(
+              Word("x")
+            )),
+            Some(BraceExpressionToken(Seq(
+              Word("y")
+            )))
+          )
+        ))
+      ),
+      EndOfLine
+    )
+    val result = SyntaxEnhancer.buildConditions(input)
 
     result should ===(expected)
   }

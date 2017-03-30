@@ -75,6 +75,8 @@ object SyntaxProcessor {
         case Word("verify") => VerifyKeyword
         case Word("verifying") => VerifyingKeyword
         case Word("type") => TypeKeyword
+        case Word("if") => IfKeyword
+        case Word("else") => ElseKeyword
         case other => other
       }
       .force

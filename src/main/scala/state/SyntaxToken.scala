@@ -52,13 +52,23 @@ case object VerifyingKeyword extends SyntaxToken
 
 case object TypeKeyword extends SyntaxToken
 
+case object IfKeyword extends SyntaxToken
+
+case object ElseKeyword extends SyntaxToken
+
 case object Void extends SyntaxToken
 
 case object Unknown extends SyntaxToken
 
 sealed trait EnhancedSyntaxToken extends SyntaxToken
 
-sealed trait EnclosingToken[A <: EnhancedSyntaxToken] extends EnhancedSyntaxToken {
+sealed trait ContainerToken[A <: EnhancedSyntaxToken] extends EnhancedSyntaxToken {
+  def mapOnContainers(map: Seq[SyntaxToken] => Seq[SyntaxToken]): A
+}
+
+sealed trait EnclosingToken[A <: EnhancedSyntaxToken] extends ContainerToken[A] {
+  override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): A = withChildren(map(children))
+
   def children: Seq[SyntaxToken]
 
   def withChildren(newChildren: Seq[SyntaxToken]): A
@@ -72,4 +82,21 @@ case class ParenthesisExpressionToken(children: Seq[SyntaxToken]) extends Enclos
   override def withChildren(newChildren: Seq[SyntaxToken]): ParenthesisExpressionToken = ParenthesisExpressionToken(newChildren)
 }
 
-case class FunctionToken(parameters: ParenthesisExpressionToken, body: BraceExpressionToken) extends SyntaxToken
+case class FunctionToken(parameters: ParenthesisExpressionToken, body: BraceExpressionToken) extends ContainerToken[FunctionToken] {
+  override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): FunctionToken = {
+    FunctionToken(
+      parameters,
+      BraceExpressionToken(map(body.children))
+    )
+  }
+}
+
+case class ConditionToken(condition: ParenthesisExpressionToken, onTrue: BraceExpressionToken, onFalse: Option[BraceExpressionToken]) extends ContainerToken[ConditionToken] {
+  override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): ConditionToken = {
+    ConditionToken(
+      ParenthesisExpressionToken(map(condition.children)),
+      BraceExpressionToken(map(onTrue.children)),
+      onFalse.map(body => BraceExpressionToken(map(body.children)))
+    )
+  }
+}

@@ -32,6 +32,16 @@ object SyntaxEnhancer {
     }
   }
 
+  private[state] def squashEOL(source: Syntax): Syntax = {
+    source.foldLeft(List[SyntaxToken]()) { case (acc, elt) =>
+      if (elt == EndOfLine && acc.lastOption.contains(EndOfLine)) {
+        acc
+      } else {
+        acc :+ elt
+      }
+    }
+  }
+
   private[state] def buildEnclosing(source: Syntax): Syntax = {
     var enhancedSyntaxStack = List[OpeningSyntax]()
     var accStack = List[ListBuffer[SyntaxToken]](ListBuffer())
@@ -110,5 +120,47 @@ object SyntaxEnhancer {
       case token => throw new RuntimeException("Unexpected token: " + token)
     }
     process(Nil, source.children.filter(_ != EndOfLine))
+  }
+
+  private[state] def buildConditions(source: Syntax): Syntax = {
+    @tailrec
+    def process(acc: Syntax, remaining: Syntax): Syntax = remaining match {
+      case Nil => acc
+      case IfKeyword :: tail =>
+        val (condition, remainingTail) = processCondition(tail)
+        process(acc :+ condition, remainingTail)
+      case (container: ContainerToken[_]) :: tail => process(acc :+ container.mapOnContainers(buildConditions), tail)
+      case token :: tail => process(acc :+ token, tail)
+    }
+    @tailrec
+    def processCondition(remaining: Syntax): (ConditionToken, Syntax) = remaining match {
+      case Nil => throw new RuntimeException("Unexpected end of block")
+      case EndOfLine :: tail => processCondition(tail)
+      case (condition: ParenthesisExpressionToken) :: tail => processIfBody(condition, tail)
+      case token => throw new RuntimeException("Unexpected token: " + token)
+    }
+    @tailrec
+    def processIfBody(condition: ParenthesisExpressionToken, remaining: Syntax): (ConditionToken, Syntax) = remaining match {
+      case Nil => throw new RuntimeException("Unexpected end of block")
+      case EndOfLine :: tail => processIfBody(condition, tail)
+      case (bodyIf: BraceExpressionToken) :: tail => processElse(condition, bodyIf, 0, tail)
+      case token => throw new RuntimeException("Unexpected token: " + token)
+    }
+    @tailrec
+    def processElse(condition: ParenthesisExpressionToken, bodyIf: BraceExpressionToken, skippedEOL: Int, remaining: Syntax): (ConditionToken, Syntax) = remaining match {
+      case Nil => (ConditionToken(condition, bodyIf, None), Nil)
+      case EndOfLine :: tail => processElse(condition, bodyIf, skippedEOL + 1, tail)
+      case ElseKeyword :: tail => processElseBody(condition, bodyIf, tail)
+      case tail => (ConditionToken(condition, bodyIf, None), Seq.fill(skippedEOL)(EndOfLine) ++ tail)
+    }
+    @tailrec
+    def processElseBody(condition: ParenthesisExpressionToken, trueBody: BraceExpressionToken, remaining: Syntax): (ConditionToken, Syntax) = remaining match {
+      case Nil => throw new RuntimeException("Unexpected end of block")
+      case EndOfLine :: tail => processElseBody(condition, trueBody, tail)
+      case (bodyElse: BraceExpressionToken) :: tail => (ConditionToken(condition, trueBody, Some(bodyElse)), tail)
+      case token => throw new RuntimeException("Unexpected token: " + token)
+    }
+
+    process(Nil, source)
   }
 }

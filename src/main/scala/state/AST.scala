@@ -5,7 +5,7 @@ sealed trait AST
 case class TopLevel(
   verifications: Seq[Verification],
   types: Seq[Type]
-)
+) extends AST
 
 case class Verification(name: String, message: String, check: Function) extends AST
 
@@ -34,7 +34,7 @@ case class BlockScope(
   override def returnType(scope: Scope): String = expressions.lastOption.map(_.returnType(scope)).getOrElse("Void")
 }
 
-case class CallNativeMethod(expression: Expression, name: String, parameters: Seq[Expression]) extends Expression {
+case class CallMethod(expression: Expression, name: String, parameters: Seq[Expression]) extends Expression {
   // TODO: here: check the type of the method from the expression
   override def returnType(scope: Scope): String = ???
 }

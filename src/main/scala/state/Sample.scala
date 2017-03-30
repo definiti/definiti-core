@@ -1,16 +1,17 @@
 package state
 
 object Sample {
+  // TODO: change verification to assertion, predicate or better keyword
   val testString: String =
     """
       |verification NonEmpty {
       |  "The string is empty"
-      |  (string: String) => string.nonEmpty()
+      |  (string: String) => { string.nonEmpty() }
       |}
       |
       |verification NonBlank {
       |  "The string is blank"
-      |  (string: String) => string.trim.nonEmpty()
+      |  (string: String) => { string.trim.nonEmpty() }
       |}
       |
       |// Could be simplified, but it is for the example
@@ -35,7 +36,7 @@ object Sample {
       |
       |  verify {
       |    "end should be after start"
-      |    (period: Period) => end > start || end == start
+      |    (period: Period) => { end > start || end == start }
       |  }
       |}
       |
@@ -50,7 +51,7 @@ object Sample {
       |
       |verification StartJanuaryFirst {
       |  "The period must start on january the first"
-      |  (period: Period) => period.start.day == 1 && period.start.month == 1
+      |  (period: Period) => { period.start.day == 1 && period.start.month == 1 }
       |}
       |
       |type CivilYear = Period verifying YearPeriod verifying StartJanuaryFirst
@@ -64,7 +65,7 @@ object Sample {
         check = DefinedFunction(
           name = "",
           parameters = Seq(Parameter("string", "String")),
-          expression = CallNativeMethod(VariableExpression("string"), "nonEmpty", Seq())
+          expression = CallMethod(VariableExpression("string"), "nonEmpty", Seq())
         )
       ),
       Verification(
@@ -73,7 +74,7 @@ object Sample {
         check = DefinedFunction(
           name = "",
           parameters = Seq(Parameter("string", "String")),
-          expression = CallNativeMethod(CallNativeMethod(VariableExpression("string"), "trim", Seq()), "nonEmpty", Seq())
+          expression = CallMethod(CallMethod(VariableExpression("string"), "trim", Seq()), "nonEmpty", Seq())
         )
       ),
       Verification(
@@ -83,11 +84,11 @@ object Sample {
           name = "",
           parameters = Seq(Parameter("string", "String")),
           expression = If(
-            condition = CallNativeMethod(VariableExpression("string"), "nonEmpty", Seq()),
+            condition = CallMethod(VariableExpression("string"), "nonEmpty", Seq()),
             whenTrue = If(
-              condition = CallNativeMethod(VariableExpression("string"), "startsWith", Seq(StringValueExpression("+33"))),
-              whenTrue = CallNativeMethod(VariableExpression("string"), "matches", Seq(StringValueExpression("^\\+33\\d{9}$"))),
-              whenFalse = CallNativeMethod(VariableExpression("string"), "matches", Seq(StringValueExpression("^0\\d{9}$")))
+              condition = CallMethod(VariableExpression("string"), "startsWith", Seq(StringValueExpression("+33"))),
+              whenTrue = CallMethod(VariableExpression("string"), "matches", Seq(StringValueExpression("^\\+33\\d{9}$"))),
+              whenFalse = CallMethod(VariableExpression("string"), "matches", Seq(StringValueExpression("^0\\d{9}$")))
             ),
             whenFalse = False
           )

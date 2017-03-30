@@ -100,4 +100,15 @@ object SyntaxEnhancer {
 
     process(Nil, source)
   }
+
+  private[state] def extractParameterDefinition(source: ParenthesisExpressionToken): Seq[Parameter] = {
+    @tailrec
+    def process(acc: Seq[Parameter], remainingSyntax: Syntax): Seq[Parameter] = remainingSyntax match {
+      case Nil => acc
+      case Word(name) :: Colon :: Word(typeReference) :: tail => process(acc :+ Parameter(name, typeReference), tail)
+      case Comma :: tail => process(acc, tail)
+      case token => throw new RuntimeException("Unexpected token: " + token)
+    }
+    process(Nil, source.children.filter(_ != EndOfLine))
+  }
 }

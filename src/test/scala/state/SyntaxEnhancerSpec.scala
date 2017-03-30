@@ -190,4 +190,28 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
 
     result should ===(expected)
   }
+
+  "SyntaxProcessor.extractParameterDefinition" should "work" in {
+    val input = ParenthesisExpressionToken(Seq(
+      Word("string"),
+      Colon,
+      Word("String"),
+      Comma,
+      Word("min"),
+      Colon,
+      Word("Int"),
+      Comma,
+      Word("max"),
+      Colon,
+      Word("Int")
+    ))
+    val expected = Seq(
+      Parameter("string", "String"),
+      Parameter("min", "Int"),
+      Parameter("max", "Int")
+    )
+    val result = SyntaxEnhancer.extractParameterDefinition(input)
+
+    result should ===(expected)
+  }
 }

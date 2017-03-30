@@ -3,10 +3,10 @@ package state
 import scala.collection.mutable.ListBuffer
 
 object SyntaxProcessor {
-  def processString(source: String): Seq[Syntax] = {
-    val parts = ListBuffer[Syntax]()
+  def processString(source: String): Seq[SyntaxToken] = {
+    val parts = ListBuffer[SyntaxToken]()
 
-    var acc: Syntax = Void
+    var acc: SyntaxToken = Void
     source.foreach { char =>
       (char, acc) match {
         case ('"', QuotedString(content)) if content.endsWith("\\") =>

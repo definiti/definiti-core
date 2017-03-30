@@ -31,11 +31,11 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
       EndOfLine,
       VerificationKeyword,
       Word("NonEmpty"),
-      BraceExpressionSyntax(Seq(
+      BraceExpressionToken(Seq(
         EndOfLine,
         QuotedString("The string is empty"),
         EndOfLine,
-        ParenthesisExpressionSyntax(Seq(
+        ParenthesisExpressionToken(Seq(
           Word("string"),
           Colon,
           Word("String")
@@ -44,7 +44,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
         Word("string"),
         Dot,
         Word("nonEmpty"),
-        ParenthesisExpressionSyntax(Seq()),
+        ParenthesisExpressionToken(Seq()),
         EndOfLine
       )),
       EndOfLine
@@ -85,11 +85,11 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
       EndOfLine,
       VerificationKeyword,
       Word("NonEmpty"),
-      BraceExpressionSyntax(Seq(
+      BraceExpressionToken(Seq(
         EndOfLine,
         QuotedString("The string is empty"),
         EndOfLine,
-        ParenthesisExpressionSyntax(Seq(
+        ParenthesisExpressionToken(Seq(
           Word("string"),
           Colon,
           Word("String")
@@ -98,7 +98,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
         Word("string"),
         Dot,
         Word("nonEmpty"),
-        ParenthesisExpressionSyntax(Seq()),
+        ParenthesisExpressionToken(Seq()),
         EndOfLine
       )),
       EndOfLine
@@ -106,9 +106,9 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
     val expected = Seq(
       VerificationKeyword,
       Word("NonEmpty"),
-      BraceExpressionSyntax(Seq(
+      BraceExpressionToken(Seq(
         QuotedString("The string is empty"),
-        ParenthesisExpressionSyntax(Seq(
+        ParenthesisExpressionToken(Seq(
           Word("string"),
           Colon,
           Word("String")
@@ -117,7 +117,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
         Word("string"),
         Dot,
         Word("nonEmpty"),
-        ParenthesisExpressionSyntax(Seq())
+        ParenthesisExpressionToken(Seq())
       ))
     )
     val result = SyntaxEnhancer.trimEOLAroundEncloser(input)
@@ -129,27 +129,27 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
     val input = Seq(
       Word("x"),
       Symbol("="),
-      ParenthesisExpressionSyntax(Seq(
+      ParenthesisExpressionToken(Seq(
         Word("string"),
         Colon,
         Word("String")
       )),
       Symbol("=>"),
-      BraceExpressionSyntax(Seq(
+      BraceExpressionToken(Seq(
         EndOfLine,
         QuotedString("The string is empty"),
         EndOfLine,
-        ParenthesisExpressionSyntax(Seq(
+        ParenthesisExpressionToken(Seq(
           Word("string"),
           Colon,
           Word("String")
         )),
         Symbol("=>"),
-        BraceExpressionSyntax(Seq(
+        BraceExpressionToken(Seq(
           Word("string"),
           Dot,
           Word("nonEmpty"),
-          ParenthesisExpressionSyntax(Seq()),
+          ParenthesisExpressionToken(Seq()),
           EndOfLine
         ))
       )),
@@ -158,27 +158,27 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
     val expected = Seq(
       Word("x"),
       Symbol("="),
-      FunctionSyntax(
-        ParenthesisExpressionSyntax(Seq(
+      FunctionToken(
+        ParenthesisExpressionToken(Seq(
           Word("string"),
           Colon,
           Word("String")
         )),
-        BraceExpressionSyntax(Seq(
+        BraceExpressionToken(Seq(
           EndOfLine,
           QuotedString("The string is empty"),
           EndOfLine,
-          FunctionSyntax(
-            ParenthesisExpressionSyntax(Seq(
+          FunctionToken(
+            ParenthesisExpressionToken(Seq(
               Word("string"),
               Colon,
               Word("String")
             )),
-            BraceExpressionSyntax(Seq(
+            BraceExpressionToken(Seq(
               Word("string"),
               Dot,
               Word("nonEmpty"),
-              ParenthesisExpressionSyntax(Seq()),
+              ParenthesisExpressionToken(Seq()),
               EndOfLine
             ))
           )

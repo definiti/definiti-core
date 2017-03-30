@@ -24,7 +24,7 @@ class SyntaxProcessorSpec extends FlatSpec with Matchers {
       Colon,
       Word("String"),
       CloseParenthesis,
-      Symbol("=>"),
+      MapSymbol,
       Word("string"),
       Dot,
       Word("nonEmpty"),

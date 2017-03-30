@@ -77,6 +77,24 @@ object SyntaxProcessor {
         case Word("type") => TypeKeyword
         case Word("if") => IfKeyword
         case Word("else") => ElseKeyword
+        case Word("true") => TrueKeyword
+        case Word("false") => FalseKeyword
+        case Symbol("=") => AssignSymbol
+        case Symbol("==") => EqualSymbol
+        case Symbol("!") => NotSymbol
+        case Symbol("!=") => NotEqualSymbol
+        case Symbol("<") => LowerSymbol
+        case Symbol(">") => UpperSymbol
+        case Symbol("<=") => LowerOrEqualSymbol
+        case Symbol(">=") => UpperOrEqualSymbol
+        case Symbol("=>") => MapSymbol
+        case Symbol("&&") => AndSymbol
+        case Symbol("||") => OrSymbol
+        case Symbol("+") => PlusSymbol
+        case Symbol("-") => MinusSymbol
+        case Symbol("*") => TimeSymbol
+        case Symbol("/") => DivideSymbol
+        case Symbol("%") => ModuloSymbol
         case other => other
       }
       .force

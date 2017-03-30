@@ -7,29 +7,7 @@ object SyntaxEnhancer {
   type Syntax = Seq[SyntaxToken]
   
   def enhanceSyntax(source: Syntax): Syntax = {
-    var enhancedSyntaxStack = List[OpeningSyntax]()
-    var accStack = List[ListBuffer[SyntaxToken]](ListBuffer())
-    source.foreach {
-      case open: OpeningSyntax =>
-        enhancedSyntaxStack = open :: enhancedSyntaxStack
-        accStack = ListBuffer[SyntaxToken]() :: accStack
-      case close: ClosingSyntax =>
-        enhancedSyntaxStack.headOption match {
-          case Some(openingSyntax) if close.opening == openingSyntax =>
-            val enhancedSyntax = close.enhancer(accStack.head)
-            accStack = accStack.tail
-            accStack.head.append(enhancedSyntax)
-            enhancedSyntaxStack = enhancedSyntaxStack.tail
-          case None =>
-            throw new RuntimeException("Unexpected token: " + close)
-        }
-      case other => accStack.head.append(other)
-    }
-
-    enhancedSyntaxStack match {
-      case Nil => accStack.head
-      case open :: _ => throw new RuntimeException("Unclosed block: " + open)
-    }
+    ???
   }
 
   private[state] def squashEOL(source: Syntax): Syntax = {

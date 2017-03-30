@@ -56,6 +56,42 @@ case object IfKeyword extends SyntaxToken
 
 case object ElseKeyword extends SyntaxToken
 
+case object TrueKeyword extends SyntaxToken
+
+case object FalseKeyword extends SyntaxToken
+
+case object AssignSymbol extends SyntaxToken
+
+case object EqualSymbol extends SyntaxToken
+
+case object NotSymbol extends SyntaxToken
+
+case object NotEqualSymbol extends SyntaxToken
+
+case object LowerSymbol extends SyntaxToken
+
+case object UpperSymbol extends SyntaxToken
+
+case object LowerOrEqualSymbol extends SyntaxToken
+
+case object UpperOrEqualSymbol extends SyntaxToken
+
+case object MapSymbol extends SyntaxToken
+
+case object AndSymbol extends SyntaxToken
+
+case object OrSymbol extends SyntaxToken
+
+case object PlusSymbol extends SyntaxToken
+
+case object MinusSymbol extends SyntaxToken
+
+case object TimeSymbol extends SyntaxToken
+
+case object DivideSymbol extends SyntaxToken
+
+case object ModuloSymbol extends SyntaxToken
+
 case object Void extends SyntaxToken
 
 case object Unknown extends SyntaxToken

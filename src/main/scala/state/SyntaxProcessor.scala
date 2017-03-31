@@ -109,6 +109,12 @@ object SyntaxProcessor {
         case Symbol("%") => ModuloSymbol
         case other => other
       }
-      .force
+      .foldLeft(List[SyntaxToken]()) { case (resultAcc, token) =>
+        if (token == EndOfLine && resultAcc.lastOption.contains(EndOfLine)) {
+          resultAcc
+        } else {
+          resultAcc :+ token
+        }
+      }
   }
 }

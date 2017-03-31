@@ -3,72 +3,6 @@ package state
 import org.scalatest.{FlatSpec, Matchers}
 
 class SyntaxEnhancerSpec extends FlatSpec with Matchers {
-  "SyntaxProcessor.squashEOL" should "work" in {
-    val input = Seq(
-      EndOfLine,
-      EndOfLine,
-      VerificationKeyword,
-      Word("NonEmpty"),
-      OpenBrace,
-      EndOfLine,
-      EndOfLine,
-      QuotedString("The string is empty"),
-      EndOfLine,
-      EndOfLine,
-      EndOfLine,
-      EndOfLine,
-      EndOfLine,
-      EndOfLine,
-      EndOfLine,
-      EndOfLine,
-      OpenParenthesis,
-      Word("string"),
-      Colon,
-      EndOfLine,
-      EndOfLine,
-      Word("String"),
-      CloseParenthesis,
-      Symbol("=>"),
-      Word("string"),
-      Dot,
-      Word("nonEmpty"),
-      OpenParenthesis,
-      CloseParenthesis,
-      EndOfLine,
-      CloseBrace,
-      EndOfLine,
-      EndOfLine,
-      EndOfLine
-    )
-    val expected = Seq(
-      EndOfLine,
-      VerificationKeyword,
-      Word("NonEmpty"),
-      OpenBrace,
-      EndOfLine,
-      QuotedString("The string is empty"),
-      EndOfLine,
-      OpenParenthesis,
-      Word("string"),
-      Colon,
-      EndOfLine,
-      Word("String"),
-      CloseParenthesis,
-      Symbol("=>"),
-      Word("string"),
-      Dot,
-      Word("nonEmpty"),
-      OpenParenthesis,
-      CloseParenthesis,
-      EndOfLine,
-      CloseBrace,
-      EndOfLine
-    )
-    val result = SyntaxEnhancer.squashEOL(input)
-
-    result should ===(expected)
-  }
-
   "SyntaxProcessor.buildEnclosing" should "work" in {
     val input = Seq(
       EndOfLine,
@@ -200,7 +134,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
         Colon,
         Word("String")
       )),
-      Symbol("=>"),
+      MapSymbol,
       BraceExpressionToken(Seq(
         EndOfLine,
         QuotedString("The string is empty"),
@@ -210,7 +144,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
           Colon,
           Word("String")
         )),
-        Symbol("=>"),
+        MapSymbol,
         BraceExpressionToken(Seq(
           Word("string"),
           Dot,

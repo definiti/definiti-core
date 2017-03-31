@@ -10,16 +10,6 @@ object SyntaxEnhancer {
     ???
   }
 
-  private[state] def squashEOL(source: Syntax): Syntax = {
-    source.foldLeft(List[SyntaxToken]()) { case (acc, elt) =>
-      if (elt == EndOfLine && acc.lastOption.contains(EndOfLine)) {
-        acc
-      } else {
-        acc :+ elt
-      }
-    }
-  }
-
   private[state] def buildEnclosing(source: Syntax): Syntax = {
     var enhancedSyntaxStack = List[OpeningSyntax]()
     var accStack = List[ListBuffer[SyntaxToken]](ListBuffer())
@@ -74,16 +64,12 @@ object SyntaxEnhancer {
     def process(acc: Syntax, source: Syntax): Syntax = source match {
       case Nil =>
         acc
-      case (parameters: ParenthesisExpressionToken) :: Symbol("=>") :: (body: BraceExpressionToken) :: tail =>
-        process(acc :+ FunctionToken(parameters, processChild(body)), tail)
+      case (parameters: ParenthesisExpressionToken) :: MapSymbol :: (body: BraceExpressionToken) :: tail =>
+        process(acc :+ FunctionToken(parameters, body.mapOnContainers(buildFunctions)), tail)
       case (head: EnclosingToken[_]) :: tail =>
-        process(acc :+ processChild(head), tail)
+        process(acc :+ head.mapOnContainers(buildFunctions), tail)
       case head :: tail =>
         process(acc :+ head, tail)
-    }
-
-    def processChild[A <: EnhancedSyntaxToken](enclosingSyntax: EnclosingToken[A]): A = {
-      enclosingSyntax.withChildren(process(Nil, enclosingSyntax.children))
     }
 
     process(Nil, source)

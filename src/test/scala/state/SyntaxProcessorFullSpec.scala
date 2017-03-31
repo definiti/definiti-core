@@ -10,7 +10,7 @@ class SyntaxProcessorFullSpec extends FlatSpec with Matchers {
         |  "The string is empty // quoted comment"
         |  (string: String) => { string.nonEmpty() }
         |}
-        |
+        |""".stripMargin + /* Force insertion of space not cleared with autoformat */ " " + """
         |verification NonBlank {
         |  "The string is blank /* quoted comment */"
         |  (string: String) => { string.trim().nonEmpty() }

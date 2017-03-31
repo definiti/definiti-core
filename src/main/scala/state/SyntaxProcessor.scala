@@ -9,6 +9,7 @@ object SyntaxProcessor {
     var acc: SyntaxToken = Void
     source.foreach { char =>
       (char, acc) match {
+        case ('\r', _) => // Ignore
         case ('"', QuotedString(content)) if content.endsWith("\\") =>
           acc = QuotedString(content + char)
         case ('"', _: QuotedString) =>
@@ -26,8 +27,8 @@ object SyntaxProcessor {
           acc = Void
         case (c, BlockComment(content)) =>
           acc = BlockComment(content + c)
-        case ('\r' | '\n', EndOfLine) => // Do nothing
-        case ('\r' | '\n', _) =>
+        case ('\n', EndOfLine) => // Do nothing
+        case ('\n', _) =>
           parts.append(acc)
           acc = EndOfLine
         case ('/', Symbol("/")) =>

@@ -11,7 +11,7 @@ object Sample {
       |
       |verification NonBlank {
       |  "The string is blank /* quoted comment */"
-      |  (string: String) => { string.trim.nonEmpty() }
+      |  (string: String) => { string.trim().nonEmpty() }
       |}
       |
       |/*

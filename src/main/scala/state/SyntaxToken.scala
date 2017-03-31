@@ -38,6 +38,10 @@ case object Underscore extends SyntaxToken
 
 case object Comma extends SyntaxToken
 
+case class LineComment(content: String) extends SyntaxToken
+
+case class BlockComment(content: String) extends SyntaxToken
+
 case class Symbol(content: String) extends SyntaxToken
 
 case class QuotedString(content: String) extends SyntaxToken

@@ -14,15 +14,26 @@ object SyntaxProcessor {
         case ('"', _: QuotedString) =>
           parts.append(acc)
           acc = Void
-        case ('"', _) =>
+        case ('"', x) if !(x.isInstanceOf[BlockComment] || x.isInstanceOf[LineComment])  =>
           parts.append(acc)
           acc = QuotedString("")
         case (c, QuotedString(content)) =>
           acc = QuotedString(content + c)
+        case ('*', Symbol("/")) =>
+          acc = BlockComment("")
+        case ('/', BlockComment(content)) if content.endsWith("*") =>
+          parts.append(BlockComment(content.substring(0, content.length - 1)))
+          acc = Void
+        case (c, BlockComment(content)) =>
+          acc = BlockComment(content + c)
         case ('\r' | '\n', EndOfLine) => // Do nothing
         case ('\r' | '\n', _) =>
           parts.append(acc)
           acc = EndOfLine
+        case ('/', Symbol("/")) =>
+          acc = LineComment("")
+        case (c, LineComment(content)) =>
+          acc = LineComment(content + c)
         case (c, Space) if c.isSpaceChar => // Do nothing
         case (c, _) if c.isSpaceChar =>
           parts.append(acc)

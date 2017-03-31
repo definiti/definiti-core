@@ -5,16 +5,18 @@ object Sample {
   val testString: String =
     """
       |verification NonEmpty {
-      |  "The string is empty"
+      |  "The string is empty // quoted comment"
       |  (string: String) => { string.nonEmpty() }
       |}
       |
       |verification NonBlank {
-      |  "The string is blank"
+      |  "The string is blank /* quoted comment */"
       |  (string: String) => { string.trim.nonEmpty() }
       |}
       |
-      |// Could be simplified, but it is for the example
+      |/*
+      |  Could be simplified, but it is for the "example"
+      |*/
       |verification PhoneNumber {
       |  "Please provide a phone number"
       |  (string: String) => {
@@ -43,7 +45,7 @@ object Sample {
       |verification YearPeriod {
       |  "The period must last one year"
       |  (period: Period) => {
-      |    // Not quite right but show the idea
+      |    // Not quite "right" but show the idea
       |    // hypothese: timestamp in seconds
       |    period.end.timestamp - period.start.timestamp == 365*24*3600
       |  }

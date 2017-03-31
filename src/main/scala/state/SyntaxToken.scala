@@ -140,3 +140,7 @@ case class ConditionToken(condition: ParenthesisExpressionToken, onTrue: BraceEx
     )
   }
 }
+
+case class MethodCall(variable: String, method: String, parameters: ParenthesisExpressionToken) extends EnhancedSyntaxToken
+
+case class AttributeCall(variable: String, attribute: String) extends EnhancedSyntaxToken

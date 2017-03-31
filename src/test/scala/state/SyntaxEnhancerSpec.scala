@@ -365,4 +365,59 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
 
     result should ===(expected)
   }
+
+  "SyntaxProcessor.buildMethodOrAttributeCall" should "work" in {
+    val input = Seq(
+      EndOfLine,
+      VerificationKeyword,
+      Word("NonEmpty"),
+      BraceExpressionToken(Seq(
+        EndOfLine,
+        QuotedString("The string is empty"),
+        EndOfLine,
+        ParenthesisExpressionToken(Seq(
+          Word("string"),
+          Colon,
+          Word("String")
+        )),
+        Symbol("=>"),
+        Word("string"),
+        Dot,
+        Word("nonEmpty"),
+        ParenthesisExpressionToken(Seq()),
+        EndOfLine,
+        Word("string"),
+        EndOfLine,
+        Dot,
+        EndOfLine,
+        Word("length"),
+        EndOfLine
+      )),
+      EndOfLine
+    )
+    val expected = Seq(
+      EndOfLine,
+      VerificationKeyword,
+      Word("NonEmpty"),
+      BraceExpressionToken(Seq(
+        EndOfLine,
+        QuotedString("The string is empty"),
+        EndOfLine,
+        ParenthesisExpressionToken(Seq(
+          Word("string"),
+          Colon,
+          Word("String")
+        )),
+        Symbol("=>"),
+        MethodCall("string", "nonEmpty", ParenthesisExpressionToken(Seq())),
+        EndOfLine,
+        AttributeCall("string", "length"),
+        EndOfLine
+      )),
+      EndOfLine
+    )
+    val result = SyntaxEnhancer.buildMethodOrAttributeCall(input)
+
+    result should ===(expected)
+  }
 }

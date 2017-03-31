@@ -141,4 +141,41 @@ object SyntaxEnhancer {
 
     process(Nil, source)
   }
+
+  private[state] def buildMethodOrAttributeCall(syntax: Syntax): Syntax = {
+    @tailrec
+    def process(acc: Syntax, source: Syntax): Syntax = source match {
+      case Nil =>
+        acc
+      case (word @ Word(variableName)) :: tail =>
+        processDot(variableName, tail) match {
+          case Some((enhancedSyntax: EnhancedSyntaxToken, remaining)) => process(acc :+ enhancedSyntax, remaining)
+          case None => process(acc :+ word, tail)
+        }
+      case (container: ContainerToken[_]) :: tail =>
+        process(acc :+ container.mapOnContainers(buildMethodOrAttributeCall), tail)
+      case token :: tail =>
+        process(acc :+ token, tail)
+    }
+    @tailrec
+    def processDot(variableName: String, source: Syntax): Option[(EnhancedSyntaxToken, Syntax)] = source match {
+      case Nil => None
+      case EndOfLine :: tail => processDot(variableName, tail)
+      case Dot :: tail => processMethodOrAttributeName(variableName, tail)
+      case _ => None
+    }
+    @tailrec
+    def processMethodOrAttributeName(variableName: String, source: Syntax): Option[(EnhancedSyntaxToken, Syntax)] = source match {
+      case Nil => None
+      case EndOfLine :: tail => processMethodOrAttributeName(variableName, tail)
+      case Word(methodName) :: tail => processParenthesis(variableName, methodName, tail)
+      case _ => None
+    }
+    def processParenthesis(variableName: String, methodOrAttributeName: String, source: Syntax): Option[(EnhancedSyntaxToken, Syntax)] = source match {
+      case Nil => Some(AttributeCall(variableName, methodOrAttributeName), Nil)
+      case (parenthesis: ParenthesisExpressionToken) :: tail => Some(MethodCall(variableName, methodOrAttributeName, parenthesis), tail)
+      case tail => Some(AttributeCall(variableName, methodOrAttributeName), tail)
+    }
+    process(Nil, syntax)
+  }
 }

@@ -17,7 +17,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
       Colon,
       Word("String"),
       CloseParenthesis,
-      Symbol("=>"),
+      SymbolString("=>"),
       Word("string"),
       Dot,
       Word("nonEmpty"),
@@ -40,7 +40,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
           Colon,
           Word("String")
         )),
-        Symbol("=>"),
+        SymbolString("=>"),
         Word("string"),
         Dot,
         Word("nonEmpty"),
@@ -83,7 +83,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
   "SyntaxProcessor.buildFunctions" should "work" in {
     val input = Seq(
       Word("x"),
-      Symbol("="),
+      SymbolString("="),
       ParenthesisExpressionToken(Seq(
         Word("string"),
         Colon,
@@ -112,7 +112,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
     )
     val expected = Seq(
       Word("x"),
-      Symbol("="),
+      SymbolString("="),
       FunctionToken(
         Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
@@ -165,7 +165,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
   "SyntaxProcessor.buildConditions" should "work" in {
     val input = Seq(
       Word("x"),
-      Symbol("="),
+      SymbolString("="),
       FunctionToken(
         Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
@@ -173,7 +173,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
           IfKeyword,
           ParenthesisExpressionToken(Seq(
             Word("x"),
-            Symbol("<"),
+            SymbolString("<"),
             Word("y")
           )),
           BraceExpressionToken(Seq(
@@ -183,7 +183,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
           IfKeyword,
           ParenthesisExpressionToken(Seq(
             Word("x"),
-            Symbol("<="),
+            SymbolString("<="),
             Word("1")
           )),
           BraceExpressionToken(Seq(
@@ -200,7 +200,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
     )
     val expected = Seq(
       Word("x"),
-      Symbol("="),
+      SymbolString("="),
       FunctionToken(
         Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
@@ -208,7 +208,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
           ConditionToken(
             ParenthesisExpressionToken(Seq(
               Word("x"),
-              Symbol("<"),
+              SymbolString("<"),
               Word("y")
             )),
             BraceExpressionToken(Seq(
@@ -220,7 +220,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
           ConditionToken(
             ParenthesisExpressionToken(Seq(
               Word("x"),
-              Symbol("<="),
+              SymbolString("<="),
               Word("1")
             )),
             BraceExpressionToken(Seq(
@@ -235,61 +235,6 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
       EndOfLine
     )
     val result = SyntaxEnhancer.buildConditions(input)
-
-    result should ===(expected)
-  }
-
-  "SyntaxProcessor.buildMethodOrAttributeCall" should "work" in {
-    val input = Seq(
-      EndOfLine,
-      VerificationKeyword,
-      Word("NonEmpty"),
-      BraceExpressionToken(Seq(
-        EndOfLine,
-        QuotedString("The string is empty"),
-        EndOfLine,
-        ParenthesisExpressionToken(Seq(
-          Word("string"),
-          Colon,
-          Word("String")
-        )),
-        Symbol("=>"),
-        Word("string"),
-        Dot,
-        Word("nonEmpty"),
-        ParenthesisExpressionToken(Seq()),
-        EndOfLine,
-        Word("string"),
-        EndOfLine,
-        Dot,
-        EndOfLine,
-        Word("length"),
-        EndOfLine
-      )),
-      EndOfLine
-    )
-    val expected = Seq(
-      EndOfLine,
-      VerificationKeyword,
-      Word("NonEmpty"),
-      BraceExpressionToken(Seq(
-        EndOfLine,
-        QuotedString("The string is empty"),
-        EndOfLine,
-        ParenthesisExpressionToken(Seq(
-          Word("string"),
-          Colon,
-          Word("String")
-        )),
-        Symbol("=>"),
-        MethodCall("string", "nonEmpty", ParenthesisExpressionToken(Seq())),
-        EndOfLine,
-        AttributeCall("string", "length"),
-        EndOfLine
-      )),
-      EndOfLine
-    )
-    val result = SyntaxEnhancer.buildMethodOrAttributeCall(input)
 
     result should ===(expected)
   }

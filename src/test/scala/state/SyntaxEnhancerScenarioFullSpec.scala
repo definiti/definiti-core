@@ -790,6 +790,156 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
     StructuredAliasTypeToken("CivilYear", "Period", Seq("YearPeriod", "StartJanuaryFirst"))
   )
 
+  val expressionDone = Seq(
+    // verification NonEmpty {
+    VerificationExpressionToken(
+      "NonEmpty",
+      //   "The string is empty // quoted comment"
+      "The string is empty // quoted comment",
+      //   (string: String) => { string.nonEmpty() }
+      FunctionExpressionToken(
+        Seq(FunctionParameter("string", "String")),
+        MethodCallToken(VariableExpressionToken("string"), "nonEmpty", ListExpressionToken(Seq()))
+      )
+      // }
+    ),
+    // verification NonBlank {
+    VerificationExpressionToken(
+      "NonBlank",
+      //   "The string is blank /* quoted comment */"
+      "The string is blank /* quoted comment */",
+      //   (string: String) => { string.trim().nonEmpty() }
+      FunctionExpressionToken(
+        Seq(FunctionParameter("string", "String")),
+        MethodCallToken(MethodCallToken(VariableExpressionToken("string"), "trim", ListExpressionToken(Seq())), "nonEmpty", ListExpressionToken(Seq()))
+      )
+      // }
+    ),
+    // /* \n Could be simplified, but it is for the "example" \n*/
+    BlockComment("\n" + "  Could be simplified, but it is for the \"example\"\n"),
+    // verification PhoneNumber {
+    VerificationExpressionToken(
+      "PhoneNumber",
+      //   "Please provide a phone number"
+      "Please provide a phone number",
+      //   (string: String) => {
+      FunctionExpressionToken(
+        Seq(FunctionParameter("string", "String")),
+        //     if (string.nonEmpty()) {
+        ConditionExpressionToken(
+          MethodCallToken(VariableExpressionToken("string"), "nonEmpty", ListExpressionToken(Seq())),
+          //       if (string.startsWith("+33")) {
+          ConditionExpressionToken(
+            MethodCallToken(VariableExpressionToken("string"), "startsWith", ListExpressionToken(Seq(
+              QuotedStringExpressionToken("+33")
+            ))),
+            //         string.matches("^\+33\d{9}$")
+            MethodCallToken(VariableExpressionToken("string"), "matches", ListExpressionToken(Seq(
+              QuotedStringExpressionToken("^\\+33\\d{9}$")
+            ))),
+            //       } else {
+            //         string.matches("^0\d{9}$")
+            Some(MethodCallToken(VariableExpressionToken("string"), "matches", ListExpressionToken(Seq(
+              QuotedStringExpressionToken("^0\\d{9}$")
+            ))))
+            //       }
+          ),
+          //     } else {
+          //       false
+          Some(BooleanExpressionToken(false))
+          //     }
+        )
+        //   }
+      )
+      // }
+    ),
+    // type Period {
+    DefinedTypeExpressionToken(
+      "Period",
+      Seq(
+        //   start: Date
+        TypeFieldToken("start", "Date"),
+        //   end: Date
+        TypeFieldToken("end", "Date")
+      ),
+      //   verify {
+      Seq(
+        TypeVerificationExpressionToken(
+          //     "end should be after start"
+          "end should be after start",
+          FunctionExpressionToken(
+            //     (period: Period) => { end > start || end == start }
+            Seq(FunctionParameter("period", "Period")),
+            OrExpression(
+              UpperExpression(
+                VariableExpressionToken("end"),
+                VariableExpressionToken("start")
+              ),
+              EqualExpression(
+                VariableExpressionToken("end"),
+                VariableExpressionToken("start")
+              )
+            )
+          )
+          //   }
+        )
+      ),
+      Seq()
+      // }
+    ),
+    // verification YearPeriod {
+    VerificationExpressionToken(
+      "YearPeriod",
+      //   "The period must last one year"
+      "The period must last one year",
+      //   (period: Period) => {
+      FunctionExpressionToken(
+        Seq(FunctionParameter("period", "Period")),
+        //     // Not quite "right" but show the idea
+        //     // hypothese: timestamp in seconds
+        //     period.end.timestamp - period.start.timestamp == 365*24*3600
+        EqualExpression(
+          MinusExpression(
+            AttributeCallToken(AttributeCallToken(VariableExpressionToken("period"), "end"), "timestamp"),
+            AttributeCallToken(AttributeCallToken(VariableExpressionToken("period"), "start"), "timestamp")
+          ),
+          TimeExpression(
+            NumberExpressionToken(365),
+            TimeExpression(
+              NumberExpressionToken(24),
+              NumberExpressionToken(3600)
+            )
+          )
+        )
+        //   }
+      )
+      // }
+    ),
+    // verification StartJanuaryFirst {
+    VerificationExpressionToken(
+      "StartJanuaryFirst",
+      //   "The period must start on january the first"
+      "The period must start on january the first",
+      //   (period: Period) => { period.start.day == 1 && period.start.month == 1 }
+      FunctionExpressionToken(
+        Seq(FunctionParameter("period", "Period")),
+        AndExpression(
+          EqualExpression(
+            AttributeCallToken(AttributeCallToken(VariableExpressionToken("period"), "start"), "day"),
+            NumberExpressionToken(1)
+          ),
+          EqualExpression(
+            AttributeCallToken(AttributeCallToken(VariableExpressionToken("period"), "start"), "month"),
+            NumberExpressionToken(1)
+          )
+        )
+      )
+      // }
+    ),
+    // type CivilYear = Period verifying YearPeriod verifying StartJanuaryFirst
+    StructuredAliasTypeToken("CivilYear", "Period", Seq("YearPeriod", "StartJanuaryFirst"))
+  )
+
   "SyntaxEnhancer.buildEnclosing" should "create Enclosing expression recursively" in {
     SyntaxEnhancer.buildEnclosing(source) should ===(enclosingDone)
   }
@@ -812,5 +962,9 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
 
   "SyntaxEnhancer.completeFirstClassCitizenStructure" should "complete first class citizen with a more accurate definition" in {
     SyntaxEnhancer.completeFirstClassCitizenStructure(conditionDone) should ===(firstClassCitizenCompletedDone)
+  }
+
+  "SyntaxEnhancer.buildExpressions" should "transform all remaining tokens into expressions" in {
+    SyntaxEnhancer.buildExpressions(firstClassCitizenCompletedDone) should ===(expressionDone)
   }
 }

@@ -1,15 +1,19 @@
 package state
 
-import jdk.internal.org.objectweb.asm.TypeReference
-
 sealed trait SyntaxToken
 
 sealed trait OpeningSyntax
+
+sealed trait IgnoreEOLWithBrace
 
 sealed trait ClosingSyntax {
   def opening: OpeningSyntax
 
   def enhancer(children: Seq[SyntaxToken]): EnhancedSyntaxToken
+}
+
+sealed trait Symbol extends SyntaxToken {
+  def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken
 }
 
 case object EndOfLine extends SyntaxToken
@@ -34,7 +38,7 @@ case object CloseParenthesis extends SyntaxToken with ClosingSyntax {
 
 case object Colon extends SyntaxToken
 
-case object Dot extends SyntaxToken
+case object Dot extends SyntaxToken with IgnoreEOLWithBrace
 
 case object Underscore extends SyntaxToken
 
@@ -44,7 +48,7 @@ case class LineComment(content: String) extends SyntaxToken
 
 case class BlockComment(content: String) extends SyntaxToken
 
-case class Symbol(content: String) extends SyntaxToken
+case class SymbolString(content: String) extends SyntaxToken
 
 case class QuotedString(content: String) extends SyntaxToken
 
@@ -66,37 +70,65 @@ case object TrueKeyword extends SyntaxToken
 
 case object FalseKeyword extends SyntaxToken
 
-case object AssignSymbol extends SyntaxToken
+case object AssignSymbol extends SyntaxToken with IgnoreEOLWithBrace
 
-case object EqualSymbol extends SyntaxToken
+case object EqualSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = EqualExpression(left, right)
+}
 
-case object NotSymbol extends SyntaxToken
+case object NotSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = NotExpression(left, right)
+}
 
-case object NotEqualSymbol extends SyntaxToken
+case object NotEqualSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = NotEqualExpression(left, right)
+}
 
-case object LowerSymbol extends SyntaxToken
+case object LowerSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = LowerExpression(left, right)
+}
 
-case object UpperSymbol extends SyntaxToken
+case object UpperSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = UpperExpression(left, right)
+}
 
-case object LowerOrEqualSymbol extends SyntaxToken
+case object LowerOrEqualSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = LowerOrEqualExpression(left, right)
+}
 
-case object UpperOrEqualSymbol extends SyntaxToken
+case object UpperOrEqualSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = UpperOrEqualExpression(left, right)
+}
 
 case object MapSymbol extends SyntaxToken
 
-case object AndSymbol extends SyntaxToken
+case object AndSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = AndExpression(left, right)
+}
 
-case object OrSymbol extends SyntaxToken
+case object OrSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = OrExpression(left, right)
+}
 
-case object PlusSymbol extends SyntaxToken
+case object PlusSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = PlusExpression(left, right)
+}
 
-case object MinusSymbol extends SyntaxToken
+case object MinusSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = MinusExpression(left, right)
+}
 
-case object TimeSymbol extends SyntaxToken
+case object TimeSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = TimeExpression(left, right)
+}
 
-case object DivideSymbol extends SyntaxToken
+case object DivideSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = DivideExpression(left, right)
+}
 
-case object ModuloSymbol extends SyntaxToken
+case object ModuloSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
+  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = ModuloExpression(left, right)
+}
 
 case object Void extends SyntaxToken
 
@@ -144,10 +176,6 @@ case class ConditionToken(condition: ParenthesisExpressionToken, onTrue: BraceEx
     )
   }
 }
-
-case class MethodCall(variable: String, method: String, parameters: ParenthesisExpressionToken) extends EnhancedSyntaxToken
-
-case class AttributeCall(variable: String, attribute: String) extends EnhancedSyntaxToken
 
 case class VerificationToken(name: String, body: BraceExpressionToken) extends ContainerToken[VerificationToken] {
   override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): VerificationToken = {
@@ -203,3 +231,72 @@ case class TypeVerificationToken(message: String, function: FunctionToken) exten
     )
   }
 }
+
+sealed trait ExpressionToken extends EnhancedSyntaxToken
+
+sealed trait SimpleExpressionToken extends ExpressionToken
+
+case class BooleanExpressionToken(value: Boolean) extends SimpleExpressionToken
+
+case class NumberExpressionToken(value: BigDecimal) extends SimpleExpressionToken
+
+case class QuotedStringExpressionToken(value: String) extends SimpleExpressionToken
+
+case class VariableExpressionToken(name: String) extends SimpleExpressionToken
+
+case class MethodCallToken(expressionToken: ExpressionToken, method: String, parameters: ListExpressionToken) extends ExpressionToken
+
+case class AttributeCallToken(expressionToken: ExpressionToken, attribute: String) extends ExpressionToken
+
+case class ListExpressionToken(parts: Seq[ExpressionToken]) extends ExpressionToken
+
+case class CombinedExpressionToken(parts: Seq[ExpressionToken]) extends ExpressionToken {
+  def simplify(): ExpressionToken = parts match {
+    case head :: Nil => head
+    case _ => this
+  }
+}
+
+case class ConditionExpressionToken(
+  condition: ExpressionToken,
+  onTrue: ExpressionToken,
+  onFalse: Option[ExpressionToken]
+) extends ExpressionToken
+
+case class _UnknownExpressionToken(syntax: Seq[SyntaxToken]) extends ExpressionToken
+
+case class FunctionExpressionToken(parameters: Seq[FunctionParameter], body: ExpressionToken) extends EnhancedSyntaxToken
+
+case class VerificationExpressionToken(name: String, message: String, function: FunctionExpressionToken) extends EnhancedSyntaxToken
+
+case class DefinedTypeExpressionToken(name: String, fields: Seq[TypeFieldToken], definedVerifications: Seq[TypeVerificationExpressionToken], verifications: Seq[String]) extends EnhancedSyntaxToken
+
+case class TypeVerificationExpressionToken(message: String, function: FunctionExpressionToken) extends EnhancedSyntaxToken
+
+case class OrExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class AndExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class EqualExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class NotEqualExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class LowerExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class UpperExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class LowerOrEqualExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class UpperOrEqualExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class PlusExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class MinusExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class ModuloExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class TimeExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class DivideExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+
+case class NotExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken

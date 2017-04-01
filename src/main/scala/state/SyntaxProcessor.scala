@@ -20,7 +20,7 @@ object SyntaxProcessor {
           acc = QuotedString("")
         case (c, QuotedString(content)) =>
           acc = QuotedString(content + c)
-        case ('*', Symbol("/")) =>
+        case ('*', SymbolString("/")) =>
           acc = BlockComment("")
         case ('/', BlockComment(content)) if content.endsWith("*") =>
           parts.append(BlockComment(content.substring(0, content.length - 1)))
@@ -31,7 +31,7 @@ object SyntaxProcessor {
         case ('\n', _) =>
           parts.append(acc)
           acc = EndOfLine
-        case ('/', Symbol("/")) =>
+        case ('/', SymbolString("/")) =>
           acc = LineComment("")
         case (c, LineComment(content)) =>
           acc = LineComment(content + c)
@@ -63,11 +63,11 @@ object SyntaxProcessor {
         case (',', _) =>
           parts.append(acc)
           acc = Comma
-        case (('=' | '>' | '<' | '+' | '-' | '/' | '*' | '%' | '|' | '&'), Symbol(content)) =>
-          acc = Symbol(content + char)
+        case (('=' | '>' | '<' | '+' | '-' | '/' | '*' | '%' | '|' | '&'), SymbolString(content)) =>
+          acc = SymbolString(content + char)
         case (('=' | '>' | '<' | '+' | '-' | '/' | '*' | '%' | '|' | '&'), _) =>
           parts.append(acc)
-          acc = Symbol(char.toString)
+          acc = SymbolString(char.toString)
         case (c, Word(content)) if c.isLetterOrDigit =>
           acc = Word(content + char)
         case (c, _) if c.isLetterOrDigit =>
@@ -91,22 +91,22 @@ object SyntaxProcessor {
         case Word("else") => ElseKeyword
         case Word("true") => TrueKeyword
         case Word("false") => FalseKeyword
-        case Symbol("=") => AssignSymbol
-        case Symbol("==") => EqualSymbol
-        case Symbol("!") => NotSymbol
-        case Symbol("!=") => NotEqualSymbol
-        case Symbol("<") => LowerSymbol
-        case Symbol(">") => UpperSymbol
-        case Symbol("<=") => LowerOrEqualSymbol
-        case Symbol(">=") => UpperOrEqualSymbol
-        case Symbol("=>") => MapSymbol
-        case Symbol("&&") => AndSymbol
-        case Symbol("||") => OrSymbol
-        case Symbol("+") => PlusSymbol
-        case Symbol("-") => MinusSymbol
-        case Symbol("*") => TimeSymbol
-        case Symbol("/") => DivideSymbol
-        case Symbol("%") => ModuloSymbol
+        case SymbolString("=") => AssignSymbol
+        case SymbolString("==") => EqualSymbol
+        case SymbolString("!") => NotSymbol
+        case SymbolString("!=") => NotEqualSymbol
+        case SymbolString("<") => LowerSymbol
+        case SymbolString(">") => UpperSymbol
+        case SymbolString("<=") => LowerOrEqualSymbol
+        case SymbolString(">=") => UpperOrEqualSymbol
+        case SymbolString("=>") => MapSymbol
+        case SymbolString("&&") => AndSymbol
+        case SymbolString("||") => OrSymbol
+        case SymbolString("+") => PlusSymbol
+        case SymbolString("-") => MinusSymbol
+        case SymbolString("*") => TimeSymbol
+        case SymbolString("/") => DivideSymbol
+        case SymbolString("%") => ModuloSymbol
         case other => other
       }
       .foldLeft(List[SyntaxToken]()) { case (resultAcc, token) =>

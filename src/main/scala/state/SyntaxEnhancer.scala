@@ -1,5 +1,7 @@
 package state
 
+import state.utils.NumberUtils
+
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
@@ -248,40 +250,186 @@ object SyntaxEnhancer {
     StructuredAliasTypeToken(typeToken.name, typeToken.definition.left.get, typeToken.verifications)
   }
 
-  private[state] def buildMethodOrAttributeCall(syntax: Syntax): Syntax = {
-    @tailrec
-    def process(acc: Syntax, source: Syntax): Syntax = source match {
+  private[state] def buildExpressions(syntax: Syntax): Syntax = {
+    def removeComments(syntax: Syntax): Syntax = {
+      syntax
+        .filter(token => !(token.isInstanceOf[LineComment] || token.isInstanceOf[BlockComment]))
+        .foldLeft(List[SyntaxToken]()) { (acc, token) =>
+          if (token == EndOfLine && acc.lastOption.contains(EndOfLine)) {
+            acc
+          } else {
+            acc :+ token
+          }
+        }
+    }
+
+    def splitParenthesisByComma(parenthesis: ParenthesisExpressionToken): Seq[Syntax] = {
+      @tailrec
+      def process(resultAcc: Seq[Syntax], acc: Syntax, remaining: Syntax): Seq[Syntax] = remaining match {
+        case Nil =>
+          if (acc.isEmpty) {
+            resultAcc
+          } else {
+            resultAcc :+ acc
+          }
+        case Comma :: tail =>
+          process(resultAcc :+ acc, Nil, tail)
+        case token :: tail =>
+          process(resultAcc, acc :+ token, tail)
+      }
+
+      process(Nil, Nil, trimEOL(removeComments(parenthesis.children)))
+    }
+
+    def splitBraceByEOL(brace: BraceExpressionToken): Seq[Syntax] = {
+      @tailrec
+      def process(resultAcc: Seq[Syntax], acc: Syntax, remaining: Syntax): Seq[Syntax] = remaining match {
+        case Nil =>
+          if (acc.isEmpty) {
+            resultAcc
+          } else {
+            resultAcc :+ acc
+          }
+        case EndOfLine :: token :: EndOfLine :: tail if token.isInstanceOf[IgnoreEOLWithBrace] =>
+          process(resultAcc, acc :+ token, tail)
+        case EndOfLine :: token :: tail if token.isInstanceOf[IgnoreEOLWithBrace] =>
+          process(resultAcc, acc :+ token, tail)
+        case token :: EndOfLine :: tail if token.isInstanceOf[IgnoreEOLWithBrace] =>
+          process(resultAcc, acc :+ token, tail)
+        case EndOfLine :: tail =>
+          process(resultAcc :+ acc, Nil, tail)
+        case token :: tail =>
+          process(resultAcc, acc :+ token, tail)
+      }
+
+      process(Nil, Nil, trimEOL(removeComments(brace.children)))
+    }
+
+    def chainedCalls(syntax: Syntax): ExpressionToken = {
+      def process(expressionToken: ExpressionToken, remaining: Syntax): ExpressionToken = remaining match {
+        case Nil => expressionToken
+        case Dot :: Word(methodName) :: (parameters: ParenthesisExpressionToken) :: tail =>
+          process(MethodCallToken(expressionToken, methodName, ListExpressionToken(splitParenthesisByComma(parameters).map(buildExpression))), tail)
+        case Dot :: Word(attributeName) :: tail =>
+          process(AttributeCallToken(expressionToken, attributeName), tail)
+        case token => _UnknownExpressionToken(token)
+      }
+
+      syntax match {
+        case TrueKeyword :: tail =>
+          process(BooleanExpressionToken(true), tail)
+        case FalseKeyword :: tail =>
+          process(BooleanExpressionToken(false), tail)
+        case QuotedString(content) :: tail =>
+          process(QuotedStringExpressionToken(content), tail)
+        case Word(content) :: tail if NumberUtils.isNumberExpression(content) =>
+          process(NumberExpressionToken(BigDecimal(content)), tail)
+        case Word(content) :: tail =>
+          process(VariableExpressionToken(content), tail)
+      }
+    }
+
+    sealed trait SyntaxTree
+    case class SyntaxTreeBranch(symbol: Symbol, left: SyntaxTree, right: SyntaxTree) extends SyntaxTree
+    case class SyntaxTreeLeaf(syntax: Syntax) extends SyntaxTree
+
+    def createSyntaxTreeWithSymbols(syntax: Syntax): SyntaxTree = {
+      val symbolsOrderedDescPriority = Seq(
+        OrSymbol, AndSymbol,
+        EqualSymbol, NotEqualSymbol, LowerSymbol, UpperSymbol, LowerOrEqualSymbol, UpperOrEqualSymbol,
+        PlusSymbol, MinusSymbol, ModuloSymbol, TimeSymbol, DivideSymbol,
+        NotSymbol
+      )
+
+      def processForSymbol(syntax: Syntax, remainingSymbols: Seq[Symbol]): SyntaxTree = {
+        remainingSymbols match {
+          case Nil => SyntaxTreeLeaf(syntax)
+          case symbol :: tail =>
+            if (syntax.contains(symbol)) {
+              val (left, right) = syntax.splitAt(syntax.indexOf(symbol))
+              SyntaxTreeBranch(symbol, processForSymbol(left, tail), processForSymbol(right.tail, remainingSymbols))
+            } else {
+              processForSymbol(syntax, tail)
+            }
+        }
+      }
+
+      processForSymbol(syntax, symbolsOrderedDescPriority)
+    }
+
+    def buildExpression(syntax: Syntax): ExpressionToken = {
+      def buildFinalExpression(syntax: Syntax): ExpressionToken = {
+        syntax match {
+          case TrueKeyword :: Nil =>
+            BooleanExpressionToken(true)
+          case FalseKeyword :: Nil =>
+            BooleanExpressionToken(false)
+          case QuotedString(content) :: Nil =>
+            QuotedStringExpressionToken(content)
+          case Word(content) :: Nil if NumberUtils.isNumberExpression(content) =>
+            NumberExpressionToken(BigDecimal(content))
+          case Word(content) :: Nil =>
+            VariableExpressionToken(content)
+          case Word(_) :: Dot :: _ =>
+            chainedCalls(syntax)
+          case (condition: ConditionToken) :: tail =>
+            ConditionExpressionToken(
+              condition = buildExpression(condition.condition.children),
+              onTrue = CombinedExpressionToken(splitBraceByEOL(condition.onTrue).map(buildExpression)).simplify(),
+              onFalse = condition.onFalse.map(body => CombinedExpressionToken(splitBraceByEOL(body).map(buildExpression)).simplify())
+            )
+          case others => _UnknownExpressionToken(others)
+        }
+      }
+      def process(syntaxTree: SyntaxTree): ExpressionToken = syntaxTree match {
+        case SyntaxTreeBranch(symbol, left, right) =>
+          symbol.toExpressionToken(process(left), process(right))
+        case SyntaxTreeLeaf(innerSyntax) => buildFinalExpression(innerSyntax)
+      }
+      process(createSyntaxTreeWithSymbols(syntax))
+    }
+
+    def process(acc: Syntax, remaining: Syntax): Syntax = remaining match {
       case Nil =>
         acc
-      case (word @ Word(variableName)) :: tail =>
-        processDot(variableName, tail) match {
-          case Some((enhancedSyntax: EnhancedSyntaxToken, remaining)) => process(acc :+ enhancedSyntax, remaining)
-          case None => process(acc :+ word, tail)
-        }
-      case (container: ContainerToken[_]) :: tail =>
-        process(acc :+ container.mapOnContainers(buildMethodOrAttributeCall), tail)
+      case (function: FunctionToken) :: tail =>
+        val newToken = FunctionExpressionToken(
+          parameters = function.parameters,
+          body = CombinedExpressionToken(splitBraceByEOL(function.body).map(buildExpression)).simplify()
+        )
+        process(acc :+ newToken, tail)
+      case (structuredVerificationToken: StructuredVerificationToken) :: tail =>
+        val newToken = VerificationExpressionToken(
+          structuredVerificationToken.name,
+          structuredVerificationToken.message,
+          FunctionExpressionToken(
+            parameters = structuredVerificationToken.function.parameters,
+            body = CombinedExpressionToken(splitBraceByEOL(structuredVerificationToken.function.body).map(buildExpression)).simplify()
+          )
+        )
+        process(acc :+ newToken, tail)
+      case (structuredDefinedTypeToken: StructuredDefinedTypeToken) :: tail =>
+        val newToken = DefinedTypeExpressionToken(
+          structuredDefinedTypeToken.name,
+          structuredDefinedTypeToken.fields,
+          structuredDefinedTypeToken.definedVerifications.map { definedVerification =>
+            TypeVerificationExpressionToken(
+              definedVerification.message,
+              FunctionExpressionToken(
+                parameters = definedVerification.function.parameters,
+                body = CombinedExpressionToken(splitBraceByEOL(definedVerification.function.body).map(buildExpression)).simplify()
+              )
+            )
+          },
+          structuredDefinedTypeToken.verifications
+        )
+        process(acc :+ newToken, tail)
+      case (containerToken: ContainerToken[_]) :: tail =>
+        process(acc :+ containerToken.mapOnContainers(buildExpressions), tail)
       case token :: tail =>
         process(acc :+ token, tail)
     }
-    @tailrec
-    def processDot(variableName: String, source: Syntax): Option[(EnhancedSyntaxToken, Syntax)] = source match {
-      case Nil => None
-      case EndOfLine :: tail => processDot(variableName, tail)
-      case Dot :: tail => processMethodOrAttributeName(variableName, tail)
-      case _ => None
-    }
-    @tailrec
-    def processMethodOrAttributeName(variableName: String, source: Syntax): Option[(EnhancedSyntaxToken, Syntax)] = source match {
-      case Nil => None
-      case EndOfLine :: tail => processMethodOrAttributeName(variableName, tail)
-      case Word(methodName) :: tail => processParenthesis(variableName, methodName, tail)
-      case _ => None
-    }
-    def processParenthesis(variableName: String, methodOrAttributeName: String, source: Syntax): Option[(EnhancedSyntaxToken, Syntax)] = source match {
-      case Nil => Some(AttributeCall(variableName, methodOrAttributeName), Nil)
-      case (parenthesis: ParenthesisExpressionToken) :: tail => Some(MethodCall(variableName, methodOrAttributeName, parenthesis), tail)
-      case tail => Some(AttributeCall(variableName, methodOrAttributeName), tail)
-    }
+
     process(Nil, syntax)
   }
 }

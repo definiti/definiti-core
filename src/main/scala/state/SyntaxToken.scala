@@ -144,3 +144,22 @@ case class ConditionToken(condition: ParenthesisExpressionToken, onTrue: BraceEx
 case class MethodCall(variable: String, method: String, parameters: ParenthesisExpressionToken) extends EnhancedSyntaxToken
 
 case class AttributeCall(variable: String, attribute: String) extends EnhancedSyntaxToken
+
+case class VerificationToken(name: String, body: BraceExpressionToken) extends ContainerToken[VerificationToken] {
+  override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): VerificationToken = {
+    VerificationToken(name, body.mapOnContainers(map))
+  }
+}
+
+case class TypeToken(name: String, definition: Either[String, BraceExpressionToken], verifications: Seq[String]) extends ContainerToken[TypeToken] {
+  override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): TypeToken = {
+    TypeToken(
+      name,
+      definition match {
+        case Left(alias) => Left(alias)
+        case Right(body) => Right(body.mapOnContainers(map))
+      },
+      verifications
+    )
+  }
+}

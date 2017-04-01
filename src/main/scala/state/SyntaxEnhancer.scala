@@ -36,27 +36,98 @@ object SyntaxEnhancer {
     }
   }
 
-  private[state] def trimEOLAroundEncloser(source: Syntax): Syntax = {
-    @tailrec def flatProcess(acc: Syntax, source: Syntax): Syntax = source match {
-      case Nil => acc
-      case EndOfLine :: (encloser: EnclosingToken[_]) :: tail => flatProcess(acc :+ encloser, tail)
-      case head :: tail => flatProcess(acc :+ head, tail)
+  private[state] def removeEOLFromParenthesis(source: Syntax): Syntax = {
+    // Hypothesis: We suppose the tree small enough to support recursion
+    def process(sourceProcess: Syntax): Syntax = {
+      sourceProcess.foldLeft(List[SyntaxToken]()) { (acc, token) =>
+        token match {
+          case token: ParenthesisExpressionToken => acc :+ token.mapOnContainers(processParenthesis)
+          case token: ContainerToken[_] => acc :+ token.mapOnContainers(process)
+          case _ => acc :+ token
+        }
+      }
     }
 
-    // We suppose the imbrication of encloser is not enough to make a stack overflow
-    def process(source: Syntax): Syntax = {
-      val flatTrimmedEOL = flatProcess(Nil, trimEOL(source))
-      flatTrimmedEOL.map {
-        case enclosingSyntax: EnclosingToken[_] => enclosingSyntax.withChildren(process(enclosingSyntax.children))
-        case other => other
+    def processParenthesis(sourceParenthesis: Syntax): Syntax = {
+      sourceParenthesis.foldLeft(List[SyntaxToken]()) { (acc, token) =>
+        token match {
+          case EndOfLine => acc
+          case token: ParenthesisExpressionToken => acc :+ token.mapOnContainers(processParenthesis)
+          case token: ContainerToken[_] => acc :+ token.mapOnContainers(process)
+          case _ => acc :+ token
+        }
+      }
+    }
+    process(source)
+  }
+
+  private[state] def trimEOLFromBrace(source: Syntax): Syntax = {
+    // Hypothesis: We suppose the tree small enough to support recursion
+    def process(sourceProcess: Syntax): Syntax = {
+      sourceProcess.foldLeft(List[SyntaxToken]()) { (acc, token) =>
+        token match {
+          case token: BraceExpressionToken => acc :+ token.mapOnContainers(trimEOL).mapOnContainers(process)
+          case token: ContainerToken[_] => acc :+ token.mapOnContainers(process)
+          case _ => acc :+ token
+        }
       }
     }
 
     process(source)
   }
 
+  private[state] def ignoreEOLInEncloser(source: Syntax): Syntax = {
+    trimEOLFromBrace(removeEOLFromParenthesis(trimEOL(source)))
+  }
+
   private[state] def trimEOL(source: Syntax): Syntax = {
     source.dropWhile(_ == EndOfLine).reverse.dropWhile(_ == EndOfLine).reverse
+  }
+
+  private[state] def buildFirstClassCitizen(source: Syntax): Syntax = {
+    @tailrec
+    def process(acc: Syntax, remaining: Syntax): Syntax = remaining match {
+      case Nil => acc
+      case VerificationKeyword :: Word(verificationName) :: (body: BraceExpressionToken) :: tail =>
+        process(acc :+ VerificationToken(verificationName, body), tail)
+      case TypeKeyword :: Word(typeName) :: tail =>
+        processType(typeName, tail) match {
+          case (typeToken, remainingTail) => process(acc :+ typeToken, remainingTail)
+        }
+      case (token@(LineComment(_) | BlockComment(_))) :: tail =>
+        process(acc :+ token, tail)
+      case token =>
+        throw new RuntimeException("Unexpected token: " + token)
+    }
+
+    def processType(typeName: String, remaining: Syntax): (TypeToken, Syntax) = remaining match {
+      case AssignSymbol :: Word(aliasName) :: tail =>
+        processAliasType(typeName, aliasName, Nil, tail)
+      case (VerifyingKeyword | BraceExpressionToken(_)) :: tail => processDefinedType(typeName, Nil, remaining)
+        processDefinedType(typeName, Nil, remaining)
+      case token =>
+        throw new RuntimeException("Unexpected token: " + token)
+    }
+
+    @tailrec
+    def processAliasType(typeName: String, aliasName: String, verifyingReferences: Seq[String], remaining: Syntax): (TypeToken, Syntax) = remaining match {
+      case VerifyingKeyword :: Word(verifyingReference) :: tail =>
+        processAliasType(typeName, aliasName, verifyingReferences :+ verifyingReference, tail)
+      case tail =>
+        (TypeToken(typeName, Left(aliasName), verifyingReferences), tail)
+    }
+
+    @tailrec
+    def processDefinedType(typeName: String, verifyingReferences: Seq[String], remaining: Syntax): (TypeToken, Syntax) = remaining match {
+      case VerifyingKeyword :: Word(verifyingReference) :: tail =>
+        processDefinedType(typeName, verifyingReferences :+ verifyingReference, tail)
+      case (body: BraceExpressionToken) :: tail =>
+        (TypeToken(typeName, Right(body), verifyingReferences), tail)
+      case token =>
+        throw new RuntimeException("Unexpected token: " + token)
+    }
+
+    process(Nil, source.filter(_ != EndOfLine))
   }
 
   private[state] def buildFunctions(source: Syntax): Syntax = {
@@ -66,7 +137,7 @@ object SyntaxEnhancer {
         acc
       case (parameters: ParenthesisExpressionToken) :: MapSymbol :: (body: BraceExpressionToken) :: tail =>
         process(acc :+ FunctionToken(parameters, body.mapOnContainers(buildFunctions)), tail)
-      case (head: EnclosingToken[_]) :: tail =>
+      case (head: ContainerToken[_]) :: tail =>
         process(acc :+ head.mapOnContainers(buildFunctions), tail)
       case head :: tail =>
         process(acc :+ head, tail)
@@ -112,16 +183,16 @@ object SyntaxEnhancer {
     }
     @tailrec
     def processElse(condition: ParenthesisExpressionToken, bodyIf: BraceExpressionToken, skippedEOL: Int, remaining: Syntax): (ConditionToken, Syntax) = remaining match {
-      case Nil => (ConditionToken(condition, bodyIf, None), Nil)
+      case Nil => (ConditionToken(condition.mapOnContainers(buildConditions), bodyIf.mapOnContainers(buildConditions), None), Nil)
       case EndOfLine :: tail => processElse(condition, bodyIf, skippedEOL + 1, tail)
       case ElseKeyword :: tail => processElseBody(condition, bodyIf, tail)
-      case tail => (ConditionToken(condition, bodyIf, None), Seq.fill(skippedEOL)(EndOfLine) ++ tail)
+      case tail => (ConditionToken(condition.mapOnContainers(buildConditions), bodyIf.mapOnContainers(buildConditions), None), Seq.fill(skippedEOL)(EndOfLine) ++ tail)
     }
     @tailrec
     def processElseBody(condition: ParenthesisExpressionToken, trueBody: BraceExpressionToken, remaining: Syntax): (ConditionToken, Syntax) = remaining match {
       case Nil => throw new RuntimeException("Unexpected end of block")
       case EndOfLine :: tail => processElseBody(condition, trueBody, tail)
-      case (bodyElse: BraceExpressionToken) :: tail => (ConditionToken(condition, trueBody, Some(bodyElse)), tail)
+      case (bodyElse: BraceExpressionToken) :: tail => (ConditionToken(condition.mapOnContainers(buildConditions), trueBody.mapOnContainers(buildConditions), Some(bodyElse.mapOnContainers(buildConditions))), tail)
       case token => throw new RuntimeException("Unexpected token: " + token)
     }
 

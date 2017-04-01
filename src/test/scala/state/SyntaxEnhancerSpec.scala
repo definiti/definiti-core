@@ -80,51 +80,6 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
     result should ===(expected)
   }
 
-  "SyntaxProcessor.trimEOLAroundEncloser" should "work" in {
-    val input = Seq(
-      EndOfLine,
-      VerificationKeyword,
-      Word("NonEmpty"),
-      BraceExpressionToken(Seq(
-        EndOfLine,
-        QuotedString("The string is empty"),
-        EndOfLine,
-        ParenthesisExpressionToken(Seq(
-          Word("string"),
-          Colon,
-          Word("String")
-        )),
-        Symbol("=>"),
-        Word("string"),
-        Dot,
-        Word("nonEmpty"),
-        ParenthesisExpressionToken(Seq()),
-        EndOfLine
-      )),
-      EndOfLine
-    )
-    val expected = Seq(
-      VerificationKeyword,
-      Word("NonEmpty"),
-      BraceExpressionToken(Seq(
-        QuotedString("The string is empty"),
-        ParenthesisExpressionToken(Seq(
-          Word("string"),
-          Colon,
-          Word("String")
-        )),
-        Symbol("=>"),
-        Word("string"),
-        Dot,
-        Word("nonEmpty"),
-        ParenthesisExpressionToken(Seq())
-      ))
-    )
-    val result = SyntaxEnhancer.trimEOLAroundEncloser(input)
-
-    result should ===(expected)
-  }
-
   "SyntaxProcessor.buildFunctions" should "work" in {
     val input = Seq(
       Word("x"),

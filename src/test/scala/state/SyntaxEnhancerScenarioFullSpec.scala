@@ -422,7 +422,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("The string is empty // quoted comment"), EndOfLine,
       //   (string: String) => { string.nonEmpty() }
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        Seq(FunctionParameter("string","String")),
         BraceExpressionToken(Seq(Word("string"), Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq())))
       )
       // }
@@ -433,7 +433,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("The string is blank /* quoted comment */"), EndOfLine,
       //   (string: String) => { string.trim().nonEmpty() }
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
           Word("string"), Dot, Word("trim"), ParenthesisExpressionToken(Seq()),
           Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq())
@@ -449,7 +449,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("Please provide a phone number"), EndOfLine,
       //   (string: String) => {
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
           //     if (string.nonEmpty()) {
           IfKeyword, ParenthesisExpressionToken(Seq(Word("string"), Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq()))), BraceExpressionToken(Seq(
@@ -486,7 +486,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
         QuotedString("end should be after start"), EndOfLine,
         FunctionToken(
           //     (period: Period) => { end > start || end == start }
-          ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+          Seq(FunctionParameter("period", "Period")),
           BraceExpressionToken(Seq(Word("end"), UpperSymbol, Word("start"), OrSymbol,
             Word("end"), EqualSymbol, Word("start")))
         )
@@ -500,7 +500,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("The period must last one year"), EndOfLine,
       //   (period: Period) => {
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+        Seq(FunctionParameter("period", "Period")),
         BraceExpressionToken(Seq(
           //     // Not quite "right" but show the idea
           LineComment(" Not quite \"right\" but show the idea"), EndOfLine,
@@ -521,7 +521,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("The period must start on january the first"), EndOfLine,
       //   (period: Period) => { period.start.day == 1 && period.start.month == 1 }
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+        Seq(FunctionParameter("period", "Period")),
         BraceExpressionToken(Seq(Word("period"), Dot, Word("start"), Dot, Word("day"), EqualSymbol, Word("1"), AndSymbol,
           Word("period"), Dot, Word("start"), Dot, Word("month"), EqualSymbol, Word("1")))
       )
@@ -538,7 +538,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("The string is empty // quoted comment"), EndOfLine,
       //   (string: String) => { string.nonEmpty() }
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(Word("string"), Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq())))
       )
       // }
@@ -549,7 +549,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("The string is blank /* quoted comment */"), EndOfLine,
       //   (string: String) => { string.trim().nonEmpty() }
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
           Word("string"), Dot, Word("trim"), ParenthesisExpressionToken(Seq()),
           Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq())
@@ -565,7 +565,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("Please provide a phone number"), EndOfLine,
       //   (string: String) => {
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
           //     if (string.nonEmpty()) {
           ConditionToken(
@@ -610,7 +610,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
         QuotedString("end should be after start"), EndOfLine,
         FunctionToken(
           //     (period: Period) => { end > start || end == start }
-          ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+          Seq(FunctionParameter("period", "Period")),
           BraceExpressionToken(Seq(Word("end"), UpperSymbol, Word("start"), OrSymbol,
             Word("end"), EqualSymbol, Word("start")))
         )
@@ -624,7 +624,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("The period must last one year"), EndOfLine,
       //   (period: Period) => {
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+        Seq(FunctionParameter("period", "Period")),
         BraceExpressionToken(Seq(
           //     // Not quite "right" but show the idea
           LineComment(" Not quite \"right\" but show the idea"), EndOfLine,
@@ -645,7 +645,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       QuotedString("The period must start on january the first"), EndOfLine,
       //   (period: Period) => { period.start.day == 1 && period.start.month == 1 }
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+        Seq(FunctionParameter("period", "Period")),
         BraceExpressionToken(Seq(Word("period"), Dot, Word("start"), Dot, Word("day"), EqualSymbol, Word("1"), AndSymbol,
           Word("period"), Dot, Word("start"), Dot, Word("month"), EqualSymbol, Word("1")))
       )
@@ -663,7 +663,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       "The string is empty // quoted comment",
       //   (string: String) => { string.nonEmpty() }
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(Word("string"), Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq())))
       )
       // }
@@ -675,7 +675,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       "The string is blank /* quoted comment */",
       //   (string: String) => { string.trim().nonEmpty() }
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
           Word("string"), Dot, Word("trim"), ParenthesisExpressionToken(Seq()),
           Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq())
@@ -692,7 +692,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       "Please provide a phone number",
       //   (string: String) => {
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
           //     if (string.nonEmpty()) {
           ConditionToken(
@@ -741,7 +741,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
           "end should be after start",
           FunctionToken(
             //     (period: Period) => { end > start || end == start }
-            ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+            Seq(FunctionParameter("period", "Period")),
             BraceExpressionToken(Seq(Word("end"), UpperSymbol, Word("start"), OrSymbol,
               Word("end"), EqualSymbol, Word("start")))
           )
@@ -758,7 +758,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       "The period must last one year",
       //   (period: Period) => {
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+        Seq(FunctionParameter("period", "Period")),
         BraceExpressionToken(Seq(
           //     // Not quite "right" but show the idea
           LineComment(" Not quite \"right\" but show the idea"), EndOfLine,
@@ -780,7 +780,7 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
       "The period must start on january the first",
       //   (period: Period) => { period.start.day == 1 && period.start.month == 1 }
       FunctionToken(
-        ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+        Seq(FunctionParameter("period", "Period")),
         BraceExpressionToken(Seq(Word("period"), Dot, Word("start"), Dot, Word("day"), EqualSymbol, Word("1"), AndSymbol,
           Word("period"), Dot, Word("start"), Dot, Word("month"), EqualSymbol, Word("1")))
       )

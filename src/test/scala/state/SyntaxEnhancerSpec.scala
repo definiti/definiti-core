@@ -114,21 +114,13 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
       Word("x"),
       Symbol("="),
       FunctionToken(
-        ParenthesisExpressionToken(Seq(
-          Word("string"),
-          Colon,
-          Word("String")
-        )),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
           EndOfLine,
           QuotedString("The string is empty"),
           EndOfLine,
           FunctionToken(
-            ParenthesisExpressionToken(Seq(
-              Word("string"),
-              Colon,
-              Word("String")
-            )),
+            Seq(FunctionParameter("string", "String")),
             BraceExpressionToken(Seq(
               Word("string"),
               Dot,
@@ -161,9 +153,9 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
       Word("Int")
     ))
     val expected = Seq(
-      Parameter("string", "String"),
-      Parameter("min", "Int"),
-      Parameter("max", "Int")
+      FunctionParameter("string", "String"),
+      FunctionParameter("min", "Int"),
+      FunctionParameter("max", "Int")
     )
     val result = SyntaxEnhancer.extractParameterDefinition(input)
 
@@ -175,11 +167,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
       Word("x"),
       Symbol("="),
       FunctionToken(
-        ParenthesisExpressionToken(Seq(
-          Word("string"),
-          Colon,
-          Word("String")
-        )),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
           EndOfLine,
           IfKeyword,
@@ -214,11 +202,7 @@ class SyntaxEnhancerSpec extends FlatSpec with Matchers {
       Word("x"),
       Symbol("="),
       FunctionToken(
-        ParenthesisExpressionToken(Seq(
-          Word("string"),
-          Colon,
-          Word("String")
-        )),
+        Seq(FunctionParameter("string", "String")),
         BraceExpressionToken(Seq(
           EndOfLine,
           ConditionToken(

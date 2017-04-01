@@ -136,7 +136,7 @@ object SyntaxEnhancer {
       case Nil =>
         acc
       case (parameters: ParenthesisExpressionToken) :: MapSymbol :: (body: BraceExpressionToken) :: tail =>
-        process(acc :+ FunctionToken(parameters, body.mapOnContainers(buildFunctions)), tail)
+        process(acc :+ FunctionToken(extractParameterDefinition(parameters), body.mapOnContainers(buildFunctions)), tail)
       case (head: ContainerToken[_]) :: tail =>
         process(acc :+ head.mapOnContainers(buildFunctions), tail)
       case head :: tail =>
@@ -146,11 +146,11 @@ object SyntaxEnhancer {
     process(Nil, source)
   }
 
-  private[state] def extractParameterDefinition(source: ParenthesisExpressionToken): Seq[Parameter] = {
+  private[state] def extractParameterDefinition(source: ParenthesisExpressionToken): Seq[FunctionParameter] = {
     @tailrec
-    def process(acc: Seq[Parameter], remainingSyntax: Syntax): Seq[Parameter] = remainingSyntax match {
+    def process(acc: Seq[FunctionParameter], remainingSyntax: Syntax): Seq[FunctionParameter] = remainingSyntax match {
       case Nil => acc
-      case Word(name) :: Colon :: Word(typeReference) :: tail => process(acc :+ Parameter(name, typeReference), tail)
+      case Word(name) :: Colon :: Word(typeReference) :: tail => process(acc :+ FunctionParameter(name, typeReference), tail)
       case Comma :: tail => process(acc, tail)
       case token => throw new RuntimeException("Unexpected token: " + token)
     }

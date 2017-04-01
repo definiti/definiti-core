@@ -124,7 +124,7 @@ case class ParenthesisExpressionToken(children: Seq[SyntaxToken]) extends Enclos
   override def withChildren(newChildren: Seq[SyntaxToken]): ParenthesisExpressionToken = ParenthesisExpressionToken(newChildren)
 }
 
-case class FunctionToken(parameters: ParenthesisExpressionToken, body: BraceExpressionToken) extends ContainerToken[FunctionToken] {
+case class FunctionToken(parameters: Seq[FunctionParameter], body: BraceExpressionToken) extends ContainerToken[FunctionToken] {
   override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): FunctionToken = {
     FunctionToken(
       parameters,
@@ -132,6 +132,8 @@ case class FunctionToken(parameters: ParenthesisExpressionToken, body: BraceExpr
     )
   }
 }
+
+case class FunctionParameter(name: String, typeReference: String) extends EnhancedSyntaxToken
 
 case class ConditionToken(condition: ParenthesisExpressionToken, onTrue: BraceExpressionToken, onFalse: Option[BraceExpressionToken]) extends ContainerToken[ConditionToken] {
   override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): ConditionToken = {

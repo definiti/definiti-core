@@ -655,6 +655,141 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
     TypeToken("CivilYear", Left("Period"), Seq("YearPeriod", "StartJanuaryFirst"))
   )
 
+  val firstClassCitizenCompletedDone = Seq(
+    // verification NonEmpty {
+    StructuredVerificationToken(
+      "NonEmpty",
+      //   "The string is empty // quoted comment"
+      "The string is empty // quoted comment",
+      //   (string: String) => { string.nonEmpty() }
+      FunctionToken(
+        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        BraceExpressionToken(Seq(Word("string"), Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq())))
+      )
+      // }
+    ),
+    // verification NonBlank {
+    StructuredVerificationToken(
+      "NonBlank",
+      //   "The string is blank /* quoted comment */"
+      "The string is blank /* quoted comment */",
+      //   (string: String) => { string.trim().nonEmpty() }
+      FunctionToken(
+        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        BraceExpressionToken(Seq(
+          Word("string"), Dot, Word("trim"), ParenthesisExpressionToken(Seq()),
+          Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq())
+        ))
+      )
+      // }
+    ),
+    // /* \n Could be simplified, but it is for the "example" \n*/
+    BlockComment("\n" + "  Could be simplified, but it is for the \"example\"\n"),
+    // verification PhoneNumber {
+    StructuredVerificationToken(
+      "PhoneNumber",
+      //   "Please provide a phone number"
+      "Please provide a phone number",
+      //   (string: String) => {
+      FunctionToken(
+        ParenthesisExpressionToken(Seq(Word("string"), Colon, Word("String"))),
+        BraceExpressionToken(Seq(
+          //     if (string.nonEmpty()) {
+          ConditionToken(
+            ParenthesisExpressionToken(Seq(Word("string"), Dot, Word("nonEmpty"), ParenthesisExpressionToken(Seq()))),
+            BraceExpressionToken(Seq(
+              //       if (string.startsWith("+33")) {
+              ConditionToken(
+                ParenthesisExpressionToken(Seq(Word("string"), Dot, Word("startsWith"), ParenthesisExpressionToken(Seq(QuotedString("+33"))))),
+                BraceExpressionToken(Seq(
+                  //         string.matches("^\+33\d{9}$")
+                  Word("string"), Dot, Word("matches"), ParenthesisExpressionToken(Seq(QuotedString("^\\+33\\d{9}$")))
+                  //       } else {
+                )),
+                Some(BraceExpressionToken(Seq(
+                  //         string.matches("^0\d{9}$")
+                  Word("string"), Dot, Word("matches"), ParenthesisExpressionToken(Seq(QuotedString("^0\\d{9}$")))
+                  //       }
+                )))
+              )
+              //     } else {
+            )),
+            Some(BraceExpressionToken(Seq(
+              //       false
+              FalseKeyword
+              //     }
+            )))
+          )
+          //   }
+        ))
+      )
+      // }
+    ),
+    // type Period {
+    StructuredDefinedTypeToken(
+      "Period",
+      Seq(
+        //   start: Date
+        TypeFieldToken("start", "Date"),
+        //   end: Date
+        TypeFieldToken("end", "Date")
+      ),
+      //   verify {
+      Seq(
+        TypeVerificationToken(
+          //     "end should be after start"
+          "end should be after start",
+          FunctionToken(
+            //     (period: Period) => { end > start || end == start }
+            ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+            BraceExpressionToken(Seq(Word("end"), UpperSymbol, Word("start"), OrSymbol,
+              Word("end"), EqualSymbol, Word("start")))
+          )
+          //   }
+        )
+      ),
+      Seq()
+      // }
+    ),
+    // verification YearPeriod {
+    StructuredVerificationToken(
+      "YearPeriod",
+      //   "The period must last one year"
+      "The period must last one year",
+      //   (period: Period) => {
+      FunctionToken(
+        ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+        BraceExpressionToken(Seq(
+          //     // Not quite "right" but show the idea
+          LineComment(" Not quite \"right\" but show the idea"), EndOfLine,
+          //     // hypothese: timestamp in seconds
+          LineComment(" hypothese: timestamp in seconds"), EndOfLine,
+          //     period.end.timestamp - period.start.timestamp == 365*24*3600
+          Word("period"), Dot, Word("end"), Dot, Word("timestamp"), MinusSymbol,
+          Word("period"), Dot, Word("start"), Dot, Word("timestamp"), EqualSymbol,
+          Word("365"), TimeSymbol, Word("24"), TimeSymbol, Word("3600")
+          //   }
+        ))
+      )
+      // }
+    ),
+    // verification StartJanuaryFirst {
+    StructuredVerificationToken(
+      "StartJanuaryFirst",
+      //   "The period must start on january the first"
+      "The period must start on january the first",
+      //   (period: Period) => { period.start.day == 1 && period.start.month == 1 }
+      FunctionToken(
+        ParenthesisExpressionToken(Seq(Word("period"), Colon, Word("Period"))),
+        BraceExpressionToken(Seq(Word("period"), Dot, Word("start"), Dot, Word("day"), EqualSymbol, Word("1"), AndSymbol,
+          Word("period"), Dot, Word("start"), Dot, Word("month"), EqualSymbol, Word("1")))
+      )
+      // }
+    ),
+    // type CivilYear = Period verifying YearPeriod verifying StartJanuaryFirst
+    StructuredAliasTypeToken("CivilYear", "Period", Seq("YearPeriod", "StartJanuaryFirst"))
+  )
+
   "SyntaxEnhancer.buildEnclosing" should "create Enclosing expression recursively" in {
     SyntaxEnhancer.buildEnclosing(source) should ===(enclosingDone)
   }
@@ -673,5 +808,9 @@ class SyntaxEnhancerScenarioFullSpec extends FlatSpec with Matchers {
 
   "SyntaxEnhancer.buildConditions" should "create conditions through the tree" in {
     SyntaxEnhancer.buildConditions(functionsDone) should ===(conditionDone)
+  }
+
+  "SyntaxEnhancer.completeFirstClassCitizenStructure" should "complete first class citizen with a more accurate definition" in {
+    SyntaxEnhancer.completeFirstClassCitizenStructure(conditionDone) should ===(firstClassCitizenCompletedDone)
   }
 }

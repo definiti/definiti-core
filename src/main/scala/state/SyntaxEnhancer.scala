@@ -199,6 +199,55 @@ object SyntaxEnhancer {
     process(Nil, source)
   }
 
+  private[state] def completeFirstClassCitizenStructure(syntax: Syntax): Syntax = {
+    syntax.map {
+      case token: VerificationToken => completeVerificationToken(token)
+      case token: TypeToken => completeTypeToken(token)
+      case token => token
+    }
+  }
+
+  private[state] def completeVerificationToken(verificationToken: VerificationToken): StructuredVerificationToken = {
+    verificationToken.body.children match {
+      case QuotedString(message) :: EndOfLine :: (function: FunctionToken) :: Nil =>
+        StructuredVerificationToken(verificationToken.name, message, function)
+      case token => throw new RuntimeException("Unexpected token: " + token)
+    }
+  }
+
+  private[state] def completeTypeToken(typeToken: TypeToken): StructuredTypeToken = {
+    typeToken.definition match {
+      case Left(_) => completeAliasTypeToken(typeToken)
+      case Right(_) => completeDefinedTypeToken(typeToken)
+    }
+  }
+
+  private[state] def completeDefinedTypeToken(typeToken: TypeToken): StructuredDefinedTypeToken = {
+    def extractTypeVerificationToken(body: BraceExpressionToken): TypeVerificationToken = body.children match {
+      case QuotedString(message) :: EndOfLine :: (function: FunctionToken) :: Nil =>
+        TypeVerificationToken(message, function)
+      case token => throw new RuntimeException("Unexpected token: " + token)
+    }
+    @tailrec
+    def process(fieldsAcc: List[TypeFieldToken], verificationsAcc: List[TypeVerificationToken], remaining: Syntax): StructuredDefinedTypeToken = remaining match {
+      case Nil =>
+        StructuredDefinedTypeToken(typeToken.name, fieldsAcc, verificationsAcc, typeToken.verifications)
+      case EndOfLine :: tail =>
+        process(fieldsAcc, verificationsAcc, tail)
+      case Word(fieldName) :: Colon :: Word(typeReference) :: Nil =>
+        process(fieldsAcc :+ TypeFieldToken(fieldName, typeReference), verificationsAcc, Nil)
+      case Word(fieldName) :: Colon :: Word(typeReference) :: EndOfLine :: tail =>
+        process(fieldsAcc :+ TypeFieldToken(fieldName, typeReference), verificationsAcc, tail)
+      case VerifyKeyword :: (body: BraceExpressionToken) :: Nil =>
+        process(fieldsAcc, verificationsAcc :+ extractTypeVerificationToken(body), Nil)
+    }
+    process(Nil, Nil, typeToken.definition.right.get.children)
+  }
+
+  private[state] def completeAliasTypeToken(typeToken: TypeToken): StructuredAliasTypeToken = {
+    StructuredAliasTypeToken(typeToken.name, typeToken.definition.left.get, typeToken.verifications)
+  }
+
   private[state] def buildMethodOrAttributeCall(syntax: Syntax): Syntax = {
     @tailrec
     def process(acc: Syntax, source: Syntax): Syntax = source match {

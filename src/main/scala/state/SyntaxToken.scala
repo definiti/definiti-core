@@ -1,5 +1,7 @@
 package state
 
+import jdk.internal.org.objectweb.asm.TypeReference
+
 sealed trait SyntaxToken
 
 sealed trait OpeningSyntax
@@ -160,6 +162,42 @@ case class TypeToken(name: String, definition: Either[String, BraceExpressionTok
         case Right(body) => Right(body.mapOnContainers(map))
       },
       verifications
+    )
+  }
+}
+
+case class StructuredVerificationToken(name: String, message: String, function: FunctionToken) extends ContainerToken[StructuredVerificationToken] {
+  override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): StructuredVerificationToken = {
+    StructuredVerificationToken(
+      name,
+      message,
+      function.mapOnContainers(map)
+    )
+  }
+}
+
+sealed trait StructuredTypeToken extends EnhancedSyntaxToken
+
+case class StructuredAliasTypeToken(name: String, alias: String, verifications: Seq[String]) extends StructuredTypeToken
+
+case class StructuredDefinedTypeToken(name: String, fields: Seq[TypeFieldToken], definedVerifications: Seq[TypeVerificationToken], verifications: Seq[String]) extends StructuredTypeToken with ContainerToken[StructuredDefinedTypeToken] {
+  override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): StructuredDefinedTypeToken = {
+    StructuredDefinedTypeToken(
+      name,
+      fields,
+      definedVerifications.map(_.mapOnContainers(map)),
+      verifications
+    )
+  }
+}
+
+case class TypeFieldToken(name: String, typeReference: String) extends EnhancedSyntaxToken
+
+case class TypeVerificationToken(message: String, function: FunctionToken) extends ContainerToken[TypeVerificationToken] {
+  override def mapOnContainers(map: (Seq[SyntaxToken]) => Seq[SyntaxToken]): TypeVerificationToken = {
+    TypeVerificationToken(
+      message,
+      function.mapOnContainers(map)
     )
   }
 }

@@ -1,115 +1,223 @@
 package state
 
-sealed trait AST
+import state.api.{Core, TypeReference}
 
-case class TopLevel(
-  verifications: Seq[Verification],
-  types: Seq[Type]
-) extends AST
-
-case class Verification(name: String, message: String, check: Function) extends AST
-
-case class Type(name: String, attributes: Seq[Attribute], verifications: Seq[String]) extends AST
-
-case class Attribute(name: String, typeReference: String) extends AST
-
-case class Variable(name: String, typeReference: String) extends AST
-
-case class Parameter(name: String, typeReference: String) extends AST
-
-sealed trait Scope {
-  def variables: Seq[Variable]
-}
-
-case class SimpleScope(variables: Seq[Variable]) extends Scope
-
-sealed trait Expression {
-  def returnType(scope: Scope): String
-}
-
-case class BlockScope(
-  variables: Seq[Variable],
-  expressions: Seq[Expression]
-) extends Expression with Scope {
-  override def returnType(scope: Scope): String = expressions.lastOption.map(_.returnType(scope)).getOrElse("Void")
-}
-
-case class CallMethod(expression: Expression, name: String, parameters: Seq[Expression]) extends Expression {
-  // TODO: here: check the type of the method from the expression
-  override def returnType(scope: Scope): String = ???
-}
-
-case class VariableExpression(variable: String) extends Expression {
-  override def returnType(scope: Scope): String = scope.variables.find(_.name == variable).map(_.typeReference).getOrElse("Void")
-}
-
-case class CallAttribute(expression: Expression, attribute: String) extends Expression {
-  // TODO: here: check the type of the attribute from the expression
-  override def returnType(scope: Scope): String = ???
-}
-
-case class If(
-  condition: Expression,
-  whenTrue: Expression,
-  whenFalse: Expression
-) extends Expression {
-  override def returnType(scope: Scope): String = {
-    if (whenTrue.returnType(scope) == whenFalse.returnType(scope)) {
-      whenTrue.returnType(scope)
-    } else {
-      "Any"
+case class AttributeDefinition(
+  name: String,
+  typeReference: String
+) {
+  lazy val typeDefinition: ClassDefinition = {
+    TypeReference.findType(typeReference) match {
+      case Some(classDefinition) => classDefinition
+      case None => throw new RuntimeException(s"Unknown type $typeReference")
     }
   }
 }
 
-case object EmptyExpression extends Expression {
-  override def returnType(scope: Scope): String = "Void"
-}
-
-sealed trait Function extends Expression {
-  def name: String
-
-  def parameters: Seq[Parameter]
-}
-
-case class NativeFunction(name: String, parameters: Seq[Parameter]) extends Function {
-  override def returnType(scope: Scope): String = "TODO"
-}
-
-case class DefinedFunction(name: String, parameters: Seq[Parameter], expression: Expression) extends Function {
-  override def returnType(scope: Scope): String = {
-    val variablesFromParameters = parameters.map(p => Variable(p.name, p.typeReference))
-    val newVariables = variablesFromParameters ++ scope.variables.filterNot(v => variablesFromParameters.exists(_.name == v.name))
-    expression.returnType(SimpleScope(newVariables))
+case class ParameterDefinition(
+  name: String,
+  typeReference: String
+) {
+  lazy val typeDefinition: ClassDefinition = {
+    TypeReference.findType(typeReference) match {
+      case Some(classDefinition) => classDefinition
+      case None => throw new RuntimeException(s"Unknown type $typeReference")
+    }
   }
 }
 
+sealed trait ClassDefinition {
+  def name: String
+
+  def attributes: Seq[AttributeDefinition]
+
+  def methods: Seq[MethodDefinition]
+}
+
+sealed trait MethodDefinition {
+  def name: String
+
+  def parameters: Seq[ParameterDefinition]
+
+  def returnType: ClassDefinition
+}
+
+case class NativeClassDefinition(
+  name: String,
+  attributes: Seq[AttributeDefinition],
+  methods: Seq[NativeMethodDefinition]
+) extends ClassDefinition
+
+case class NativeMethodDefinition(
+  name: String,
+  parameters: Seq[ParameterDefinition],
+  returnTypeReference: String
+) extends MethodDefinition  {
+  lazy val returnType: ClassDefinition = {
+    TypeReference.findType(returnTypeReference) match {
+      case Some(classDefinition) => classDefinition
+      case None => throw new RuntimeException(s"Unknown type $returnTypeReference")
+    }
+  }
+}
+
+case class DefinedClassDefinition(
+  name: String,
+  attributes: Seq[AttributeDefinition],
+  methods: Seq[DefinedMethodDefinition]
+) extends ClassDefinition
+
+case class DefinedMethodDefinition(
+  name: String,
+  function: DefinedFunction
+) extends MethodDefinition {
+  override def parameters: Seq[ParameterDefinition] = function.parameters
+
+  override def returnType: ClassDefinition = function.returnType
+
+  def body: Expression = function.body
+}
+
+sealed trait Expression {
+  def returnType: ClassDefinition
+}
+
 sealed trait LogicalExpression extends Expression {
-  override def returnType(scope: Scope): String = "Boolean"
+  override def returnType: ClassDefinition = Core.boolean
 }
 
-case class NumberValueExpression(number: BigDecimal) extends Expression {
-  override def returnType(scope: Scope): String = "Number"
-}
+case class Or(left: LogicalExpression, right: LogicalExpression) extends LogicalExpression
 
-case class StringValueExpression(string: String) extends Expression {
-  override def returnType(scope: Scope): String = "String"
-}
+case class And(left: LogicalExpression, right: LogicalExpression) extends LogicalExpression
 
-case object True extends Expression {
-  override def returnType(scope: Scope): String = "Boolean"
-}
+case class Equal(left: LogicalExpression, right: LogicalExpression) extends LogicalExpression
 
-case object False extends Expression {
-  override def returnType(scope: Scope): String = "Boolean"
-}
+case class NotEqual(left: LogicalExpression, right: LogicalExpression) extends LogicalExpression
 
-case class Or(left: Expression, right: Expression) extends LogicalExpression
-case class And(left: Expression, right: Expression) extends LogicalExpression
-case class Upper(left: Expression, right: Expression) extends LogicalExpression
 case class Lower(left: Expression, right: Expression) extends LogicalExpression
-case class Equals(left: Expression, right: Expression) extends LogicalExpression
+
+case class Upper(left: Expression, right: Expression) extends LogicalExpression
+
+case class LowerOrEqual(left: Expression, right: Expression) extends LogicalExpression
+
+case class UpperOrEqual(left: Expression, right: Expression) extends LogicalExpression
+
 case class Plus(left: Expression, right: Expression) extends LogicalExpression
+
 case class Minus(left: Expression, right: Expression) extends LogicalExpression
+
+case class Modulo(left: Expression, right: Expression) extends LogicalExpression
+
 case class Time(left: Expression, right: Expression) extends LogicalExpression
+
 case class Divide(left: Expression, right: Expression) extends LogicalExpression
+
+case class Not(inner: LogicalExpression) extends LogicalExpression
+
+case class BooleanValue(value: Boolean) extends LogicalExpression
+
+case class NumberValue(value: BigDecimal) extends Expression {
+  override def returnType: ClassDefinition = Core.number
+}
+
+case class QuotedStringValue(value: String) extends Expression {
+  override def returnType: ClassDefinition = Core.string
+}
+
+case class Variable(name: String, typeReference: String) extends Expression {
+  lazy val returnType: ClassDefinition = {
+    TypeReference.findType(typeReference) match {
+      case Some(classDefinition) => classDefinition
+      case None => throw new RuntimeException(s"Unknown type $typeReference")
+    }
+  }
+}
+
+case class MethodCall(expression: Expression, method: String, parameters: ListExpressionToken) extends Expression {
+  lazy val returnType: ClassDefinition = expression.returnType.methods.find(_.name == method) match {
+    case Some(methodDefinition) =>
+      methodDefinition.returnType
+    case None =>
+      throw new RuntimeException(s"The type ${expression.returnType.name} does not have method $method")
+  }
+}
+
+case class AttributeCall(expression: Expression, attribute: String) extends Expression {
+  lazy val returnType: ClassDefinition = expression.returnType.attributes.find(_.name == attribute) match {
+    case Some(attributeDefinition) =>
+      attributeDefinition.typeDefinition
+    case None =>
+      throw new RuntimeException(s"The type ${expression.returnType.name} does not have attribute $attribute")
+  }
+}
+
+case class CombinedExpression(parts: Seq[Expression]) extends Expression {
+  lazy val returnType: ClassDefinition = parts.lastOption match {
+    case Some(lastPart) => lastPart.returnType
+    case None => Core.unit
+  }
+}
+
+case class Condition(
+  condition: Expression,
+  onTrue: Expression,
+  onFalse: Option[Expression]
+) extends Expression {
+  lazy val returnType: ClassDefinition = onFalse match {
+    case None => Core.unit
+    case Some(onFalseBody) if onTrue.returnType == onFalseBody.returnType => onTrue.returnType
+    case _ => Core.any
+  }
+}
+
+case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression) {
+  lazy val returnType: ClassDefinition = body.returnType
+}
+
+case class Parameter(name: String, typeReference: String) {
+  lazy val typeDefinition: ClassDefinition = {
+    TypeReference.findType(typeReference) match {
+      case Some(classDefinition) => classDefinition
+      case None => throw new RuntimeException(s"Unknown type $typeReference")
+    }
+  }
+}
+
+case class Verification(name: String, message: String, function: DefinedFunction, comment: Option[String])
+
+sealed trait Type extends ClassDefinition {
+  def comment: Option[String]
+}
+
+case class DefinedType(name: String, attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String]) extends Type {
+  lazy val inheritedVerifications: Seq[Verification] = inherited map { verificationReference =>
+    TypeReference.findVerification(verificationReference) match {
+      case Some(verification) => verification
+      case None => throw new RuntimeException(s"Unknown verification $verificationReference")
+    }
+  }
+
+  override def methods: Seq[MethodDefinition] = Seq()
+}
+
+case class AliasType(name: String, alias: String, inherited: Seq[String], comment: Option[String]) extends Type {
+  lazy val typeAlias: ClassDefinition = {
+    TypeReference.findType(alias) match {
+      case Some(classDefinition) => classDefinition
+      case None => throw new RuntimeException(s"Unknown type $typeAlias")
+    }
+  }
+
+  lazy val inheritedVerifications: Seq[Verification] = inherited map { verificationReference =>
+    TypeReference.findVerification(verificationReference) match {
+      case Some(verification) => verification
+      case None => throw new RuntimeException(s"Unknown verification $verificationReference")
+    }
+  }
+
+  override def attributes: Seq[AttributeDefinition] = typeAlias.attributes
+
+  override def methods: Seq[MethodDefinition] = typeAlias.methods
+}
+
+case class TypeVerification(message: String, function: DefinedFunction)

@@ -261,8 +261,6 @@ case class ConditionExpressionToken(
   onFalse: Option[ExpressionToken]
 ) extends ExpressionToken
 
-case class _UnknownExpressionToken(syntax: Seq[SyntaxToken]) extends ExpressionToken
-
 case class FunctionExpressionToken(parameters: Seq[FunctionParameter], body: ExpressionToken) extends EnhancedSyntaxToken
 
 case class VerificationExpressionToken(name: String, message: String, function: FunctionExpressionToken) extends EnhancedSyntaxToken

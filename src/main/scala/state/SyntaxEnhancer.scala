@@ -312,7 +312,7 @@ object SyntaxEnhancer {
           process(MethodCallToken(expressionToken, methodName, ListExpressionToken(splitParenthesisByComma(parameters).map(buildExpression))), tail)
         case Dot :: Word(attributeName) :: tail =>
           process(AttributeCallToken(expressionToken, attributeName), tail)
-        case token => _UnknownExpressionToken(token)
+        case token => throw new RuntimeException("Unexpected token: " + token)
       }
 
       syntax match {

@@ -59,7 +59,7 @@ object Sample {
       |type CivilYear = Period verifying YearPeriod verifying StartJanuaryFirst
     """.stripMargin
 
-  val sampleAST = TopLevel(
+  /*val sampleAST = TopLevel(
     verifications = Seq(
       Verification(
         name = "The string is empty",
@@ -185,5 +185,5 @@ object Sample {
         verifications = Seq("Period$verify$1", "YearPeriod", "StartJanuaryFirst")
       )
     )
-  )
+  )*/
 }

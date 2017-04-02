@@ -337,8 +337,7 @@ object SyntaxEnhancer {
       val symbolsOrderedDescPriority = Seq(
         OrSymbol, AndSymbol,
         EqualSymbol, NotEqualSymbol, LowerSymbol, UpperSymbol, LowerOrEqualSymbol, UpperOrEqualSymbol,
-        PlusSymbol, MinusSymbol, ModuloSymbol, TimeSymbol, DivideSymbol,
-        NotSymbol
+        PlusSymbol, MinusSymbol, ModuloSymbol, TimeSymbol, DivideSymbol
       )
 
       def processForSymbol(syntax: Syntax, remainingSymbols: Seq[Symbol]): SyntaxTree = {
@@ -360,6 +359,8 @@ object SyntaxEnhancer {
     def buildExpression(syntax: Syntax): ExpressionToken = {
       def buildFinalExpression(syntax: Syntax): ExpressionToken = {
         syntax match {
+          case NotSymbol :: tail =>
+            NotExpression(buildFinalExpression(tail))
           case TrueKeyword :: Nil =>
             BooleanExpressionToken(true)
           case FalseKeyword :: Nil =>
@@ -372,13 +373,13 @@ object SyntaxEnhancer {
             VariableExpressionToken(content)
           case Word(_) :: Dot :: _ =>
             chainedCalls(syntax)
-          case (condition: ConditionToken) :: tail =>
+          case (condition: ConditionToken) :: Nil =>
             ConditionExpressionToken(
               condition = buildExpression(condition.condition.children),
               onTrue = CombinedExpressionToken(splitBraceByEOL(condition.onTrue).map(buildExpression)).simplify(),
               onFalse = condition.onFalse.map(body => CombinedExpressionToken(splitBraceByEOL(body).map(buildExpression)).simplify())
             )
-          case others => _UnknownExpressionToken(others)
+          case token => throw new RuntimeException("Unexpected token: " + token)
         }
       }
       def process(syntaxTree: SyntaxTree): ExpressionToken = syntaxTree match {

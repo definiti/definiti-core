@@ -76,9 +76,7 @@ case object EqualSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol 
   override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = EqualExpression(left, right)
 }
 
-case object NotSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
-  override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = NotExpression(left, right)
-}
+case object NotSymbol extends SyntaxToken with IgnoreEOLWithBrace
 
 case object NotEqualSymbol extends SyntaxToken with IgnoreEOLWithBrace with Symbol {
   override def toExpressionToken(left: ExpressionToken, right: ExpressionToken): ExpressionToken = NotEqualExpression(left, right)
@@ -299,4 +297,4 @@ case class TimeExpression(left: ExpressionToken, right: ExpressionToken) extends
 
 case class DivideExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
 
-case class NotExpression(left: ExpressionToken, right: ExpressionToken) extends ExpressionToken
+case class NotExpression(inner: ExpressionToken) extends ExpressionToken

@@ -9,7 +9,14 @@ object SyntaxEnhancer {
   type Syntax = Seq[SyntaxToken]
   
   def enhanceSyntax(source: Syntax): Syntax = {
-    ???
+    val withEnclosing = buildEnclosing(source)
+    val withEOLIgnored = ignoreEOLInEncloser(withEnclosing)
+    val withFirstClassCitizen = buildFirstClassCitizen(withEOLIgnored)
+    val withFunctions = buildFunctions(withFirstClassCitizen)
+    val withConditions = buildConditions(withFunctions)
+    val withFirstClassCitizenCompleted = completeFirstClassCitizenStructure(withConditions)
+    val withExpressions = buildExpressions(withFirstClassCitizenCompleted)
+    withExpressions
   }
 
   private[state] def buildEnclosing(source: Syntax): Syntax = {

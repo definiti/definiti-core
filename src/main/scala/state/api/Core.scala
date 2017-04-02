@@ -3,6 +3,15 @@ package state.api
 import state.{AttributeDefinition, NativeClassDefinition, NativeMethodDefinition, ParameterDefinition}
 
 object Core {
+  def injectCore(): Unit = {
+    TypeReference.referenceType(unit)
+    TypeReference.referenceType(any)
+    TypeReference.referenceType(string)
+    TypeReference.referenceType(date)
+    TypeReference.referenceType(boolean)
+    TypeReference.referenceType(number)
+  }
+
   val unit = NativeClassDefinition(
     name = "unit",
     attributes = Seq(),

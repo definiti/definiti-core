@@ -38,7 +38,7 @@ object Sample {
       |
       |  verify {
       |    "end should be after start"
-      |    (period: Period) => { end > start || end == start }
+      |    (period: Period) => { period.end > period.start || period.end == period.start }
       |  }
       |}
       |

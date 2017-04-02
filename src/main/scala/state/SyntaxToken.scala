@@ -246,7 +246,7 @@ case class MethodCallToken(expressionToken: ExpressionToken, method: String, par
 
 case class AttributeCallToken(expressionToken: ExpressionToken, attribute: String) extends ExpressionToken
 
-case class ListExpressionToken(parts: Seq[ExpressionToken]) extends ExpressionToken
+case class ListExpressionToken(parts: Seq[ExpressionToken]) extends EnhancedSyntaxToken
 
 case class CombinedExpressionToken(parts: Seq[ExpressionToken]) extends ExpressionToken {
   def simplify(): ExpressionToken = parts match {

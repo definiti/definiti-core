@@ -5,9 +5,8 @@ import state.api.TypeReference
 
 import scala.io.Source
 
-object ScalaGenerator {
+object TypescriptGenerator {
   val nativeTypeMapping = Map(
-    "Boolean" -> "BooleanWrapper",
     "Date" -> "DateWrapper",
     "Number" -> "NumberWrapper",
     "String" -> "StringWrapper"
@@ -20,24 +19,21 @@ object ScalaGenerator {
 
     buffer.append(
       s"""
-         |package object verifications {
-         |  ${root.verifications.map(generateVerification).mkString("\n\n")}
+         |${root.verifications.map(generateVerification).mkString("\n")}
          |
-         |  private def verify(message: String)(condition: => Boolean) = {
-         |    if (condition) {
-         |      None
-         |    } else {
-         |      Some(message)
-         |    }
+         |function verify(message: string, condition: () => Boolean): string|null {
+         |  if (condition()) {
+         |    return null;
+         |  } else {
+         |    return message;
          |  }
          |}
-         |import verifications._
       """.stripMargin
     )
 
     buffer.append(
       s"""
-         |${root.classDefinitions.map(generateClassDefinition).mkString("\n\n")}
+         |${root.classDefinitions.map(generateClassDefinition).mkString("\n")}
        """.stripMargin
     )
 
@@ -45,18 +41,18 @@ object ScalaGenerator {
   }
 
   private def appendNative(buffer: StringBuilder): Unit = {
-    Seq("BooleanWrapper", "DateWrapper", "NumberWrapper", "StringWrapper") foreach { className =>
-      buffer.append(Source.fromResource(s"generators/scala/native/$className.scala").getLines.mkString("", "\n", "\n"))
+    Seq("DateWrapper", "NumberWrapper", "StringWrapper") foreach { className =>
+      buffer.append(Source.fromResource(s"generators/ts/native/$className.ts").getLines.mkString("", "\n", "\n"))
     }
   }
 
   private def generateVerification(verification: Verification): String = {
     s"""
        |${verification.comment.map(comment => s"/*$comment*/").getOrElse("")}
-       |def verify${verification.name}(${generateParameters(verification.function.parameters)}): Option[String] = {
-       |  verify("${verification.message}") {
-       |    ${generateExpression(verification.function.body)}
-       |  }
+       |export function verify${verification.name}(${generateParameters(verification.function.parameters)}): string|null {
+       |  return verify("${verification.message}", () => {
+       |    return ${generateExpression(verification.function.body)};
+       |  })
        |}
       """.stripMargin
   }
@@ -76,7 +72,7 @@ object ScalaGenerator {
   }
 
   private def generateExpression(expression: Expression): String = expression match {
-    case BooleanValue(value) => s"new BooleanWrapper(${value.toString})"
+    case BooleanValue(value) => s"${value.toString}"
     case NumberValue(value) => s"new NumberWrapper(${value.toString})"
     case QuotedStringValue(value) => """new StringWrapper("""" + value.toString.replaceAllLiterally("\\", "\\\\") + """")"""
     case Variable(variable, _) => variable
@@ -89,34 +85,38 @@ object ScalaGenerator {
     case Condition(condition, onTrue, onFalse) =>
       onFalse match {
         case Some(onFalseBody) =>
-          s"""
-             |if (${generateExpression(condition)}) {
-             |  ${generateExpression(onTrue)}
-             |} else {
-             |  ${generateExpression(onFalseBody)}
-             |}
+          s""" (${generateExpression(condition)})
+             |  ? (${generateExpression(onTrue)})
+             |  : (${generateExpression(onFalseBody)})
              |""".stripMargin
         case None =>
-          s"""
-             |if (${generateExpression(condition)}) {
-             |  ${generateExpression(onTrue)}
-             |}
+          s""" (${generateExpression(condition)})
+             |  ? (${generateExpression(onTrue)})
+             |  : null
              |""".stripMargin
       }
-    case Or(left, right) => s"(${generateExpression(left)}) || (${generateExpression(right)})"
-    case And(left, right) => s"(${generateExpression(left)}) && (${generateExpression(right)})"
-    case Equal(left, right) => s"(${generateExpression(left)}) == (${generateExpression(right)})"
-    case NotEqual(left, right) => s"(${generateExpression(left)}) != (${generateExpression(right)})"
-    case Lower(left, right) => s"(${generateExpression(left)}) < (${generateExpression(right)})"
-    case Upper(left, right) => s"(${generateExpression(left)}) > (${generateExpression(right)})"
-    case LowerOrEqual(left, right) => s"(${generateExpression(left)}) <= (${generateExpression(right)})"
-    case UpperOrEqual(left, right) => s"(${generateExpression(left)}) >= (${generateExpression(right)})"
-    case Plus(left, right) => s"(${generateExpression(left)}) + (${generateExpression(right)})"
-    case Minus(left, right) => s"(${generateExpression(left)}) - (${generateExpression(right)})"
-    case Modulo(left, right) => s"(${generateExpression(left)}) % (${generateExpression(right)})"
-    case Time(left, right) => s"(${generateExpression(left)}) * (${generateExpression(right)})"
-    case Divide(left, right) => s"(${generateExpression(left)}) / (${generateExpression(right)})"
+    case Or(left, right) => logicalExpression("||", "or", left, right)
+    case And(left, right) => logicalExpression("&&", "and", left, right)
+    case Equal(left, right) => logicalExpression("==", "equals", left, right)
+    case NotEqual(left, right) => logicalExpression("!=", "notEquals", left, right)
+    case Lower(left, right) => logicalExpression("<", "lower", left, right)
+    case Upper(left, right) => logicalExpression(">", "upper", left, right)
+    case LowerOrEqual(left, right) => logicalExpression("<=", "lowerOrEquals", left, right)
+    case UpperOrEqual(left, right) => logicalExpression(">=", "upperOrEquals", left, right)
+    case Plus(left, right) => logicalExpression("+", "plus", left, right)
+    case Minus(left, right) => logicalExpression("-", "minus", left, right)
+    case Modulo(left, right) => logicalExpression("%", "modulo", left, right)
+    case Time(left, right) => logicalExpression("*", "time", left, right)
+    case Divide(left, right) => logicalExpression("/", "divide", left, right)
     case Not(inner) => s"!(${generateExpression(inner)})"
+  }
+
+  private def logicalExpression(symbol: String, wrapperMethod: String, left: Expression, right: Expression): String = {
+    if (nativeTypeMapping.contains(left.returnType.name)) {
+      s"(${generateExpression(left)}).$wrapperMethod(${generateExpression(right)})"
+    } else {
+      s"(${generateExpression(left)}) $symbol (${generateExpression(right)})"
+    }
   }
 
   private def generateCallParameters(expressions: Seq[Expression]): String = expressions match {
@@ -134,7 +134,7 @@ object ScalaGenerator {
     val __resultAliases = definedType.verifications
       .flatMap(_.function.parameters.map(_.name))
       .distinct
-      .map(parameter => s"val $parameter = __result")
+      .map(parameter => s"const $parameter = __result;")
       .mkString("\n")
 
     val verifications = (
@@ -145,42 +145,30 @@ object ScalaGenerator {
 
     val originalType = originalTypeOpt.getOrElse(definedType.name)
 
-    val resultType = originalTypeOpt match {
-      case Some(_) =>
-        s"new ${definedType.name}(${definedType.attributes.map(attribute => s"__result.${attribute.name}").mkString(", ")})"
-      case None =>
-        "__result"
-    }
-
     val $interface = originalTypeOpt.map(_ => "").getOrElse(generateInterface(definedType))
 
     s"""
        |${$interface}
        |${definedType.comment.map(comment => s"/*$comment*/").getOrElse("")}
-       |class ${definedType.name} private(${generateAttributes(definedType.attributes)}) extends $$${originalType}
+       |interface ${definedType.name} extends $$$originalType {}
        |
-       |object ${definedType.name} {
-       |  def apply(${generateAttributeParameters(definedType.attributes)}): Either[String, ${definedType.name}] = {
-       |    val __result = new ${definedType.name}(${definedType.attributes.map(_.name).mkString(", ")})
-       |    ${__resultAliases}
-       |    val __errorOpt = Seq(
-       |      $verifications
-       |    ).find(_.isDefined).flatten
-       |
-       |    __errorOpt match {
-       |      case Some(error) => Left(error)
-       |      case None =>
-       |
-       |      Right($resultType)
+       |export function ${definedType.name}(${generateAttributeParameters(definedType.attributes)}): string|${definedType.name} {
+       |  const __result = {${definedType.attributes.map(_.name).mkString(", ")}};
+       |  ${__resultAliases}
+       |  let __errorOpt = null;
+       |  const __verifications = [
+       |    $verifications
+       |  ];
+       |  for (let __i = 0 ; __i < __verifications.length ; __i++) {
+       |    if (__verifications[__i] !== null) {
+       |      __errorOpt = __verifications[__i];
        |    }
        |  }
        |
-       |  private def verify(message: String)(condition: => Boolean) = {
-       |    if (condition) {
-       |      None
-       |    } else {
-       |      Some(message)
-       |    }
+       |  if (__errorOpt) {
+       |    return __errorOpt;
+       |  } else {
+       |    return __result;
        |  }
        |}
      """.stripMargin
@@ -188,8 +176,8 @@ object ScalaGenerator {
 
   private def generateInterface(definedType: DefinedType): String = {
     s"""
-       |trait $$${definedType.name} {
-       |  ${definedType.attributes.map(attribute => "def " + generateAttributeParameter(attribute)).mkString("\n")}
+       |interface $$${definedType.name} {
+       |  ${definedType.attributes.map(attribute => generateAttributeParameter(attribute) + ";").mkString("\n")}
        |}
      """.stripMargin
   }
@@ -224,9 +212,9 @@ object ScalaGenerator {
 
   private def generateTypeVerification(typeVerification: TypeVerification): String = {
     s"""
-       |verify("${typeVerification.message}") {
-       |  ${generateExpression(typeVerification.function.body)}
-       |}
+       |verify("${typeVerification.message}", () => {
+       |  return ${generateExpression(typeVerification.function.body)};
+       |})
      """.stripMargin
   }
 }

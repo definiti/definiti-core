@@ -1,0 +1,7 @@
+type Date {
+  timestamp: Number
+
+  day: Number
+
+  month: Number
+}

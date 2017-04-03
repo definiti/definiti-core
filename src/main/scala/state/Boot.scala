@@ -1,6 +1,9 @@
 package state
 
+import state.api.DefinitionParser
 import state.generators.{ScalaGenerator, TypescriptGenerator}
+
+import scala.io.Source
 
 object Boot extends App {
   val syntax = SyntaxProcessor.processString(Sample.testString)
@@ -10,5 +13,8 @@ object Boot extends App {
   SyntaxToAstProcessor.validate(ast)
 
   //println(ScalaGenerator.generate(ast))
-  println(TypescriptGenerator.generate(ast))
+  //println(TypescriptGenerator.generate(ast))
+
+  println(DefinitionParser.parse(Source.fromResource(s"api/Date.definition").getLines.mkString("", "\n", "\n")))
+  println(DefinitionParser.parse(Source.fromResource(s"api/String.definition").getLines.mkString("", "\n", "\n")))
 }

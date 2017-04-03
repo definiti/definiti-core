@@ -1,5 +1,3 @@
-package state.generators
-
 package object booleanWrapperUtils {
   implicit def booleanToBooleanWrapper(boolean: Boolean): BooleanWrapper = new BooleanWrapper(boolean)
   implicit def booleanWrapperToBoolean(booleanWrapper: BooleanWrapper): Boolean = booleanWrapper.inner
@@ -208,14 +206,3 @@ object CivilYear {
     }
   }
 }
-
-//*
-object x {
-  val period: Period = Period(new DateWrapper(null), new DateWrapper(null)) match {
-    case Left(error) => throw new RuntimeException(error)
-    case Right(value) => value
-  }
-
-  val civilYear: Either[String, CivilYear] = CivilYear(new DateWrapper(null), new DateWrapper(null))
-}
-// */

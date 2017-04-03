@@ -1,0 +1,9 @@
+type String {
+  nonEmpty(): Boolean
+
+  trim(): String
+
+  startsWith(prefix: String): Boolean
+
+  matches(regex: String): Boolean
+}

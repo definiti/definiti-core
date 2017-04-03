@@ -150,9 +150,9 @@ object TypescriptGenerator {
     s"""
        |${$interface}
        |${definedType.comment.map(comment => s"/*$comment*/").getOrElse("")}
-       |interface ${definedType.name} extends $$$originalType {}
+       |export interface ${definedType.name} extends $$$originalType {}
        |
-       |export function ${definedType.name}(${generateAttributeParameters(definedType.attributes)}): string|${definedType.name} {
+       |export function ${definedType.name}(${generateAttributeParameters(definedType.attributes)}): string|Readonly<${definedType.name}> {
        |  const __result = {${definedType.attributes.map(_.name).mkString(", ")}};
        |  ${__resultAliases}
        |  let __errorOpt = null;
@@ -168,7 +168,7 @@ object TypescriptGenerator {
        |  if (__errorOpt) {
        |    return __errorOpt;
        |  } else {
-       |    return __result;
+       |    return Object.freeze(__result);
        |  }
        |}
      """.stripMargin

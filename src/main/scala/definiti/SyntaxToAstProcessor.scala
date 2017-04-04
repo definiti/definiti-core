@@ -61,7 +61,6 @@ object SyntaxToAstProcessor {
   }
 
   def injectIntoReference(root: Root): Unit = {
-    Core.injectCore()
     root.verifications.foreach(TypeReference.referenceVerification)
     root.classDefinitions.foreach(TypeReference.referenceType)
   }

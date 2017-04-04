@@ -77,6 +77,7 @@ object SyntaxProcessor {
           acc = Unknown
       }
     }
+    parts.append(acc)
 
     parts
       .view

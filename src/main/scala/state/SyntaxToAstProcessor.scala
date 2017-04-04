@@ -34,7 +34,7 @@ object SyntaxToAstProcessor {
         case definedType: DefinedTypeExpressionToken =>
           typesBuffer.append(DefinedType(
             definedType.name,
-            definedType.fields.map(f => AttributeDefinition(f.name, f.typeReference)),
+            definedType.fields.map(f => AttributeDefinition(f.name, f.typeReference, None)),
             definedType.definedVerifications.map { definedVerification =>
               TypeVerification(
                 definedVerification.message,

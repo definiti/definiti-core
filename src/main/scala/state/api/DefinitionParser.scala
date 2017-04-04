@@ -1,6 +1,6 @@
 package state.api
 
-import state.{AttributeDefinition, ClassDefinition, MethodDefinition, NativeMethodDefinition, ParameterDefinition, NativeClassDefinition}
+import state._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -44,52 +44,56 @@ object DefinitionParser {
     val syntax: Syntax = extractSyntax(source)
 
     @tailrec
-    def processTopLevel(acc: Seq[ClassDefinition], remaining: Syntax): Seq[ClassDefinition] = remaining match {
+    def processTopLevel(acc: Seq[ClassDefinition], previousComment: Option[String], remaining: Syntax): Seq[ClassDefinition] = remaining match {
       case Nil => acc
-      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processTopLevel(acc, tail)
-      case TypeKeyword :: tail => processType(tail) match {
-        case (classDefinition, remainingTail) => processTopLevel(acc :+ classDefinition, remainingTail)
+      case EndOfLine :: tail => processTopLevel(acc, previousComment, tail)
+      case LineComment(comment) :: tail => processTopLevel(acc, Some(joinComments(previousComment, comment)), tail)
+      case BlockComment(comment) :: tail => processTopLevel(acc, Some(joinComments(previousComment, comment)), tail)
+      case TypeKeyword :: tail => processType(previousComment, tail) match {
+        case (classDefinition, remainingTail) => processTopLevel(acc :+ classDefinition, None, remainingTail)
       }
       case token :: _ => throw new RuntimeException("Expected type keyword, got: " + token)
     }
 
     @tailrec
-    def processType(remaining: Syntax): (ClassDefinition, Syntax) = remaining match {
+    def processType(typeComment: Option[String], remaining: Syntax): (ClassDefinition, Syntax) = remaining match {
       case Nil => throw new RuntimeException("Expected type name, got EOF")
-      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processType(tail)
-      case Word(typeName) :: tail => processTypeBrace(typeName, tail)
+      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processType(typeComment, tail)
+      case Word(typeName) :: tail => processTypeBrace(typeComment, typeName, tail)
       case token :: _ => throw new RuntimeException("Expected type name, got: " + token)
     }
 
     @tailrec
-    def processTypeBrace(typeName: String, remaining: Syntax): (ClassDefinition, Syntax) = remaining match {
+    def processTypeBrace(typeComment: Option[String], typeName: String, remaining: Syntax): (ClassDefinition, Syntax) = remaining match {
       case Nil => throw new RuntimeException("Expected opening brace, got: EOF")
-      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processTypeBrace(typeName, tail)
-      case OpenBrace :: tail => processTypeContent(typeName, Nil, Nil, tail)
+      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processTypeBrace(typeComment, typeName, tail)
+      case OpenBrace :: tail => processTypeContent(typeComment, typeName, None, Nil, Nil, tail)
       case token :: _ => throw new RuntimeException("Expected {, got: " + token)
     }
 
     @tailrec
-    def processTypeContent(typeName: String, attributesAcc: Seq[AttributeDefinition], methodsAcc: Seq[NativeMethodDefinition], remaining: Syntax): (ClassDefinition, Syntax) = remaining match {
+    def processTypeContent(typeComment: Option[String], typeName: String, previousComment: Option[String], attributesAcc: Seq[AttributeDefinition], methodsAcc: Seq[NativeMethodDefinition], remaining: Syntax): (ClassDefinition, Syntax) = remaining match {
       case Nil => throw new RuntimeException("Expected method or attribute definition, got: EOF")
-      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processTypeContent(typeName, attributesAcc, methodsAcc, tail)
-      case CloseBrace :: tail => (NativeClassDefinition(typeName, attributesAcc, methodsAcc), tail)
+      case EndOfLine :: tail => processTypeContent(typeComment, typeName, previousComment, attributesAcc, methodsAcc, tail)
+      case LineComment(comment) :: tail => processTypeContent(typeComment, typeName, Some(joinComments(previousComment, comment)), attributesAcc, methodsAcc, tail)
+      case BlockComment(comment) :: tail => processTypeContent(typeComment, typeName, Some(joinComments(previousComment, comment)), attributesAcc, methodsAcc, tail)
+      case CloseBrace :: tail => (NativeClassDefinition(typeName, attributesAcc, methodsAcc, typeComment), tail)
       case Word(attributeOrMethodName) :: tail =>
-        processAttributeOrMethod(attributeOrMethodName, tail) match {
+        processAttributeOrMethod(previousComment, attributeOrMethodName, tail) match {
           case (Left(attribute), remainingTail) =>
-            processTypeContent(typeName, attributesAcc :+ attribute, methodsAcc, remainingTail)
+            processTypeContent(typeComment, typeName, None, attributesAcc :+ attribute, methodsAcc, remainingTail)
           case (Right(method), remainingTail) =>
-            processTypeContent(typeName, attributesAcc, methodsAcc :+ method, remainingTail)
+            processTypeContent(typeComment, typeName, None, attributesAcc, methodsAcc :+ method, remainingTail)
         }
       case token :: _ => throw new RuntimeException("Expected attribute or method name, got: " + token)
     }
 
     @tailrec
-    def processAttributeOrMethod(attributeOrMethodName: String, remaining: Syntax): (Either[AttributeDefinition, NativeMethodDefinition], Syntax) = remaining match {
+    def processAttributeOrMethod(memberComment: Option[String], attributeOrMethodName: String, remaining: Syntax): (Either[AttributeDefinition, NativeMethodDefinition], Syntax) = remaining match {
       case Nil => throw new RuntimeException("Expected ( or :, got: EOF")
-      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processAttributeOrMethod(attributeOrMethodName, tail)
+      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processAttributeOrMethod(memberComment, attributeOrMethodName, tail)
       case Colon :: tail =>
-        processAttributeType(attributeOrMethodName, tail) match {
+        processAttributeType(memberComment, attributeOrMethodName, tail) match {
           case (attribute, remainingTail@((EndOfLine | CloseBrace) :: _)) =>
             (Left(attribute), remainingTail)
           case (_, token :: _) => throw new RuntimeException("Expected EOL or }, got: " + token)
@@ -98,7 +102,7 @@ object DefinitionParser {
         processMethodParameters(Nil, tail) match {
           case (parameters, tailBeforeReturnType) => processMethodReturnColon(tailBeforeReturnType) match {
             case (returnType, remainingTail@((EndOfLine | CloseBrace) :: _)) =>
-              (Right(NativeMethodDefinition(attributeOrMethodName, parameters, returnType)), remainingTail)
+              (Right(NativeMethodDefinition(attributeOrMethodName, parameters, returnType, memberComment)), remainingTail)
             case (_, token :: _) => throw new RuntimeException("Expected EOL or }, got: " + token)
           }
         }
@@ -149,14 +153,21 @@ object DefinitionParser {
     }
 
     @tailrec
-    def processAttributeType(attributeName: String, remaining: Syntax): (AttributeDefinition, Syntax) = remaining match {
+    def processAttributeType(memberComment: Option[String], attributeName: String, remaining: Syntax): (AttributeDefinition, Syntax) = remaining match {
       case Nil => throw new RuntimeException("Expected parameter type, got: EOF")
-      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processAttributeType(attributeName, tail)
-      case Word(attributeType) :: tail => (AttributeDefinition(attributeName, attributeType), tail)
+      case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processAttributeType(memberComment, attributeName, tail)
+      case Word(attributeType) :: tail => (AttributeDefinition(attributeName, attributeType, memberComment), tail)
       case token :: _ => throw new RuntimeException("Expected parameter name, got: " + token)
     }
 
-    processTopLevel(Nil, syntax)
+    processTopLevel(Nil, None, syntax)
+  }
+
+  private def joinComments(previousCommentOpt: Option[String], comment: String): String = {
+    previousCommentOpt match {
+      case Some(previousComment) => previousComment + "\n" + comment
+      case None => comment
+    }
   }
 
   private def extractSyntax(source: String): Syntax = {

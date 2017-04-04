@@ -10,7 +10,8 @@ case class Root(
 
 case class AttributeDefinition(
   name: String,
-  typeReference: String
+  typeReference: String,
+  comment: Option[String]
 ) {
   lazy val typeDefinition: ClassDefinition = {
     TypeReference.findType(typeReference) match {
@@ -38,6 +39,8 @@ sealed trait ClassDefinition {
   def attributes: Seq[AttributeDefinition]
 
   def methods: Seq[MethodDefinition]
+
+  def comment: Option[String]
 }
 
 sealed trait MethodDefinition {
@@ -46,18 +49,22 @@ sealed trait MethodDefinition {
   def parameters: Seq[ParameterDefinition]
 
   def returnType: ClassDefinition
+
+  def comment: Option[String]
 }
 
 case class NativeClassDefinition(
   name: String,
   attributes: Seq[AttributeDefinition],
-  methods: Seq[NativeMethodDefinition]
+  methods: Seq[NativeMethodDefinition],
+  comment: Option[String]
 ) extends ClassDefinition
 
 case class NativeMethodDefinition(
   name: String,
   parameters: Seq[ParameterDefinition],
-  returnTypeReference: String
+  returnTypeReference: String,
+  comment: Option[String]
 ) extends MethodDefinition  {
   lazy val returnType: ClassDefinition = {
     TypeReference.findType(returnTypeReference) match {
@@ -70,12 +77,14 @@ case class NativeMethodDefinition(
 case class DefinedClassDefinition(
   name: String,
   attributes: Seq[AttributeDefinition],
-  methods: Seq[DefinedMethodDefinition]
+  methods: Seq[DefinedMethodDefinition],
+  comment: Option[String]
 ) extends ClassDefinition
 
 case class DefinedMethodDefinition(
   name: String,
-  function: DefinedFunction
+  function: DefinedFunction,
+  comment: Option[String]
 ) extends MethodDefinition {
   override def parameters: Seq[ParameterDefinition] = function.parameters
 
@@ -291,17 +300,17 @@ object ASTJsonProtocol {
   }
 
   implicit val parameterDefinitionFormat: JsonFormat[ParameterDefinition] = jsonFormat(ParameterDefinition.apply, "name", "typeReference")
-  implicit val attributeDefinitionFormat: JsonFormat[AttributeDefinition] = jsonFormat(AttributeDefinition.apply, "name", "typeReference")
+  implicit val attributeDefinitionFormat: JsonFormat[AttributeDefinition] = jsonFormat(AttributeDefinition.apply, "name", "typeReference", "comment")
   implicit val parameterFormat: JsonFormat[Parameter] = jsonFormat(Parameter.apply, "name", "typeReference")
   implicit val definedFunctionFormat: JsonFormat[DefinedFunction] = jsonFormat(DefinedFunction.apply, "parameters", "body")
   implicit val verificationFormat: JsonFormat[Verification] = jsonFormat4(Verification.apply)
   implicit val typeVerificationFormat: JsonFormat[TypeVerification] = jsonFormat2(TypeVerification.apply)
   implicit val definedTypeFormat: JsonFormat[DefinedType] = jsonFormat(DefinedType.apply, "name", "attributes", "verifications", "inherited", "comment")
   implicit val aliasTypeFormat: JsonFormat[AliasType] = jsonFormat(AliasType.apply, "name", "alias", "inherited", "comment")
-  implicit val nativeMethodDefinitionFormat: JsonFormat[NativeMethodDefinition] = jsonFormat(NativeMethodDefinition.apply, "name", "parameters", "returnTypeReference")
-  implicit val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = jsonFormat(NativeClassDefinition.apply, "name", "attributes", "methods")
-  implicit val definedMethodDefinitionFormat: JsonFormat[DefinedMethodDefinition] = jsonFormat(DefinedMethodDefinition.apply, "name", "function")
-  implicit val definedClassDefinitionFormat: JsonFormat[DefinedClassDefinition] = jsonFormat(DefinedClassDefinition.apply, "name", "attributes", "methods")
+  implicit val nativeMethodDefinitionFormat: JsonFormat[NativeMethodDefinition] = jsonFormat(NativeMethodDefinition.apply, "name", "parameters", "returnTypeReference", "comment")
+  implicit val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = jsonFormat(NativeClassDefinition.apply, "name", "attributes", "methods", "comment")
+  implicit val definedMethodDefinitionFormat: JsonFormat[DefinedMethodDefinition] = jsonFormat(DefinedMethodDefinition.apply, "name", "function", "comment")
+  implicit val definedClassDefinitionFormat: JsonFormat[DefinedClassDefinition] = jsonFormat(DefinedClassDefinition.apply, "name", "attributes", "methods", "comment")
 
   implicit val classDefinitionFormat: JsonFormat[ClassDefinition] = new JsonFormat[ClassDefinition] {
     override def read(json: JsValue): ClassDefinition = ???

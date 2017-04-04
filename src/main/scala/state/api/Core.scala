@@ -15,13 +15,15 @@ object Core {
   val unit = NativeClassDefinition(
     name = "unit",
     attributes = Seq(),
-    methods = Seq()
+    methods = Seq(),
+    None
   )
 
   val any = NativeClassDefinition(
     name = "any",
     attributes = Seq(),
-    methods = Seq()
+    methods = Seq(),
+    None
   )
 
   val string = NativeClassDefinition(
@@ -31,49 +33,60 @@ object Core {
       NativeMethodDefinition(
         name = "nonEmpty",
         parameters = Seq(),
-        returnTypeReference = "Boolean"
+        returnTypeReference = "Boolean",
+        None
       ),
       NativeMethodDefinition(
         name = "trim",
         parameters = Seq(),
-        returnTypeReference = "String"
+        returnTypeReference = "String",
+        None
       ),
       NativeMethodDefinition(
         name = "startsWith",
         parameters = Seq(
           ParameterDefinition("prefix","String")
         ),
-        returnTypeReference = "Boolean"
+        returnTypeReference = "Boolean",
+        None
       ),
       NativeMethodDefinition(
         name = "matches",
         parameters = Seq(
           ParameterDefinition("regex", "String")
         ),
-        returnTypeReference = "Boolean"
+        returnTypeReference = "Boolean",
+        None
       )
-    )
+    ),
+    None
   )
 
   val date = NativeClassDefinition(
     name = "Date",
     attributes = Seq(
-      AttributeDefinition("timestamp", "Number"),
-      AttributeDefinition("day", "Number"),
-      AttributeDefinition("month", "Number")
+      AttributeDefinition("timestamp", "Number",
+        None),
+      AttributeDefinition("day", "Number",
+        None),
+      AttributeDefinition("month", "Number",
+        None)
     ),
-    methods = Seq()
+    methods = Seq(),
+    None
   )
 
   val boolean = NativeClassDefinition(
     name = "Boolean",
     attributes = Seq(),
-    methods = Seq()
+    methods = Seq(),
+    None
   )
 
   val number = NativeClassDefinition(
     name = "Number",
     attributes = Seq(),
-    methods = Seq()
+    methods = Seq(),
+    None
   )
 }

@@ -1,6 +1,6 @@
-name := "state"
+name := "definiti"
 
-version := "1.0"
+version := "0.0.0"
 
 scalaVersion := "2.12.1"
 

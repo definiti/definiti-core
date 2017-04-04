@@ -1,6 +1,6 @@
-package state
+package definiti
 
-import state.api.{Core, TypeReference}
+import definiti.api.{Core, TypeReference}
 
 import scala.collection.mutable.ListBuffer
 
@@ -110,7 +110,7 @@ object SyntaxToAstProcessor {
     }
   }
 
-  private[state] def processFunction(functionToken: FunctionExpressionToken, scope: Scope): DefinedFunction = {
+  private[definiti] def processFunction(functionToken: FunctionExpressionToken, scope: Scope): DefinedFunction = {
     val innerVariables = ListBuffer[Variable]()
     functionToken.parameters.foreach(p => innerVariables.append(Variable(p.name, p.typeReference)))
     scope.variables.foreach { v =>
@@ -124,7 +124,7 @@ object SyntaxToAstProcessor {
     )
   }
 
-  private[state] def processExpressionToken(expressionToken: ExpressionToken, scope: Scope): Expression = expressionToken match {
+  private[definiti] def processExpressionToken(expressionToken: ExpressionToken, scope: Scope): Expression = expressionToken match {
     case BooleanExpressionToken(value) =>
       BooleanValue(value)
     case NumberExpressionToken(value) =>
@@ -178,7 +178,7 @@ object SyntaxToAstProcessor {
       Not(processExpressionToken(inner, scope))
   }
 
-  private[state] def validateExpression(expression: Expression): Unit = expression match {
+  private[definiti] def validateExpression(expression: Expression): Unit = expression match {
     case BooleanValue(_) => // valid
     case NumberValue(_) => // valid
     case QuotedStringValue(_) => // valid
@@ -253,7 +253,7 @@ object SyntaxToAstProcessor {
       }
   }
 
-  private[state] def validateBooleanExpression(left: Expression, right: Expression) = {
+  private[definiti] def validateBooleanExpression(left: Expression, right: Expression) = {
     validateExpression(left)
     validateExpression(right)
     if (left.returnType != Core.boolean) {

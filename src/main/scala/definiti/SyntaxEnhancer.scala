@@ -1,6 +1,6 @@
-package state
+package definiti
 
-import state.utils.NumberUtils
+import definiti.utils.NumberUtils
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -19,7 +19,7 @@ object SyntaxEnhancer {
     withExpressions
   }
 
-  private[state] def buildEnclosing(source: Syntax): Syntax = {
+  private[definiti] def buildEnclosing(source: Syntax): Syntax = {
     var enhancedSyntaxStack = List[OpeningSyntax]()
     var accStack = List[ListBuffer[SyntaxToken]](ListBuffer())
     source.foreach {
@@ -45,7 +45,7 @@ object SyntaxEnhancer {
     }
   }
 
-  private[state] def removeEOLFromParenthesis(source: Syntax): Syntax = {
+  private[definiti] def removeEOLFromParenthesis(source: Syntax): Syntax = {
     // Hypothesis: We suppose the tree small enough to support recursion
     def process(sourceProcess: Syntax): Syntax = {
       sourceProcess.foldLeft(List[SyntaxToken]()) { (acc, token) =>
@@ -70,7 +70,7 @@ object SyntaxEnhancer {
     process(source)
   }
 
-  private[state] def trimEOLFromBrace(source: Syntax): Syntax = {
+  private[definiti] def trimEOLFromBrace(source: Syntax): Syntax = {
     // Hypothesis: We suppose the tree small enough to support recursion
     def process(sourceProcess: Syntax): Syntax = {
       sourceProcess.foldLeft(List[SyntaxToken]()) { (acc, token) =>
@@ -85,15 +85,15 @@ object SyntaxEnhancer {
     process(source)
   }
 
-  private[state] def ignoreEOLInEncloser(source: Syntax): Syntax = {
+  private[definiti] def ignoreEOLInEncloser(source: Syntax): Syntax = {
     trimEOLFromBrace(removeEOLFromParenthesis(trimEOL(source)))
   }
 
-  private[state] def trimEOL(source: Syntax): Syntax = {
+  private[definiti] def trimEOL(source: Syntax): Syntax = {
     source.dropWhile(_ == EndOfLine).reverse.dropWhile(_ == EndOfLine).reverse
   }
 
-  private[state] def buildFirstClassCitizen(source: Syntax): Syntax = {
+  private[definiti] def buildFirstClassCitizen(source: Syntax): Syntax = {
     @tailrec
     def process(acc: Syntax, remaining: Syntax): Syntax = remaining match {
       case Nil => acc
@@ -139,7 +139,7 @@ object SyntaxEnhancer {
     process(Nil, source.filter(_ != EndOfLine))
   }
 
-  private[state] def buildFunctions(source: Syntax): Syntax = {
+  private[definiti] def buildFunctions(source: Syntax): Syntax = {
     @tailrec
     def process(acc: Syntax, source: Syntax): Syntax = source match {
       case Nil =>
@@ -155,7 +155,7 @@ object SyntaxEnhancer {
     process(Nil, source)
   }
 
-  private[state] def extractParameterDefinition(source: ParenthesisExpressionToken): Seq[FunctionParameter] = {
+  private[definiti] def extractParameterDefinition(source: ParenthesisExpressionToken): Seq[FunctionParameter] = {
     @tailrec
     def process(acc: Seq[FunctionParameter], remainingSyntax: Syntax): Seq[FunctionParameter] = remainingSyntax match {
       case Nil => acc
@@ -166,7 +166,7 @@ object SyntaxEnhancer {
     process(Nil, source.children.filter(_ != EndOfLine))
   }
 
-  private[state] def buildConditions(source: Syntax): Syntax = {
+  private[definiti] def buildConditions(source: Syntax): Syntax = {
     @tailrec
     def process(acc: Syntax, remaining: Syntax): Syntax = remaining match {
       case Nil => acc
@@ -208,7 +208,7 @@ object SyntaxEnhancer {
     process(Nil, source)
   }
 
-  private[state] def completeFirstClassCitizenStructure(syntax: Syntax): Syntax = {
+  private[definiti] def completeFirstClassCitizenStructure(syntax: Syntax): Syntax = {
     syntax.map {
       case token: VerificationToken => completeVerificationToken(token)
       case token: TypeToken => completeTypeToken(token)
@@ -216,7 +216,7 @@ object SyntaxEnhancer {
     }
   }
 
-  private[state] def completeVerificationToken(verificationToken: VerificationToken): StructuredVerificationToken = {
+  private[definiti] def completeVerificationToken(verificationToken: VerificationToken): StructuredVerificationToken = {
     verificationToken.body.children match {
       case QuotedString(message) :: EndOfLine :: (function: FunctionToken) :: Nil =>
         StructuredVerificationToken(verificationToken.name, message, function)
@@ -224,14 +224,14 @@ object SyntaxEnhancer {
     }
   }
 
-  private[state] def completeTypeToken(typeToken: TypeToken): StructuredTypeToken = {
+  private[definiti] def completeTypeToken(typeToken: TypeToken): StructuredTypeToken = {
     typeToken.definition match {
       case Left(_) => completeAliasTypeToken(typeToken)
       case Right(_) => completeDefinedTypeToken(typeToken)
     }
   }
 
-  private[state] def completeDefinedTypeToken(typeToken: TypeToken): StructuredDefinedTypeToken = {
+  private[definiti] def completeDefinedTypeToken(typeToken: TypeToken): StructuredDefinedTypeToken = {
     def extractTypeVerificationToken(body: BraceExpressionToken): TypeVerificationToken = body.children match {
       case QuotedString(message) :: EndOfLine :: (function: FunctionToken) :: Nil =>
         TypeVerificationToken(message, function)
@@ -253,11 +253,11 @@ object SyntaxEnhancer {
     process(Nil, Nil, typeToken.definition.right.get.children)
   }
 
-  private[state] def completeAliasTypeToken(typeToken: TypeToken): StructuredAliasTypeToken = {
+  private[definiti] def completeAliasTypeToken(typeToken: TypeToken): StructuredAliasTypeToken = {
     StructuredAliasTypeToken(typeToken.name, typeToken.definition.left.get, typeToken.verifications)
   }
 
-  private[state] def buildExpressions(syntax: Syntax): Syntax = {
+  private[definiti] def buildExpressions(syntax: Syntax): Syntax = {
     def removeComments(syntax: Syntax): Syntax = {
       syntax
         .filter(token => !(token.isInstanceOf[LineComment] || token.isInstanceOf[BlockComment]))

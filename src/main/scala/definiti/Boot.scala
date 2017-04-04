@@ -1,7 +1,6 @@
-package state
+package definiti
 
-import state.api.DefinitionParser
-import state.generators.{ScalaGenerator, TypescriptGenerator}
+import definiti.api.DefinitionParser
 
 import scala.io.Source
 

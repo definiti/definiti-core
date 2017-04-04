@@ -1,7 +1,7 @@
-package state
+package definiti
 
 import spray.json.{JsObject, JsString, JsValue, JsonFormat}
-import state.api.{Core, TypeReference}
+import definiti.api.{Core, TypeReference}
 
 case class Root(
   verifications: Seq[Verification],

@@ -1,4 +1,4 @@
-package state
+package definiti
 
 object Sample {
   // TODO: change verification to assertion, predicate or better keyword

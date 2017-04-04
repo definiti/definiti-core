@@ -1,4 +1,4 @@
-package state
+package definiti
 
 import org.scalatest.{FlatSpec, Matchers}
 

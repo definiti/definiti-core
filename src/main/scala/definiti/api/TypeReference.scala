@@ -1,6 +1,6 @@
-package state.api
+package definiti.api
 
-import state.{ClassDefinition, Verification}
+import definiti.{ClassDefinition, Verification}
 
 import scala.collection.mutable.ListBuffer
 

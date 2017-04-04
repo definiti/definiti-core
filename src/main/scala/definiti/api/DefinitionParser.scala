@@ -1,6 +1,6 @@
-package state.api
+package definiti.api
 
-import state._
+import definiti._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer

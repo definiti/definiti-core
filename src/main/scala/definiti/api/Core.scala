@@ -1,6 +1,6 @@
-package state.api
+package definiti.api
 
-import state.{AttributeDefinition, NativeClassDefinition, NativeMethodDefinition, ParameterDefinition}
+import definiti.{AttributeDefinition, NativeClassDefinition, NativeMethodDefinition, ParameterDefinition}
 
 object Core {
   def injectCore(): Unit = {

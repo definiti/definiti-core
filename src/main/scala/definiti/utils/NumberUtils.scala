@@ -1,4 +1,4 @@
-package state.utils
+package definiti.utils
 
 object NumberUtils {
   def isNumberExpression(str: String): Boolean = {

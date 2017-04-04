@@ -1,4 +1,4 @@
-package state
+package definiti
 
 sealed trait SyntaxToken
 

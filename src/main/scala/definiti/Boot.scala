@@ -5,7 +5,7 @@ import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 
 import definiti.api.{Core, DefinitionParser, TypeReference}
 import definiti.generators.{ScalaGenerator, TypescriptGenerator}
-import definiti.parser.{ASTValidation, Parser}
+import definiti.parser.{ASTValidation, Invalid, Parser, Valid}
 import definiti.parser.antlr.{DefinitiLexer, DefinitiParser}
 import org.antlr.v4.runtime._
 
@@ -60,18 +60,21 @@ object Boot extends App {
       }
       ast.verifications.foreach(TypeReference.referenceVerification)
       ast.classDefinitions.foreach(TypeReference.referenceType)
-      ASTValidation.validate(ast)
+      ASTValidation.validate(ast) match {
+        case Valid =>
+          destination.foreach { case (language, path) =>
+            def write(path: Path, str: String): Unit = {
+              Files.createDirectories(path.getParent)
+              Files.write(path, Seq(str).asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+            }
 
-      destination.foreach { case (language, path) =>
-        def write(path: Path, str: String): Unit = {
-          Files.createDirectories(path.getParent)
-          Files.write(path, Seq(str).asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-        }
-
-        language match {
-          case "scala" => write(path, ScalaGenerator.generate(ast))
-          case "typescript" => write(path, TypescriptGenerator.generate(ast))
-        }
+            language match {
+              case "scala" => write(path, ScalaGenerator.generate(ast))
+              case "typescript" => write(path, TypescriptGenerator.generate(ast))
+            }
+          }
+        case Invalid(errors) =>
+          errors.foreach(System.err.println)
       }
     }
     println("done")

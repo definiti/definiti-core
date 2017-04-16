@@ -110,6 +110,10 @@ sealed trait LogicalExpression extends Expression {
   override def returnType: ClassDefinition = Core.boolean
 }
 
+sealed trait CalculatorExpression extends Expression {
+  override def returnType: ClassDefinition = Core.number
+}
+
 case class Or(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
 case class And(left: Expression, right: Expression, range: Range) extends LogicalExpression
@@ -126,15 +130,15 @@ case class LowerOrEqual(left: Expression, right: Expression, range: Range) exten
 
 case class UpperOrEqual(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Plus(left: Expression, right: Expression, range: Range) extends LogicalExpression
+case class Plus(left: Expression, right: Expression, range: Range) extends CalculatorExpression
 
-case class Minus(left: Expression, right: Expression, range: Range) extends LogicalExpression
+case class Minus(left: Expression, right: Expression, range: Range) extends CalculatorExpression
 
-case class Modulo(left: Expression, right: Expression, range: Range) extends LogicalExpression
+case class Modulo(left: Expression, right: Expression, range: Range) extends CalculatorExpression
 
-case class Time(left: Expression, right: Expression, range: Range) extends LogicalExpression
+case class Time(left: Expression, right: Expression, range: Range) extends CalculatorExpression
 
-case class Divide(left: Expression, right: Expression, range: Range) extends LogicalExpression
+case class Divide(left: Expression, right: Expression, range: Range) extends CalculatorExpression
 
 case class Not(inner: Expression, range: Range) extends LogicalExpression
 

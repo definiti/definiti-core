@@ -11,9 +11,11 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature")
 
+lazy val antlrDefiniti = TaskKey[Unit]("antlrDefiniti", "Build Antlr Definiti files")
+lazy val antlrCore = TaskKey[Unit]("antlrCore", "Build Antlr core definition files")
 lazy val antlr = TaskKey[Unit]("antlr", "Build Antlr files")
 
-antlr := {
+antlrDefiniti := {
   val log = streams.value.log
   val classpath = (dependencyClasspath in Compile).value.files.mkString(";")
   val mainClass = "org.antlr.v4.Tool"
@@ -23,8 +25,26 @@ antlr := {
 
   val command = s"""java -cp "$classpath" $mainClass -o $destination -package $packageName $source"""
 
-  log.info("Building antlr")
+  log.info("Building antlr Definiti files")
   command.!
 }
+
+antlrCore := {
+  val log = streams.value.log
+  val classpath = (dependencyClasspath in Compile).value.files.mkString(";")
+  val mainClass = "org.antlr.v4.Tool"
+  val destination = "src/main/java/definiti/parser/antlr"
+  val packageName = "definiti.parser.antlr"
+  val source = "src/main/antlr/CoreDefinition.g4"
+
+  val command = s"""java -cp "$classpath" $mainClass -o $destination -package $packageName $source"""
+
+  log.info("Building antlr core definition files")
+  command.!
+}
+
+antlr := {}
+
+antlr <<= antlr.dependsOn(antlrDefiniti, antlrCore)
 
 compile in Compile <<= (compile in Compile).dependsOn(antlr)

@@ -2,9 +2,9 @@ package definiti.parser
 
 import definiti._
 import definiti.parser.antlr.DefinitiParser._
-import org.antlr.v4.runtime.ParserRuleContext
+import definiti.utils.CollectionUtils._
+import definiti.utils.ParserUtils._
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
 case class Scope(variables: Seq[Variable])
@@ -13,7 +13,7 @@ object Scope {
   val empty = Scope(Seq())
 }
 
-object Parser {
+object DefinitiASTParser {
   def definitiContextToAST(context: DefinitiContext): Root = {
     val verifications = ListBuffer[Verification]()
     val classDefinitions = ListBuffer[ClassDefinition]()
@@ -218,40 +218,6 @@ object Parser {
       onTrue = processChainedExpression(context.conditionIfBody),
       onFalse = Option(context.conditionElseBody).map(processChainedExpression),
       getRangeFromContext(context)
-    )
-  }
-
-  // Helper used to force the use of immutable seq
-  private def scalaSeq[A](list: java.util.List[A]): Seq[A] = {
-    list.asScala.toList
-  }
-
-  private def extractStringContent(string: String): String = {
-    var temporaryResult = string
-    if (temporaryResult.startsWith("\"")) {
-      temporaryResult = temporaryResult.substring(1)
-    }
-    if (temporaryResult.endsWith("\"")) {
-      temporaryResult = temporaryResult.substring(0, temporaryResult.length - 1)
-    }
-    temporaryResult
-  }
-
-  private def extractDocComment(string: String): String = {
-    var temporaryResult = string
-    if (temporaryResult.startsWith("/**")) {
-      temporaryResult = temporaryResult.substring(3)
-    }
-    if (temporaryResult.endsWith("*/")) {
-      temporaryResult = temporaryResult.substring(0, temporaryResult.length - 2)
-    }
-    temporaryResult
-  }
-
-  private def getRangeFromContext(context: ParserRuleContext): Range = {
-    Range(
-      Position(context.getStart.getLine, context.getStart.getCharPositionInLine),
-      Position(context.getStop.getLine, context.getStop.getCharPositionInLine)
     )
   }
 }

@@ -40,6 +40,9 @@ case object Unknown extends SyntaxToken
 object DefinitionParser {
   type Syntax = Seq[SyntaxToken]
 
+  // TODO: Remove this object when position is managed
+  val noRange = Range(Position(0, 0), Position(0, 0))
+
   def parse(source: String): Seq[ClassDefinition] = {
     val syntax: Syntax = extractSyntax(source)
 
@@ -132,7 +135,7 @@ object DefinitionParser {
     def processMethodParameterType(parameterName: String, remaining: Syntax): (ParameterDefinition, Syntax) = remaining match {
       case Nil => throw new RuntimeException("Expected parameter type, got: EOF")
       case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processMethodParameterType(parameterName, tail)
-      case Word(parameterType) :: tail => (ParameterDefinition(parameterName, parameterType), tail)
+      case Word(parameterType) :: tail => (ParameterDefinition(parameterName, parameterType, noRange), tail)
       case token :: _ => throw new RuntimeException("Expected parameter name, got: " + token)
     }
 
@@ -156,7 +159,7 @@ object DefinitionParser {
     def processAttributeType(memberComment: Option[String], attributeName: String, remaining: Syntax): (AttributeDefinition, Syntax) = remaining match {
       case Nil => throw new RuntimeException("Expected parameter type, got: EOF")
       case (EndOfLine | LineComment(_) | BlockComment(_)) :: tail => processAttributeType(memberComment, attributeName, tail)
-      case Word(attributeType) :: tail => (AttributeDefinition(attributeName, attributeType, memberComment), tail)
+      case Word(attributeType) :: tail => (AttributeDefinition(attributeName, attributeType, memberComment, noRange), tail)
       case token :: _ => throw new RuntimeException("Expected parameter name, got: " + token)
     }
 

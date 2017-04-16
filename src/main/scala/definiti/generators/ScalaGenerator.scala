@@ -76,17 +76,17 @@ object ScalaGenerator {
   }
 
   private def generateExpression(expression: Expression): String = expression match {
-    case BooleanValue(value) => s"new BooleanWrapper(${value.toString})"
-    case NumberValue(value) => s"new NumberWrapper(${value.toString})"
-    case QuotedStringValue(value) => """new StringWrapper("""" + value.toString.replaceAllLiterally("\\", "\\\\") + """")"""
-    case Variable(variable, _) => variable
-    case MethodCall(inner, method, parameters) =>
+    case BooleanValue(value, _) => s"new BooleanWrapper(${value.toString})"
+    case NumberValue(value, _) => s"new NumberWrapper(${value.toString})"
+    case QuotedStringValue(value, _) => """new StringWrapper("""" + value.toString.replaceAllLiterally("\\", "\\\\") + """")"""
+    case Variable(variable, _, _) => variable
+    case MethodCall(inner, method, parameters, _) =>
       s"(${generateExpression(inner)}).$method(${generateCallParameters(parameters)})"
-    case AttributeCall(inner, attribute) =>
+    case AttributeCall(inner, attribute, _) =>
       s"(${generateExpression(inner)}).$attribute"
-    case CombinedExpression(expressions) =>
+    case CombinedExpression(expressions, _) =>
       expressions.map(generateExpression).mkString("\n")
-    case Condition(condition, onTrue, onFalse) =>
+    case Condition(condition, onTrue, onFalse, _) =>
       onFalse match {
         case Some(onFalseBody) =>
           s"""
@@ -103,20 +103,20 @@ object ScalaGenerator {
              |}
              |""".stripMargin
       }
-    case Or(left, right) => s"(${generateExpression(left)}) || (${generateExpression(right)})"
-    case And(left, right) => s"(${generateExpression(left)}) && (${generateExpression(right)})"
-    case Equal(left, right) => s"(${generateExpression(left)}) == (${generateExpression(right)})"
-    case NotEqual(left, right) => s"(${generateExpression(left)}) != (${generateExpression(right)})"
-    case Lower(left, right) => s"(${generateExpression(left)}) < (${generateExpression(right)})"
-    case Upper(left, right) => s"(${generateExpression(left)}) > (${generateExpression(right)})"
-    case LowerOrEqual(left, right) => s"(${generateExpression(left)}) <= (${generateExpression(right)})"
-    case UpperOrEqual(left, right) => s"(${generateExpression(left)}) >= (${generateExpression(right)})"
-    case Plus(left, right) => s"(${generateExpression(left)}) + (${generateExpression(right)})"
-    case Minus(left, right) => s"(${generateExpression(left)}) - (${generateExpression(right)})"
-    case Modulo(left, right) => s"(${generateExpression(left)}) % (${generateExpression(right)})"
-    case Time(left, right) => s"(${generateExpression(left)}) * (${generateExpression(right)})"
-    case Divide(left, right) => s"(${generateExpression(left)}) / (${generateExpression(right)})"
-    case Not(inner) => s"!(${generateExpression(inner)})"
+    case Or(left, right, _) => s"(${generateExpression(left)}) || (${generateExpression(right)})"
+    case And(left, right, _) => s"(${generateExpression(left)}) && (${generateExpression(right)})"
+    case Equal(left, right, _) => s"(${generateExpression(left)}) == (${generateExpression(right)})"
+    case NotEqual(left, right, _) => s"(${generateExpression(left)}) != (${generateExpression(right)})"
+    case Lower(left, right, _) => s"(${generateExpression(left)}) < (${generateExpression(right)})"
+    case Upper(left, right, _) => s"(${generateExpression(left)}) > (${generateExpression(right)})"
+    case LowerOrEqual(left, right, _) => s"(${generateExpression(left)}) <= (${generateExpression(right)})"
+    case UpperOrEqual(left, right, _) => s"(${generateExpression(left)}) >= (${generateExpression(right)})"
+    case Plus(left, right, _) => s"(${generateExpression(left)}) + (${generateExpression(right)})"
+    case Minus(left, right, _) => s"(${generateExpression(left)}) - (${generateExpression(right)})"
+    case Modulo(left, right, _) => s"(${generateExpression(left)}) % (${generateExpression(right)})"
+    case Time(left, right, _) => s"(${generateExpression(left)}) * (${generateExpression(right)})"
+    case Divide(left, right, _) => s"(${generateExpression(left)}) / (${generateExpression(right)})"
+    case Not(inner, _) => s"!(${generateExpression(inner)})"
   }
 
   private def generateCallParameters(expressions: Seq[Expression]): String = expressions match {

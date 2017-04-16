@@ -3,6 +3,10 @@ package definiti
 import spray.json.{JsObject, JsString, JsValue, JsonFormat}
 import definiti.api.{Core, TypeReference}
 
+case class Position(line: Long, column: Long)
+
+case class Range(start: Position, end: Position)
+
 case class Root(
   verifications: Seq[Verification],
   classDefinitions: Seq[ClassDefinition]
@@ -11,7 +15,8 @@ case class Root(
 case class AttributeDefinition(
   name: String,
   typeReference: String,
-  comment: Option[String]
+  comment: Option[String],
+  range: Range
 ) {
   lazy val typeDefinition: ClassDefinition = {
     TypeReference.findType(typeReference) match {
@@ -23,7 +28,8 @@ case class AttributeDefinition(
 
 case class ParameterDefinition(
   name: String,
-  typeReference: String
+  typeReference: String,
+  range: Range
 ) {
   lazy val typeDefinition: ClassDefinition = {
     TypeReference.findType(typeReference) match {
@@ -78,13 +84,15 @@ case class DefinedClassDefinition(
   name: String,
   attributes: Seq[AttributeDefinition],
   methods: Seq[DefinedMethodDefinition],
-  comment: Option[String]
+  comment: Option[String],
+  range: Range
 ) extends ClassDefinition
 
 case class DefinedMethodDefinition(
   name: String,
   function: DefinedFunction,
-  comment: Option[String]
+  comment: Option[String],
+  range: Range
 ) extends MethodDefinition {
   override def parameters: Seq[ParameterDefinition] = function.parameters
 
@@ -94,6 +102,7 @@ case class DefinedMethodDefinition(
 }
 
 sealed trait Expression {
+  def range: Range
   def returnType: ClassDefinition
 }
 
@@ -101,45 +110,45 @@ sealed trait LogicalExpression extends Expression {
   override def returnType: ClassDefinition = Core.boolean
 }
 
-case class Or(left: Expression, right: Expression) extends LogicalExpression
+case class Or(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class And(left: Expression, right: Expression) extends LogicalExpression
+case class And(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Equal(left: Expression, right: Expression) extends LogicalExpression
+case class Equal(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class NotEqual(left: Expression, right: Expression) extends LogicalExpression
+case class NotEqual(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Lower(left: Expression, right: Expression) extends LogicalExpression
+case class Lower(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Upper(left: Expression, right: Expression) extends LogicalExpression
+case class Upper(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class LowerOrEqual(left: Expression, right: Expression) extends LogicalExpression
+case class LowerOrEqual(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class UpperOrEqual(left: Expression, right: Expression) extends LogicalExpression
+case class UpperOrEqual(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Plus(left: Expression, right: Expression) extends LogicalExpression
+case class Plus(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Minus(left: Expression, right: Expression) extends LogicalExpression
+case class Minus(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Modulo(left: Expression, right: Expression) extends LogicalExpression
+case class Modulo(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Time(left: Expression, right: Expression) extends LogicalExpression
+case class Time(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Divide(left: Expression, right: Expression) extends LogicalExpression
+case class Divide(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
-case class Not(inner: Expression) extends LogicalExpression
+case class Not(inner: Expression, range: Range) extends LogicalExpression
 
-case class BooleanValue(value: Boolean) extends LogicalExpression
+case class BooleanValue(value: Boolean, range: Range) extends LogicalExpression
 
-case class NumberValue(value: BigDecimal) extends Expression {
+case class NumberValue(value: BigDecimal, range: Range) extends Expression {
   override def returnType: ClassDefinition = Core.number
 }
 
-case class QuotedStringValue(value: String) extends Expression {
+case class QuotedStringValue(value: String, range: Range) extends Expression {
   override def returnType: ClassDefinition = Core.string
 }
 
-case class Variable(name: String, typeReference: String) extends Expression {
+case class Variable(name: String, typeReference: String, range: Range) extends Expression {
   lazy val returnType: ClassDefinition = {
     TypeReference.findType(typeReference) match {
       case Some(classDefinition) => classDefinition
@@ -148,7 +157,7 @@ case class Variable(name: String, typeReference: String) extends Expression {
   }
 }
 
-case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression]) extends Expression {
+case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression], range: Range) extends Expression {
   lazy val returnType: ClassDefinition = expression.returnType.methods.find(_.name == method) match {
     case Some(methodDefinition) =>
       methodDefinition.returnType
@@ -157,7 +166,7 @@ case class MethodCall(expression: Expression, method: String, parameters: Seq[Ex
   }
 }
 
-case class AttributeCall(expression: Expression, attribute: String) extends Expression {
+case class AttributeCall(expression: Expression, attribute: String, range: Range) extends Expression {
   lazy val returnType: ClassDefinition = expression.returnType.attributes.find(_.name == attribute) match {
     case Some(attributeDefinition) =>
       attributeDefinition.typeDefinition
@@ -166,7 +175,7 @@ case class AttributeCall(expression: Expression, attribute: String) extends Expr
   }
 }
 
-case class CombinedExpression(parts: Seq[Expression]) extends Expression {
+case class CombinedExpression(parts: Seq[Expression], range: Range) extends Expression {
   lazy val returnType: ClassDefinition = parts.lastOption match {
     case Some(lastPart) => lastPart.returnType
     case None => Core.unit
@@ -176,7 +185,8 @@ case class CombinedExpression(parts: Seq[Expression]) extends Expression {
 case class Condition(
   condition: Expression,
   onTrue: Expression,
-  onFalse: Option[Expression]
+  onFalse: Option[Expression],
+  range: Range
 ) extends Expression {
   lazy val returnType: ClassDefinition = onFalse match {
     case None => Core.unit
@@ -185,11 +195,11 @@ case class Condition(
   }
 }
 
-case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression) {
+case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, range: Range) {
   lazy val returnType: ClassDefinition = body.returnType
 }
 
-case class Parameter(name: String, typeReference: String) {
+case class Parameter(name: String, typeReference: String, range: Range) {
   lazy val typeDefinition: ClassDefinition = {
     TypeReference.findType(typeReference) match {
       case Some(classDefinition) => classDefinition
@@ -198,13 +208,13 @@ case class Parameter(name: String, typeReference: String) {
   }
 }
 
-case class Verification(name: String, message: String, function: DefinedFunction, comment: Option[String])
+case class Verification(name: String, message: String, function: DefinedFunction, comment: Option[String], range: Range)
 
 sealed trait Type extends ClassDefinition {
   def comment: Option[String]
 }
 
-case class DefinedType(name: String, attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String]) extends Type {
+case class DefinedType(name: String, attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String], range: Range) extends Type {
   lazy val inheritedVerifications: Seq[Verification] = inherited map { verificationReference =>
     TypeReference.findVerification(verificationReference) match {
       case Some(verification) => verification
@@ -215,7 +225,7 @@ case class DefinedType(name: String, attributes: Seq[AttributeDefinition], verif
   override def methods: Seq[MethodDefinition] = Seq()
 }
 
-case class AliasType(name: String, alias: String, inherited: Seq[String], comment: Option[String]) extends Type {
+case class AliasType(name: String, alias: String, inherited: Seq[String], comment: Option[String], range: Range) extends Type {
   lazy val typeAlias: ClassDefinition = {
     TypeReference.findType(alias) match {
       case Some(classDefinition) => classDefinition
@@ -235,33 +245,35 @@ case class AliasType(name: String, alias: String, inherited: Seq[String], commen
   override def methods: Seq[MethodDefinition] = typeAlias.methods
 }
 
-case class TypeVerification(message: String, function: DefinedFunction)
+case class TypeVerification(message: String, function: DefinedFunction, range: Range)
 
 object ASTJsonProtocol {
   import spray.json.DefaultJsonProtocol._
 
-  implicit val orFormat: JsonFormat[Or] = jsonFormat2(Or.apply)
-  implicit val andFormat: JsonFormat[And] = jsonFormat2(And.apply)
-  implicit val equalFormat: JsonFormat[Equal] = jsonFormat2(Equal.apply)
-  implicit val notEqualFormat: JsonFormat[NotEqual] = jsonFormat2(NotEqual.apply)
-  implicit val lowerFormat: JsonFormat[Lower] = jsonFormat2(Lower.apply)
-  implicit val upperFormat: JsonFormat[Upper] = jsonFormat2(Upper.apply)
-  implicit val lowerOrEqualFormat: JsonFormat[LowerOrEqual] = jsonFormat2(LowerOrEqual.apply)
-  implicit val upperOrEqualFormat: JsonFormat[UpperOrEqual] = jsonFormat2(UpperOrEqual.apply)
-  implicit val plusFormat: JsonFormat[Plus] = jsonFormat2(Plus.apply)
-  implicit val minusFormat: JsonFormat[Minus] = jsonFormat2(Minus.apply)
-  implicit val moduloFormat: JsonFormat[Modulo] = jsonFormat2(Modulo.apply)
-  implicit val timeFormat: JsonFormat[Time] = jsonFormat2(Time.apply)
-  implicit val divideFormat: JsonFormat[Divide] = jsonFormat2(Divide.apply)
-  implicit val notFormat: JsonFormat[Not] = jsonFormat1(Not.apply)
-  implicit val booleanValueFormat: JsonFormat[BooleanValue] = jsonFormat1(BooleanValue.apply)
-  implicit val numberValueFormat: JsonFormat[NumberValue] = jsonFormat1(NumberValue.apply)
-  implicit val quotedStringValueFormat: JsonFormat[QuotedStringValue] = jsonFormat1(QuotedStringValue.apply)
-  implicit val variableFormat: JsonFormat[Variable] = jsonFormat(Variable.apply, "name", "typeReference")
-  implicit val methodCallFormat: JsonFormat[MethodCall] = jsonFormat(MethodCall.apply, "expression", "method", "parameters")
-  implicit val attributeCallFormat: JsonFormat[AttributeCall] = jsonFormat(AttributeCall.apply, "expression", "attribute")
-  implicit val combinedExpressionFormat: JsonFormat[CombinedExpression] = jsonFormat(CombinedExpression.apply _, "parts")
-  implicit val conditionFormat: JsonFormat[Condition] = jsonFormat(Condition.apply, "condition", "onTrue", "onFalse")
+  implicit val postitionFormat: JsonFormat[Position] = jsonFormat2(Position.apply)
+  implicit val rangeFormat: JsonFormat[Range] = jsonFormat2(Range.apply)
+  implicit val orFormat: JsonFormat[Or] = jsonFormat3(Or.apply)
+  implicit val andFormat: JsonFormat[And] = jsonFormat3(And.apply)
+  implicit val equalFormat: JsonFormat[Equal] = jsonFormat3(Equal.apply)
+  implicit val notEqualFormat: JsonFormat[NotEqual] = jsonFormat3(NotEqual.apply)
+  implicit val lowerFormat: JsonFormat[Lower] = jsonFormat3(Lower.apply)
+  implicit val upperFormat: JsonFormat[Upper] = jsonFormat3(Upper.apply)
+  implicit val lowerOrEqualFormat: JsonFormat[LowerOrEqual] = jsonFormat3(LowerOrEqual.apply)
+  implicit val upperOrEqualFormat: JsonFormat[UpperOrEqual] = jsonFormat3(UpperOrEqual.apply)
+  implicit val plusFormat: JsonFormat[Plus] = jsonFormat3(Plus.apply)
+  implicit val minusFormat: JsonFormat[Minus] = jsonFormat3(Minus.apply)
+  implicit val moduloFormat: JsonFormat[Modulo] = jsonFormat3(Modulo.apply)
+  implicit val timeFormat: JsonFormat[Time] = jsonFormat3(Time.apply)
+  implicit val divideFormat: JsonFormat[Divide] = jsonFormat3(Divide.apply)
+  implicit val notFormat: JsonFormat[Not] = jsonFormat2(Not.apply)
+  implicit val booleanValueFormat: JsonFormat[BooleanValue] = jsonFormat2(BooleanValue.apply)
+  implicit val numberValueFormat: JsonFormat[NumberValue] = jsonFormat2(NumberValue.apply)
+  implicit val quotedStringValueFormat: JsonFormat[QuotedStringValue] = jsonFormat2(QuotedStringValue.apply)
+  implicit val variableFormat: JsonFormat[Variable] = jsonFormat(Variable.apply, "name", "typeReference", "range")
+  implicit val methodCallFormat: JsonFormat[MethodCall] = jsonFormat(MethodCall.apply, "expression", "method", "parameters", "range")
+  implicit val attributeCallFormat: JsonFormat[AttributeCall] = jsonFormat(AttributeCall.apply, "expression", "attribute", "range")
+  implicit val combinedExpressionFormat: JsonFormat[CombinedExpression] = jsonFormat(CombinedExpression.apply, "parts", "range")
+  implicit val conditionFormat: JsonFormat[Condition] = jsonFormat(Condition.apply, "condition", "onTrue", "onFalse", "range")
 
   implicit def expressionFormat: JsonFormat[Expression] = new JsonFormat[Expression] {
     def jsObject(typeName: String, content: JsValue): JsValue = {
@@ -299,18 +311,18 @@ object ASTJsonProtocol {
     }
   }
 
-  implicit val parameterDefinitionFormat: JsonFormat[ParameterDefinition] = jsonFormat(ParameterDefinition.apply, "name", "typeReference")
-  implicit val attributeDefinitionFormat: JsonFormat[AttributeDefinition] = jsonFormat(AttributeDefinition.apply, "name", "typeReference", "comment")
-  implicit val parameterFormat: JsonFormat[Parameter] = jsonFormat(Parameter.apply, "name", "typeReference")
-  implicit val definedFunctionFormat: JsonFormat[DefinedFunction] = jsonFormat(DefinedFunction.apply, "parameters", "body")
-  implicit val verificationFormat: JsonFormat[Verification] = jsonFormat4(Verification.apply)
-  implicit val typeVerificationFormat: JsonFormat[TypeVerification] = jsonFormat2(TypeVerification.apply)
-  implicit val definedTypeFormat: JsonFormat[DefinedType] = jsonFormat(DefinedType.apply, "name", "attributes", "verifications", "inherited", "comment")
-  implicit val aliasTypeFormat: JsonFormat[AliasType] = jsonFormat(AliasType.apply, "name", "alias", "inherited", "comment")
+  implicit val parameterDefinitionFormat: JsonFormat[ParameterDefinition] = jsonFormat(ParameterDefinition.apply, "name", "typeReference", "range")
+  implicit val attributeDefinitionFormat: JsonFormat[AttributeDefinition] = jsonFormat(AttributeDefinition.apply, "name", "typeReference", "comment", "range")
+  implicit val parameterFormat: JsonFormat[Parameter] = jsonFormat(Parameter.apply, "name", "typeReference", "range")
+  implicit val definedFunctionFormat: JsonFormat[DefinedFunction] = jsonFormat(DefinedFunction.apply, "parameters", "body", "range")
+  implicit val verificationFormat: JsonFormat[Verification] = jsonFormat5(Verification.apply)
+  implicit val typeVerificationFormat: JsonFormat[TypeVerification] = jsonFormat3(TypeVerification.apply)
+  implicit val definedTypeFormat: JsonFormat[DefinedType] = jsonFormat(DefinedType.apply, "name", "attributes", "verifications", "inherited", "comment", "range")
+  implicit val aliasTypeFormat: JsonFormat[AliasType] = jsonFormat(AliasType.apply, "name", "alias", "inherited", "comment", "range")
   implicit val nativeMethodDefinitionFormat: JsonFormat[NativeMethodDefinition] = jsonFormat(NativeMethodDefinition.apply, "name", "parameters", "returnTypeReference", "comment")
   implicit val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = jsonFormat(NativeClassDefinition.apply, "name", "attributes", "methods", "comment")
-  implicit val definedMethodDefinitionFormat: JsonFormat[DefinedMethodDefinition] = jsonFormat(DefinedMethodDefinition.apply, "name", "function", "comment")
-  implicit val definedClassDefinitionFormat: JsonFormat[DefinedClassDefinition] = jsonFormat(DefinedClassDefinition.apply, "name", "attributes", "methods", "comment")
+  implicit val definedMethodDefinitionFormat: JsonFormat[DefinedMethodDefinition] = jsonFormat(DefinedMethodDefinition.apply, "name", "function", "comment", "range")
+  implicit val definedClassDefinitionFormat: JsonFormat[DefinedClassDefinition] = jsonFormat(DefinedClassDefinition.apply, "name", "attributes", "methods", "comment", "range")
 
   implicit val classDefinitionFormat: JsonFormat[ClassDefinition] = new JsonFormat[ClassDefinition] {
     override def read(json: JsValue): ClassDefinition = ???

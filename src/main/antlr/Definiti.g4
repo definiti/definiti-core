@@ -16,52 +16,65 @@ toplevel
   : verification
   | definedType
   | aliasType
-  | DOC_COMMENT
   ;
 
 chainedExpression : expression+;
 
 // Priority from top to bottom
+// The naming of all elements is to find the expression type
 expression
-  : '(' expression ')'
-  | expression '.' IDENTIFIER '(' expressionList? ')'
-  | expression '.' IDENTIFIER
-  | '!' expression
-  | expression CALCULATOR_OPERATOR_LEVEL_1  expression
-  | expression CALCULATOR_OPERATOR_LEVEL_2  expression
-  | expression LOGICAL_OPERATOR             expression
-  | expression LOGICAL_COMBINATION_OPERATOR expression
-  | BOOLEAN
-  | NUMBER
-  | STRING
-  | IDENTIFIER
-  | 'if' '(' expression ')' '{' chainedExpression '}' ('else' '{' chainedExpression '}')?
+  : '(' parenthesis=expression ')'
+  | methodExpression=expression '.' methodName=IDENTIFIER '(' methodExpressionParameters=expressionList? ')'
+  | attributeExpression=expression '.' attributeName=IDENTIFIER
+  | '!' notExpression=expression
+  | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_1  rightExpression=expression
+  | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_2  rightExpression=expression
+  | leftExpression=expression operator=LOGICAL_OPERATOR             rightExpression=expression
+  | leftExpression=expression operator=LOGICAL_COMBINATION_OPERATOR rightExpression=expression
+  | booleanExpression=BOOLEAN
+  | numberExpression=NUMBER
+  | stringExpression=STRING
+  | variableExpression=IDENTIFIER
+  | 'if' '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' ('else' '{' conditionElseBody=chainedExpression '}')?
   ;
 
 expressionList : expression (',' expression)*;
 
-verification : 'verification' IDENTIFIER '{'
-  STRING
-  function
-'}';
-
-definedType : 'type' IDENTIFIER ('verifying' IDENTIFIER)* '{'
-  attributeDefinition+
-
-  ('verify' '{'
-    STRING
+verification :
+  DOC_COMMENT?
+  'verification' verificationName=IDENTIFIER '{'
+    verificationMessage=STRING
     function
-  '}')*
-'}';
+  '}';
 
-aliasType : 'type' IDENTIFIER '=' IDENTIFIER ('verifying' IDENTIFIER)*;
+definedType :
+  DOC_COMMENT?
+  'type' typeName=IDENTIFIER inheritance* '{'
+    attributeDefinition+
 
-function : '(' parameterListDefinition ')' '=>' '{' expression '}';
+    (typeVerification)*
+  '}';
 
-parameterDefinition: IDENTIFIER ':' IDENTIFIER;
+attributeDefinition:
+  DOC_COMMENT?
+  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER;
+
+typeVerification:
+  'verify' '{'
+    verificationMessage=STRING
+    function
+  '}';
+
+aliasType :
+  DOC_COMMENT?
+  'type' typeName=IDENTIFIER '=' referenceTypeName=IDENTIFIER inheritance*;
+
+function : '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
+
+inheritance : ('verifying' verificationName=IDENTIFIER);
+
+parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
-
-attributeDefinition: IDENTIFIER ':' IDENTIFIER;
 
 DOC_COMMENT   : '/**' .*? '*/';
 BLOCK_COMMENT : '/*' .*? '*/' -> skip;

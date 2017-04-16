@@ -1,0 +1,7 @@
+type List[A] {
+  nonEmpty(): Boolean
+
+  isDefined(): Boolean
+
+  head: A
+}

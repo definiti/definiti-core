@@ -27,6 +27,9 @@ object CoreDefinitionASTParser {
     val members = scalaSeq(context.member())
     NativeClassDefinition(
       name = context.typeName.getText,
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq()),
       attributes = members.filter(_.attribute() != null).map(_.attribute()).map(processAttribute),
       methods = members.filter(_.method() != null).map(_.method()).map(processMethod),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment)
@@ -38,6 +41,9 @@ object CoreDefinitionASTParser {
       name = context.attributeName.getText,
       typeReference = context.attributeType.getText,
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq.empty),
       range = getRangeFromContext(context)
     )
   }
@@ -45,6 +51,9 @@ object CoreDefinitionASTParser {
   private def processMethod(context: MethodContext): NativeMethodDefinition = {
     NativeMethodDefinition(
       name = context.methodName.getText,
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq.empty),
       parameters = Option(context.parameterListDefinition())
         .map(parameters => scalaSeq(parameters.parameterDefinition()).map(processParameter))
         .getOrElse(Seq.empty),
@@ -57,6 +66,9 @@ object CoreDefinitionASTParser {
     ParameterDefinition(
       name = context.parameterName.getText,
       typeReference = context.parameterType.getText,
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq.empty),
       range = getRangeFromContext(context)
     )
   }

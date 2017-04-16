@@ -57,7 +57,7 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER;
+  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')?;
 
 typeVerification:
   'verify' '{'
@@ -69,12 +69,15 @@ aliasType :
   DOC_COMMENT?
   'type' typeName=IDENTIFIER '=' referenceTypeName=IDENTIFIER inheritance*;
 
-function : '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
+function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
 
 inheritance : ('verifying' verificationName=IDENTIFIER);
 
-parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER;
+parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
+
+genericType: IDENTIFIER;
+genericTypeList: ((genericType ',')* genericType);
 
 DOC_COMMENT   : '/**' .*? '*/';
 BLOCK_COMMENT : '/*' .*? '*/' -> skip;

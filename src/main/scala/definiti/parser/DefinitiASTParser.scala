@@ -61,6 +61,9 @@ object DefinitiASTParser {
       name = context.attributeName.getText,
       typeReference = context.attributeType.getText,
       Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq.empty),
       getRangeFromContext(context)
     )
   }
@@ -89,6 +92,9 @@ object DefinitiASTParser {
     DefinedFunction(
       parameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter),
       body = processChainedExpression(context.chainedExpression()),
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq.empty),
       getRangeFromContext(context)
     )
   }
@@ -97,6 +103,9 @@ object DefinitiASTParser {
     ParameterDefinition(
       name = context.parameterName.getText,
       typeReference = context.parameterType.getText,
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq.empty),
       getRangeFromContext(context)
     )
   }

@@ -51,3 +51,15 @@ verification StartJanuaryFirst {
 }
 
 type CivilYear = Period verifying YearPeriod verifying StartJanuaryFirst
+
+type MultiplePeriod {
+  periods: List[Period]
+
+  verify {
+    "end should be after start"
+    // The second part tests the generic system.
+    (multiplePeriod: MultiplePeriod) => {
+      multiplePeriod.periods.nonEmpty() && multiplePeriod.periods.head.start.timestamp > 0
+    }
+  }
+}

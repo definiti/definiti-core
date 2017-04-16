@@ -16,6 +16,7 @@ case class AttributeDefinition(
   name: String,
   typeReference: String,
   comment: Option[String],
+  genericTypes: Seq[String],
   range: Range
 ) {
   lazy val typeDefinition: ClassDefinition = {
@@ -29,6 +30,7 @@ case class AttributeDefinition(
 case class ParameterDefinition(
   name: String,
   typeReference: String,
+  genericTypes: Seq[String],
   range: Range
 ) {
   lazy val typeDefinition: ClassDefinition = {
@@ -42,6 +44,8 @@ case class ParameterDefinition(
 sealed trait ClassDefinition {
   def name: String
 
+  def genericTypes: Seq[String]
+
   def attributes: Seq[AttributeDefinition]
 
   def methods: Seq[MethodDefinition]
@@ -52,6 +56,8 @@ sealed trait ClassDefinition {
 sealed trait MethodDefinition {
   def name: String
 
+  def genericTypes: Seq[String]
+
   def parameters: Seq[ParameterDefinition]
 
   def returnType: ClassDefinition
@@ -61,6 +67,7 @@ sealed trait MethodDefinition {
 
 case class NativeClassDefinition(
   name: String,
+  genericTypes: Seq[String],
   attributes: Seq[AttributeDefinition],
   methods: Seq[NativeMethodDefinition],
   comment: Option[String]
@@ -68,6 +75,7 @@ case class NativeClassDefinition(
 
 case class NativeMethodDefinition(
   name: String,
+  genericTypes: Seq[String],
   parameters: Seq[ParameterDefinition],
   returnTypeReference: String,
   comment: Option[String]
@@ -82,6 +90,7 @@ case class NativeMethodDefinition(
 
 case class DefinedClassDefinition(
   name: String,
+  genericTypes: Seq[String],
   attributes: Seq[AttributeDefinition],
   methods: Seq[DefinedMethodDefinition],
   comment: Option[String],
@@ -90,6 +99,7 @@ case class DefinedClassDefinition(
 
 case class DefinedMethodDefinition(
   name: String,
+  genericTypes: Seq[String],
   function: DefinedFunction,
   comment: Option[String],
   range: Range
@@ -199,7 +209,7 @@ case class Condition(
   }
 }
 
-case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, range: Range) {
+case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], range: Range) {
   lazy val returnType: ClassDefinition = body.returnType
 }
 
@@ -226,6 +236,8 @@ case class DefinedType(name: String, attributes: Seq[AttributeDefinition], verif
     }
   }
 
+  override def genericTypes: Seq[String] = Seq()
+
   override def methods: Seq[MethodDefinition] = Seq()
 }
 
@@ -243,6 +255,8 @@ case class AliasType(name: String, alias: String, inherited: Seq[String], commen
       case None => throw new RuntimeException(s"Unknown verification $verificationReference")
     }
   }
+
+  override def genericTypes: Seq[String] = typeAlias.genericTypes
 
   override def attributes: Seq[AttributeDefinition] = typeAlias.attributes
 
@@ -315,18 +329,18 @@ object ASTJsonProtocol {
     }
   }
 
-  implicit val parameterDefinitionFormat: JsonFormat[ParameterDefinition] = jsonFormat(ParameterDefinition.apply, "name", "typeReference", "range")
-  implicit val attributeDefinitionFormat: JsonFormat[AttributeDefinition] = jsonFormat(AttributeDefinition.apply, "name", "typeReference", "comment", "range")
+  implicit val parameterDefinitionFormat: JsonFormat[ParameterDefinition] = jsonFormat(ParameterDefinition.apply, "name", "typeReference", "genericTypes", "range")
+  implicit val attributeDefinitionFormat: JsonFormat[AttributeDefinition] = jsonFormat(AttributeDefinition.apply, "name", "typeReference", "comment", "genericTypes", "range")
   implicit val parameterFormat: JsonFormat[Parameter] = jsonFormat(Parameter.apply, "name", "typeReference", "range")
-  implicit val definedFunctionFormat: JsonFormat[DefinedFunction] = jsonFormat(DefinedFunction.apply, "parameters", "body", "range")
+  implicit val definedFunctionFormat: JsonFormat[DefinedFunction] = jsonFormat(DefinedFunction.apply, "parameters", "body", "genericTypes", "range")
   implicit val verificationFormat: JsonFormat[Verification] = jsonFormat5(Verification.apply)
   implicit val typeVerificationFormat: JsonFormat[TypeVerification] = jsonFormat3(TypeVerification.apply)
   implicit val definedTypeFormat: JsonFormat[DefinedType] = jsonFormat(DefinedType.apply, "name", "attributes", "verifications", "inherited", "comment", "range")
   implicit val aliasTypeFormat: JsonFormat[AliasType] = jsonFormat(AliasType.apply, "name", "alias", "inherited", "comment", "range")
-  implicit val nativeMethodDefinitionFormat: JsonFormat[NativeMethodDefinition] = jsonFormat(NativeMethodDefinition.apply, "name", "parameters", "returnTypeReference", "comment")
-  implicit val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = jsonFormat(NativeClassDefinition.apply, "name", "attributes", "methods", "comment")
-  implicit val definedMethodDefinitionFormat: JsonFormat[DefinedMethodDefinition] = jsonFormat(DefinedMethodDefinition.apply, "name", "function", "comment", "range")
-  implicit val definedClassDefinitionFormat: JsonFormat[DefinedClassDefinition] = jsonFormat(DefinedClassDefinition.apply, "name", "attributes", "methods", "comment", "range")
+  implicit val nativeMethodDefinitionFormat: JsonFormat[NativeMethodDefinition] = jsonFormat(NativeMethodDefinition.apply, "name", "genericTypes", "parameters", "returnTypeReference", "comment")
+  implicit val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = jsonFormat(NativeClassDefinition.apply, "name", "genericTypes", "attributes", "methods", "comment")
+  implicit val definedMethodDefinitionFormat: JsonFormat[DefinedMethodDefinition] = jsonFormat(DefinedMethodDefinition.apply, "name", "genericTypes", "function", "comment", "range")
+  implicit val definedClassDefinitionFormat: JsonFormat[DefinedClassDefinition] = jsonFormat(DefinedClassDefinition.apply, "name", "genericTypes", "attributes", "methods", "comment", "range")
 
   implicit val classDefinitionFormat: JsonFormat[ClassDefinition] = new JsonFormat[ClassDefinition] {
     override def read(json: JsValue): ClassDefinition = ???

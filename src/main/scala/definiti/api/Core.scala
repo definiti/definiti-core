@@ -3,9 +3,9 @@ package definiti.api
 import definiti._
 
 object Core {
-  val unit = NativeClassDefinition("unit", Seq(), Seq(), None)
+  val unit = NativeClassDefinition("unit", Seq(), Seq(), Seq(), None)
 
-  val any = NativeClassDefinition("any", Seq(), Seq(), None)
+  val any = NativeClassDefinition("any", Seq(), Seq(), Seq(), None)
 
   def string: ClassDefinition = find("String")
 

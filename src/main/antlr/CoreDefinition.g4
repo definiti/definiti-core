@@ -13,7 +13,7 @@ toplevel
 
 coreType :
   DOC_COMMENT?
-  'type' typeName=IDENTIFIER '{'
+  'type' typeName=IDENTIFIER ('[' genericTypeList ']')? '{'
     member*
   '}';
 
@@ -24,14 +24,17 @@ member
 
 attribute :
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER;
+  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')?;
 
 method :
   DOC_COMMENT?
-  methodName=IDENTIFIER '(' parameterListDefinition ')' ':' methodType=IDENTIFIER;
+  methodName=IDENTIFIER ('[' genericTypeList ']')? '(' parameterListDefinition ')' ':' methodType=IDENTIFIER;
 
-parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER;
+parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
+
+genericType: IDENTIFIER;
+genericTypeList: ((genericType ',')* genericType);
 
 DOC_COMMENT   : '/**' .*? '*/';
 BLOCK_COMMENT : '/*' .*? '*/' -> skip;

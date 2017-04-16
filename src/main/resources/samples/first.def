@@ -8,7 +8,7 @@ verification NonBlank {
   (string: String) => { string.trim().nonEmpty() }
 }
 
-/*
+/**
   Could be simplified, but it is for the "example"
 */
 verification PhoneNumber {

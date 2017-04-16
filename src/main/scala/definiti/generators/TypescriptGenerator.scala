@@ -72,17 +72,17 @@ object TypescriptGenerator {
   }
 
   private def generateExpression(expression: Expression): String = expression match {
-    case BooleanValue(value) => s"${value.toString}"
-    case NumberValue(value) => s"new NumberWrapper(${value.toString})"
-    case QuotedStringValue(value) => """new StringWrapper("""" + value.toString.replaceAllLiterally("\\", "\\\\") + """")"""
-    case Variable(variable, _) => variable
-    case MethodCall(inner, method, parameters) =>
+    case BooleanValue(value, _) => s"${value.toString}"
+    case NumberValue(value, _) => s"new NumberWrapper(${value.toString})"
+    case QuotedStringValue(value, _) => """new StringWrapper("""" + value.toString.replaceAllLiterally("\\", "\\\\") + """")"""
+    case Variable(variable, _, _) => variable
+    case MethodCall(inner, method, parameters, _) =>
       s"(${generateExpression(inner)}).$method(${generateCallParameters(parameters)})"
-    case AttributeCall(inner, attribute) =>
+    case AttributeCall(inner, attribute, _) =>
       s"(${generateExpression(inner)}).$attribute"
-    case CombinedExpression(expressions) =>
+    case CombinedExpression(expressions, _) =>
       expressions.map(generateExpression).mkString("\n")
-    case Condition(condition, onTrue, onFalse) =>
+    case Condition(condition, onTrue, onFalse, _) =>
       onFalse match {
         case Some(onFalseBody) =>
           s""" (${generateExpression(condition)})
@@ -95,20 +95,20 @@ object TypescriptGenerator {
              |  : null
              |""".stripMargin
       }
-    case Or(left, right) => logicalExpression("||", "or", left, right)
-    case And(left, right) => logicalExpression("&&", "and", left, right)
-    case Equal(left, right) => logicalExpression("==", "equals", left, right)
-    case NotEqual(left, right) => logicalExpression("!=", "notEquals", left, right)
-    case Lower(left, right) => logicalExpression("<", "lower", left, right)
-    case Upper(left, right) => logicalExpression(">", "upper", left, right)
-    case LowerOrEqual(left, right) => logicalExpression("<=", "lowerOrEquals", left, right)
-    case UpperOrEqual(left, right) => logicalExpression(">=", "upperOrEquals", left, right)
-    case Plus(left, right) => logicalExpression("+", "plus", left, right)
-    case Minus(left, right) => logicalExpression("-", "minus", left, right)
-    case Modulo(left, right) => logicalExpression("%", "modulo", left, right)
-    case Time(left, right) => logicalExpression("*", "time", left, right)
-    case Divide(left, right) => logicalExpression("/", "divide", left, right)
-    case Not(inner) => s"!(${generateExpression(inner)})"
+    case Or(left, right, _) => logicalExpression("||", "or", left, right)
+    case And(left, right, _) => logicalExpression("&&", "and", left, right)
+    case Equal(left, right, _) => logicalExpression("==", "equals", left, right)
+    case NotEqual(left, right, _) => logicalExpression("!=", "notEquals", left, right)
+    case Lower(left, right, _) => logicalExpression("<", "lower", left, right)
+    case Upper(left, right, _) => logicalExpression(">", "upper", left, right)
+    case LowerOrEqual(left, right, _) => logicalExpression("<=", "lowerOrEquals", left, right)
+    case UpperOrEqual(left, right, _) => logicalExpression(">=", "upperOrEquals", left, right)
+    case Plus(left, right, _) => logicalExpression("+", "plus", left, right)
+    case Minus(left, right, _) => logicalExpression("-", "minus", left, right)
+    case Modulo(left, right, _) => logicalExpression("%", "modulo", left, right)
+    case Time(left, right, _) => logicalExpression("*", "time", left, right)
+    case Divide(left, right, _) => logicalExpression("/", "divide", left, right)
+    case Not(inner, _) => s"!(${generateExpression(inner)})"
   }
 
   private def logicalExpression(symbol: String, wrapperMethod: String, left: Expression, right: Expression): String = {

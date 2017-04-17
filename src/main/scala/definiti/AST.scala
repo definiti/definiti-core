@@ -1,7 +1,6 @@
 package definiti
 
 import spray.json.{JsObject, JsString, JsValue, JsonFormat}
-import definiti.api.{Core, TypeReference}
 
 case class Position(line: Long, column: Long)
 
@@ -18,51 +17,21 @@ case class AttributeDefinition(
   comment: Option[String],
   genericTypes: Seq[String],
   range: Range
-) {
-  lazy val typeDefinition: ClassDefinition = {
-    TypeReference.findType(typeReference) match {
-      case Some(classDefinition) => classDefinition
-      case None => throw new RuntimeException(s"Unknown type $typeReference")
-    }
-  }
-}
+)
 
 case class ParameterDefinition(
   name: String,
   typeReference: String,
   genericTypes: Seq[String],
   range: Range
-) {
-  lazy val typeDefinition: ClassDefinition = {
-    TypeReference.findType(typeReference) match {
-      case Some(classDefinition) => classDefinition
-      case None => throw new RuntimeException(s"Unknown type $typeReference")
-    }
-  }
-}
+)
 
 sealed trait ClassDefinition {
   def name: String
-
-  def genericTypes: Seq[String]
-
-  def attributes: Seq[AttributeDefinition]
-
-  def methods: Seq[MethodDefinition]
-
-  def comment: Option[String]
 }
 
 sealed trait MethodDefinition {
   def name: String
-
-  def genericTypes: Seq[String]
-
-  def parameters: Seq[ParameterDefinition]
-
-  def returnType: ClassDefinition
-
-  def comment: Option[String]
 }
 
 case class NativeClassDefinition(
@@ -79,23 +48,7 @@ case class NativeMethodDefinition(
   parameters: Seq[ParameterDefinition],
   returnTypeReference: String,
   comment: Option[String]
-) extends MethodDefinition  {
-  lazy val returnType: ClassDefinition = {
-    TypeReference.findType(returnTypeReference) match {
-      case Some(classDefinition) => classDefinition
-      case None => throw new RuntimeException(s"Unknown type $returnTypeReference")
-    }
-  }
-}
-
-case class DefinedClassDefinition(
-  name: String,
-  genericTypes: Seq[String],
-  attributes: Seq[AttributeDefinition],
-  methods: Seq[DefinedMethodDefinition],
-  comment: Option[String],
-  range: Range
-) extends ClassDefinition
+) extends MethodDefinition
 
 case class DefinedMethodDefinition(
   name: String,
@@ -104,25 +57,18 @@ case class DefinedMethodDefinition(
   comment: Option[String],
   range: Range
 ) extends MethodDefinition {
-  override def parameters: Seq[ParameterDefinition] = function.parameters
-
-  override def returnType: ClassDefinition = function.returnType
+  def parameters: Seq[ParameterDefinition] = function.parameters
 
   def body: Expression = function.body
 }
 
 sealed trait Expression {
   def range: Range
-  def returnType: ClassDefinition
 }
 
-sealed trait LogicalExpression extends Expression {
-  override def returnType: ClassDefinition = Core.boolean
-}
+sealed trait LogicalExpression extends Expression
 
-sealed trait CalculatorExpression extends Expression {
-  override def returnType: ClassDefinition = Core.number
-}
+sealed trait CalculatorExpression extends Expression
 
 case class Or(left: Expression, right: Expression, range: Range) extends LogicalExpression
 
@@ -154,73 +100,28 @@ case class Not(inner: Expression, range: Range) extends LogicalExpression
 
 case class BooleanValue(value: Boolean, range: Range) extends LogicalExpression
 
-case class NumberValue(value: BigDecimal, range: Range) extends Expression {
-  override def returnType: ClassDefinition = Core.number
-}
+case class NumberValue(value: BigDecimal, range: Range) extends Expression
 
-case class QuotedStringValue(value: String, range: Range) extends Expression {
-  override def returnType: ClassDefinition = Core.string
-}
+case class QuotedStringValue(value: String, range: Range) extends Expression
 
-case class Variable(name: String, typeReference: String, range: Range) extends Expression {
-  lazy val returnType: ClassDefinition = {
-    TypeReference.findType(typeReference) match {
-      case Some(classDefinition) => classDefinition
-      case None => throw new RuntimeException(s"Unknown type $typeReference")
-    }
-  }
-}
+case class Variable(name: String, typeReference: String, range: Range) extends Expression
 
-case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression], range: Range) extends Expression {
-  lazy val returnType: ClassDefinition = expression.returnType.methods.find(_.name == method) match {
-    case Some(methodDefinition) =>
-      methodDefinition.returnType
-    case None =>
-      throw new RuntimeException(s"The type ${expression.returnType.name} does not have method $method")
-  }
-}
+case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression], range: Range) extends Expression
 
-case class AttributeCall(expression: Expression, attribute: String, range: Range) extends Expression {
-  lazy val returnType: ClassDefinition = expression.returnType.attributes.find(_.name == attribute) match {
-    case Some(attributeDefinition) =>
-      attributeDefinition.typeDefinition
-    case None =>
-      throw new RuntimeException(s"The type ${expression.returnType.name} does not have attribute $attribute")
-  }
-}
+case class AttributeCall(expression: Expression, attribute: String, range: Range) extends Expression
 
-case class CombinedExpression(parts: Seq[Expression], range: Range) extends Expression {
-  lazy val returnType: ClassDefinition = parts.lastOption match {
-    case Some(lastPart) => lastPart.returnType
-    case None => Core.unit
-  }
-}
+case class CombinedExpression(parts: Seq[Expression], range: Range) extends Expression
 
 case class Condition(
   condition: Expression,
   onTrue: Expression,
   onFalse: Option[Expression],
   range: Range
-) extends Expression {
-  lazy val returnType: ClassDefinition = onFalse match {
-    case None => Core.unit
-    case Some(onFalseBody) if onTrue.returnType == onFalseBody.returnType => onTrue.returnType
-    case _ => Core.any
-  }
-}
+) extends Expression
 
-case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], range: Range) {
-  lazy val returnType: ClassDefinition = body.returnType
-}
+case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], range: Range)
 
-case class Parameter(name: String, typeReference: String, range: Range) {
-  lazy val typeDefinition: ClassDefinition = {
-    TypeReference.findType(typeReference) match {
-      case Some(classDefinition) => classDefinition
-      case None => throw new RuntimeException(s"Unknown type $typeReference")
-    }
-  }
-}
+case class Parameter(name: String, typeReference: String, range: Range)
 
 case class Verification(name: String, message: String, function: DefinedFunction, comment: Option[String], range: Range)
 
@@ -229,39 +130,12 @@ sealed trait Type extends ClassDefinition {
 }
 
 case class DefinedType(name: String, attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String], range: Range) extends Type {
-  lazy val inheritedVerifications: Seq[Verification] = inherited map { verificationReference =>
-    TypeReference.findVerification(verificationReference) match {
-      case Some(verification) => verification
-      case None => throw new RuntimeException(s"Unknown verification $verificationReference")
-    }
-  }
+  def genericTypes: Seq[String] = Seq()
 
-  override def genericTypes: Seq[String] = Seq()
-
-  override def methods: Seq[MethodDefinition] = Seq()
+  def methods: Seq[MethodDefinition] = Seq()
 }
 
-case class AliasType(name: String, alias: String, inherited: Seq[String], comment: Option[String], range: Range) extends Type {
-  lazy val typeAlias: ClassDefinition = {
-    TypeReference.findType(alias) match {
-      case Some(classDefinition) => classDefinition
-      case None => throw new RuntimeException(s"Unknown type $typeAlias")
-    }
-  }
-
-  lazy val inheritedVerifications: Seq[Verification] = inherited map { verificationReference =>
-    TypeReference.findVerification(verificationReference) match {
-      case Some(verification) => verification
-      case None => throw new RuntimeException(s"Unknown verification $verificationReference")
-    }
-  }
-
-  override def genericTypes: Seq[String] = typeAlias.genericTypes
-
-  override def attributes: Seq[AttributeDefinition] = typeAlias.attributes
-
-  override def methods: Seq[MethodDefinition] = typeAlias.methods
-}
+case class AliasType(name: String, alias: String, inherited: Seq[String], comment: Option[String], range: Range) extends Type
 
 case class TypeVerification(message: String, function: DefinedFunction, range: Range)
 
@@ -340,7 +214,6 @@ object ASTJsonProtocol {
   implicit val nativeMethodDefinitionFormat: JsonFormat[NativeMethodDefinition] = jsonFormat(NativeMethodDefinition.apply, "name", "genericTypes", "parameters", "returnTypeReference", "comment")
   implicit val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = jsonFormat(NativeClassDefinition.apply, "name", "genericTypes", "attributes", "methods", "comment")
   implicit val definedMethodDefinitionFormat: JsonFormat[DefinedMethodDefinition] = jsonFormat(DefinedMethodDefinition.apply, "name", "genericTypes", "function", "comment", "range")
-  implicit val definedClassDefinitionFormat: JsonFormat[DefinedClassDefinition] = jsonFormat(DefinedClassDefinition.apply, "name", "genericTypes", "attributes", "methods", "comment", "range")
 
   implicit val classDefinitionFormat: JsonFormat[ClassDefinition] = new JsonFormat[ClassDefinition] {
     override def read(json: JsValue): ClassDefinition = ???

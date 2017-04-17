@@ -3,7 +3,7 @@ package definiti
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 
-import definiti.api.TypeReference
+import definiti.api.ReferenceContext
 import definiti.generators.{ScalaGenerator, TypescriptGenerator}
 import definiti.parser._
 import definiti.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser, DefinitiLexer, DefinitiParser}
@@ -43,15 +43,19 @@ object Boot extends App {
     parseDefinitiFile(source.toString) match {
       case Left(errors) => errors.foreach(System.err.println)
       case Right(ast) =>
+        val typeBuffer = ListBuffer[ClassDefinition]()
+        val verificationBuffer = ListBuffer[Verification]()
         definitionFiles.forEach { definitionFile =>
           parseCoreDefinitionFile(definitionFile.toString) match {
             case Left(errors) => errors.foreach(System.err.println)
-            case Right(classDefinitions) => classDefinitions.foreach(TypeReference.referenceType)
+            case Right(classDefinitions) => classDefinitions.foreach(typeBuffer.append(_))
           }
         }
 
-        ast.verifications.foreach(TypeReference.referenceVerification)
-        ast.classDefinitions.foreach(TypeReference.referenceType)
+        verificationBuffer.append(ast.verifications: _*)
+        typeBuffer.append(ast.classDefinitions: _*)
+
+        implicit val context = ReferenceContext(typeBuffer, verificationBuffer)
         ASTValidation.validate(ast) match {
           case Valid =>
             destination.foreach { case (language, path) =>

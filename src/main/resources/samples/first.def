@@ -63,3 +63,14 @@ type MultiplePeriod {
     }
   }
 }
+
+type NonEmptyList[A] {
+  values: List[A]
+
+  verify {
+    "The list should not be empty"
+    (nonEmptyList: NonEmptyList[A]) => {
+      nonEmptyList.values.nonEmpty()
+    }
+  }
+}

@@ -49,7 +49,7 @@ verification :
 
 definedType :
   DOC_COMMENT?
-  'type' typeName=IDENTIFIER inheritance* '{'
+  'type' typeName=IDENTIFIER inheritance* ('[' genericTypeList ']')? '{'
     attributeDefinition+
 
     (typeVerification)*

@@ -138,9 +138,7 @@ sealed trait Type extends ClassDefinition {
   def comment: Option[String]
 }
 
-case class DefinedType(name: String, attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String], range: Range) extends Type {
-  def genericTypes: Seq[String] = Seq()
-
+case class DefinedType(name: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String], range: Range) extends Type {
   def methods: Seq[MethodDefinition] = Seq()
 }
 
@@ -221,7 +219,7 @@ object ASTJsonProtocol {
   implicit val definedFunctionFormat: JsonFormat[DefinedFunction] = jsonFormat(DefinedFunction.apply, "parameters", "body", "genericTypes", "range")
   implicit val verificationFormat: JsonFormat[Verification] = jsonFormat5(Verification.apply)
   implicit val typeVerificationFormat: JsonFormat[TypeVerification] = jsonFormat3(TypeVerification.apply)
-  implicit val definedTypeFormat: JsonFormat[DefinedType] = jsonFormat(DefinedType.apply, "name", "attributes", "verifications", "inherited", "comment", "range")
+  implicit val definedTypeFormat: JsonFormat[DefinedType] = jsonFormat(DefinedType.apply, "name", "genericTypes", "attributes", "verifications", "inherited", "comment", "range")
   implicit val aliasTypeFormat: JsonFormat[AliasType] = jsonFormat(AliasType.apply, "name", "alias", "inherited", "comment", "range")
   implicit val nativeMethodDefinitionFormat: JsonFormat[NativeMethodDefinition] = jsonFormat(NativeMethodDefinition.apply, "name", "genericTypes", "parameters", "returnTypeReference", "comment")
   implicit val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = jsonFormat(NativeClassDefinition.apply, "name", "genericTypes", "attributes", "methods", "comment")

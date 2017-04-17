@@ -48,6 +48,7 @@ object DefinitiASTParser {
   private def processDefinedType(context: DefinedTypeContext): DefinedType = {
     DefinedType(
       name = context.typeName.getText,
+      genericTypes = processGenericTypeListDefinition(context),
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
       verifications = scalaSeq(context.typeVerification()).map(processTypeVerification),
       inherited = scalaSeq(context.inheritance()).map(_.verificationName.getText),
@@ -237,5 +238,11 @@ object DefinitiASTParser {
     } else {
       Seq()
     }
+  }
+
+  private def processGenericTypeListDefinition(context: DefinedTypeContext) = {
+    Option(context.genericTypeList())
+      .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+      .getOrElse(Seq())
   }
 }

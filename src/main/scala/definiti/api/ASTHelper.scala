@@ -84,11 +84,11 @@ object ASTHelper {
 
   private def getClassReference(typeReference: TypeReference)(implicit context: Context): Option[ClassReference] = {
     val classReferenceOpt = context.findType(typeReference.typeName)
-    val genericClassReferenceOpts = typeReference.genericTypes.map(getClassReference)
-    if (classReferenceOpt.nonEmpty && genericClassReferenceOpts.forall(_.nonEmpty)) {
+    val genericClassReferenceOpts = typeReference.genericTypes.map(getClassReference(_).getOrElse(ClassReference(Core.any, Seq())))
+    if (classReferenceOpt.nonEmpty) {
       Some(ClassReference(
         classDefinition = classReferenceOpt.get,
-        genericTypes = genericClassReferenceOpts.map(_.get)
+        genericTypes = genericClassReferenceOpts
       ))
     } else {
       None

@@ -33,33 +33,6 @@ case class ReferenceContext(
   }
 }
 
-case class FunctionContext(
-  referenceContext: ReferenceContext,
-  currentType: ClassDefinition
-) extends Context {
-  override def isTypeAvailable(typeName: String): Boolean = {
-    currentType.name == typeName ||
-      // TODO: currentType.genericTypes.contains(typeName) ||
-      referenceContext.isTypeAvailable(typeName)
-  }
-
-  override def findType(typeName: String): Option[ClassDefinition] = {
-    if (currentType.name == typeName) {
-      Some(currentType)
-    } else {
-      referenceContext.findType(typeName)
-    }
-  }
-
-  override def isVerificationAvailable(verificationName: String): Boolean = {
-    referenceContext.isVerificationAvailable(verificationName)
-  }
-
-  override def findVerification(verificationName: String): Option[Verification] = {
-    referenceContext.findVerification(verificationName)
-  }
-}
-
 case class ClassContext(
   outerContext: Context,
   currentType: ClassDefinition,

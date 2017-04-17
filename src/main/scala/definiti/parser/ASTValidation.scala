@@ -90,11 +90,13 @@ object ASTValidation {
     }
     val verificationValidations = definedType.verifications.map { verification =>
       validateExpression(verification.function.body).verifyingAlso {
-        val functionReturnType = ASTHelper.getReturnTypeOfExpression(verification.function.body)
-        if (functionReturnType.classDefinition.name == "Boolean") {
-          Valid
-        } else {
-          Invalid("The function in verification must be a Boolean, got: " + functionReturnType.classDefinition.name, verification.function.range)
+        ASTHelper.getReturnTypeOptOfExpression(verification.function.body) match {
+          case Some(functionReturnType) if functionReturnType.classDefinition.name == "Boolean" =>
+            Valid
+          case Some(functionReturnType) =>
+            Invalid("The function in verification must be a Boolean, got: " + functionReturnType.classDefinition.name, verification.function.body.range)
+          case None =>
+            Invalid("Could not find the type of expression.", verification.function.body.range)
         }
       }
     }

@@ -56,10 +56,10 @@ object ASTValidation {
   private def validateVerification(verification: Verification)(implicit context: Context) = {
     validateExpression(verification.function.body).verifyingAlso {
       val functionReturnType = ASTHelper.getReturnTypeOfExpression(verification.function.body)
-      if (functionReturnType.name == "Boolean") {
+      if (functionReturnType.classDefinition.name == "Boolean") {
         Valid
       } else {
-        Invalid("The function in verification must be a boolean expression, got: " + functionReturnType.name, verification.function.body.range)
+        Invalid("The function in verification must be a boolean expression, got: " + functionReturnType.classDefinition.name, verification.function.body.range)
       }
     }
   }
@@ -83,7 +83,7 @@ object ASTValidation {
       }
     }
     val attributeValidations = definedType.attributes.map { attribute =>
-      context.findType(attribute.typeReference) match {
+      context.findType(attribute.typeReference.typeName) match {
         case Some(_) => Valid
         case None => Invalid("Undefined type: " + attribute.typeReference, attribute.range)
       }
@@ -91,10 +91,10 @@ object ASTValidation {
     val verificationValidations = definedType.verifications.map { verification =>
       validateExpression(verification.function.body).verifyingAlso {
         val functionReturnType = ASTHelper.getReturnTypeOfExpression(verification.function.body)
-        if (functionReturnType.name == "Boolean") {
+        if (functionReturnType.classDefinition.name == "Boolean") {
           Valid
         } else {
-          Invalid("The function in verification must be a Boolean, got: " + functionReturnType.name, verification.function.range)
+          Invalid("The function in verification must be a Boolean, got: " + functionReturnType.classDefinition.name, verification.function.range)
         }
       }
     }
@@ -106,16 +106,16 @@ object ASTValidation {
     case NumberValue(_, _) => Valid
     case QuotedStringValue(_, _) => Valid
     case Variable(_, typeReference, range) =>
-      context.findType(typeReference) match {
+      context.findType(typeReference.typeName) match {
         case Some(_) => Valid
         case None => Invalid("Unknown type: " + typeReference, range)
       }
     case MethodCall(inner, method, parameters, range) =>
       validateExpression(inner).verifyingAlso {
         val innerReturnType = ASTHelper.getReturnTypeOfExpression(inner)
-        val methodNameValidation = ASTHelper.getMethodOpt(innerReturnType, method) match {
+        val methodNameValidation = ASTHelper.getMethodOpt(innerReturnType.classDefinition, method) match {
           case Some(_) => Valid
-          case None => Invalid(s"Unknown method ${innerReturnType.name}.$method", range)
+          case None => Invalid(s"Unknown method ${innerReturnType.classDefinition.name}.$method", range)
         }
         val parameterValidations = parameters.map(validateExpression)
         Validation.join(methodNameValidation +: parameterValidations)
@@ -123,9 +123,9 @@ object ASTValidation {
     case AttributeCall(inner, attribute, range) =>
       validateExpression(inner).verifyingAlso {
         val innerReturnType = ASTHelper.getReturnTypeOfExpression(inner)
-        ASTHelper.getAttributeOpt(innerReturnType, attribute) match {
+        ASTHelper.getAttributeOpt(innerReturnType.classDefinition, attribute) match {
           case Some(_) => Valid
-          case None => Invalid(s"Unknown attribute ${innerReturnType.name}.$attribute", range)
+          case None => Invalid(s"Unknown attribute ${innerReturnType.classDefinition.name}.$attribute", range)
         }
       }
     case CombinedExpression(parts, _) =>
@@ -135,10 +135,10 @@ object ASTValidation {
       validateExpression(onTrue)
       onFalse.foreach(validateExpression)
       val conditionReturnType = ASTHelper.getReturnTypeOfExpression(condition)
-      if (conditionReturnType.name == "Boolean") {
+      if (conditionReturnType.classDefinition.name == "Boolean") {
         Valid
       } else {
-        Invalid("The condition must be a boolean expression, got: " + conditionReturnType.name, condition.range)
+        Invalid("The condition must be a boolean expression, got: " + conditionReturnType.classDefinition.name, condition.range)
       }
     case Or(left, right, _) =>
       validateBooleanExpression(left, right)
@@ -169,10 +169,10 @@ object ASTValidation {
     case Not(inner, _) =>
       validateExpression(inner).verifyingAlso {
         val innerReturnType = ASTHelper.getReturnTypeOfExpression(inner)
-        if (innerReturnType.name == "Boolean") {
+        if (innerReturnType.classDefinition.name == "Boolean") {
           Valid
         } else {
-          Invalid("The expression must be a boolean expression, got: " + innerReturnType.name, inner.range)
+          Invalid("The expression must be a boolean expression, got: " + innerReturnType.classDefinition.name, inner.range)
         }
       }
   }
@@ -185,10 +185,10 @@ object ASTValidation {
     validateExpressions(left, right).verifyingAlso {
       lazy val leftReturnType = ASTHelper.getReturnTypeOfExpression(left)
       lazy val rightReturnType = ASTHelper.getReturnTypeOfExpression(right)
-      if (leftReturnType.name != "Boolean") {
-        Invalid("The left part of logical expression must be a boolean expression, got: " + leftReturnType.name, left.range)
-      } else if (rightReturnType.name != "Boolean") {
-        Invalid("The right part of logical expression must be a boolean expression, got: " + rightReturnType.name, right.range)
+      if (leftReturnType.classDefinition.name != "Boolean") {
+        Invalid("The left part of logical expression must be a boolean expression, got: " + leftReturnType.classDefinition.name, left.range)
+      } else if (rightReturnType.classDefinition.name != "Boolean") {
+        Invalid("The right part of logical expression must be a boolean expression, got: " + rightReturnType.classDefinition.name, right.range)
       } else {
         Valid
       }
@@ -212,14 +212,14 @@ object ASTValidation {
     }
   }
 
-  private def validateTypeReferenceOfExpression(expression: Expression)(implicit context: Context): Validation = {
+  private[parser] def validateTypeReferenceOfExpression(expression: Expression)(implicit context: Context): Validation = {
     expression match {
       case _: LogicalExpression => Valid
       case _: CalculatorExpression => Valid
       case NumberValue(_, _) => Valid
       case QuotedStringValue(_, _) => Valid
       case Variable(name, typeReference, range) =>
-        if (context.isTypeAvailable(typeReference)) {
+        if (context.isTypeAvailable(typeReference.typeName)) {
           Valid
         } else {
           Invalid(s"Unknown type $typeReference for variable $name", range)
@@ -227,30 +227,36 @@ object ASTValidation {
       case MethodCall(innerExpression, method, _, range) =>
         validateTypeReferenceOfExpression(innerExpression).verifyingAlso {
           val innerType = ASTHelper.getReturnTypeOfExpression(innerExpression)
-          ASTHelper.getMethodOpt(innerType, method) match {
+          ASTHelper.getMethodOpt(innerType.classDefinition, method) match {
             case Some(_) =>
               // We do not need to validate the method return type because it should be done in upper level
               Valid
             case None =>
-              Invalid(s"Unknown method $method on type ${innerType.name}", range)
+              Invalid(s"Unknown method $method on type ${innerType.classDefinition.name}", range)
           }
         }
       case AttributeCall(innerExpression, attribute, range) =>
         validateTypeReferenceOfExpression(innerExpression).verifyingAlso {
           val innerType = ASTHelper.getReturnTypeOfExpression(innerExpression)
-          ASTHelper.getAttributeOpt(innerType, attribute) match {
+          ASTHelper.getAttributeOpt(innerType.classDefinition, attribute) match {
             case Some(_) =>
               // We do not need to validate the attribute type because it should be done in upper level
               Valid
             case None =>
-              Invalid(s"Unknown attribute $attribute on type ${innerType.name}", range)
+              Invalid(s"Unknown attribute $attribute on type ${innerType.classDefinition.name}", range)
           }
         }
       case CombinedExpression(parts, _) =>
         Validation.join(parts.map(validateTypeReferenceOfExpression))
       case Condition(condition, onTrue, onFalseOpt, _) =>
         Validation.join(
-          validateTypeReferenceOfExpression(condition),
+          validateTypeReferenceOfExpression(condition).verifyingAlso {
+            if (ASTHelper.getReturnTypeOfExpression(condition).classDefinition.name == "Boolean") {
+              Valid
+            } else {
+              Invalid("The condition must be a boolean expression", condition.range)
+            }
+          },
           validateTypeReferenceOfExpression(onTrue),
           onFalseOpt.map(validateTypeReferenceOfExpression).getOrElse(Valid)
         )

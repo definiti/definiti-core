@@ -33,7 +33,7 @@ method :
 parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
 
-genericType: IDENTIFIER;
+genericType: IDENTIFIER ('[' genericTypeList ']')?;
 genericTypeList: ((genericType ',')* genericType);
 
 DOC_COMMENT   : '/**' .*? '*/';

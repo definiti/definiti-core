@@ -11,23 +11,32 @@ case class Root(
   classDefinitions: Seq[ClassDefinition]
 )
 
+case class TypeReference(
+  typeName: String,
+  genericTypes: Seq[TypeReference]
+) {
+  def readableString: String = s"$typeName[${genericTypes.map(_.readableString).mkString(",")}]"
+}
+
 case class AttributeDefinition(
   name: String,
-  typeReference: String,
+  typeReference: TypeReference,
   comment: Option[String],
-  genericTypes: Seq[String],
+  genericTypes: Seq[TypeReference],
   range: Range
 )
 
 case class ParameterDefinition(
   name: String,
-  typeReference: String,
-  genericTypes: Seq[String],
+  typeReference: TypeReference,
+  genericTypes: Seq[TypeReference],
   range: Range
 )
 
 sealed trait ClassDefinition {
   def name: String
+
+  def genericTypes: Seq[String]
 }
 
 sealed trait MethodDefinition {
@@ -46,7 +55,7 @@ case class NativeMethodDefinition(
   name: String,
   genericTypes: Seq[String],
   parameters: Seq[ParameterDefinition],
-  returnTypeReference: String,
+  returnTypeReference: TypeReference,
   comment: Option[String]
 ) extends MethodDefinition
 
@@ -104,7 +113,7 @@ case class NumberValue(value: BigDecimal, range: Range) extends Expression
 
 case class QuotedStringValue(value: String, range: Range) extends Expression
 
-case class Variable(name: String, typeReference: String, range: Range) extends Expression
+case class Variable(name: String, typeReference: TypeReference, range: Range) extends Expression
 
 case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression], range: Range) extends Expression
 
@@ -121,7 +130,7 @@ case class Condition(
 
 case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], range: Range)
 
-case class Parameter(name: String, typeReference: String, range: Range)
+case class Parameter(name: String, typeReference: TypeReference, range: Range)
 
 case class Verification(name: String, message: String, function: DefinedFunction, comment: Option[String], range: Range)
 
@@ -135,13 +144,16 @@ case class DefinedType(name: String, attributes: Seq[AttributeDefinition], verif
   def methods: Seq[MethodDefinition] = Seq()
 }
 
-case class AliasType(name: String, alias: String, inherited: Seq[String], comment: Option[String], range: Range) extends Type
+case class AliasType(name: String, alias: String, inherited: Seq[String], comment: Option[String], range: Range) extends Type {
+  override def genericTypes: Seq[String] = Seq()
+}
 
 case class TypeVerification(message: String, function: DefinedFunction, range: Range)
 
 object ASTJsonProtocol {
   import spray.json.DefaultJsonProtocol._
 
+  implicit val typeReferenceFormat: JsonFormat[TypeReference] = jsonFormat2(TypeReference.apply)
   implicit val postitionFormat: JsonFormat[Position] = jsonFormat2(Position.apply)
   implicit val rangeFormat: JsonFormat[Range] = jsonFormat2(Range.apply)
   implicit val orFormat: JsonFormat[Or] = jsonFormat3(Or.apply)

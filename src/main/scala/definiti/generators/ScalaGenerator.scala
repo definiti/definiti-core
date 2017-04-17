@@ -9,6 +9,7 @@ object ScalaGenerator {
   val nativeTypeMapping = Map(
     "Boolean" -> "BooleanWrapper",
     "Date" -> "DateWrapper",
+    "List" -> "ListWrapper",
     "Number" -> "NumberWrapper",
     "String" -> "StringWrapper"
   )
@@ -45,7 +46,7 @@ object ScalaGenerator {
   }
 
   private def appendNative(buffer: StringBuilder)(implicit context: Context): Unit = {
-    Seq("BooleanWrapper", "DateWrapper", "NumberWrapper", "StringWrapper") foreach { className =>
+    Seq("BooleanWrapper", "DateWrapper", "ListWrapper", "NumberWrapper", "StringWrapper") foreach { className =>
       buffer.append(Source.fromResource(s"generators/scala/native/$className.scala").getLines.mkString("", "\n", "\n"))
     }
   }
@@ -68,11 +69,14 @@ object ScalaGenerator {
   }
 
   private def generateParameter(parameterDefinition: ParameterDefinition)(implicit context: Context): String = {
-    val parameterType = context.findType(parameterDefinition.typeReference) match {
-      case Some(_: Type) => "$" + parameterDefinition.typeReference
-      case _ => parameterDefinition.typeReference
+    val parameterType = context.findType(parameterDefinition.typeReference.typeName) match {
+      case Some(_: Type) => "$" + parameterDefinition.typeReference.typeName
+      case _ => parameterDefinition.typeReference.typeName
     }
-    s"${parameterDefinition.name}: ${nativeTypeMapping.getOrElse(parameterType, parameterType)}"
+    val parameterName = parameterDefinition.name
+    val finalParameterType = nativeTypeMapping.getOrElse(parameterType, parameterType)
+    val parameterGenerics = generateGenericTypes(parameterDefinition.genericTypes)
+    s"$parameterName: $finalParameterType$parameterGenerics"
   }
 
   private def generateExpression(expression: Expression)(implicit context: Context): String = expression match {
@@ -211,7 +215,7 @@ object ScalaGenerator {
   }
 
   private def generateAttribute(attributeDefinition: AttributeDefinition)(implicit context: Context): String = {
-    s"val ${attributeDefinition.name}: ${nativeTypeMapping.getOrElse(attributeDefinition.typeReference, attributeDefinition.typeReference)}"
+    s"val ${generateAttributeParameter(attributeDefinition)}"
   }
 
   private def generateAttributeParameters(attributeDefinition: Seq[AttributeDefinition])(implicit context: Context): String = {
@@ -219,7 +223,10 @@ object ScalaGenerator {
   }
 
   private def generateAttributeParameter(attributeDefinition: AttributeDefinition)(implicit context: Context): String = {
-    s"${attributeDefinition.name}: ${nativeTypeMapping.getOrElse(attributeDefinition.typeReference, attributeDefinition.typeReference)}"
+    val attributeName = attributeDefinition.name
+    val attributeType = nativeTypeMapping.getOrElse(attributeDefinition.typeReference.typeName, attributeDefinition.typeReference.typeName)
+    val attributeGenerics = generateGenericTypes(attributeDefinition.genericTypes)
+    s"$attributeName: $attributeType$attributeGenerics"
   }
 
   private def generateTypeVerification(typeVerification: TypeVerification)(implicit context: Context): String = {
@@ -228,5 +235,16 @@ object ScalaGenerator {
        |  ${generateExpression(typeVerification.function.body)}
        |}
      """.stripMargin
+  }
+
+  private def generateGenericTypes(genericTypes: Seq[TypeReference]): String = {
+    def generateGenericType(genericType: TypeReference): String = {
+      genericType.typeName + generateGenericTypes(genericType.genericTypes)
+    }
+    if (genericTypes.nonEmpty) {
+      genericTypes.map(generateGenericType).mkString("[", ",", "]")
+    } else {
+      ""
+    }
   }
 }

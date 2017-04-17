@@ -1,7 +1,7 @@
 type List[A] {
   nonEmpty(): Boolean
 
-  isDefined(): Boolean
+  isEmpty(): Boolean
 
   head: A
 }

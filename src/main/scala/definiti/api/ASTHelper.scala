@@ -2,62 +2,100 @@ package definiti.api
 
 import definiti._
 
+case class ClassReference(classDefinition: ClassDefinition, genericTypes: Seq[ClassReference])
+
 object ASTHelper {
-  def getReturnTypeOptOfMethod(methodDefinition: MethodDefinition)(implicit context: Context): Option[ClassDefinition] = {
+  def getReturnTypeOptOfMethod(methodDefinition: MethodDefinition)(implicit context: Context): Option[ClassReference] = {
     methodDefinition match {
       case nativeMethodDefinition: NativeMethodDefinition =>
-        context.findType(nativeMethodDefinition.returnTypeReference)
+        getClassReference(nativeMethodDefinition.returnTypeReference)
       case definedMethodDefinition: DefinedMethodDefinition =>
         getReturnTypeOptOfExpression(definedMethodDefinition.function.body)
     }
   }
 
-  def getReturnTypeOfMethod(methodDefinition: MethodDefinition)(implicit context: Context): ClassDefinition = {
+  def getReturnTypeOfMethod(methodDefinition: MethodDefinition)(implicit context: Context): ClassReference = {
     getReturnTypeOptOfMethod(methodDefinition).get
   }
 
-  def getReturnTypeOptOfExpression(expression: Expression)(implicit context: Context): Option[ClassDefinition] = {
+  def getReturnTypeOptOfExpression(expression: Expression)(implicit context: Context): Option[ClassReference] = {
     expression match {
-      case _: LogicalExpression => context.findType("Boolean")
-      case _: CalculatorExpression => context.findType("Number")
-      case NumberValue(_, _) => context.findType("Number")
-      case QuotedStringValue(_, _) => context.findType("String")
-      case Variable(_, typeReference, _) => context.findType(typeReference)
-      case MethodCall(innerExpression, method, _, _) =>
-        getReturnTypeOptOfExpression(innerExpression).flatMap { expressionType =>
-          getMethodOpt(expressionType, method).flatMap { method =>
-            getReturnTypeOptOfMethod(method)
-          }
-        }
-      case AttributeCall(innerExpression, attribute, _) =>
-        getReturnTypeOptOfExpression(innerExpression).flatMap { expressionType =>
-          getAttributeOpt(expressionType, attribute)
-            .map(_.typeReference)
-            .flatMap(context.findType)
-        }
+      case _: LogicalExpression => context.findType("Boolean").map(ClassReference(_, Seq()))
+      case _: CalculatorExpression => context.findType("Number").map(ClassReference(_, Seq()))
+      case NumberValue(_, _) => context.findType("Number").map(ClassReference(_, Seq()))
+      case QuotedStringValue(_, _) => context.findType("String").map(ClassReference(_, Seq()))
+      case Variable(_, typeReference, _) =>
+        getClassReference(typeReference)
+      case methodCall: MethodCall =>
+        getReturnTypeOfMethodCall(methodCall)
+      case attributeCall: AttributeCall =>
+        getReturnTypeOfAttributeCall(attributeCall)
       case CombinedExpression(parts, _) =>
         parts.lastOption.flatMap(getReturnTypeOptOfExpression)
       case Condition(_, onTrue, onFalseOpt, _) =>
-        onFalseOpt match {
-          case Some(onFalse) =>
-            (
-              getReturnTypeOptOfExpression(onTrue),
-              getReturnTypeOptOfExpression(onFalse)
-            ) match {
-              case (Some(onTrueType), Some(onFalseType)) =>
-                if (onTrueType.name == onFalseType.name) {
-                  Some(onTrueType)
-                } else {
-                  Some(Core.any)
-                }
-              case _ => None
-            }
-          case _ => Some(Core.unit)
-        }
+        getReturnTypeOptOfCondition(onTrue, onFalseOpt)
     }
   }
 
-  def getReturnTypeOfExpression(expression: Expression)(implicit context: Context): ClassDefinition = {
+  private def getReturnTypeOfMethodCall(methodCall: MethodCall)(implicit context: Context) = {
+    getReturnTypeOptOfExpression(methodCall.expression).flatMap { expressionType =>
+      getMethodOpt(expressionType.classDefinition, methodCall.method).flatMap { method =>
+        val classContext = ClassContext(
+          context,
+          currentType = expressionType.classDefinition,
+          expressionType.genericTypes
+        )
+        getReturnTypeOptOfMethod(method)(classContext)
+      }
+    }
+  }
+
+  private def getReturnTypeOfAttributeCall(attributeCall: AttributeCall)(implicit context: Context): Option[ClassReference] = {
+    getReturnTypeOptOfExpression(attributeCall.expression).flatMap { expressionType =>
+      getAttributeOpt(expressionType.classDefinition, attributeCall.attribute).flatMap { attributeDefinition =>
+        val classContext = ClassContext(
+          context,
+          currentType = expressionType.classDefinition,
+          expressionType.genericTypes
+        )
+        getClassReference(attributeDefinition.typeReference)(classContext)
+      }
+    }
+  }
+
+  private def getReturnTypeOptOfCondition(onTrue: Expression, onFalseOpt: Option[Expression])(implicit context: Context) = {
+    onFalseOpt match {
+      case Some(onFalse) =>
+        (
+          getReturnTypeOptOfExpression(onTrue),
+          getReturnTypeOptOfExpression(onFalse)
+        ) match {
+          case (Some(onTrueType), Some(onFalseType)) =>
+            if (onTrueType.classDefinition.name == onFalseType.classDefinition.name) {
+              Some(onTrueType)
+            } else {
+              Some(ClassReference(Core.any, Seq()))
+            }
+          case _ => None
+        }
+      case _ => Some(ClassReference(Core.unit, Seq()))
+    }
+  }
+
+  private def getClassReference(typeReference: TypeReference)(implicit context: Context): Option[ClassReference] = {
+    val classReferenceOpt = context.findType(typeReference.typeName)
+    val genericClassReferenceOpts = typeReference.genericTypes.map(getClassReference)
+    if (classReferenceOpt.nonEmpty && genericClassReferenceOpts.forall(_.nonEmpty)) {
+      Some(ClassReference(
+        classDefinition = classReferenceOpt.get,
+        genericTypes = genericClassReferenceOpts.map(_.get)
+      ))
+    } else {
+      None
+    }
+  }
+
+  def getReturnTypeOfExpression(expression: Expression)(implicit context: Context): ClassReference = {
     getReturnTypeOptOfExpression(expression).get
   }
 

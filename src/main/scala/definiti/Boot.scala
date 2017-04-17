@@ -34,7 +34,7 @@ object Boot extends App {
   val source = Paths.get("src", "main", "resources", "samples", "first.def")
   val destination = Map(
     "scala" -> Paths.get("target", "samples", "result.scala"),
-    "typescript" -> Paths.get("target", "samples", "result.typescript")
+    "typescript" -> Paths.get("target", "samples", "result.ts")
   )
   val rootDefinitionFiles = Paths.get("src", "main", "resources", "api")
   val definitionFiles = Files.find(rootDefinitionFiles, 1000, (path, _) => String.valueOf(path).endsWith(".definition"))

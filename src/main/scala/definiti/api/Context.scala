@@ -1,6 +1,6 @@
 package definiti.api
 
-import definiti.{ClassDefinition, Verification}
+import definiti.{ClassDefinition, TypeReference, Verification}
 
 sealed trait Context {
   def isTypeAvailable(typeName: String): Boolean
@@ -57,5 +57,36 @@ case class FunctionContext(
 
   override def findVerification(verificationName: String): Option[Verification] = {
     referenceContext.findVerification(verificationName)
+  }
+}
+
+case class ClassContext(
+  outerContext: Context,
+  currentType: ClassDefinition,
+  genericTypes: Seq[ClassReference]
+) extends Context {
+  override def isTypeAvailable(typeName: String): Boolean = {
+    currentType.genericTypes.contains(typeName) || outerContext.isTypeAvailable(typeName)
+  }
+
+  override def findType(typeName: String): Option[ClassDefinition] = {
+    if (currentType.genericTypes.contains(typeName)) {
+      val indexOfGeneric = currentType.genericTypes.indexOf(typeName)
+      if (indexOfGeneric < genericTypes.size) {
+        outerContext.findType(genericTypes(indexOfGeneric).classDefinition.name)
+      } else {
+        None
+      }
+    } else {
+      outerContext.findType(typeName)
+    }
+  }
+
+  override def isVerificationAvailable(verificationName: String): Boolean = {
+    outerContext.isVerificationAvailable(verificationName)
+  }
+
+  override def findVerification(verificationName: String): Option[Verification] = {
+    outerContext.findVerification(verificationName)
   }
 }

@@ -2,6 +2,7 @@ package definiti.generators
 
 import definiti._
 import definiti.api.{ASTHelper, Context}
+import definiti.generators.ScalaGenerator.{generateGenericTypes, nativeTypeMapping}
 
 import scala.io.Source
 
@@ -64,11 +65,14 @@ object TypescriptGenerator {
   }
 
   private def generateParameter(parameterDefinition: ParameterDefinition)(implicit context: Context): String = {
-    val parameterType = context.findType(parameterDefinition.typeReference) match {
-      case Some(_: Type) => "$" + parameterDefinition.typeReference
-      case _ => parameterDefinition.typeReference
+    val parameterType = context.findType(parameterDefinition.typeReference.typeName) match {
+      case Some(_: Type) => "$" + parameterDefinition.typeReference.typeName
+      case _ => parameterDefinition.typeReference.typeName
     }
-    s"${parameterDefinition.name}: ${nativeTypeMapping.getOrElse(parameterType, parameterType)}"
+    val parameterName = parameterDefinition.name
+    val finalParameterType = nativeTypeMapping.getOrElse(parameterType, parameterType)
+    val parameterGenerics = generateGenericTypes(parameterDefinition.genericTypes)
+    s"$parameterName: $finalParameterType$parameterGenerics"
   }
 
   private def generateExpression(expression: Expression)(implicit context: Context): String = expression match {
@@ -112,7 +116,7 @@ object TypescriptGenerator {
   }
 
   private def logicalExpression(symbol: String, wrapperMethod: String, left: Expression, right: Expression)(implicit context: Context): String = {
-    if (nativeTypeMapping.contains(ASTHelper.getReturnTypeOfExpression(left).name)) {
+    if (nativeTypeMapping.contains(ASTHelper.getReturnTypeOfExpression(left).classDefinition.name)) {
       s"(${generateExpression(left)}).$wrapperMethod(${generateExpression(right)})"
     } else {
       s"(${generateExpression(left)}) $symbol (${generateExpression(right)})"
@@ -199,7 +203,7 @@ object TypescriptGenerator {
   }
 
   private def generateAttribute(attributeDefinition: AttributeDefinition)(implicit context: Context): String = {
-    s"val ${attributeDefinition.name}: ${nativeTypeMapping.getOrElse(attributeDefinition.typeReference, attributeDefinition.typeReference)}"
+    s"val ${attributeDefinition.name}: ${nativeTypeMapping.getOrElse(attributeDefinition.typeReference.typeName, attributeDefinition.typeReference)}"
   }
 
   private def generateAttributeParameters(attributeDefinition: Seq[AttributeDefinition])(implicit context: Context): String = {
@@ -207,7 +211,10 @@ object TypescriptGenerator {
   }
 
   private def generateAttributeParameter(attributeDefinition: AttributeDefinition)(implicit context: Context): String = {
-    s"${attributeDefinition.name}: ${nativeTypeMapping.getOrElse(attributeDefinition.typeReference, attributeDefinition.typeReference)}"
+    val attributeName = attributeDefinition.name
+    val attributeType = nativeTypeMapping.getOrElse(attributeDefinition.typeReference.typeName, attributeDefinition.typeReference.typeName)
+    val attributeGenerics = generateGenericTypes(attributeDefinition.genericTypes)
+    s"$attributeName: $attributeType$attributeGenerics"
   }
 
   private def generateTypeVerification(typeVerification: TypeVerification)(implicit context: Context): String = {
@@ -216,5 +223,16 @@ object TypescriptGenerator {
        |  return ${generateExpression(typeVerification.function.body)};
        |})
      """.stripMargin
+  }
+
+  private def generateGenericTypes(genericTypes: Seq[TypeReference]): String = {
+    def generateGenericType(genericType: TypeReference): String = {
+      genericType.typeName + generateGenericTypes(genericType.genericTypes)
+    }
+    if (genericTypes.nonEmpty) {
+      genericTypes.map(generateGenericType).mkString("<", ",", ">")
+    } else {
+      ""
+    }
   }
 }

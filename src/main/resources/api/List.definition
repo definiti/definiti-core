@@ -1,0 +1,9 @@
+type List[A] {
+  nonEmpty(): Boolean
+
+  isEmpty(): Boolean
+
+  head: A
+
+  randomElement(): A
+}

@@ -1,7 +1,7 @@
 package definiti.generators
 
 import definiti._
-import definiti.api.TypeReference
+import definiti.api.Context
 
 import scala.io.Source
 
@@ -9,11 +9,12 @@ object ScalaGenerator {
   val nativeTypeMapping = Map(
     "Boolean" -> "BooleanWrapper",
     "Date" -> "DateWrapper",
+    "List" -> "ListWrapper",
     "Number" -> "NumberWrapper",
     "String" -> "StringWrapper"
   )
 
-  def generate(root: Root): String = {
+  def generate(root: Root)(implicit context: Context): String = {
     val buffer: StringBuilder = new StringBuilder()
 
     appendNative(buffer)
@@ -44,13 +45,13 @@ object ScalaGenerator {
     buffer.toString()
   }
 
-  private def appendNative(buffer: StringBuilder): Unit = {
-    Seq("BooleanWrapper", "DateWrapper", "NumberWrapper", "StringWrapper") foreach { className =>
+  private def appendNative(buffer: StringBuilder)(implicit context: Context): Unit = {
+    Seq("BooleanWrapper", "DateWrapper", "ListWrapper", "NumberWrapper", "StringWrapper") foreach { className =>
       buffer.append(Source.fromResource(s"generators/scala/native/$className.scala").getLines.mkString("", "\n", "\n"))
     }
   }
 
-  private def generateVerification(verification: Verification): String = {
+  private def generateVerification(verification: Verification)(implicit context: Context): String = {
     s"""
        |${verification.comment.map(comment => s"/*$comment*/").getOrElse("")}
        |def verify${verification.name}(${generateParameters(verification.function.parameters)}): Option[String] = {
@@ -61,21 +62,24 @@ object ScalaGenerator {
       """.stripMargin
   }
 
-  private def generateParameters(parameterDefinitions: Seq[ParameterDefinition]): String = parameterDefinitions match {
+  private def generateParameters(parameterDefinitions: Seq[ParameterDefinition])(implicit context: Context): String = parameterDefinitions match {
     case Nil => ""
     case one :: Nil => generateParameter(one)
     case seq => seq.map(generateParameter).mkString("(", "), (", ")")
   }
 
-  private def generateParameter(parameterDefinition: ParameterDefinition): String = {
-    val parameterType = TypeReference.findType(parameterDefinition.typeReference) match {
-      case Some(_: Type) => "$" + parameterDefinition.typeReference
-      case _ => parameterDefinition.typeReference
+  private def generateParameter(parameterDefinition: ParameterDefinition)(implicit context: Context): String = {
+    val parameterType = context.findType(parameterDefinition.typeReference.typeName) match {
+      case Some(_: Type) => "$" + parameterDefinition.typeReference.typeName
+      case _ => parameterDefinition.typeReference.typeName
     }
-    s"${parameterDefinition.name}: ${nativeTypeMapping.getOrElse(parameterType, parameterType)}"
+    val parameterName = parameterDefinition.name
+    val finalParameterType = nativeTypeMapping.getOrElse(parameterType, parameterType)
+    val parameterGenerics = generateGenericTypes(parameterDefinition.genericTypes)
+    s"$parameterName: $finalParameterType$parameterGenerics"
   }
 
-  private def generateExpression(expression: Expression): String = expression match {
+  private def generateExpression(expression: Expression)(implicit context: Context): String = expression match {
     case BooleanValue(value, _) => s"new BooleanWrapper(${value.toString})"
     case NumberValue(value, _) => s"new NumberWrapper(${value.toString})"
     case QuotedStringValue(value, _) => """new StringWrapper("""" + value.toString.replaceAllLiterally("\\", "\\\\") + """")"""
@@ -119,18 +123,18 @@ object ScalaGenerator {
     case Not(inner, _) => s"!(${generateExpression(inner)})"
   }
 
-  private def generateCallParameters(expressions: Seq[Expression]): String = expressions match {
+  private def generateCallParameters(expressions: Seq[Expression])(implicit context: Context): String = expressions match {
     case Nil => ""
     case one :: Nil => generateExpression(one)
     case seq => seq.map(generateExpression).mkString("(", "), (", ")")
   }
 
-  private def generateClassDefinition(classDefinition: ClassDefinition): String = classDefinition match {
+  private def generateClassDefinition(classDefinition: ClassDefinition)(implicit context: Context): String = classDefinition match {
     case definedType: DefinedType => generateDefinedType(definedType)
     case aliasType: AliasType => generateAliasType(aliasType)
   }
 
-  private def generateDefinedType(definedType: DefinedType, originalTypeOpt: Option[String] = None): String = {
+  private def generateDefinedType(definedType: DefinedType, originalTypeOpt: Option[TypeReference] = None)(implicit context: Context): String = {
     val __resultAliases = definedType.verifications
       .flatMap(_.function.parameters.map(_.name))
       .distinct
@@ -143,7 +147,7 @@ object ScalaGenerator {
         definedType.inherited.map(inherited => s"verify$inherited(__result)")
       ).mkString(", ")
 
-    val originalType = originalTypeOpt.getOrElse(definedType.name)
+    val realType = originalTypeOpt.map(_.typeName).getOrElse(definedType.name)
 
     val resultType = originalTypeOpt match {
       case Some(_) =>
@@ -154,13 +158,19 @@ object ScalaGenerator {
 
     val $interface = originalTypeOpt.map(_ => "").getOrElse(generateInterface(definedType))
 
+    val originalTypeGenerics = originalTypeOpt match {
+      case Some(originalType) => generateGenericTypes(originalType.genericTypes)
+      case None => generateGenericTypeDefinition(definedType)
+    }
+
+    val typeDefinition = s"${generateGenericTypeDefinition(definedType)}"
     s"""
        |${$interface}
        |${definedType.comment.map(comment => s"/*$comment*/").getOrElse("")}
-       |class ${definedType.name} private(${generateAttributes(definedType.attributes)}) extends $$${originalType}
+       |class ${definedType.name}$typeDefinition private(${generateAttributes(definedType.attributes)}) extends $$$realType$originalTypeGenerics
        |
        |object ${definedType.name} {
-       |  def apply(${generateAttributeParameters(definedType.attributes)}): Either[String, ${definedType.name}] = {
+       |  def apply$typeDefinition(${generateAttributeParameters(definedType.attributes)}): Either[String, ${definedType.name}$typeDefinition] = {
        |    val __result = new ${definedType.name}(${definedType.attributes.map(_.name).mkString(", ")})
        |    ${__resultAliases}
        |    val __errorOpt = Seq(
@@ -186,47 +196,83 @@ object ScalaGenerator {
      """.stripMargin
   }
 
-  private def generateInterface(definedType: DefinedType): String = {
+  private def generateInterface(definedType: DefinedType)(implicit context: Context): String = {
     s"""
-       |trait $$${definedType.name} {
+       |trait $$${definedType.name}${generateGenericTypeDefinition(definedType)} {
        |  ${definedType.attributes.map(attribute => "def " + generateAttributeParameter(attribute)).mkString("\n")}
        |}
      """.stripMargin
   }
 
-  private def generateAliasType(aliasType: AliasType): String = {
-    TypeReference.findType(aliasType.alias) match {
+  private def generateGenericTypeDefinition(definedType: DefinedType) = {
+    if (definedType.genericTypes.nonEmpty) {
+      definedType.genericTypes.mkString("[", ",", "]")
+    } else {
+      ""
+    }
+  }
+
+  private def generateAliasType(aliasType: AliasType)(implicit context: Context): String = {
+    context.findType(aliasType.alias.typeName) match {
       case Some(definedType: DefinedType) =>
+        val genericTypeMapping = Map(definedType.genericTypes.zip(aliasType.alias.genericTypes): _*)
+        def updateGenericTypes(typeReference: TypeReference): TypeReference = {
+          if (genericTypeMapping.contains(typeReference.typeName)) {
+            genericTypeMapping(typeReference.typeName)
+          } else {
+            typeReference.copy(
+              genericTypes = typeReference.genericTypes.map(updateGenericTypes)
+            )
+          }
+        }
         generateDefinedType(definedType.copy(
           comment = aliasType.comment,
           name = aliasType.name,
-          inherited = definedType.inherited ++ aliasType.inherited
+          genericTypes = aliasType.genericTypes,
+          inherited = definedType.inherited ++ aliasType.inherited,
+          attributes = definedType.attributes.map { attribute =>
+            attribute.copy(typeReference = updateGenericTypes(attribute.typeReference))
+          }
         ), Some(aliasType.alias))
       case _ => throw new RuntimeException("Undefined type: " + aliasType)
     }
   }
 
-  private def generateAttributes(attributeDefinition: Seq[AttributeDefinition]): String = {
+  private def generateAttributes(attributeDefinition: Seq[AttributeDefinition])(implicit context: Context): String = {
     attributeDefinition.map(generateAttribute).mkString(", ")
   }
 
-  private def generateAttribute(attributeDefinition: AttributeDefinition): String = {
-    s"val ${attributeDefinition.name}: ${nativeTypeMapping.getOrElse(attributeDefinition.typeReference, attributeDefinition.typeReference)}"
+  private def generateAttribute(attributeDefinition: AttributeDefinition)(implicit context: Context): String = {
+    s"val ${generateAttributeParameter(attributeDefinition)}"
   }
 
-  private def generateAttributeParameters(attributeDefinition: Seq[AttributeDefinition]): String = {
+  private def generateAttributeParameters(attributeDefinition: Seq[AttributeDefinition])(implicit context: Context): String = {
     attributeDefinition.map(generateAttributeParameter).mkString(", ")
   }
 
-  private def generateAttributeParameter(attributeDefinition: AttributeDefinition): String = {
-    s"${attributeDefinition.name}: ${nativeTypeMapping.getOrElse(attributeDefinition.typeReference, attributeDefinition.typeReference)}"
+  private def generateAttributeParameter(attributeDefinition: AttributeDefinition)(implicit context: Context): String = {
+    val attributeName = attributeDefinition.name
+    val attributeType = nativeTypeMapping.getOrElse(attributeDefinition.typeReference.typeName, attributeDefinition.typeReference.typeName)
+    val attributeGenerics = generateGenericTypes(attributeDefinition.typeReference.genericTypes)
+    s"$attributeName: $attributeType$attributeGenerics"
   }
 
-  private def generateTypeVerification(typeVerification: TypeVerification): String = {
+  private def generateTypeVerification(typeVerification: TypeVerification)(implicit context: Context): String = {
     s"""
        |verify("${typeVerification.message}") {
        |  ${generateExpression(typeVerification.function.body)}
        |}
      """.stripMargin
+  }
+
+  private def generateGenericTypes(genericTypes: Seq[TypeReference]): String = {
+    def generateGenericType(genericType: TypeReference): String = {
+      genericType.typeName + generateGenericTypes(genericType.genericTypes)
+    }
+    if (genericTypes.nonEmpty) {
+      genericTypes.map(generateGenericType).mkString("[", ",", "]")
+    } else {
+      ""
+    }
   }
 }

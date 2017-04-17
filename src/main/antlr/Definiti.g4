@@ -49,7 +49,7 @@ verification :
 
 definedType :
   DOC_COMMENT?
-  'type' typeName=IDENTIFIER inheritance* '{'
+  'type' typeName=IDENTIFIER inheritance* ('[' genericTypeList ']')? '{'
     attributeDefinition+
 
     (typeVerification)*
@@ -57,7 +57,7 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER;
+  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')?;
 
 typeVerification:
   'verify' '{'
@@ -67,14 +67,17 @@ typeVerification:
 
 aliasType :
   DOC_COMMENT?
-  'type' typeName=IDENTIFIER '=' referenceTypeName=IDENTIFIER inheritance*;
+  'type' typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? inheritance*;
 
-function : '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
+function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
 
 inheritance : ('verifying' verificationName=IDENTIFIER);
 
-parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER;
+parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
+
+genericType: IDENTIFIER ('[' genericTypeList ']')?;
+genericTypeList: ((genericType ',')* genericType);
 
 DOC_COMMENT   : '/**' .*? '*/';
 BLOCK_COMMENT : '/*' .*? '*/' -> skip;

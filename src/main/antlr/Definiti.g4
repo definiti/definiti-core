@@ -67,7 +67,7 @@ typeVerification:
 
 aliasType :
   DOC_COMMENT?
-  'type' typeName=IDENTIFIER '=' referenceTypeName=IDENTIFIER inheritance*;
+  'type' typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? inheritance*;
 
 function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
 

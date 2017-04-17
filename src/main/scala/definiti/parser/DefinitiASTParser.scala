@@ -48,12 +48,12 @@ object DefinitiASTParser {
   private def processDefinedType(context: DefinedTypeContext): DefinedType = {
     DefinedType(
       name = context.typeName.getText,
-      genericTypes = processGenericTypeListDefinition(context),
+      genericTypes = processGenericTypeListDefinition(context.genericTypeList()),
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
       verifications = scalaSeq(context.typeVerification()).map(processTypeVerification),
       inherited = scalaSeq(context.inheritance()).map(_.verificationName.getText),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
-      getRangeFromContext(context)
+      range = getRangeFromContext(context)
     )
   }
 
@@ -61,9 +61,9 @@ object DefinitiASTParser {
     AttributeDefinition(
       name = context.attributeName.getText,
       typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
-      Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
+      comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       genericTypes = processGenericTypeList(context.genericTypeList()),
-      getRangeFromContext(context)
+      range = getRangeFromContext(context)
     )
   }
 
@@ -78,10 +78,14 @@ object DefinitiASTParser {
   private def processAliasType(context: AliasTypeContext): AliasType = {
     AliasType(
       name = context.typeName.getText,
-      alias = context.referenceTypeName.getText,
+      alias = TypeReference(
+        typeName = context.referenceTypeName.getText,
+        genericTypes = processGenericTypeList(context.aliasGenericTypes)
+      ),
+      genericTypes = processGenericTypeListDefinition(context.genericTypes),
       inherited = scalaSeq(context.inheritance()).map(_.verificationName.getText),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
-      getRangeFromContext(context)
+      range = getRangeFromContext(context)
     )
   }
 
@@ -240,8 +244,8 @@ object DefinitiASTParser {
     }
   }
 
-  private def processGenericTypeListDefinition(context: DefinedTypeContext) = {
-    Option(context.genericTypeList())
+  private def processGenericTypeListDefinition(context: GenericTypeListContext) = {
+    Option(context)
       .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
       .getOrElse(Seq())
   }

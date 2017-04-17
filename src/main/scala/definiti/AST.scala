@@ -142,9 +142,7 @@ case class DefinedType(name: String, genericTypes: Seq[String], attributes: Seq[
   def methods: Seq[MethodDefinition] = Seq()
 }
 
-case class AliasType(name: String, alias: String, inherited: Seq[String], comment: Option[String], range: Range) extends Type {
-  override def genericTypes: Seq[String] = Seq()
-}
+case class AliasType(name: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[String], comment: Option[String], range: Range) extends Type
 
 case class TypeVerification(message: String, function: DefinedFunction, range: Range)
 
@@ -152,7 +150,7 @@ object ASTJsonProtocol {
   import spray.json.DefaultJsonProtocol._
 
   implicit val typeReferenceFormat: JsonFormat[TypeReference] = jsonFormat2(TypeReference.apply)
-  implicit val postitionFormat: JsonFormat[Position] = jsonFormat2(Position.apply)
+  implicit val positionFormat: JsonFormat[Position] = jsonFormat2(Position.apply)
   implicit val rangeFormat: JsonFormat[Range] = jsonFormat2(Range.apply)
   implicit val orFormat: JsonFormat[Or] = jsonFormat3(Or.apply)
   implicit val andFormat: JsonFormat[And] = jsonFormat3(And.apply)
@@ -220,7 +218,7 @@ object ASTJsonProtocol {
   implicit val verificationFormat: JsonFormat[Verification] = jsonFormat5(Verification.apply)
   implicit val typeVerificationFormat: JsonFormat[TypeVerification] = jsonFormat3(TypeVerification.apply)
   implicit val definedTypeFormat: JsonFormat[DefinedType] = jsonFormat(DefinedType.apply, "name", "genericTypes", "attributes", "verifications", "inherited", "comment", "range")
-  implicit val aliasTypeFormat: JsonFormat[AliasType] = jsonFormat(AliasType.apply, "name", "alias", "inherited", "comment", "range")
+  implicit val aliasTypeFormat: JsonFormat[AliasType] = jsonFormat(AliasType.apply, "name", "alias", "genericTypes", "inherited", "comment", "range")
   implicit val nativeMethodDefinitionFormat: JsonFormat[NativeMethodDefinition] = jsonFormat(NativeMethodDefinition.apply, "name", "genericTypes", "parameters", "returnTypeReference", "comment")
   implicit val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = jsonFormat(NativeClassDefinition.apply, "name", "genericTypes", "attributes", "methods", "comment")
   implicit val definedMethodDefinitionFormat: JsonFormat[DefinedMethodDefinition] = jsonFormat(DefinedMethodDefinition.apply, "name", "genericTypes", "function", "comment", "range")

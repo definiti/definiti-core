@@ -104,7 +104,7 @@ object ASTHelper {
       case nativeClassDefinition: NativeClassDefinition =>
         nativeClassDefinition.methods.find(_.name == method)
       case aliasType: AliasType =>
-        context.findType(aliasType.alias).flatMap(getMethodOpt(_, method))
+        context.findType(aliasType.alias.typeName).flatMap(getMethodOpt(_, method))
       case definedType: DefinedType =>
         definedType.methods.find(_.name == method)
     }
@@ -115,7 +115,7 @@ object ASTHelper {
       case nativeClassDefinition: NativeClassDefinition =>
         nativeClassDefinition.attributes.find(_.name == attribute)
       case aliasType: AliasType =>
-        context.findType(aliasType.alias).flatMap(getAttributeOpt(_, attribute))
+        context.findType(aliasType.alias.typeName).flatMap(getAttributeOpt(_, attribute))
       case definedType: DefinedType =>
         definedType.attributes.find(_.name == attribute)
     }

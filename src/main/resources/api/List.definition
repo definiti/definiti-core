@@ -4,4 +4,6 @@ type List[A] {
   isEmpty(): Boolean
 
   head: A
+
+  randomElement(): A
 }

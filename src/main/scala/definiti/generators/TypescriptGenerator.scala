@@ -2,7 +2,6 @@ package definiti.generators
 
 import definiti._
 import definiti.api.{ASTHelper, Context}
-import definiti.generators.ScalaGenerator.{generateGenericTypes, nativeTypeMapping}
 
 import scala.io.Source
 
@@ -10,7 +9,8 @@ object TypescriptGenerator {
   val nativeTypeMapping = Map(
     "Date" -> "DateWrapper",
     "Number" -> "NumberWrapper",
-    "String" -> "StringWrapper"
+    "String" -> "StringWrapper",
+    "List" -> "ListWrapper"
   )
 
   def generate(root: Root)(implicit context: Context): String = {
@@ -42,7 +42,7 @@ object TypescriptGenerator {
   }
 
   private def appendNative(buffer: StringBuilder)(implicit context: Context): Unit = {
-    Seq("DateWrapper", "NumberWrapper", "StringWrapper") foreach { className =>
+    Seq("DateWrapper", "ListWrapper", "NumberWrapper", "StringWrapper") foreach { className =>
       buffer.append(Source.fromResource(s"generators/ts/native/$className.ts").getLines.mkString("", "\n", "\n"))
     }
   }
@@ -134,7 +134,7 @@ object TypescriptGenerator {
     case aliasType: AliasType => generateAliasType(aliasType)
   }
 
-  private def generateDefinedType(definedType: DefinedType, originalTypeOpt: Option[String] = None)(implicit context: Context): String = {
+  private def generateDefinedType(definedType: DefinedType, originalTypeOpt: Option[TypeReference] = None)(implicit context: Context): String = {
     val __resultAliases = definedType.verifications
       .flatMap(_.function.parameters.map(_.name))
       .distinct
@@ -147,16 +147,22 @@ object TypescriptGenerator {
         definedType.inherited.map(inherited => s"verify$inherited(__result)")
       ).mkString(", ")
 
-    val originalType = originalTypeOpt.getOrElse(definedType.name)
+    val realType = originalTypeOpt.map(_.typeName).getOrElse(definedType.name)
 
     val $interface = originalTypeOpt.map(_ => "").getOrElse(generateInterface(definedType))
 
+    val originalTypeGenerics = originalTypeOpt match {
+      case Some(originalType) => generateGenericTypes(originalType.genericTypes)
+      case None => generateGenericTypeDefinition(definedType)
+    }
+
+    val typeDefinition = s"${generateGenericTypeDefinition(definedType)}"
     s"""
        |${$interface}
        |${definedType.comment.map(comment => s"/*$comment*/").getOrElse("")}
-       |export interface ${definedType.name} extends $$$originalType {}
+       |export interface ${definedType.name}$typeDefinition extends $$$realType$originalTypeGenerics {}
        |
-       |export function ${definedType.name}(${generateAttributeParameters(definedType.attributes)}): string|Readonly<${definedType.name}> {
+       |export function ${definedType.name}$typeDefinition(${generateAttributeParameters(definedType.attributes)}): string|Readonly<${definedType.name}$typeDefinition> {
        |  const __result = {${definedType.attributes.map(_.name).mkString(", ")}};
        |  ${__resultAliases}
        |  let __errorOpt = null;
@@ -180,19 +186,41 @@ object TypescriptGenerator {
 
   private def generateInterface(definedType: DefinedType)(implicit context: Context): String = {
     s"""
-       |interface $$${definedType.name} {
+       |interface $$${definedType.name}${generateGenericTypeDefinition(definedType)}  {
        |  ${definedType.attributes.map(attribute => generateAttributeParameter(attribute) + ";").mkString("\n")}
        |}
      """.stripMargin
   }
 
+  private def generateGenericTypeDefinition(definedType: DefinedType) = {
+    if (definedType.genericTypes.nonEmpty) {
+      definedType.genericTypes.mkString("<", ",", ">")
+    } else {
+      ""
+    }
+  }
+
   private def generateAliasType(aliasType: AliasType)(implicit context: Context): String = {
-    context.findType(aliasType.alias) match {
+    context.findType(aliasType.alias.typeName) match {
       case Some(definedType: DefinedType) =>
+        val genericTypeMapping = Map(definedType.genericTypes.zip(aliasType.alias.genericTypes): _*)
+        def updateGenericTypes(typeReference: TypeReference): TypeReference = {
+          if (genericTypeMapping.contains(typeReference.typeName)) {
+            genericTypeMapping(typeReference.typeName)
+          } else {
+            typeReference.copy(
+              genericTypes = typeReference.genericTypes.map(updateGenericTypes)
+            )
+          }
+        }
         generateDefinedType(definedType.copy(
           comment = aliasType.comment,
           name = aliasType.name,
-          inherited = definedType.inherited ++ aliasType.inherited
+          genericTypes = aliasType.genericTypes,
+          inherited = definedType.inherited ++ aliasType.inherited,
+          attributes = definedType.attributes.map { attribute =>
+            attribute.copy(typeReference = updateGenericTypes(attribute.typeReference))
+          }
         ), Some(aliasType.alias))
       case _ => throw new RuntimeException("Undefined type: " + aliasType)
     }
@@ -213,7 +241,7 @@ object TypescriptGenerator {
   private def generateAttributeParameter(attributeDefinition: AttributeDefinition)(implicit context: Context): String = {
     val attributeName = attributeDefinition.name
     val attributeType = nativeTypeMapping.getOrElse(attributeDefinition.typeReference.typeName, attributeDefinition.typeReference.typeName)
-    val attributeGenerics = generateGenericTypes(attributeDefinition.genericTypes)
+    val attributeGenerics = generateGenericTypes(attributeDefinition.typeReference.genericTypes)
     s"$attributeName: $attributeType$attributeGenerics"
   }
 

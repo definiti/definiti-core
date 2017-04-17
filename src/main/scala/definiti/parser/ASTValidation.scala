@@ -198,7 +198,7 @@ object ASTValidation {
   }
 
   private def verifyTypeReference(aliasType: AliasType)(implicit context: Context) = {
-    if (context.isTypeAvailable(aliasType.alias)) {
+    if (context.isTypeAvailable(aliasType.alias.typeName)) {
       Valid
     } else {
       Invalid("Undefined type: " + aliasType.alias, aliasType.range)

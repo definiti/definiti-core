@@ -2,6 +2,7 @@ package definiti.generators
 
 import definiti._
 import definiti.api.{ASTHelper, Context}
+import definiti.generators.ScalaGenerator.{generateExpression, generateGenericTypes, generateParametersWithoutExternalBraces, nativeTypeMapping, _}
 
 import scala.io.Source
 
@@ -64,15 +65,34 @@ object TypescriptGenerator {
     case seq => seq.map(generateParameter).mkString("(", "), (", ")")
   }
 
+  private def generateParametersWithoutExternalBraces(parameterDefinitions: Seq[ParameterDefinition])(implicit context: Context): String = parameterDefinitions match {
+    case Nil => ""
+    case seq => seq.map(generateParameter).mkString(",")
+  }
+
   private def generateParameter(parameterDefinition: ParameterDefinition)(implicit context: Context): String = {
-    val parameterType = context.findType(parameterDefinition.typeReference.typeName) match {
-      case Some(_: Type) => "$" + parameterDefinition.typeReference.typeName
-      case _ => parameterDefinition.typeReference.typeName
-    }
     val parameterName = parameterDefinition.name
-    val finalParameterType = nativeTypeMapping.getOrElse(parameterType, parameterType)
-    val parameterGenerics = generateGenericTypes(parameterDefinition.genericTypes)
-    s"$parameterName: $finalParameterType$parameterGenerics"
+    val parameterType = generateParameterType(parameterDefinition.typeReference)
+    s"$parameterName: $parameterType"
+  }
+
+  private def generateParameterType(typeReference: AbstractTypeReference)(implicit context: Context): String = {
+    typeReference match {
+      case TypeReference(typeName, genericTypes) =>
+        val finalTypeName = context.findType(typeName) match {
+          case Some(_: Type) => "$" + typeName
+          case _ => nativeTypeMapping.getOrElse(typeName, typeName)
+        }
+        val parameterGenerics = generateGenericTypes(genericTypes)
+        finalTypeName + parameterGenerics
+      case LambdaReference(inputTypes, outputType) =>
+        def generateOneType(typeReference: TypeReference): String = {
+          val typeName = typeReference.typeName
+          val generics = generateGenericTypes(typeReference.genericTypes)
+          typeName + generics
+        }
+        s"(${inputTypes.map(generateOneType)}) => ${generateOneType(outputType)}"
+    }
   }
 
   private def generateExpression(expression: Expression)(implicit context: Context): String = expression match {
@@ -80,7 +100,7 @@ object TypescriptGenerator {
     case NumberValue(value, _) => s"new NumberWrapper(${value.toString})"
     case QuotedStringValue(value, _) => """new StringWrapper("""" + value.toString.replaceAllLiterally("\\", "\\\\") + """")"""
     case Variable(variable, _, _) => variable
-    case MethodCall(inner, method, parameters, _) =>
+    case MethodCall(inner, method, parameters, _, _) =>
       s"(${generateExpression(inner)}).$method(${generateCallParameters(parameters)})"
     case AttributeCall(inner, attribute, _) =>
       s"(${generateExpression(inner)}).$attribute"
@@ -113,6 +133,7 @@ object TypescriptGenerator {
     case Time(left, right, _) => logicalExpression("*", "time", left, right)
     case Divide(left, right, _) => logicalExpression("/", "divide", left, right)
     case Not(inner, _) => s"!(${generateExpression(inner)})"
+    case LambdaExpression(parameterList, inner, _) => s"(${generateParametersWithoutExternalBraces(parameterList)}) => {${generateExpression(inner)}}"
   }
 
   private def logicalExpression(symbol: String, wrapperMethod: String, left: Expression, right: Expression)(implicit context: Context): String = {
@@ -255,7 +276,7 @@ object TypescriptGenerator {
 
   private def generateGenericTypes(genericTypes: Seq[TypeReference]): String = {
     def generateGenericType(genericType: TypeReference): String = {
-      genericType.typeName + generateGenericTypes(genericType.genericTypes)
+      nativeTypeMapping.getOrElse(genericType.typeName, genericType.typeName) + generateGenericTypes(genericType.genericTypes)
     }
     if (genericTypes.nonEmpty) {
       genericTypes.map(generateGenericType).mkString("<", ",", ">")

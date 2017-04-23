@@ -1,7 +1,8 @@
 package definiti.utils
 
-import definiti.{Position, Range}
+import definiti.{ParameterDefinition, Position, Range, TypeReference, Variable}
 import org.antlr.v4.runtime.ParserRuleContext
+import org.antlr.v4.runtime.tree.TerminalNode
 
 object ParserUtils {
   def extractStringContent(string: String): String = {
@@ -31,5 +32,21 @@ object ParserUtils {
       Position(context.getStart.getLine, context.getStart.getCharPositionInLine),
       Position(context.getStop.getLine, context.getStop.getCharPositionInLine)
     )
+  }
+
+  def getRangeFromTerminalNode(terminalNode: TerminalNode): Range = {
+    val symbol = terminalNode.getSymbol
+    Range(
+      Position(symbol.getLine, symbol.getStartIndex),
+      Position(symbol.getLine, symbol.getStopIndex)
+    )
+  }
+
+  def parametersToVariables(parameters: Seq[ParameterDefinition]) = {
+    def variableParameter(parameter: ParameterDefinition) = parameter.typeReference match {
+      case typeReference: TypeReference => typeReference
+      case x => throw new RuntimeException(s"The variable could not have $x as type reference")
+    }
+    parameters.map(parameter => Variable(parameter.name, variableParameter(parameter), parameter.range))
   }
 }

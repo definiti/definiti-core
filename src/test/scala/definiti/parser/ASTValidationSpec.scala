@@ -149,6 +149,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
         expression = Variable("myString", TypeReference("String", Seq()), noRange),
         method = "nonEmpty",
         Seq(),
+        Seq(),
         range = noRange
       )
     ) should ===(Valid)
@@ -178,6 +179,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
         expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
         method = "nonEmpty",
         parameters = Seq(),
+        generics = Seq(),
         range = noRange
       )
     ) should ===(Valid)
@@ -212,6 +214,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
           expression = Variable("myList", TypeReference("List", Seq(TypeReference("Date", Seq()))), noRange),
           method = "randomElement",
           parameters = Seq(),
+          generics = Seq(),
           range = noRange
         ),
         attribute = "timestamp",

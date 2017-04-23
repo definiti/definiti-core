@@ -28,10 +28,21 @@ attribute :
 
 method :
   DOC_COMMENT?
-  methodName=IDENTIFIER ('[' genericTypeList ']')? '(' parameterListDefinition ')' ':' methodType=IDENTIFIER;
+  methodName=IDENTIFIER ('[' genericTypeList ']')? '(' parameterListDefinition ')' ':' methodType=typeReference;
 
-parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
+parameterDefinition: parameterName=IDENTIFIER ':' abstractTypeReference;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
+
+typeReference: IDENTIFIER ('[' genericTypeList ']')?;
+typeReferenceList: (typeReference ',')* typeReference;
+lambdaReference
+  : input=typeReference '=>' output=typeReference
+  | '(' inputList=typeReferenceList ')' '=>' output=typeReference
+  ;
+abstractTypeReference
+  : typeReference
+  | lambdaReference
+  ;
 
 genericType: IDENTIFIER ('[' genericTypeList ']')?;
 genericTypeList: ((genericType ',')* genericType);

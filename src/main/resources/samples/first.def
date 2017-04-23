@@ -76,3 +76,21 @@ type NonEmptyList[A] {
 }
 
 type NonEmptyPeriodList = NonEmptyList[Period]
+
+verification OnlyPositiveNumbers {
+  "Please provide only positive numbers"
+  (numberList: List[Number]) => {
+    numberList.forall((n: Number) => { n >= 0 })
+  }
+}
+
+type Balance {
+  entries: List[Number]
+
+  verify {
+    "The sum of entries must be 0"
+    (balance: Balance) => {
+      balance.entries.foldLeft[Number](0, (acc: Number, current: Number) => { acc + current }) > 0
+    }
+  }
+}

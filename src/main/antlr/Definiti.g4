@@ -23,8 +23,9 @@ chainedExpression : expression+;
 // Priority from top to bottom
 // The naming of all elements is to find the expression type
 expression
-  : '(' parenthesis=expression ')'
-  | methodExpression=expression '.' methodName=IDENTIFIER '(' methodExpressionParameters=expressionList? ')'
+  : '(' parameterListDefinition ')' '=>' '{' lambdaExpression=expression '}'
+  | '(' parenthesis=expression ')'
+  | methodExpression=expression '.' methodName=IDENTIFIER ('[' genericTypeList ']')? '(' methodExpressionParameters=expressionList? ')'
   | attributeExpression=expression '.' attributeName=IDENTIFIER
   | '!' notExpression=expression
   | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_1  rightExpression=expression

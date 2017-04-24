@@ -91,7 +91,7 @@ object DefinitiASTParser {
 
   private def processFunction(context: FunctionContext): DefinedFunction = {
     val parameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter)
-    implicit val scope = Scope(parameters.map(parameter => Variable(parameter.name, parameter.typeReference, parameter.range)))
+    implicit val scope = Scope(parametersToVariables(parameters))
     DefinedFunction(
       parameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter),
       body = processChainedExpression(context.chainedExpression()),
@@ -106,7 +106,6 @@ object DefinitiASTParser {
     ParameterDefinition(
       name = context.parameterName.getText,
       typeReference = TypeReference(context.parameterType.getText, processGenericTypeList(context.genericTypeList())),
-      genericTypes = processGenericTypeList(context.genericTypeList()),
       getRangeFromContext(context)
     )
   }
@@ -139,6 +138,8 @@ object DefinitiASTParser {
       processVariableExpression(context)
     } else if (context.conditionExpression != null) {
       processConditionExpression(context)
+    } else if (context.lambdaExpression != null) {
+      processLambdaExpression(context)
     } else {
       // This exception exists to remind us to implement expression processing when we add one
       // This should never happen in production code.
@@ -157,6 +158,7 @@ object DefinitiASTParser {
       parameters = Option(context.methodExpressionParameters) map { methodExpressionParameters =>
         scalaSeq(methodExpressionParameters.expression()).map(processExpression)
       } getOrElse Seq.empty,
+      generics = processGenericTypeList(context.genericTypeList()),
       getRangeFromContext(context)
     )
   }
@@ -228,6 +230,18 @@ object DefinitiASTParser {
       onTrue = processChainedExpression(context.conditionIfBody),
       onFalse = Option(context.conditionElseBody).map(processChainedExpression),
       getRangeFromContext(context)
+    )
+  }
+
+  private def processLambdaExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+    val lambdaParameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter)
+    val outerVariableNotShadowed = scope.variables.filter(v => !lambdaParameters.exists(_.name == v.name))
+    val innerVariables = parametersToVariables(lambdaParameters) ++ outerVariableNotShadowed
+    val innerScope = Scope(innerVariables)
+    LambdaExpression(
+      parameterList = lambdaParameters,
+      expression = processExpression(context.lambdaExpression)(innerScope),
+      range = getRangeFromContext(context)
     )
   }
 

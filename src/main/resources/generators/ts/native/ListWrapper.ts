@@ -21,4 +21,20 @@ export class ListWrapper<A> {
         // Not really random, it is for the example currently.
         return this.inner ? this.inner[0] : null;
     }
+
+    forall(f: (A) => Boolean): Boolean {
+        return this.inner.every(f);
+    }
+
+    exists(f: (A) => Boolean): Boolean {
+        return this.inner.some(f);
+    }
+
+    foldLeft<B>(startValue: B, f: (B, A) => B): B {
+        let acc = startValue;
+        for (let i = 0 ; i < this.inner.length ; i++) {
+            acc = f(acc, this.inner[i]);
+        }
+        return acc;
+    }
 }

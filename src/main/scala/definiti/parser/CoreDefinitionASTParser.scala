@@ -55,7 +55,7 @@ object CoreDefinitionASTParser {
       parameters = Option(context.parameterListDefinition())
         .map(parameters => scalaSeq(parameters.parameterDefinition()).map(processParameter))
         .getOrElse(Seq.empty),
-      returnTypeReference = TypeReference(context.methodType.getText, processGenericTypeList(context.genericTypeList())),
+      returnTypeReference = processTypeReference(context.methodType),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment)
     )
   }
@@ -63,9 +63,41 @@ object CoreDefinitionASTParser {
   private def processParameter(context: ParameterDefinitionContext): ParameterDefinition = {
     ParameterDefinition(
       name = context.parameterName.getText,
-      typeReference = TypeReference(context.parameterType.getText, processGenericTypeList(context.genericTypeList())),
-      genericTypes = processGenericTypeList(context.genericTypeList()),
+      typeReference = processAbstractTypeReference(context.abstractTypeReference()),
       range = getRangeFromContext(context)
+    )
+  }
+
+  private def processAbstractTypeReference(context: AbstractTypeReferenceContext): AbstractTypeReference = {
+    lazy val typeReference = context.typeReference()
+    lazy val lambdaReference = context.lambdaReference()
+    if (typeReference != null) {
+      processTypeReference(typeReference)
+    } else if (lambdaReference != null) {
+      processLambdaReference(lambdaReference)
+    } else {
+      throw new RuntimeException(s"Parameter type: ${context.getText} was not processed")
+    }
+  }
+
+  private def processLambdaReference(lambdaReference: => LambdaReferenceContext) = {
+    if (lambdaReference.inputList != null) {
+      LambdaReference(
+        inputTypes = scalaSeq(lambdaReference.inputList.typeReference()).map(processTypeReference),
+        outputType = processTypeReference(lambdaReference.output)
+      )
+    } else {
+      LambdaReference(
+        inputTypes = Seq(processTypeReference(lambdaReference.input)),
+        outputType = processTypeReference(lambdaReference.output)
+      )
+    }
+  }
+
+  private def processTypeReference(finalParameterType: TypeReferenceContext): TypeReference = {
+    TypeReference(
+      finalParameterType.IDENTIFIER().getText,
+      processGenericTypeList(finalParameterType.genericTypeList())
     )
   }
 

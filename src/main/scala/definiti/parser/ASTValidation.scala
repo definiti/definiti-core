@@ -112,16 +112,8 @@ object ASTValidation {
         case Some(_) => Valid
         case None => Invalid("Unknown type: " + typeReference, range)
       }
-    case MethodCall(inner, method, parameters, range) =>
-      validateExpression(inner).verifyingAlso {
-        val innerReturnType = ASTHelper.getReturnTypeOfExpression(inner)
-        val methodNameValidation = ASTHelper.getMethodOpt(innerReturnType.classDefinition, method) match {
-          case Some(_) => Valid
-          case None => Invalid(s"Unknown method ${innerReturnType.classDefinition.name}.$method", range)
-        }
-        val parameterValidations = parameters.map(validateExpression)
-        Validation.join(methodNameValidation +: parameterValidations)
-      }
+    case methodCall: MethodCall =>
+      validateMethodCall(methodCall)
     case AttributeCall(inner, attribute, range) =>
       validateExpression(inner).verifyingAlso {
         val innerReturnType = ASTHelper.getReturnTypeOfExpression(inner)
@@ -168,6 +160,9 @@ object ASTValidation {
       validateExpressions(left, right)
     case Divide(left, right, _) =>
       validateExpressions(left, right)
+    case lambdaExpression: LambdaExpression =>
+      // Expected only in method call, processed in validateMethodCall
+      Invalid("Unexpected lambda reference", lambdaExpression.range)
     case Not(inner, _) =>
       validateExpression(inner).verifyingAlso {
         val innerReturnType = ASTHelper.getReturnTypeOfExpression(inner)
@@ -177,6 +172,75 @@ object ASTValidation {
           Invalid("The expression must be a boolean expression, got: " + innerReturnType.classDefinition.name, inner.range)
         }
       }
+  }
+
+  private def validateMethodCall(methodCall: MethodCall)(implicit context: Context) = {
+    validateExpression(methodCall.expression).verifyingAlso {
+      val innerReturnType = ASTHelper.getReturnTypeOfExpression(methodCall.expression)
+      ASTHelper.getMethodOpt(innerReturnType.classDefinition, methodCall.method) match {
+        case Some(methodDefinition) =>
+          if (methodDefinition.parameters.length == methodCall.parameters.length) {
+            Validation.join(methodDefinition.parameters.zip(methodCall.parameters).map { case (definedParameter, callParameter) =>
+              (definedParameter.typeReference, callParameter) match {
+                case (lambdaReference: LambdaReference, lambdaExpression: LambdaExpression) =>
+                  validateLambdaExpressionAndReference(lambdaExpression, lambdaReference, innerReturnType.classDefinition, methodDefinition)
+                case (_: LambdaReference, _) =>
+                  Invalid("Expected lambda expression", callParameter.range)
+                case (_, _: LambdaExpression) =>
+                  Invalid("Unexpected lambda expression", callParameter.range)
+                case (typeReference, expression) =>
+                  validateReturnTypeExpression(expression, typeReference, innerReturnType.classDefinition, methodDefinition)
+              }
+            })
+          } else {
+            Invalid("Invalid number of arguments", methodCall.range)
+          }
+        case None => Invalid(s"Unknown method ${innerReturnType.classDefinition.name}.${methodCall.method}", methodCall.range)
+      }
+    }
+  }
+
+  private def validateReturnTypeExpression(expression: Expression, expectedReturnType: AbstractTypeReference, classDefinition: ClassDefinition, methodDefinition: MethodDefinition)(implicit context: Context): Validation = {
+    val expressionReturnTypeOpt = ASTHelper.getReturnTypeOptOfExpression(expression)
+    expressionReturnTypeOpt.map { expressionReturnType =>
+      expectedReturnType match {
+        case TypeReference(typeName, _) if expressionReturnType.classDefinition.name == typeName =>
+          Valid
+        case typeReference: TypeReference if isGeneric(typeReference.typeName, classDefinition, methodDefinition) =>
+          Valid
+        case TypeReference(typeName, _) =>
+          Invalid(s"Unexpected return type $typeName, expected ${expressionReturnType.classDefinition.name}", expression.range)
+        case _ =>
+          Invalid("Unexpected lambda reference", expression.range)
+      }
+    } getOrElse Invalid("Can not determine return type of expression", expression.range)
+  }
+
+  private def validateLambdaExpressionAndReference(lambdaExpression: LambdaExpression, lambdaReference: LambdaReference, classDefinition: ClassDefinition, methodDefinition: MethodDefinition)(implicit context: Context): Validation = {
+    val expressionParameters = lambdaExpression.parameterList
+    val referenceParameters = lambdaReference.inputTypes
+    if (expressionParameters.length == referenceParameters.length) {
+      Validation.join(expressionParameters.zip(referenceParameters) map { case (expressionParameter, referenceParameter) =>
+        expressionParameter.typeReference match {
+          case TypeReference(typeName, _) if referenceParameter.typeName == typeName =>
+            Valid
+          case _: TypeReference if isGeneric(referenceParameter.typeName, classDefinition, methodDefinition) =>
+            Valid
+          case TypeReference(typeName, _) =>
+            Invalid(s"Unexpected type $typeName, expected ${referenceParameter.typeName}", expressionParameter.range)
+          case _ =>
+            Invalid("Unexpected lambda reference", expressionParameter.range)
+        }
+      })
+    } else {
+      Invalid(s"Invalid number of arguments. Expected ${referenceParameters.length}, got ${expressionParameters.length}", lambdaExpression.range)
+    }
+  }
+
+  private def isGeneric(typeName: String, classDefinition: ClassDefinition, methodDefinition: MethodDefinition)(implicit context: Context): Boolean = {
+    val isGenericTypeFromClass = classDefinition.genericTypes.contains(typeName)
+    val isGenericTypeFromMethod = methodDefinition.genericTypes.contains(typeName)
+    isGenericTypeFromClass || isGenericTypeFromMethod
   }
 
   private def validateExpressions(expressions: Expression*)(implicit context: Context): Validation = {
@@ -226,7 +290,7 @@ object ASTValidation {
         } else {
           Invalid(s"Unknown type $typeReference for variable $name", range)
         }
-      case MethodCall(innerExpression, method, _, range) =>
+      case MethodCall(innerExpression, method, _, _, range) =>
         validateTypeReferenceOfExpression(innerExpression).verifyingAlso {
           val innerType = ASTHelper.getReturnTypeOfExpression(innerExpression)
           ASTHelper.getMethodOpt(innerType.classDefinition, method) match {

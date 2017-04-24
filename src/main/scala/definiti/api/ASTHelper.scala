@@ -5,17 +5,27 @@ import definiti._
 case class ClassReference(classDefinition: ClassDefinition, genericTypes: Seq[ClassReference])
 
 object ASTHelper {
-  def getReturnTypeOptOfMethod(methodDefinition: MethodDefinition)(implicit context: Context): Option[ClassReference] = {
+  def getReturnTypeOptOfMethod(methodDefinition: MethodDefinition, methodCall: MethodCall)(implicit context: Context): Option[ClassReference] = {
     methodDefinition match {
       case nativeMethodDefinition: NativeMethodDefinition =>
-        getClassReference(nativeMethodDefinition.returnTypeReference)
+        val generics = methodCall.generics.map(getClassReference)
+        if (generics.exists(_.isEmpty)) {
+          None
+        } else {
+          val methodContext = MethodContext(
+            outerContext = context,
+            currentMethod = methodDefinition,
+            genericTypes = generics.map(_.get)
+          )
+          getClassReference(nativeMethodDefinition.returnTypeReference)(methodContext)
+        }
       case definedMethodDefinition: DefinedMethodDefinition =>
         getReturnTypeOptOfExpression(definedMethodDefinition.function.body)
     }
   }
 
-  def getReturnTypeOfMethod(methodDefinition: MethodDefinition)(implicit context: Context): ClassReference = {
-    getReturnTypeOptOfMethod(methodDefinition).get
+  def getReturnTypeOfMethod(methodDefinition: MethodDefinition, methodCall: MethodCall)(implicit context: Context): ClassReference = {
+    getReturnTypeOptOfMethod(methodDefinition, methodCall).get
   }
 
   def getReturnTypeOptOfExpression(expression: Expression)(implicit context: Context): Option[ClassReference] = {
@@ -45,7 +55,7 @@ object ASTHelper {
           currentType = expressionType.classDefinition,
           expressionType.genericTypes
         )
-        getReturnTypeOptOfMethod(method)(classContext)
+        getReturnTypeOptOfMethod(method, methodCall)(classContext)
       }
     }
   }

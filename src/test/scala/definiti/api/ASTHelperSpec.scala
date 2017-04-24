@@ -176,6 +176,7 @@ class ASTHelperSpec extends FlatSpec with Matchers {
       expression = Variable("myString", TypeReference("String", Seq()), noRange),
       method = "nonEmpty",
       Seq(),
+      Seq(),
       range = noRange
     )
     val expected = Some(ClassReference(booleanDefinition, Seq()))
@@ -215,6 +216,7 @@ class ASTHelperSpec extends FlatSpec with Matchers {
       expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
       method = "randomElement",
       parameters = Seq(),
+      generics = Seq(),
       range = noRange
     )
     val expected = Some(ClassReference(numberDefinition, Seq()))

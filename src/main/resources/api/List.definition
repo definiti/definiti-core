@@ -6,4 +6,10 @@ type List[A] {
   head: A
 
   randomElement(): A
+
+  forall(f: A => Boolean): Boolean
+
+  exists(f: A => Boolean): Boolean
+
+  foldLeft[B](startValue: B, f: (B, A) => B): B
 }

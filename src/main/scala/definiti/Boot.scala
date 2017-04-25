@@ -1,15 +1,12 @@
 package definiti
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
+import java.nio.file.{Files, Paths}
 
 import definiti.api.ReferenceContext
-import definiti.generators.{ScalaGenerator, TypescriptGenerator}
 import definiti.parser._
 import definiti.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser, DefinitiLexer, DefinitiParser}
 import org.antlr.v4.runtime._
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
 case class ErrorItem(line: Int, column: Int, msg: String)
@@ -58,17 +55,8 @@ object Boot extends App {
         implicit val context = ReferenceContext(typeBuffer, verificationBuffer)
         ASTValidation.validate(ast) match {
           case Valid =>
-            destination.foreach { case (language, path) =>
-              def write(path: Path, str: String): Unit = {
-                Files.createDirectories(path.getParent)
-                Files.write(path, Seq(str).asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-              }
-
-              language match {
-                case "scala" => write(path, ScalaGenerator.generate(ast))
-                case "typescript" => write(path, TypescriptGenerator.generate(ast))
-              }
-            }
+            println("Generated and validated AST:")
+            println(ast)
           case Invalid(errors) =>
             errors.foreach(System.err.println)
         }

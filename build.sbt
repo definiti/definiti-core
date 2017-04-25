@@ -1,4 +1,6 @@
-name := "definiti"
+organization := "definiti"
+
+name := "core"
 
 version := "0.0.0"
 

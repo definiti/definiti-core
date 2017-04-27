@@ -17,9 +17,13 @@ lazy val antlrDefiniti = TaskKey[Unit]("antlrDefiniti", "Build Antlr Definiti fi
 lazy val antlrCore = TaskKey[Unit]("antlrCore", "Build Antlr core definition files")
 lazy val antlr = TaskKey[Unit]("antlr", "Build Antlr files")
 
+lazy val classpathSeparator =
+  if (sys.props("os.name").toLowerCase.contains("windows")) ";"
+  else ":"
+
 antlrDefiniti := {
   val log = streams.value.log
-  val classpath = (dependencyClasspath in Compile).value.files.mkString(";")
+  val classpath = (dependencyClasspath in Compile).value.files.mkString(classpathSeparator)
   val mainClass = "org.antlr.v4.Tool"
   val destination = "src/main/java/definiti/parser/antlr"
   val packageName = "definiti.parser.antlr"
@@ -33,7 +37,7 @@ antlrDefiniti := {
 
 antlrCore := {
   val log = streams.value.log
-  val classpath = (dependencyClasspath in Compile).value.files.mkString(";")
+  val classpath = (dependencyClasspath in Compile).value.files.mkString(classpathSeparator)
   val mainClass = "org.antlr.v4.Tool"
   val destination = "src/main/java/definiti/parser/antlr"
   val packageName = "definiti.parser.antlr"

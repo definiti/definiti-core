@@ -1,13 +1,13 @@
-package definiti.parser
+package definiti.core.parser
 
-import definiti._
-import definiti.parser.antlr.CoreDefinitionParser._
-import definiti.utils.CollectionUtils._
-import definiti.utils.ParserUtils._
+import definiti.core._
+import definiti.core.parser.antlr.CoreDefinitionParser._
+import definiti.core.utils.CollectionUtils._
+import definiti.core.utils.ParserUtils._
 
 import scala.collection.mutable.ListBuffer
 
-object CoreDefinitionASTParser {
+private[core] object CoreDefinitionASTParser {
   def definitionContextToAST(context: CoreDefinitionContext): Seq[ClassDefinition] = {
     val classDefinitions = ListBuffer[ClassDefinition]()
 
@@ -30,13 +30,13 @@ object CoreDefinitionASTParser {
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
         .getOrElse(Seq()),
-      attributes = members.filter(_.attribute() != null).map(_.attribute()).map(processAttribute),
-      methods = members.filter(_.method() != null).map(_.method()).map(processMethod),
+      attributes = members.filter(_.attributeDefinition() != null).map(_.attributeDefinition()).map(processAttribute),
+      methods = members.filter(_.methodDefinition() != null).map(_.methodDefinition()).map(processMethod),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment)
     )
   }
 
-  private def processAttribute(context: AttributeContext): AttributeDefinition = {
+  private def processAttribute(context: AttributeDefinitionContext): AttributeDefinition = {
     AttributeDefinition(
       name = context.attributeName.getText,
       typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
@@ -46,7 +46,7 @@ object CoreDefinitionASTParser {
     )
   }
 
-  private def processMethod(context: MethodContext): NativeMethodDefinition = {
+  private def processMethod(context: MethodDefinitionContext): NativeMethodDefinition = {
     NativeMethodDefinition(
       name = context.methodName.getText,
       genericTypes = Option(context.genericTypeList())

@@ -25,8 +25,8 @@ antlrDefiniti := {
   val log = streams.value.log
   val classpath = (dependencyClasspath in Compile).value.files.mkString(classpathSeparator)
   val mainClass = "org.antlr.v4.Tool"
-  val destination = "src/main/java/definiti/parser/antlr"
-  val packageName = "definiti.parser.antlr"
+  val destination = "src/main/java/definiti/core/parser/antlr"
+  val packageName = "definiti.core.parser.antlr"
   val source = "src/main/antlr/Definiti.g4"
 
   val command = s"""java -cp "$classpath" $mainClass -o $destination -package $packageName $source"""
@@ -39,8 +39,8 @@ antlrCore := {
   val log = streams.value.log
   val classpath = (dependencyClasspath in Compile).value.files.mkString(classpathSeparator)
   val mainClass = "org.antlr.v4.Tool"
-  val destination = "src/main/java/definiti/parser/antlr"
-  val packageName = "definiti.parser.antlr"
+  val destination = "src/main/java/definiti/core/parser/antlr"
+  val packageName = "definiti.core.parser.antlr"
   val source = "src/main/antlr/CoreDefinition.g4"
 
   val command = s"""java -cp "$classpath" $mainClass -o $destination -package $packageName $source"""

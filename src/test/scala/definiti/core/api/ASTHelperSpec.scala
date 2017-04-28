@@ -1,7 +1,8 @@
-package definiti.api
+package definiti.core.api
 
-import definiti.parser.{ASTValidation, Valid}
-import definiti.{And, AttributeCall, AttributeDefinition, BooleanValue, CombinedExpression, Condition, Equal, MethodCall, NativeClassDefinition, NativeMethodDefinition, NumberValue, Position, QuotedStringValue, Range, TypeReference, Variable}
+import definiti.core.parser.{ASTValidation, Valid}
+import definiti.core._
+import definiti.core.utils.Core
 import org.scalatest.{FlatSpec, Matchers}
 
 class ASTHelperSpec extends FlatSpec with Matchers {

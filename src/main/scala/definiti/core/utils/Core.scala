@@ -1,8 +1,8 @@
-package definiti.api
+package definiti.core.utils
 
-import definiti._
+import definiti.core._
 
-object Core {
+private[core] object Core {
   val unit = NativeClassDefinition("unit", Seq(), Seq(), Seq(), None)
 
   val any = NativeClassDefinition("any", Seq(), Seq(), Seq(), None)

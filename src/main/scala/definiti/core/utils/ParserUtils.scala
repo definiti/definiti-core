@@ -1,10 +1,10 @@
-package definiti.utils
+package definiti.core.utils
 
-import definiti.{ParameterDefinition, Position, Range, TypeReference, Variable}
+import definiti.core.{ParameterDefinition, Position, Range, TypeReference, Variable}
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.tree.TerminalNode
 
-object ParserUtils {
+private[core] object ParserUtils {
   def extractStringContent(string: String): String = {
     var temporaryResult = string
     if (temporaryResult.startsWith("\"")) {

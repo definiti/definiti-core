@@ -7,7 +7,7 @@ import definiti.core.utils.ParserUtils._
 
 import scala.collection.mutable.ListBuffer
 
-private[core] object CoreDefinitionASTParser {
+private[definiti] object CoreDefinitionASTParser {
   def definitionContextToAST(context: CoreDefinitionContext): Seq[ClassDefinition] = {
     val classDefinitions = ListBuffer[ClassDefinition]()
 

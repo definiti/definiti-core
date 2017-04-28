@@ -7,13 +7,13 @@ import definiti.core.utils.ParserUtils._
 
 import scala.collection.mutable.ListBuffer
 
-case class Scope(variables: Seq[Variable])
+private[parser] case class Scope(variables: Seq[Variable])
 
-object Scope {
+private[parser] object Scope {
   val empty = Scope(Seq())
 }
 
-object DefinitiASTParser {
+private[core] object DefinitiASTParser {
   def definitiContextToAST(context: DefinitiContext): Root = {
     val verifications = ListBuffer[Verification]()
     val classDefinitions = ListBuffer[ClassDefinition]()

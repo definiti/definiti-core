@@ -8,12 +8,12 @@ import definiti.core.{ClassDefinition, Configuration, Root}
 import org.antlr.v4.runtime._
 import definiti.core.utils.CollectionUtils._
 
-case class ProjectParsingResult(
+private[core] case class ProjectParsingResult(
   root: Root,
   core: Seq[ClassDefinition]
 )
 
-class ProjectParser(configuration: Configuration) {
+private[core] class ProjectParser(configuration: Configuration) {
   def buildAST(): Either[Seq[ErrorItem], ProjectParsingResult] = {
     (buildDefinitiAST(), buildCoreDefinitionAST()) match {
       case (Left(definitiErrors), Left(coreErrors)) => Left(definitiErrors ++ coreErrors)

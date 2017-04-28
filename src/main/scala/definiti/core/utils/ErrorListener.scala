@@ -4,7 +4,7 @@ import org.antlr.v4.runtime._
 
 import scala.collection.mutable.ListBuffer
 
-case class ErrorItem(file: String, line: Int, column: Int, msg: String) {
+private[core] case class ErrorItem(file: String, line: Int, column: Int, msg: String) {
   def prettyPrint: String = {
     s"""Error on file $file position $line-$column: $msg"""
   }
@@ -13,7 +13,7 @@ case class ErrorItem(file: String, line: Int, column: Int, msg: String) {
 /**
  * This listener can be used to use the real logger instead of simply print to the console.
  */
-class ErrorListener(source: String) extends BaseErrorListener {
+private[core] class ErrorListener(source: String) extends BaseErrorListener {
   private val errorsBuffer = ListBuffer[ErrorItem]()
 
   override def syntaxError(recognizer: Recognizer[_, _], offendingSymbol: Object, line: Int, charPositionInLine: Int, msg: String, e: RecognitionException): Unit =

@@ -2,13 +2,13 @@ package definiti.core.parser
 
 import definiti.core._
 
-sealed trait Validation {
+private[core] sealed trait Validation {
   def join(other: Validation): Validation
 
   def verifyingAlso(nextValidation: => Validation): Validation
 }
 
-object Validation {
+private[core] object Validation {
   def join(validations: Seq[Validation]): Validation = {
     validations.foldLeft(Valid.asInstanceOf[Validation]) { (acc, validation) => acc.join(validation) }
   }
@@ -18,13 +18,13 @@ object Validation {
   }
 }
 
-case object Valid extends Validation {
+private[core] case object Valid extends Validation {
   override def join(other: Validation): Validation = other
 
   override def verifyingAlso(nextValidation: => Validation): Validation = nextValidation
 }
 
-case class Invalid(errors: Seq[Error]) extends Validation {
+private[core] case class Invalid(errors: Seq[Error]) extends Validation {
   def join(other: Validation): Validation = other match {
     case Valid => this
     case Invalid(otherErrors) => Invalid(errors ++ otherErrors)
@@ -33,17 +33,17 @@ case class Invalid(errors: Seq[Error]) extends Validation {
   override def verifyingAlso(nextValidation: => Validation): Validation = this
 }
 
-object Invalid {
+private[core] object Invalid {
   def apply(message: String, range: Range): Invalid = new Invalid(Seq(Error(message, range)))
 }
 
-case class Error(message: String, range: Range) {
+private[core] case class Error(message: String, range: Range) {
   def prettyPrint: String = {
     s"""Error at ${range.prettyPrint}: $message"""
   }
 }
 
-object ASTValidation {
+private[core] object ASTValidation {
   def validate(root: Root)(implicit context: Context): Validation = {
     val verificationValidations = root.verifications.map(validateVerification)
 

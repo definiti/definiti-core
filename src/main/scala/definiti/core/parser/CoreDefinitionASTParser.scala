@@ -1,9 +1,9 @@
-package definiti.parser
+package definiti.core.parser
 
-import definiti._
-import definiti.parser.antlr.CoreDefinitionParser._
-import definiti.utils.CollectionUtils._
-import definiti.utils.ParserUtils._
+import definiti.core._
+import definiti.core.parser.antlr.CoreDefinitionParser._
+import definiti.core.utils.CollectionUtils._
+import definiti.core.utils.ParserUtils._
 
 import scala.collection.mutable.ListBuffer
 

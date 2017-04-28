@@ -1,10 +1,10 @@
-package definiti
+package definiti.core
 
 import java.nio.file.{Files, Paths}
 
-import definiti.api.ReferenceContext
-import definiti.parser._
-import definiti.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser, DefinitiLexer, DefinitiParser}
+import definiti.core.api.ReferenceContext
+import definiti.core.parser._
+import definiti.core.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser, DefinitiLexer, DefinitiParser}
 import org.antlr.v4.runtime._
 
 import scala.collection.mutable.ListBuffer

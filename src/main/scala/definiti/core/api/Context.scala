@@ -1,6 +1,6 @@
-package definiti.api
+package definiti.core.api
 
-import definiti.{ClassDefinition, MethodDefinition, TypeReference, Verification}
+import definiti.core._
 
 sealed trait Context {
   def isTypeAvailable(typeName: String): Boolean

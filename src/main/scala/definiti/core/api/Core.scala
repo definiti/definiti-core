@@ -1,6 +1,6 @@
-package definiti.api
+package definiti.core.api
 
-import definiti._
+import definiti.core._
 
 object Core {
   val unit = NativeClassDefinition("unit", Seq(), Seq(), Seq(), None)

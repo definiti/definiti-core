@@ -1,4 +1,4 @@
-package definiti.utils
+package definiti.core.utils
 
 import scala.collection.JavaConverters._
 

@@ -2,5 +2,5 @@
 /project/target
 /project/project/target
 /.idea
-/src/main/java/definiti/parser/antlr
+/src/main/java/definiti/core/parser/antlr
 /tmp

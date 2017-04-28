@@ -1,7 +1,7 @@
-package definiti.parser
+package definiti.core.parser
 
-import definiti._
-import definiti.api.{ASTHelper, Context}
+import definiti.core._
+import definiti.core.api.{ASTHelper, Context}
 
 sealed trait Validation {
   def join(other: Validation): Validation

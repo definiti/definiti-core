@@ -1,4 +1,4 @@
-package definiti
+package definiti.core
 
 case class Position(line: Long, column: Long)
 

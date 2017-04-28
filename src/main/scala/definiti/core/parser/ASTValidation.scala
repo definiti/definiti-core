@@ -1,7 +1,6 @@
 package definiti.core.parser
 
 import definiti.core._
-import definiti.core.api.{ASTHelper, Context}
 
 sealed trait Validation {
   def join(other: Validation): Validation
@@ -38,7 +37,11 @@ object Invalid {
   def apply(message: String, range: Range): Invalid = new Invalid(Seq(Error(message, range)))
 }
 
-case class Error(message: String, range: Range)
+case class Error(message: String, range: Range) {
+  def prettyPrint: String = {
+    s"""Error at ${range.prettyPrint}: $message"""
+  }
+}
 
 object ASTValidation {
   def validate(root: Root)(implicit context: Context): Validation = {

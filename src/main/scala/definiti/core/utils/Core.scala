@@ -1,4 +1,4 @@
-package definiti.core.api
+package definiti.core.utils
 
 import definiti.core._
 

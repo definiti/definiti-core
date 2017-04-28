@@ -1,6 +1,6 @@
-package definiti.core.api
+package definiti.core
 
-import definiti.core._
+import definiti.core.utils.Core
 
 case class ClassReference(classDefinition: ClassDefinition, genericTypes: Seq[ClassReference])
 

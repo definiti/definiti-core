@@ -1,7 +1,6 @@
 package definiti.core.parser
 
 import definiti.core._
-import definiti.core.api.ReferenceContext
 import org.scalatest.{FlatSpec, Matchers}
 
 class ASTValidationSpec extends FlatSpec with Matchers {

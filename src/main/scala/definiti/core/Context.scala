@@ -1,6 +1,4 @@
-package definiti.core.api
-
-import definiti.core._
+package definiti.core
 
 sealed trait Context {
   def isTypeAvailable(typeName: String): Boolean

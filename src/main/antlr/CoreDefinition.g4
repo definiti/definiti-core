@@ -18,15 +18,15 @@ coreType :
   '}';
 
 member
-  : attribute
-  | method
+  : attributeDefinition
+  | methodDefinition
   ;
 
-attribute :
+attributeDefinition :
   DOC_COMMENT?
   attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')?;
 
-method :
+methodDefinition :
   DOC_COMMENT?
   methodName=IDENTIFIER ('[' genericTypeList ']')? '(' parameterListDefinition ')' ':' methodType=typeReference;
 

@@ -1,8 +1,16 @@
 package definiti.core
 
-case class Position(line: Long, column: Long)
+case class Position(line: Long, column: Long) {
+  def prettyPrint: String = {
+    s"""$line-$column"""
+  }
+}
 
-case class Range(start: Position, end: Position)
+case class Range(start: Position, end: Position) {
+  def prettyPrint: String = {
+    s"""[${start.prettyPrint}, ${end.prettyPrint}]"""
+  }
+}
 
 case class Root(
   verifications: Seq[Verification],

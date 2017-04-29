@@ -1,11 +1,12 @@
 package definiti.core
 
 import java.nio.file.Paths
+import org.kiama.output.PrettyPrinter._
 
 object Boot extends App {
   try {
     val configuration = Configuration(
-      source = Paths.get("src", "main", "resources", "samples", "first.def"),
+      source = Paths.get("src", "main", "resources", "samples", "src1"),
       core = CoreConfiguration(
         source = Paths.get("src", "main", "resources", "api")
       )
@@ -17,7 +18,15 @@ object Boot extends App {
         errors.foreach(System.err.println)
       case Right(root) =>
         println("Done without error. Generated AST is:")
-        println(root)
+        val prettyRoot = root.copy(
+          files = List(root.files.map(rootFile => {
+            rootFile.copy(
+              verifications = List(rootFile.verifications: _*),
+              classDefinitions = List(rootFile.classDefinitions: _*)
+            )
+          }): _*)
+        )
+        println(pretty(any(prettyRoot)))
     }
   } catch {
     // In some cases, an Exception is thrown because the parser do not recognize an expression and crash its tree.

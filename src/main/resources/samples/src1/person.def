@@ -1,0 +1,11 @@
+package my.person
+
+import my.types.NonEmptyString
+import my.types.NonBlank
+import my.types.PhoneNumber
+
+type Person {
+  firstName: NonEmptyString
+  lastName: NonEmptyString
+  telephone: PhoneNumber
+}

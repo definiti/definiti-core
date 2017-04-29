@@ -1,0 +1,45 @@
+package my.types
+
+type NonEmptyString {
+  content: String
+
+  verify {
+    "The string must not be empty"
+    (string: String) => {
+      string.nonEmpty()
+    }
+  }
+}
+
+type NonBlank {
+  content: String
+
+  verify {
+    "The string is blank /* quoted comment */"
+    (string: String) => {
+      string.trim().nonEmpty()
+    }
+  }
+}
+
+/**
+ * Could be simplified, but it is for the "example"
+ */
+type PhoneNumber {
+  content: String
+
+  verify {
+    "Please provide a phone number"
+    (string: String) => {
+      if (string.nonEmpty()) {
+        if (string.startsWith("+33")) {
+          string.matches("^\+33\d{9}$")
+        } else {
+          string.matches("^0\d{9}$")
+        }
+      } else {
+        false
+      }
+    }
+  }
+}

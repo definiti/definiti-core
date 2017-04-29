@@ -14,8 +14,8 @@ class Project(configuration: Configuration) {
 
   def validateAST(root: Root, core: Seq[ClassDefinition]): Validation = {
     implicit val context = ReferenceContext(
-      classes = core ++ root.classDefinitions,
-      verifications = root.verifications
+      classes = core ++ root.files.flatMap(_.classDefinitions),
+      verifications = root.files.flatMap(_.verifications)
     )
     ASTValidation.validate(root)
   }
@@ -25,9 +25,10 @@ class Project(configuration: Configuration) {
       case Left(errors) =>
         Left(errors.map(_.prettyPrint))
       case Right(project) =>
-        validateAST(project.root, project.core) match {
+        val projectWithLinks = ProjectLinking.injectLinks(project)
+        validateAST(projectWithLinks.root, projectWithLinks.core) match {
           case Valid =>
-            Right(project.root)
+            Right(projectWithLinks.root)
           case Invalid(errors) =>
             Left(errors.map(_.prettyPrint))
         }

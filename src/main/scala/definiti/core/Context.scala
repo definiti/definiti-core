@@ -15,19 +15,19 @@ case class ReferenceContext(
   verifications: Seq[Verification]
 ) extends Context {
   override def isTypeAvailable(typeName: String): Boolean = {
-    classes.exists(_.name == typeName)
+    classes.exists(_.canonicalName == typeName)
   }
 
   override def findType(typeName: String): Option[ClassDefinition] = {
-    classes.find(_.name == typeName)
+    classes.find(_.canonicalName == typeName)
   }
 
   override def isVerificationAvailable(verificationName: String): Boolean = {
-    verifications.exists(_.name == verificationName)
+    verifications.exists(_.canonicalName == verificationName)
   }
 
   override def findVerification(verificationName: String): Option[Verification] = {
-    verifications.find(_.name == verificationName)
+    verifications.find(_.canonicalName == verificationName)
   }
 }
 

@@ -10,7 +10,16 @@ LOGICAL_OPERATOR             : ('==' | '!=' | '<' | '<=' | '>' | '>=');
 LOGICAL_COMBINATION_OPERATOR : ('&&' | '||');
 NOT_OPERATOR                 : '!';
 
-definiti: toplevel*;
+definiti:
+  packageName?
+  imports*
+  toplevel*;
+
+packageName: 'package' dottedIdentifier;
+
+imports: 'import' dottedIdentifier;
+
+dottedIdentifier: (IDENTIFIER '.')* IDENTIFIER;
 
 toplevel
   : verification

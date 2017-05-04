@@ -16,8 +16,9 @@ object Boot extends App {
     project.load() match {
       case Left(errors) =>
         errors.foreach(System.err.println)
-      case Right(root) =>
+      case Right(projectResult) =>
         println("Done without error. Generated AST is:")
+        val root = projectResult.root
         val prettyRoot = root.copy(
           files = List(root.files.map(rootFile => {
             rootFile.copy(

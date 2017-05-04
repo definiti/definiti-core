@@ -4,6 +4,7 @@ import definiti.core._
 import definiti.core.parser.antlr.DefinitiParser._
 import definiti.core.utils.CollectionUtils._
 import definiti.core.utils.ParserUtils._
+import definiti.core.utils.StringUtils
 
 import scala.collection.mutable.ListBuffer
 
@@ -14,7 +15,7 @@ private[parser] object Scope {
 }
 
 private[core] object DefinitiASTParser {
-  def definitiContextToAST(context: DefinitiContext): Root = {
+  def definitiContextToAST(context: DefinitiContext): RootFile = {
     val verifications = ListBuffer[Verification]()
     val classDefinitions = ListBuffer[ClassDefinition]()
 
@@ -32,12 +33,18 @@ private[core] object DefinitiASTParser {
       }
     }
 
-    Root(verifications, classDefinitions)
+    RootFile(
+      packageName = extractPackageName(context),
+      imports = extractImports(context),
+      verifications = List(verifications: _*),
+      classDefinitions = List(classDefinitions: _*)
+    )
   }
 
   private def processVerification(context: VerificationContext): Verification = {
     Verification(
       name = context.verificationName.getText,
+      packageName = NOT_DEFINED,
       message = extractStringContent(context.verificationMessage.getText),
       function = processFunction(context.function()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
@@ -48,6 +55,7 @@ private[core] object DefinitiASTParser {
   private def processDefinedType(context: DefinedTypeContext): DefinedType = {
     DefinedType(
       name = context.typeName.getText,
+      packageName = NOT_DEFINED,
       genericTypes = processGenericTypeListDefinition(context.genericTypeList()),
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
       verifications = scalaSeq(context.typeVerification()).map(processTypeVerification),
@@ -78,6 +86,7 @@ private[core] object DefinitiASTParser {
   private def processAliasType(context: AliasTypeContext): AliasType = {
     AliasType(
       name = context.typeName.getText,
+      packageName = NOT_DEFINED,
       alias = TypeReference(
         typeName = context.referenceTypeName.getText,
         genericTypes = processGenericTypeList(context.aliasGenericTypes)
@@ -262,5 +271,23 @@ private[core] object DefinitiASTParser {
     Option(context)
       .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
       .getOrElse(Seq())
+  }
+
+  private def extractPackageName(context: DefinitiContext): String = {
+    Option(context.packageName())
+      .map(packageNameContext => dottedIdentifierToIdentifier(packageNameContext.dottedIdentifier()))
+      .getOrElse("")
+  }
+
+  private def extractImports(context: DefinitiContext): Map[String, String] = {
+    scalaSeq(context.imports())
+      .view
+      .map(importContext => dottedIdentifierToIdentifier(importContext.dottedIdentifier()))
+      .map(fullName => StringUtils.lastPart(fullName, '.') -> fullName)
+      .toMap
+  }
+
+  private def dottedIdentifierToIdentifier(context: DottedIdentifierContext): String = {
+    scalaSeq(context.IDENTIFIER()).map(_.getText).mkString(".")
   }
 }

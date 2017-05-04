@@ -45,9 +45,9 @@ private[core] case class Error(message: String, range: Range) {
 
 private[core] object ASTValidation {
   def validate(root: Root)(implicit context: Context): Validation = {
-    val verificationValidations = root.verifications.map(validateVerification)
+    val verificationValidations = root.files.flatMap(_.verifications).map(validateVerification)
 
-    val classDefinitionValidations = root.classDefinitions.map {
+    val classDefinitionValidations = root.files.flatMap(_.classDefinitions).map {
       case aliasType: AliasType => validateAliasType(aliasType)
       case definedType: DefinedType => validateDefinedType(definedType)
       case _ => Valid

@@ -1,5 +1,7 @@
 package definiti.core
 
+import definiti.core.parser.ImportsMap
+
 case class Position(line: Long, column: Long) {
   def prettyPrint: String = {
     s"""$line-$column"""
@@ -13,6 +15,12 @@ case class Range(start: Position, end: Position) {
 }
 
 case class Root(
+  files: Seq[RootFile]
+)
+
+case class RootFile(
+  packageName: String,
+  imports: ImportsMap,
   verifications: Seq[Verification],
   classDefinitions: Seq[ClassDefinition]
 )
@@ -50,6 +58,8 @@ case class ParameterDefinition(
 sealed trait ClassDefinition {
   def name: String
 
+  def canonicalName: String
+
   def genericTypes: Seq[String]
 }
 
@@ -66,7 +76,9 @@ case class NativeClassDefinition(
   attributes: Seq[AttributeDefinition],
   methods: Seq[NativeMethodDefinition],
   comment: Option[String]
-) extends ClassDefinition
+) extends ClassDefinition {
+  override def canonicalName: String = name
+}
 
 case class NativeMethodDefinition(
   name: String,
@@ -155,16 +167,22 @@ case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expressio
 
 case class Parameter(name: String, typeReference: TypeReference, range: Range)
 
-case class Verification(name: String, message: String, function: DefinedFunction, comment: Option[String], range: Range)
+case class Verification(name: String, packageName: String, message: String, function: DefinedFunction, comment: Option[String], range: Range) {
+  def canonicalName: String = packageName + "." + name
+}
 
 sealed trait Type extends ClassDefinition {
   def comment: Option[String]
 }
 
-case class DefinedType(name: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String], range: Range) extends Type {
+case class DefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String], range: Range) extends Type {
   def methods: Seq[MethodDefinition] = Seq()
+
+  override def canonicalName: String = packageName + "." + name
 }
 
-case class AliasType(name: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[String], comment: Option[String], range: Range) extends Type
+case class AliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[String], comment: Option[String], range: Range) extends Type {
+  override def canonicalName: String = packageName + "." + name
+}
 
 case class TypeVerification(message: String, function: DefinedFunction, range: Range)

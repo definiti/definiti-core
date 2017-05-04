@@ -9,6 +9,9 @@ scalaVersion := "2.12.1"
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.3"
 libraryDependencies += "org.antlr" % "antlr4" % "4.7"
 
+// For developmen purposes
+libraryDependencies += "com.googlecode.kiama" %% "kiama" % "1.8.0"
+
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature")

@@ -22,10 +22,11 @@ class Project(configuration: Configuration) {
       case Left(errors) =>
         Left(errors.map(_.prettyPrint))
       case Right(project) =>
-        val context = createProjectContext(project)
-        ASTValidation.validate(project.root)(context) match {
+        val projectWithLinks = ProjectLinking.injectLinks(project)
+        val context = createProjectContext(projectWithLinks)
+        ASTValidation.validate(projectWithLinks.root)(context) match {
           case Valid =>
-            Right(ProjectResult(project.root, context))
+            Right(ProjectResult(projectWithLinks.root, context))
           case Invalid(errors) =>
             Left(errors.map(_.prettyPrint))
         }
@@ -34,8 +35,8 @@ class Project(configuration: Configuration) {
 
   private def createProjectContext(projectParsingResult: ProjectParsingResult) = {
     ReferenceContext(
-      classes = projectParsingResult.core ++ projectParsingResult.root.classDefinitions,
-      verifications = projectParsingResult.root.verifications
+      classes = projectParsingResult.core ++ projectParsingResult.root.files.flatMap(_.classDefinitions),
+      verifications = projectParsingResult.root.files.flatMap(_.verifications)
     )
   }
 }

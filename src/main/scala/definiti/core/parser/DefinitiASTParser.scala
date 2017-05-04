@@ -13,7 +13,7 @@ private[parser] object Scope {
   val empty = Scope(Seq())
 }
 
-private[definiti] object DefinitiASTParser {
+private[core] object DefinitiASTParser {
   def definitiContextToAST(context: DefinitiContext): Root = {
     val verifications = ListBuffer[Verification]()
     val classDefinitions = ListBuffer[ClassDefinition]()

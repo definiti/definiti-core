@@ -2,6 +2,11 @@ package definiti.core
 
 import definiti.core.parser._
 
+case class ProjectResult(
+  root: Root,
+  context: Context
+)
+
 class Project(configuration: Configuration) {
   private val projectParser: ProjectParser = new ProjectParser(configuration)
 
@@ -12,25 +17,25 @@ class Project(configuration: Configuration) {
     }
   }
 
-  def validateAST(root: Root, core: Seq[ClassDefinition]): Validation = {
-    implicit val context = ReferenceContext(
-      classes = core ++ root.classDefinitions,
-      verifications = root.verifications
-    )
-    ASTValidation.validate(root)
-  }
-
-  def load(): Either[Seq[String], Root] = {
+  def load(): Either[Seq[String], ProjectResult] = {
     projectParser.buildAST() match {
       case Left(errors) =>
         Left(errors.map(_.prettyPrint))
       case Right(project) =>
-        validateAST(project.root, project.core) match {
+        val context = createProjectContext(project)
+        ASTValidation.validate(project.root)(context) match {
           case Valid =>
-            Right(project.root)
+            Right(ProjectResult(project.root, context))
           case Invalid(errors) =>
             Left(errors.map(_.prettyPrint))
         }
     }
+  }
+
+  private def createProjectContext(projectParsingResult: ProjectParsingResult) = {
+    ReferenceContext(
+      classes = projectParsingResult.core ++ projectParsingResult.root.classDefinitions,
+      verifications = projectParsingResult.root.verifications
+    )
   }
 }

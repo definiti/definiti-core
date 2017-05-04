@@ -15,9 +15,9 @@ object Boot extends App {
     project.load() match {
       case Left(errors) =>
         errors.foreach(System.err.println)
-      case Right(root) =>
+      case Right(projectResult) =>
         println("Done without error. Generated AST is:")
-        println(root)
+        println(projectResult.root)
     }
   } catch {
     // In some cases, an Exception is thrown because the parser do not recognize an expression and crash its tree.

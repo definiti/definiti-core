@@ -46,6 +46,7 @@ case class AttributeDefinition(
   typeReference: TypeReference,
   comment: Option[String],
   genericTypes: Seq[TypeReference],
+  verifications: Seq[String],
   range: Range
 )
 

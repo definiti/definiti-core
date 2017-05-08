@@ -6,7 +6,7 @@ import org.kiama.output.PrettyPrinter._
 object Boot extends App {
   try {
     val configuration = Configuration(
-      source = Paths.get("src", "main", "resources", "samples", "src1"),
+      source = Paths.get("src", "main", "resources", "samples", "src2"),
       core = CoreConfiguration(
         source = Paths.get("src", "main", "resources", "api")
       )

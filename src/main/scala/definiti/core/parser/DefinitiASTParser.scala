@@ -71,8 +71,13 @@ private[core] object DefinitiASTParser {
       typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       genericTypes = processGenericTypeList(context.genericTypeList()),
+      verifications = processAttributeVerification(context.attributeVerifications()),
       range = getRangeFromContext(context)
     )
+  }
+
+  private def processAttributeVerification(context: AttributeVerificationsContext): Seq[String] = {
+    scalaSeq(context.IDENTIFIER()).map(_.getText)
   }
 
   private def processTypeVerification(context: TypeVerificationContext): TypeVerification = {

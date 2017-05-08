@@ -85,12 +85,7 @@ private[core] object ASTValidation {
         case None => Invalid("Undefined verification: " + verification, definedType.range)
       }
     }
-    val attributeValidations = definedType.attributes.map { attribute =>
-      context.findType(attribute.typeReference.typeName) match {
-        case Some(_) => Valid
-        case None => Invalid("Undefined type: " + attribute.typeReference, attribute.range)
-      }
-    }
+    val attributeValidations = definedType.attributes.map(validateAttributeDefinition)
     val verificationValidations = definedType.verifications.map { verification =>
       validateExpression(verification.function.body).verifyingAlso {
         ASTHelper.getReturnTypeOptOfExpression(verification.function.body) match {
@@ -104,6 +99,21 @@ private[core] object ASTValidation {
       }
     }
     Validation.join(inheritedValidations ++ attributeValidations ++ verificationValidations)
+  }
+
+  private def validateAttributeDefinition(attribute: AttributeDefinition)(implicit context: Context): Validation = {
+    val typeReferenceValidation = context.findType(attribute.typeReference.typeName) match {
+      case Some(_) => Valid
+      case None => Invalid("Undefined type: " + attribute.typeReference, attribute.range)
+    }
+    val verificationsValidation = attribute.verifications.map { verification =>
+      if (context.isVerificationAvailable(verification)) {
+        Valid
+      } else {
+        Invalid("Undefined verification: " + verification, attribute.range)
+      }
+    }
+    Validation.join(typeReferenceValidation +: verificationsValidation)
   }
 
   private[definiti] def validateExpression(expression: Expression)(implicit context: Context): Validation = expression match {

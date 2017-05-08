@@ -81,7 +81,8 @@ private[core] object ProjectLinking {
 
   private def injectLinksIntoAttributes(attributeDefinition: AttributeDefinition, typeMapping: TypeMapping): AttributeDefinition = {
     attributeDefinition.copy(
-      typeReference = injectLinksIntoTypeReference(attributeDefinition.typeReference, typeMapping)
+      typeReference = injectLinksIntoTypeReference(attributeDefinition.typeReference, typeMapping),
+      verifications = attributeDefinition.verifications.map(getLink(_, typeMapping))
     )
   }
 

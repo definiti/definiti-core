@@ -18,14 +18,14 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   val dateDefinition = NativeClassDefinition(
     "Date",
     Seq(),
-    Seq(AttributeDefinition("timestamp", TypeReference("Number", Seq()), None, Seq(), Seq(), noRange)),
+    Seq(AttributeDefinition("timestamp", TypeReference("Number", Seq()), None, Seq(), noRange)),
     Seq(),
     None
   )
   val listDefinition = NativeClassDefinition(
     "List",
     Seq("A"),
-    Seq(AttributeDefinition("head", TypeReference("A", Seq()), None, Seq(), Seq(), noRange)),
+    Seq(AttributeDefinition("head", TypeReference("A", Seq()), None, Seq(), noRange)),
     Seq(
       NativeMethodDefinition("nonEmpty", Seq(), Seq(), TypeReference("Boolean", Seq()), None),
       NativeMethodDefinition("randomElement", Seq(), Seq(), TypeReference("A", Seq()), None)

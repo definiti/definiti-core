@@ -41,7 +41,6 @@ private[core] object CoreDefinitionASTParser {
       name = context.attributeName.getText,
       typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
-      genericTypes = processGenericTypeList(context.genericTypeList()),
       verifications = Seq.empty,
       range = getRangeFromContext(context)
     )

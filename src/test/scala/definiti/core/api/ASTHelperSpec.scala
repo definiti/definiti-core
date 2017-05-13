@@ -1,6 +1,5 @@
 package definiti.core.api
 
-import definiti.core.parser.{ASTValidation, Valid}
 import definiti.core._
 import definiti.core.utils.Core
 import org.scalatest.{FlatSpec, Matchers}

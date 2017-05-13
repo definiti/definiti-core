@@ -67,7 +67,9 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')?;
+  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')? attributeVerifications;
+
+attributeVerifications: ('verifying' IDENTIFIER)*;
 
 typeVerification:
   'verify' '{'

@@ -56,7 +56,7 @@ private[core] object ASTValidation {
     Validation.join(verificationValidations ++ classDefinitionValidations)
   }
 
-  private def validateVerification(verification: Verification)(implicit context: Context) = {
+  def validateVerification(verification: Verification)(implicit context: Context): Validation = {
     validateExpression(verification.function.body).verifyingAlso {
       val functionReturnType = ASTHelper.getReturnTypeOfExpression(verification.function.body)
       if (functionReturnType.classDefinition.name == "Boolean") {
@@ -67,7 +67,7 @@ private[core] object ASTValidation {
     }
   }
 
-  private def validateAliasType(aliasType: AliasType)(implicit context: Context): Validation = {
+  def validateAliasType(aliasType: AliasType)(implicit context: Context): Validation = {
     verifyTypeReference(aliasType).verifyingAlso {
       Validation.join(aliasType.inherited.map { verification =>
         context.findVerification(verification) match {
@@ -85,12 +85,7 @@ private[core] object ASTValidation {
         case None => Invalid("Undefined verification: " + verification, definedType.range)
       }
     }
-    val attributeValidations = definedType.attributes.map { attribute =>
-      context.findType(attribute.typeReference.typeName) match {
-        case Some(_) => Valid
-        case None => Invalid("Undefined type: " + attribute.typeReference, attribute.range)
-      }
-    }
+    val attributeValidations = definedType.attributes.map(validateAttributeDefinition)
     val verificationValidations = definedType.verifications.map { verification =>
       validateExpression(verification.function.body).verifyingAlso {
         ASTHelper.getReturnTypeOptOfExpression(verification.function.body) match {
@@ -104,6 +99,21 @@ private[core] object ASTValidation {
       }
     }
     Validation.join(inheritedValidations ++ attributeValidations ++ verificationValidations)
+  }
+
+  def validateAttributeDefinition(attribute: AttributeDefinition)(implicit context: Context): Validation = {
+    val typeReferenceValidation = context.findType(attribute.typeReference.typeName) match {
+      case Some(_) => Valid
+      case None => Invalid("Undefined type: " + attribute.typeReference, attribute.range)
+    }
+    val verificationsValidation = attribute.verifications.map { verification =>
+      if (context.isVerificationAvailable(verification)) {
+        Valid
+      } else {
+        Invalid("Undefined verification: " + verification, attribute.range)
+      }
+    }
+    Validation.join(typeReferenceValidation +: verificationsValidation)
   }
 
   private[definiti] def validateExpression(expression: Expression)(implicit context: Context): Validation = expression match {
@@ -177,7 +187,7 @@ private[core] object ASTValidation {
       }
   }
 
-  private def validateMethodCall(methodCall: MethodCall)(implicit context: Context) = {
+  def validateMethodCall(methodCall: MethodCall)(implicit context: Context): Validation = {
     validateExpression(methodCall.expression).verifyingAlso {
       val innerReturnType = ASTHelper.getReturnTypeOfExpression(methodCall.expression)
       ASTHelper.getMethodOpt(innerReturnType.classDefinition, methodCall.method) match {
@@ -203,7 +213,7 @@ private[core] object ASTValidation {
     }
   }
 
-  private def validateReturnTypeExpression(expression: Expression, expectedReturnType: AbstractTypeReference, classDefinition: ClassDefinition, methodDefinition: MethodDefinition)(implicit context: Context): Validation = {
+  def validateReturnTypeExpression(expression: Expression, expectedReturnType: AbstractTypeReference, classDefinition: ClassDefinition, methodDefinition: MethodDefinition)(implicit context: Context): Validation = {
     val expressionReturnTypeOpt = ASTHelper.getReturnTypeOptOfExpression(expression)
     expressionReturnTypeOpt.map { expressionReturnType =>
       expectedReturnType match {
@@ -219,7 +229,7 @@ private[core] object ASTValidation {
     } getOrElse Invalid("Can not determine return type of expression", expression.range)
   }
 
-  private def validateLambdaExpressionAndReference(lambdaExpression: LambdaExpression, lambdaReference: LambdaReference, classDefinition: ClassDefinition, methodDefinition: MethodDefinition)(implicit context: Context): Validation = {
+  def validateLambdaExpressionAndReference(lambdaExpression: LambdaExpression, lambdaReference: LambdaReference, classDefinition: ClassDefinition, methodDefinition: MethodDefinition)(implicit context: Context): Validation = {
     val expressionParameters = lambdaExpression.parameterList
     val referenceParameters = lambdaReference.inputTypes
     if (expressionParameters.length == referenceParameters.length) {
@@ -240,17 +250,17 @@ private[core] object ASTValidation {
     }
   }
 
-  private def isGeneric(typeName: String, classDefinition: ClassDefinition, methodDefinition: MethodDefinition)(implicit context: Context): Boolean = {
+  def isGeneric(typeName: String, classDefinition: ClassDefinition, methodDefinition: MethodDefinition)(implicit context: Context): Boolean = {
     val isGenericTypeFromClass = classDefinition.genericTypes.contains(typeName)
     val isGenericTypeFromMethod = methodDefinition.genericTypes.contains(typeName)
     isGenericTypeFromClass || isGenericTypeFromMethod
   }
 
-  private def validateExpressions(expressions: Expression*)(implicit context: Context): Validation = {
+  def validateExpressions(expressions: Expression*)(implicit context: Context): Validation = {
     Validation.join(expressions.map(validateExpression))
   }
 
-  private def validateBooleanExpression(left: Expression, right: Expression)(implicit context: Context): Validation = {
+  def validateBooleanExpression(left: Expression, right: Expression)(implicit context: Context): Validation = {
     validateExpressions(left, right).verifyingAlso {
       lazy val leftReturnType = ASTHelper.getReturnTypeOfExpression(left)
       lazy val rightReturnType = ASTHelper.getReturnTypeOfExpression(right)
@@ -264,7 +274,7 @@ private[core] object ASTValidation {
     }
   }
 
-  private def verifyTypeReference(aliasType: AliasType)(implicit context: Context) = {
+  def verifyTypeReference(aliasType: AliasType)(implicit context: Context): Validation = {
     if (context.isTypeAvailable(aliasType.alias.typeName)) {
       Valid
     } else {
@@ -272,7 +282,7 @@ private[core] object ASTValidation {
     }
   }
 
-  private def validateTypeReferencesOfMethod(methodDefinition: MethodDefinition)(implicit context: Context): Validation = {
+  def validateTypeReferencesOfMethod(methodDefinition: MethodDefinition)(implicit context: Context): Validation = {
     methodDefinition match {
       case _: NativeMethodDefinition =>
         Valid
@@ -281,7 +291,7 @@ private[core] object ASTValidation {
     }
   }
 
-  private[parser] def validateTypeReferenceOfExpression(expression: Expression)(implicit context: Context): Validation = {
+  def validateTypeReferenceOfExpression(expression: Expression)(implicit context: Context): Validation = {
     expression match {
       case _: LogicalExpression => Valid
       case _: CalculatorExpression => Valid

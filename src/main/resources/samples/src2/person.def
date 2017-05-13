@@ -1,0 +1,11 @@
+package my.person
+
+import my.verifications.NonEmptyString
+import my.verifications.NonBlank
+import my.verifications.PhoneNumber
+
+type Person {
+  firstName: String verifying NonEmptyString
+  lastName: String verifying NonEmptyString
+  telephone: String verifying NonBlank verifying PhoneNumber
+}

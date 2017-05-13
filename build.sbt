@@ -13,6 +13,7 @@ libraryDependencies += "org.antlr" % "antlr4" % "4.7"
 libraryDependencies += "com.googlecode.kiama" %% "kiama" % "1.8.0"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.5" % "test"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature")
 

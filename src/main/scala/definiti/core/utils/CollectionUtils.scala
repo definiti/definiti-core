@@ -13,4 +13,8 @@ private[core] object CollectionUtils {
     stream.forEach((a) => buffer.append(a))
     buffer
   }
+
+  def javaList[A](seq: Seq[A]): java.util.List[A] = {
+    new java.util.ArrayList[A](seq.asJava)
+  }
 }

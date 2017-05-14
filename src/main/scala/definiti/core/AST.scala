@@ -168,7 +168,13 @@ case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expressio
 case class Parameter(name: String, typeReference: TypeReference, range: Range)
 
 case class Verification(name: String, packageName: String, message: String, function: DefinedFunction, comment: Option[String], range: Range) {
-  def canonicalName: String = packageName + "." + name
+  def canonicalName: String = {
+    if (packageName.nonEmpty) {
+      packageName + "." + name
+    } else {
+      name
+    }
+  }
 }
 
 sealed trait Type extends ClassDefinition {
@@ -178,11 +184,23 @@ sealed trait Type extends ClassDefinition {
 case class DefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String], range: Range) extends Type {
   def methods: Seq[MethodDefinition] = Seq()
 
-  override def canonicalName: String = packageName + "." + name
+  override def canonicalName: String = {
+    if (packageName.nonEmpty) {
+      packageName + "." + name
+    } else {
+      name
+    }
+  }
 }
 
 case class AliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[String], comment: Option[String], range: Range) extends Type {
-  override def canonicalName: String = packageName + "." + name
+  override def canonicalName: String = {
+    if (packageName.nonEmpty) {
+      packageName + "." + name
+    } else {
+      name
+    }
+  }
 }
 
 case class TypeVerification(message: String, function: DefinedFunction, range: Range)

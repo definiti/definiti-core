@@ -39,15 +39,20 @@ private[core] object ProjectLinking {
   }
 
   private def extractTypeMappingFromFile(rootFile: RootFile): TypeMapping = {
+    val packageNamePrefix = if (rootFile.packageName.nonEmpty) {
+      rootFile.packageName + "."
+    } else {
+      ""
+    }
     val verificationTypeMapping = rootFile.verifications
       .view
       .map(_.name)
-      .map(name => name -> (rootFile.packageName + "." + name))
+      .map(name => name -> (packageNamePrefix + name))
       .toMap
     val classDefinitionTypeMapping = rootFile.classDefinitions
       .view
       .map(_.name)
-      .map(name => name -> (rootFile.packageName + "." + name))
+      .map(name => name -> (packageNamePrefix + name))
       .toMap
 
     verificationTypeMapping ++ classDefinitionTypeMapping

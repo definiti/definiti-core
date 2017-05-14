@@ -32,7 +32,7 @@ type Period {
 
   verify {
     "end should be after start"
-    (period: Period) => { period.end > period.start || period.end == period.start }
+    (period) => { period.end > period.start || period.end == period.start }
   }
 }
 
@@ -58,7 +58,7 @@ type MultiplePeriod {
   verify {
     "end should be after start"
     // The second part tests the generic system.
-    (multiplePeriod: MultiplePeriod) => {
+    (multiplePeriod) => {
       multiplePeriod.periods.nonEmpty() && multiplePeriod.periods.head.start.timestamp > 0
     }
   }
@@ -69,7 +69,7 @@ type NonEmptyList[A] {
 
   verify {
     "The list should not be empty"
-    (nonEmptyList: NonEmptyList[A]) => {
+    (nonEmptyList) => {
       nonEmptyList.values.nonEmpty()
     }
   }
@@ -89,7 +89,7 @@ type Balance {
 
   verify {
     "The sum of entries must be 0"
-    (balance: Balance) => {
+    (balance) => {
       balance.entries.foldLeft[Number](0, (acc: Number, current: Number) => { acc + current }) > 0
     }
   }

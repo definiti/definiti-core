@@ -53,12 +53,13 @@ private[core] object DefinitiASTParser {
   }
 
   private def processDefinedType(context: DefinedTypeContext): DefinedType = {
+    val typeName = context.typeName.getText
     DefinedType(
-      name = context.typeName.getText,
+      name = typeName,
       packageName = NOT_DEFINED,
       genericTypes = processGenericTypeListDefinition(context.genericTypeList()),
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
-      verifications = scalaSeq(context.typeVerification()).map(processTypeVerification),
+      verifications = scalaSeq(context.typeVerification()).map(processTypeVerification(_, typeName)),
       inherited = scalaSeq(context.inheritance()).map(_.verificationName.getText),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       range = getRangeFromContext(context)
@@ -79,10 +80,25 @@ private[core] object DefinitiASTParser {
     scalaSeq(context.IDENTIFIER()).map(_.getText)
   }
 
-  private def processTypeVerification(context: TypeVerificationContext): TypeVerification = {
+  private def processTypeVerification(context: TypeVerificationContext, typeName: String): TypeVerification = {
     TypeVerification(
       extractStringContent(context.verificationMessage.getText),
-      processFunction(context.function()),
+      processTypeVerificationFunction(context.typeVerificationFunction(), typeName),
+      getRangeFromContext(context)
+    )
+  }
+
+  private def processTypeVerificationFunction(context: TypeVerificationFunctionContext, typeName: String): DefinedFunction = {
+    val parameters = Seq(ParameterDefinition(
+      name = context.IDENTIFIER().getText,
+      typeReference = TypeReference(typeName, Seq.empty),
+      range = getRangeFromTerminalNode(context.IDENTIFIER())
+    ))
+    implicit val scope = Scope(parametersToVariables(parameters))
+    DefinedFunction(
+      parameters = parameters,
+      body = processChainedExpression(context.chainedExpression()),
+      genericTypes = Seq.empty,
       getRangeFromContext(context)
     )
   }

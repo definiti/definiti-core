@@ -41,7 +41,7 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processVerification(context: VerificationContext): Verification = {
+  def processVerification(context: VerificationContext): Verification = {
     Verification(
       name = context.verificationName.getText,
       packageName = NOT_DEFINED,
@@ -52,20 +52,21 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processDefinedType(context: DefinedTypeContext): DefinedType = {
+  def processDefinedType(context: DefinedTypeContext): DefinedType = {
+    val typeName = context.typeName.getText
     DefinedType(
-      name = context.typeName.getText,
+      name = typeName,
       packageName = NOT_DEFINED,
       genericTypes = processGenericTypeListDefinition(context.genericTypeList()),
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
-      verifications = scalaSeq(context.typeVerification()).map(processTypeVerification),
+      verifications = scalaSeq(context.typeVerification()).map(processTypeVerification(_, typeName)),
       inherited = scalaSeq(context.inheritance()).map(_.verificationName.getText),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       range = getRangeFromContext(context)
     )
   }
 
-  private def processAttributeDefinition(context: AttributeDefinitionContext): AttributeDefinition = {
+  def processAttributeDefinition(context: AttributeDefinitionContext): AttributeDefinition = {
     AttributeDefinition(
       name = context.attributeName.getText,
       typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
@@ -75,19 +76,34 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processAttributeVerification(context: AttributeVerificationsContext): Seq[String] = {
+  def processAttributeVerification(context: AttributeVerificationsContext): Seq[String] = {
     scalaSeq(context.IDENTIFIER()).map(_.getText)
   }
 
-  private def processTypeVerification(context: TypeVerificationContext): TypeVerification = {
+  def processTypeVerification(context: TypeVerificationContext, typeName: String): TypeVerification = {
     TypeVerification(
       extractStringContent(context.verificationMessage.getText),
-      processFunction(context.function()),
+      processTypeVerificationFunction(context.typeVerificationFunction(), typeName),
       getRangeFromContext(context)
     )
   }
 
-  private def processAliasType(context: AliasTypeContext): AliasType = {
+  def processTypeVerificationFunction(context: TypeVerificationFunctionContext, typeName: String): DefinedFunction = {
+    val parameters = Seq(ParameterDefinition(
+      name = context.IDENTIFIER().getText,
+      typeReference = TypeReference(typeName, Seq.empty),
+      range = getRangeFromTerminalNode(context.IDENTIFIER())
+    ))
+    implicit val scope = Scope(parametersToVariables(parameters))
+    DefinedFunction(
+      parameters = parameters,
+      body = processChainedExpression(context.chainedExpression()),
+      genericTypes = Seq.empty,
+      getRangeFromContext(context)
+    )
+  }
+
+  def processAliasType(context: AliasTypeContext): AliasType = {
     AliasType(
       name = context.typeName.getText,
       packageName = NOT_DEFINED,
@@ -102,7 +118,7 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processFunction(context: FunctionContext): DefinedFunction = {
+  def processFunction(context: FunctionContext): DefinedFunction = {
     val parameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter)
     implicit val scope = Scope(parametersToVariables(parameters))
     DefinedFunction(
@@ -115,7 +131,7 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processParameter(context: ParameterDefinitionContext): ParameterDefinition = {
+  def processParameter(context: ParameterDefinitionContext): ParameterDefinition = {
     ParameterDefinition(
       name = context.parameterName.getText,
       typeReference = TypeReference(context.parameterType.getText, processGenericTypeList(context.genericTypeList())),
@@ -123,14 +139,14 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processChainedExpression(context: ChainedExpressionContext)(implicit scope: Scope): Expression = {
+  def processChainedExpression(context: ChainedExpressionContext)(implicit scope: Scope): Expression = {
     scalaSeq(context.expression()) match {
       case head :: Nil => processExpression(head)
       case expressions => CombinedExpression(expressions.map(processExpression), getRangeFromContext(context))
     }
   }
 
-  private def processExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     if (context.parenthesis != null) {
       processParenthesisExpression(context)
     } else if (context.methodName != null) {
@@ -160,11 +176,11 @@ private[core] object DefinitiASTParser {
     }
   }
 
-  private def processParenthesisExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processParenthesisExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     processExpression(context.parenthesis)
   }
 
-  private def processMethodCallExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processMethodCallExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     MethodCall(
       expression = processExpression(context.methodExpression),
       method = context.methodName.getText,
@@ -176,7 +192,7 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processAttributeCallExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processAttributeCallExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     AttributeCall(
       expression = processExpression(context.attributeExpression),
       attribute = context.attributeName.getText,
@@ -184,11 +200,11 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processNotExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processNotExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     Not(processExpression(context.notExpression), getRangeFromContext(context))
   }
 
-  private def processLeftRightExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processLeftRightExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     val left = processExpression(context.leftExpression)
     val right = processExpression(context.rightExpression)
     context.operator.getText match {
@@ -208,22 +224,22 @@ private[core] object DefinitiASTParser {
     }
   }
 
-  private def processBooleanExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processBooleanExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     context.booleanExpression.getText match {
       case "true" => BooleanValue(value = true, getRangeFromContext(context))
       case _ => BooleanValue(value = false, getRangeFromContext(context))
     }
   }
 
-  private def processNumberExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processNumberExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     NumberValue(BigDecimal(context.numberExpression.getText), getRangeFromContext(context))
   }
 
-  private def processStringExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processStringExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     QuotedStringValue(extractStringContent(context.stringExpression.getText), getRangeFromContext(context))
   }
 
-  private def processVariableExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processVariableExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     val variableName = context.variableExpression.getText
     scope.variables.find(variable => variable.name == variableName) match {
       case Some(variable) =>
@@ -237,7 +253,7 @@ private[core] object DefinitiASTParser {
     }
   }
 
-  private def processConditionExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processConditionExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     Condition(
       condition = processExpression(context.conditionExpression),
       onTrue = processChainedExpression(context.conditionIfBody),
@@ -246,7 +262,7 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processLambdaExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processLambdaExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
     val lambdaParameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter)
     val outerVariableNotShadowed = scope.variables.filter(v => !lambdaParameters.exists(_.name == v.name))
     val innerVariables = parametersToVariables(lambdaParameters) ++ outerVariableNotShadowed
@@ -258,7 +274,7 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  private def processGenericTypeList(context: GenericTypeListContext): Seq[TypeReference] = {
+  def processGenericTypeList(context: GenericTypeListContext): Seq[TypeReference] = {
     if (context != null) {
       scalaSeq(context.genericType()).map { genericTypeContext =>
         TypeReference(
@@ -271,19 +287,19 @@ private[core] object DefinitiASTParser {
     }
   }
 
-  private def processGenericTypeListDefinition(context: GenericTypeListContext) = {
+  def processGenericTypeListDefinition(context: GenericTypeListContext) = {
     Option(context)
       .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
       .getOrElse(Seq())
   }
 
-  private def extractPackageName(context: DefinitiContext): String = {
+  def extractPackageName(context: DefinitiContext): String = {
     Option(context.packageName())
       .map(packageNameContext => dottedIdentifierToIdentifier(packageNameContext.dottedIdentifier()))
       .getOrElse("")
   }
 
-  private def extractImports(context: DefinitiContext): Map[String, String] = {
+  def extractImports(context: DefinitiContext): Map[String, String] = {
     scalaSeq(context.imports())
       .view
       .map(importContext => dottedIdentifierToIdentifier(importContext.dottedIdentifier()))
@@ -291,7 +307,7 @@ private[core] object DefinitiASTParser {
       .toMap
   }
 
-  private def dottedIdentifierToIdentifier(context: DottedIdentifierContext): String = {
+  def dottedIdentifierToIdentifier(context: DottedIdentifierContext): String = {
     scalaSeq(context.IDENTIFIER()).map(_.getText).mkString(".")
   }
 }

@@ -74,8 +74,10 @@ attributeVerifications: ('verifying' IDENTIFIER)*;
 typeVerification:
   'verify' '{'
     verificationMessage=STRING
-    function
+    typeVerificationFunction
   '}';
+
+typeVerificationFunction: '(' IDENTIFIER ')' '=>' '{' chainedExpression '}';
 
 aliasType :
   DOC_COMMENT?

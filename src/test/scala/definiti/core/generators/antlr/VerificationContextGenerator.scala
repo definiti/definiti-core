@@ -1,7 +1,7 @@
 package definiti.core.generators.antlr
 
-import definiti.core.mock.antlr.VerificationContextMock
-import definiti.core.parser.antlr.DefinitiParser.VerificationContext
+import definiti.core.mock.antlr.{VerificationContextMock, VerifyingContextMock, VerifyingListContextMock}
+import definiti.core.parser.antlr.DefinitiParser.{VerificationContext, VerifyingContext, VerifyingListContext}
 import org.scalacheck.Gen
 
 object VerificationContextGenerator {
@@ -20,6 +20,53 @@ object VerificationContextGenerator {
       identifier,
       string,
       docComment
+    )
+  })
+
+  lazy val anyVerifyingListContext: Gen[VerifyingListContext] = AntlrGenerator.genContext(for {
+    verifyingContexts <- Gen.listOf(anyVerifyingContext)
+  } yield {
+    VerifyingListContextMock(verifyingContexts)
+  })
+
+  lazy val verifyingListContextWithMessage: Gen[VerifyingListContext] = AntlrGenerator.genContext(for {
+    verifyingContexts <- Gen.listOf(verifyingContextWithMessage)
+  } yield {
+    VerifyingListContextMock(verifyingContexts)
+  })
+
+  lazy val verifyingListContextWithoutMessage: Gen[VerifyingListContext] = AntlrGenerator.genContext(for {
+    verifyingContexts <- Gen.listOf(verifyingContextWithoutMessage)
+  } yield {
+    VerifyingListContextMock(verifyingContexts)
+  })
+
+  lazy val anyVerifyingContext: Gen[VerifyingContext] = AntlrGenerator.genContext(for {
+    verificationNameToken <- AntlrGenerator.anyIdentifierToken
+    messageToken <- Gen.option(AntlrGenerator.anyStringToken)
+  } yield {
+    VerifyingContextMock(
+      verificationNameToken,
+      messageToken
+    )
+  })
+
+  lazy val verifyingContextWithMessage: Gen[VerifyingContext] = AntlrGenerator.genContext(for {
+    verificationNameToken <- AntlrGenerator.anyIdentifierToken
+    messageToken <- AntlrGenerator.anyStringToken
+  } yield {
+    VerifyingContextMock(
+      verificationNameToken,
+      Some(messageToken)
+    )
+  })
+
+  lazy val verifyingContextWithoutMessage: Gen[VerifyingContext] = AntlrGenerator.genContext(for {
+    verificationNameToken <- AntlrGenerator.anyIdentifierToken
+  } yield {
+    VerifyingContextMock(
+      verificationNameToken,
+      None
     )
   })
 }

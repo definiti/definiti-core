@@ -72,7 +72,7 @@ object ASTGenerator {
     name <- anyIdentifier
     typeReference <- anyTypeReference
     comment <- Gen.option(anyIdentifier)
-    verifications <- Gen.listOf(anyIdentifier)
+    verifications <- Gen.listOf(VerificationGenerator.anyVerificationReference)
     range <- anyRange
   } yield {
     AttributeDefinition(
@@ -87,7 +87,7 @@ object ASTGenerator {
   def referencedAttributeDefinition(implicit context: ReferenceContext): Gen[AttributeDefinition] = for {
     attributeDefinition <- anyAttributeDefinition
     typeReference <- referencedTypeReference
-    verifications <- Gen.listOf(referencedVerificationIdentifier)
+    verifications <- Gen.listOf(VerificationGenerator.anyReferencedVerificationReference)
   } yield {
     attributeDefinition.copy(
       typeReference = typeReference,
@@ -105,10 +105,13 @@ object ASTGenerator {
 
   def attributeDefinitionWithNonReferencedVerification(implicit context: ReferenceContext): Gen[AttributeDefinition] = for {
     attributeDefinition <- anyAttributeDefinition
-    verificationName <- anyIdentifier
+    verificationReference <- VerificationGenerator.anyReferencedVerificationReference
   } yield {
+    val nonReferencedVerificationReference = verificationReference.copy(
+      verificationName = makeNonReferenced(verificationReference.verificationName)
+    )
     attributeDefinition.copy(
-      verifications = attributeDefinition.verifications :+ makeNonReferenced(verificationName)
+      verifications = attributeDefinition.verifications :+ nonReferencedVerificationReference
     )
   }
 

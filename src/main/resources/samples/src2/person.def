@@ -5,7 +5,13 @@ import my.verifications.NonBlank
 import my.verifications.PhoneNumber
 
 type Person {
-  firstName: String verifying NonEmptyString
-  lastName: String verifying NonEmptyString
-  telephone: String verifying NonBlank verifying PhoneNumber
+  firstName: String verifying NonEmptyString("Please provide a first name")
+  lastName: String verifying NonEmptyString("Please provide a last name")
+  telephone: String
+    verifying NonBlank("Please provide a phone number")
+    verifying PhoneNumber
 }
+
+type RequiredString = String verifying NonEmptyString
+
+type RequiredNoun = String verifying NonEmptyString("This noun must be defined")

@@ -14,7 +14,7 @@ case class AliasTypeContextMock(
   aliasGenericTypesContext: Option[GenericTypeListContext],
   identifiers: Seq[TerminalNode],
   docComment: Option[TerminalNode],
-  inheritances: Seq[InheritanceContext]
+  verifyingListContext: Option[VerifyingListContext]
 ) extends AliasTypeContext(null, 0) {
   this.typeName = typeNameToken
   this.genericTypes = genericTypesContext.orNull
@@ -27,20 +27,32 @@ case class AliasTypeContextMock(
 
   override def DOC_COMMENT(): TerminalNode = docComment.orNull
 
-  override def inheritance(): JList[InheritanceContext] = javaList(inheritances)
-
-  override def inheritance(i: Int): InheritanceContext = inheritances(i)
+  override def verifyingList(): VerifyingListContext = verifyingListContext.orNull
 
   override def genericTypeList(): JList[GenericTypeListContext] = javaList(Seq(genericTypes, aliasGenericTypes))
 
   override def genericTypeList(i: Int): GenericTypeListContext = genericTypeList().get(i)
 }
 
+object AliasTypeContextMock {
+  def apply(aliasTypeContext: AliasTypeContext): AliasTypeContextMock = {
+    new AliasTypeContextMock(
+      typeNameToken = aliasTypeContext.typeName,
+      genericTypesContext = Option(aliasTypeContext.genericTypes),
+      referenceTypeNameToken = aliasTypeContext.referenceTypeName,
+      aliasGenericTypesContext = Option(aliasTypeContext.aliasGenericTypes),
+      identifiers = scalaSeq(aliasTypeContext.IDENTIFIER()),
+      docComment = Option(aliasTypeContext.DOC_COMMENT()),
+      verifyingListContext = Option(aliasTypeContext.verifyingList())
+    )
+  }
+}
+
 case class DefinedTypeContextMock(
   typeNameToken: Token,
   identifier: TerminalNode,
   docComment: Option[TerminalNode],
-  inheritances: Seq[InheritanceContext],
+  verifyingListContext: Option[VerifyingListContext],
   genericTypeListContext: Option[GenericTypeListContext],
   attributeDefinitionContexts: Seq[AttributeDefinitionContext],
   typeVerificationContexts: Seq[TypeVerificationContext]
@@ -51,9 +63,7 @@ case class DefinedTypeContextMock(
 
   override def DOC_COMMENT(): TerminalNode = docComment.orNull
 
-  override def inheritance(): JList[InheritanceContext] = javaList(inheritances)
-
-  override def inheritance(i: Int): InheritanceContext = inheritances(i)
+  override def verifyingList(): VerifyingListContext = verifyingListContext.orNull
 
   override def genericTypeList(): GenericTypeListContext = genericTypeListContext.orNull
 
@@ -66,19 +76,24 @@ case class DefinedTypeContextMock(
   override def typeVerification(i: Int): TypeVerificationContext = typeVerificationContexts(i)
 }
 
-case class InheritanceContextMock(
-  verificationNameToken: Token,
-  identifier: TerminalNode
-) extends InheritanceContext(null, 0) {
-  this.verificationName = verificationNameToken
-
-  override def IDENTIFIER(): TerminalNode = identifier
+object DefinedTypeContextMock {
+  def apply(definedTypeContext: DefinedTypeContext): DefinedTypeContextMock = {
+    new DefinedTypeContextMock(
+      typeNameToken = definedTypeContext.typeName,
+      identifier = definedTypeContext.IDENTIFIER(),
+      docComment = Option(definedTypeContext.DOC_COMMENT()),
+      verifyingListContext = Option(definedTypeContext.verifyingList()),
+      genericTypeListContext = Option(definedTypeContext.genericTypeList()),
+      attributeDefinitionContexts = scalaSeq(definedTypeContext.attributeDefinition()),
+      typeVerificationContexts = scalaSeq(definedTypeContext.typeVerification())
+    )
+  }
 }
 
 case class AttributeDefinitionContextMock(
   attributeNameToken: Token,
   attributeTypeToken: Token,
-  attributeVerificationsContext: AttributeVerificationsContext,
+  verifyingListContext: Option[VerifyingListContext],
   identifiers: Seq[TerminalNode],
   docComment: Option[TerminalNode],
   genericTypeListContext: GenericTypeListContext
@@ -86,7 +101,7 @@ case class AttributeDefinitionContextMock(
   this.attributeName = attributeNameToken
   this.attributeType = attributeTypeToken
 
-  override def attributeVerifications(): AttributeVerificationsContext = attributeVerificationsContext
+  override def verifyingList(): VerifyingListContext = verifyingListContext.orNull
 
   override def IDENTIFIER(): JList[TerminalNode] = javaList(identifiers)
 
@@ -97,12 +112,17 @@ case class AttributeDefinitionContextMock(
   override def genericTypeList(): GenericTypeListContext = genericTypeListContext
 }
 
-case class AttributeVerificationsContextMock(
-  identifiers: Seq[TerminalNode]
-) extends AttributeVerificationsContext(null, 0) {
-  override def IDENTIFIER(): JList[TerminalNode] = javaList(identifiers)
-
-  override def IDENTIFIER(i: Int): TerminalNode = identifiers(i)
+object AttributeDefinitionContextMock {
+  def apply(attributeDefinitionContext: AttributeDefinitionContext): AttributeDefinitionContextMock = {
+    new AttributeDefinitionContextMock(
+      attributeNameToken = attributeDefinitionContext.attributeName,
+      attributeTypeToken = attributeDefinitionContext.attributeType,
+      verifyingListContext = Option(attributeDefinitionContext.verifyingList()),
+      identifiers = scalaSeq(attributeDefinitionContext.IDENTIFIER()),
+      docComment = Option(attributeDefinitionContext.DOC_COMMENT()),
+      genericTypeListContext = attributeDefinitionContext.genericTypeList()
+    )
+  }
 }
 
 case class TypeVerificationContextMock(

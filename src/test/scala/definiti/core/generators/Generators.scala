@@ -8,9 +8,9 @@ object Generators {
     elems <- Gen.listOfN(numElems, gen)
   } yield elems
 
-  def numberAsString: Gen[String] = Gen.oneOf(integerAsString, floatAsString)
+  lazy val numberAsString: Gen[String] = Gen.oneOf(integerAsString, floatAsString)
 
-  def integerAsString: Gen[String] = Gen.nonEmptyListOf(Gen.numChar).map(_.mkString(""))
+  lazy val integerAsString: Gen[String] = Gen.nonEmptyListOf(Gen.numChar).map(_.mkString(""))
 
   def floatAsString: Gen[String] = for {
     integer <- integerAsString
@@ -29,4 +29,10 @@ object Generators {
   def listDecreasingFrequencySize[A](min: Int, max: Int, gen: Gen[A]): Gen[List[A]] = {
    decreasingFrequency(min, max).flatMap(numberOfElements => Gen.listOfN(numberOfElements, gen))
   }
+
+  lazy val anyBooleanText: Gen[String] = Gen.oneOf("true", "false")
+
+  lazy val anyString: Gen[String] = Gen.alphaNumStr
+
+  lazy val anyIdentifier: Gen[String] = Gen.alphaNumStr
 }

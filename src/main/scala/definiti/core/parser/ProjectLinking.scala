@@ -71,14 +71,14 @@ private[core] object ProjectLinking {
         aliasType.copy(
           packageName = packageName,
           alias = injectLinksIntoTypeReference(aliasType.alias, typeMapping),
-          inherited = aliasType.inherited.map(getLink(_, typeMapping))
+          inherited = aliasType.inherited.map(injectLinksIntoVerificationReference(_, typeMapping))
         )
       case definedType: DefinedType =>
         definedType.copy(
           packageName = packageName,
           attributes = definedType.attributes.map(injectLinksIntoAttributes(_, typeMapping)),
           verifications = definedType.verifications.map(injectLinksIntoTypeVerification(_, typeMapping)),
-          inherited = definedType.inherited.map(getLink(_, typeMapping))
+          inherited = definedType.inherited.map(injectLinksIntoVerificationReference(_, typeMapping))
         )
       case other => other
     }
@@ -87,7 +87,7 @@ private[core] object ProjectLinking {
   private def injectLinksIntoAttributes(attributeDefinition: AttributeDefinition, typeMapping: TypeMapping): AttributeDefinition = {
     attributeDefinition.copy(
       typeReference = injectLinksIntoTypeReference(attributeDefinition.typeReference, typeMapping),
-      verifications = attributeDefinition.verifications.map(getLink(_, typeMapping))
+      verifications = attributeDefinition.verifications.map(injectLinksIntoVerificationReference(_, typeMapping))
     )
   }
 
@@ -128,6 +128,12 @@ private[core] object ProjectLinking {
     lambdaReference.copy(
       inputTypes = lambdaReference.inputTypes.map(injectLinksIntoTypeReference(_, typeMapping)),
       outputType = injectLinksIntoTypeReference(lambdaReference.outputType, typeMapping)
+    )
+  }
+
+  private def injectLinksIntoVerificationReference(verificationReference: VerificationReference, typeMapping: TypeMapping): VerificationReference = {
+    verificationReference.copy(
+      verificationName = getLink(verificationReference.verificationName, typeMapping)
     )
   }
 

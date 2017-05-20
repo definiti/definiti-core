@@ -2,22 +2,22 @@ package definiti.core.generators.antlr
 
 import definiti.core.generators.Generators
 import definiti.core.mock.antlr.{TerminalNodeMock, TokenMock}
-import org.antlr.v4.runtime.{ParserRuleContext, Token}
 import org.antlr.v4.runtime.tree.TerminalNode
+import org.antlr.v4.runtime.{ParserRuleContext, Token}
 import org.scalacheck.Gen
 
 object AntlrGenerator {
   lazy val anyBooleanNode: Gen[TerminalNode] = genNode(anyBooleanToken)
-  lazy val anyBooleanToken: Gen[Token] = genToken(Gen.oneOf("true", "false"))
+  lazy val anyBooleanToken: Gen[Token] = genToken(Generators.anyBooleanText)
 
   lazy val anyNumberNode: Gen[TerminalNode] = genNode(anyNumberToken)
   lazy val anyNumberToken: Gen[Token] = genToken(Generators.numberAsString)
 
   lazy val anyStringNode: Gen[TerminalNode] = genNode(anyStringToken)
-  lazy val anyStringToken: Gen[Token] = genToken(Gen.alphaNumStr.map('"' + _ + '"'))
+  lazy val anyStringToken: Gen[Token] = genToken(Generators.anyString.map('"' + _ + '"'))
 
   lazy val anyIdentifierNode: Gen[TerminalNode] = genNode(anyIdentifierToken)
-  lazy val anyIdentifierToken: Gen[Token] = genToken(Gen.alphaNumStr)
+  lazy val anyIdentifierToken: Gen[Token] = genToken(Generators.anyIdentifier)
 
   lazy val anyBinaryOperatorNode: Gen[TerminalNode] = genNode(anyBinaryOperatorToken)
   lazy val anyBinaryOperatorToken: Gen[Token] = genToken(Gen.oneOf("*", "/", "%", "+", "-", "==", "!=", "<", "<=", ">", ">=", "&&", "||"))
@@ -26,7 +26,7 @@ object AntlrGenerator {
   lazy val anyNotOperatorToken: Gen[Token] = genToken(Gen.const("!"))
 
   lazy val anyDocCommentNode: Gen[TerminalNode] = genNode(anyDocCommentToken)
-  lazy val anyDocCommentToken: Gen[Token] = genToken(Gen.alphaNumStr.map("/**" + _ + "*/"))
+  lazy val anyDocCommentToken: Gen[Token] = genToken(Generators.anyString.map("/**" + _ + "*/"))
 
   def genContext[A <: ParserRuleContext](gen: Gen[A]): Gen[A] = for {
     element <- gen

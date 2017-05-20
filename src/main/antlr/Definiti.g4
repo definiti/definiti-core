@@ -59,7 +59,7 @@ verification :
 
 definedType :
   DOC_COMMENT?
-  'type' typeName=IDENTIFIER inheritance* ('[' genericTypeList ']')? '{'
+  'type' typeName=IDENTIFIER ('[' genericTypeList ']')? verifyingList '{'
     attributeDefinition+
 
     (typeVerification)*
@@ -67,9 +67,7 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')? attributeVerifications;
-
-attributeVerifications: ('verifying' IDENTIFIER)*;
+  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')? verifyingList;
 
 typeVerification:
   'verify' '{'
@@ -81,11 +79,12 @@ typeVerificationFunction: '(' IDENTIFIER ')' '=>' '{' chainedExpression '}';
 
 aliasType :
   DOC_COMMENT?
-  'type' typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? inheritance*;
+  'type' typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList;
 
 function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
 
-inheritance : ('verifying' verificationName=IDENTIFIER);
+verifyingList : verifying*;
+verifying : 'verifying' verificationName=IDENTIFIER ('(' message=STRING ')')?;
 
 parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );

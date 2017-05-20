@@ -60,7 +60,7 @@ private[core] object DefinitiASTParser {
       genericTypes = processGenericTypeListDefinition(context.genericTypeList()),
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
       verifications = scalaSeq(context.typeVerification()).map(processTypeVerification(_, typeName)),
-      inherited = scalaSeq(context.inheritance()).map(_.verificationName.getText),
+      inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       range = getRangeFromContext(context)
     )
@@ -71,13 +71,25 @@ private[core] object DefinitiASTParser {
       name = context.attributeName.getText,
       typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
-      verifications = processAttributeVerification(context.attributeVerifications()),
+      verifications = processVerifyingList(context.verifyingList()),
       range = getRangeFromContext(context)
     )
   }
 
-  def processAttributeVerification(context: AttributeVerificationsContext): Seq[String] = {
-    scalaSeq(context.IDENTIFIER()).map(_.getText)
+  def processVerifyingList(verifyingListContext: VerifyingListContext): Seq[VerificationReference] = {
+    if (verifyingListContext != null) {
+      scalaSeq(verifyingListContext.verifying()).map(processVerifying)
+    } else {
+      Seq.empty
+    }
+  }
+
+  def processVerifying(context: VerifyingContext): VerificationReference = {
+    VerificationReference(
+      verificationName = context.verificationName.getText,
+      message = Option(context.message).map(_.getText),
+      range = getRangeFromContext(context)
+    )
   }
 
   def processTypeVerification(context: TypeVerificationContext, typeName: String): TypeVerification = {
@@ -112,7 +124,7 @@ private[core] object DefinitiASTParser {
         genericTypes = processGenericTypeList(context.aliasGenericTypes)
       ),
       genericTypes = processGenericTypeListDefinition(context.genericTypes),
-      inherited = scalaSeq(context.inheritance()).map(_.verificationName.getText),
+      inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       range = getRangeFromContext(context)
     )
@@ -287,7 +299,7 @@ private[core] object DefinitiASTParser {
     }
   }
 
-  def processGenericTypeListDefinition(context: GenericTypeListContext) = {
+  def processGenericTypeListDefinition(context: GenericTypeListContext): Seq[String] = {
     Option(context)
       .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
       .getOrElse(Seq())

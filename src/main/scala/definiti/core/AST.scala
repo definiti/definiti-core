@@ -45,7 +45,7 @@ case class AttributeDefinition(
   name: String,
   typeReference: TypeReference,
   comment: Option[String],
-  verifications: Seq[String],
+  verifications: Seq[VerificationReference],
   range: Range
 )
 
@@ -181,7 +181,7 @@ sealed trait Type extends ClassDefinition {
   def comment: Option[String]
 }
 
-case class DefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[String], comment: Option[String], range: Range) extends Type {
+case class DefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends Type {
   def methods: Seq[MethodDefinition] = Seq()
 
   override def canonicalName: String = {
@@ -193,7 +193,7 @@ case class DefinedType(name: String, packageName: String, genericTypes: Seq[Stri
   }
 }
 
-case class AliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[String], comment: Option[String], range: Range) extends Type {
+case class AliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends Type {
   override def canonicalName: String = {
     if (packageName.nonEmpty) {
       packageName + "." + name
@@ -204,3 +204,5 @@ case class AliasType(name: String, packageName: String, genericTypes: Seq[String
 }
 
 case class TypeVerification(message: String, function: DefinedFunction, range: Range)
+
+case class VerificationReference(verificationName: String, message: Option[String], range: Range)

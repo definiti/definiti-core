@@ -133,6 +133,7 @@ private[core] object DefinitiASTParser {
   def processNamedFunction(context: NamedFunctionContext): NamedFunction = {
     NamedFunction(
       name = context.name.getText,
+      packageName = NOT_DEFINED,
       function = processFunction(context.function()),
       range = getRangeFromContext(context)
     )

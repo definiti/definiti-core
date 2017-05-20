@@ -130,4 +130,12 @@ object ASTHelper {
         definedType.attributes.find(_.name == attribute)
     }
   }
+
+  def canonical(packageName: String, name: String): String = {
+    if (packageName.nonEmpty) {
+      packageName + "." + name
+    } else {
+      name
+    }
+  }
 }

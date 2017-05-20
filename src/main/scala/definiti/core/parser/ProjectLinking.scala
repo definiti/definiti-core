@@ -14,7 +14,7 @@ private[core] object ProjectLinking {
     )
   }
 
-  private def extractTypeMappingFromCore(core: Seq[ClassDefinition]): TypeMapping = {
+  def extractTypeMappingFromCore(core: Seq[ClassDefinition]): TypeMapping = {
     core
       .view
       .map(_.name)
@@ -22,23 +22,24 @@ private[core] object ProjectLinking {
       .toMap
   }
 
-  private def injectLinksIntoRoot(root: Root, coreTypeMapping: TypeMapping): Root = {
+  def injectLinksIntoRoot(root: Root, coreTypeMapping: TypeMapping): Root = {
     root.copy(
       root.files.map(injectLinksIntoRootFile(_, coreTypeMapping))
     )
   }
 
-  private def injectLinksIntoRootFile(rootFile: RootFile, coreTypeMapping: TypeMapping): RootFile = {
+  def injectLinksIntoRootFile(rootFile: RootFile, coreTypeMapping: TypeMapping): RootFile = {
     val fileTypeMapping = extractTypeMappingFromFile(rootFile)
     val imports = rootFile.imports
     val typeMapping = coreTypeMapping ++ fileTypeMapping ++ imports
     rootFile.copy(
       verifications = rootFile.verifications.map(injectLinksIntoVerification(_, rootFile.packageName, typeMapping)),
-      classDefinitions = rootFile.classDefinitions.map(injectLinksIntoClassDefinition(_, rootFile.packageName, typeMapping))
+      classDefinitions = rootFile.classDefinitions.map(injectLinksIntoClassDefinition(_, rootFile.packageName, typeMapping)),
+      namedFunctions = rootFile.namedFunctions.map(injectLinksIntoNamedFunction(_, rootFile.packageName, typeMapping))
     )
   }
 
-  private def extractTypeMappingFromFile(rootFile: RootFile): TypeMapping = {
+  def extractTypeMappingFromFile(rootFile: RootFile): TypeMapping = {
     val packageNamePrefix = if (rootFile.packageName.nonEmpty) {
       rootFile.packageName + "."
     } else {
@@ -58,14 +59,14 @@ private[core] object ProjectLinking {
     verificationTypeMapping ++ classDefinitionTypeMapping
   }
 
-  private def injectLinksIntoVerification(verification: Verification, packageName: String, typeMapping: TypeMapping): Verification = {
+  def injectLinksIntoVerification(verification: Verification, packageName: String, typeMapping: TypeMapping): Verification = {
     verification.copy(
       packageName = packageName,
       function = injectLinksIntoFunction(verification.function, typeMapping)
     )
   }
 
-  private def injectLinksIntoClassDefinition(classDefinition: ClassDefinition, packageName: String, typeMapping: TypeMapping): ClassDefinition = {
+  def injectLinksIntoClassDefinition(classDefinition: ClassDefinition, packageName: String, typeMapping: TypeMapping): ClassDefinition = {
     classDefinition match {
       case aliasType: AliasType =>
         aliasType.copy(
@@ -84,60 +85,67 @@ private[core] object ProjectLinking {
     }
   }
 
-  private def injectLinksIntoAttributes(attributeDefinition: AttributeDefinition, typeMapping: TypeMapping): AttributeDefinition = {
+  def injectLinksIntoAttributes(attributeDefinition: AttributeDefinition, typeMapping: TypeMapping): AttributeDefinition = {
     attributeDefinition.copy(
       typeReference = injectLinksIntoTypeReference(attributeDefinition.typeReference, typeMapping),
       verifications = attributeDefinition.verifications.map(injectLinksIntoVerificationReference(_, typeMapping))
     )
   }
 
-  private def injectLinksIntoTypeVerification(typeVerification: TypeVerification, typeMapping: TypeMapping): TypeVerification = {
+  def injectLinksIntoTypeVerification(typeVerification: TypeVerification, typeMapping: TypeMapping): TypeVerification = {
     typeVerification.copy(
       function = injectLinksIntoFunction(typeVerification.function, typeMapping)
     )
   }
 
-  private def injectLinksIntoFunction(function: DefinedFunction, typeMapping: TypeMapping): DefinedFunction = {
+  def injectLinksIntoNamedFunction(namedFunction: NamedFunction, packageName: String, typeMapping: TypeMapping): NamedFunction = {
+    namedFunction.copy(
+      packageName = packageName,
+      function = injectLinksIntoFunction(namedFunction.function, typeMapping)
+    )
+  }
+
+  def injectLinksIntoFunction(function: DefinedFunction, typeMapping: TypeMapping): DefinedFunction = {
     function.copy(
       parameters = function.parameters.map(injectLinksIntoParameter(_, typeMapping)),
       body = injectLinksIntoExpression(function.body, typeMapping)
     )
   }
 
-  private def injectLinksIntoParameter(parameterDefinition: ParameterDefinition, typeMapping: TypeMapping): ParameterDefinition = {
+  def injectLinksIntoParameter(parameterDefinition: ParameterDefinition, typeMapping: TypeMapping): ParameterDefinition = {
     parameterDefinition.copy(
       typeReference = injectLinksIntoAbstractTypeReference(parameterDefinition.typeReference, typeMapping)
     )
   }
 
-  private def injectLinksIntoAbstractTypeReference(abstractTypeReference: AbstractTypeReference, typeMapping: TypeMapping): AbstractTypeReference = {
+  def injectLinksIntoAbstractTypeReference(abstractTypeReference: AbstractTypeReference, typeMapping: TypeMapping): AbstractTypeReference = {
     abstractTypeReference match {
       case typeReference: TypeReference => injectLinksIntoTypeReference(typeReference, typeMapping)
       case lambdaReference: LambdaReference => injectLinksIntoLambdaReference(lambdaReference, typeMapping)
     }
   }
 
-  private def injectLinksIntoTypeReference(typeReference: TypeReference, typeMapping: TypeMapping): TypeReference = {
+  def injectLinksIntoTypeReference(typeReference: TypeReference, typeMapping: TypeMapping): TypeReference = {
     typeReference.copy(
       typeName = getLink(typeReference.typeName, typeMapping),
       genericTypes = typeReference.genericTypes.map(injectLinksIntoTypeReference(_, typeMapping))
     )
   }
 
-  private def injectLinksIntoLambdaReference(lambdaReference: LambdaReference, typeMapping: TypeMapping): LambdaReference = {
+  def injectLinksIntoLambdaReference(lambdaReference: LambdaReference, typeMapping: TypeMapping): LambdaReference = {
     lambdaReference.copy(
       inputTypes = lambdaReference.inputTypes.map(injectLinksIntoTypeReference(_, typeMapping)),
       outputType = injectLinksIntoTypeReference(lambdaReference.outputType, typeMapping)
     )
   }
 
-  private def injectLinksIntoVerificationReference(verificationReference: VerificationReference, typeMapping: TypeMapping): VerificationReference = {
+  def injectLinksIntoVerificationReference(verificationReference: VerificationReference, typeMapping: TypeMapping): VerificationReference = {
     verificationReference.copy(
       verificationName = getLink(verificationReference.verificationName, typeMapping)
     )
   }
 
-  private def injectLinksIntoExpression(expression: Expression, typeMapping: TypeMapping): Expression = {
+  def injectLinksIntoExpression(expression: Expression, typeMapping: TypeMapping): Expression = {
     expression match {
       case logicalExpression: LogicalExpression => logicalExpression
       case calculatorExpression: CalculatorExpression => calculatorExpression
@@ -172,7 +180,7 @@ private[core] object ProjectLinking {
     }
   }
 
-  private def getLink(name: String, typeMapping: TypeMapping): String = {
+  def getLink(name: String, typeMapping: TypeMapping): String = {
     typeMapping.getOrElse(name, name)
   }
 }

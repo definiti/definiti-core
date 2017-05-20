@@ -27,6 +27,7 @@ class DefinitiASTParserProcessNamedFunctionSpec extends FlatSpec with Matchers w
     )
     val expected = NamedFunction(
       name = "myName",
+      packageName = NOT_DEFINED,
       function = DefinedFunction(
         parameters = Seq.empty,
         body = BooleanValue(value = true, defaultRange),

@@ -18,26 +18,26 @@ private[core] object DefinitiASTParser {
   def definitiContextToAST(context: DefinitiContext): RootFile = {
     val verifications = ListBuffer[Verification]()
     val classDefinitions = ListBuffer[ClassDefinition]()
+    val namedFunctions = ListBuffer[NamedFunction]()
 
     scalaSeq(context.toplevel()).foreach { element =>
-      (element.verification(), element.definedType(), element.aliasType()) match {
-        case (verification, null, null) =>
-          verifications.append(processVerification(verification))
-        case (null, definedType, null) =>
-          classDefinitions.append(processDefinedType(definedType))
-        case (null, null, aliasType) =>
-          classDefinitions.append(processAliasType(aliasType))
-        case _ =>
-          // Because all types were treated before, this exception should throw on new element addition.
-          throw new RuntimeException("Unexpected token: " + element)
+      def appendIfDefined[A, B](element: A, buffer: ListBuffer[B], transformer: A => B) = {
+        if (element != null) {
+          buffer.append(transformer(element))
+        }
       }
+      appendIfDefined(element.verification(), verifications, processVerification)
+      appendIfDefined(element.definedType(), classDefinitions, processDefinedType)
+      appendIfDefined(element.aliasType(), classDefinitions, processAliasType)
+      appendIfDefined(element.namedFunction(), namedFunctions, processNamedFunction)
     }
 
     RootFile(
       packageName = extractPackageName(context),
       imports = extractImports(context),
       verifications = List(verifications: _*),
-      classDefinitions = List(classDefinitions: _*)
+      classDefinitions = List(classDefinitions: _*),
+      namedFunctions = List(namedFunctions: _*)
     )
   }
 
@@ -126,6 +126,14 @@ private[core] object DefinitiASTParser {
       genericTypes = processGenericTypeListDefinition(context.genericTypes),
       inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
+      range = getRangeFromContext(context)
+    )
+  }
+
+  def processNamedFunction(context: NamedFunctionContext): NamedFunction = {
+    NamedFunction(
+      name = context.name.getText,
+      function = processFunction(context.function()),
       range = getRangeFromContext(context)
     )
   }

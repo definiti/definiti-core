@@ -25,6 +25,7 @@ toplevel
   : verification
   | definedType
   | aliasType
+  | namedFunction
   ;
 
 chainedExpression : expression+;
@@ -88,6 +89,8 @@ verifying : 'verifying' verificationName=IDENTIFIER ('(' message=STRING ')')?;
 
 parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
+
+namedFunction: 'def' name=IDENTIFIER '=' function;
 
 genericType: IDENTIFIER ('[' genericTypeList ']')?;
 genericTypeList: ((genericType ',')* genericType);

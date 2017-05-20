@@ -22,7 +22,8 @@ case class RootFile(
   packageName: String,
   imports: ImportsMap,
   verifications: Seq[Verification],
-  classDefinitions: Seq[ClassDefinition]
+  classDefinitions: Seq[ClassDefinition],
+  namedFunctions: Seq[NamedFunction]
 )
 
 sealed trait AbstractTypeReference
@@ -206,3 +207,5 @@ case class AliasType(name: String, packageName: String, genericTypes: Seq[String
 case class TypeVerification(message: String, function: DefinedFunction, range: Range)
 
 case class VerificationReference(verificationName: String, message: Option[String], range: Range)
+
+case class NamedFunction(name: String, function: DefinedFunction, range: Range)

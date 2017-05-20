@@ -1,0 +1,9 @@
+package my.functions
+
+def contains = [A](list: List[A], element: A) => {
+  list.exists((item: A) => {item == element})
+}
+
+def nonBlank = (string: String) => {
+  string.trim().nonEmpty()
+}

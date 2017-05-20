@@ -12,7 +12,7 @@ object TypeGenerator {
     genericTypes <- ASTGenerator.listOfGenericTypeDefinition
     attributes <- listOfAttributes
     verifications <- listOfTypeVerifications
-    inherited <- Gen.someOf(context.verifications)
+    inherited <- Gen.listOf(VerificationGenerator.anyVerificationReference)
     comment <- Gen.option(ASTGenerator.anyString)
     range <- ASTGenerator.anyRange
   } yield {
@@ -22,7 +22,7 @@ object TypeGenerator {
       genericTypes,
       attributes,
       verifications,
-      inherited.map(_.canonicalName),
+      inherited,
       comment,
       range
     )
@@ -33,7 +33,7 @@ object TypeGenerator {
     packageName <- ASTGenerator.anyPackageName
     genericTypes <- ASTGenerator.listOfGenericTypeDefinition
     alias <- ASTGenerator.referencedTypeReference
-    inherited <- Gen.someOf(context.verifications)
+    inherited <- Gen.listOf(VerificationGenerator.anyVerificationReference)
     comment <- Gen.option(ASTGenerator.anyString)
     range <- ASTGenerator.anyRange
   } yield {
@@ -42,7 +42,7 @@ object TypeGenerator {
       packageName,
       genericTypes,
       alias,
-      inherited.map(_.canonicalName),
+      inherited,
       comment,
       range
     )
@@ -52,7 +52,7 @@ object TypeGenerator {
     name <- ASTGenerator.anyIdentifier
     typeReference <- ASTGenerator.anyTypeReference
     comment <- Gen.option(ASTGenerator.anyString)
-    verifications <- Gen.listOf(ASTGenerator.anyIdentifier)
+    verifications <- Gen.listOf(VerificationGenerator.anyVerificationReference)
     range <- ASTGenerator.anyRange
   } yield {
     AttributeDefinition(

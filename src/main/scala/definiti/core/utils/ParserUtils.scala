@@ -1,8 +1,8 @@
 package definiti.core.utils
 
 import definiti.core.{ParameterDefinition, Position, Range, TypeReference, Variable}
-import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.tree.TerminalNode
+import org.antlr.v4.runtime.{ParserRuleContext, Token}
 
 private[core] object ParserUtils {
   def extractStringContent(string: String): String = {
@@ -28,10 +28,15 @@ private[core] object ParserUtils {
   }
 
   def getRangeFromContext(context: ParserRuleContext): Range = {
-    Range(
-      Position(context.getStart.getLine, context.getStart.getCharPositionInLine),
-      Position(context.getStop.getLine, context.getStop.getCharPositionInLine)
-    )
+    def position(token: Token): Position = {
+      if (token == null) {
+        Position(0, 0)
+      } else {
+        Position(token.getLine, token.getCharPositionInLine)
+      }
+    }
+
+    Range(position(context.getStart), position(context.getStop))
   }
 
   def getRangeFromTerminalNode(terminalNode: TerminalNode): Range = {

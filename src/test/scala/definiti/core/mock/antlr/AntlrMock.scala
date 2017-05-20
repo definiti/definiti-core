@@ -1,7 +1,7 @@
 package definiti.core.mock.antlr
 
-import org.antlr.v4.runtime.misc.Interval
 import org.antlr.v4.runtime._
+import org.antlr.v4.runtime.misc.Interval
 import org.antlr.v4.runtime.tree.{ParseTree, ParseTreeVisitor, TerminalNode}
 
 case class TerminalNodeMock(token: Token) extends TerminalNode {
@@ -53,4 +53,8 @@ case class TokenMock(
   override def getInputStream: CharStream = ???
 
   override def getType: Int = ???
+}
+
+object TokenMock {
+  def apply(text: String) = new TokenMock(text, 0, 0, 0)
 }

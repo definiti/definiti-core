@@ -10,7 +10,7 @@ object TypeContextGenerator {
     typeNameToken <- AntlrGenerator.anyIdentifierToken
     identifier <- AntlrGenerator.anyIdentifierNode
     docComment <- Gen.option(AntlrGenerator.anyDocCommentNode)
-    inheritances <- Generators.listOfBoundedSize(0, 3, anyInheritanceContext)
+    verifyingListContext <- Gen.option(VerificationContextGenerator.anyVerifyingListContext)
     genericTypeListContext <- Gen.option(GenericTypesContextGenerators.anyGenericTypeListContext)
     attributeDefinitionContexts <- Generators.listOfBoundedSize(0, 3, anyAttributeDefinitionContext)
     typeVerificationContexts <- Generators.listOfBoundedSize(0, 3, anyTypeVerificationContext)
@@ -19,12 +19,16 @@ object TypeContextGenerator {
       typeNameToken,
       identifier,
       docComment,
-      inheritances,
+      verifyingListContext,
       genericTypeListContext,
       attributeDefinitionContexts,
       typeVerificationContexts
     )
   })
+
+  lazy val definedTypeContextWithVerifyingList: Gen[DefinedTypeContext] = {
+    anyDefinedTypeContext.filter(elt => isVerifyingListDefined(elt.verifyingList()))
+  }
 
   lazy val anyAliasTypeContext: Gen[AliasTypeContext] = AntlrGenerator.genContext(for {
     typeNameToken <- AntlrGenerator.anyIdentifierToken
@@ -33,7 +37,7 @@ object TypeContextGenerator {
     aliasGenericTypesContext <- Gen.option(GenericTypesContextGenerators.anyGenericTypeListContext)
     identifiers <- Generators.listOfBoundedSize(0, 3, AntlrGenerator.anyIdentifierNode)
     docComment <- Gen.option(AntlrGenerator.anyDocCommentNode)
-    inheritances <- Generators.listOfBoundedSize(0, 3, anyInheritanceContext)
+    verifyingListContext <- Gen.option(VerificationContextGenerator.anyVerifyingListContext)
   } yield {
     AliasTypeContextMock(
       typeNameToken,
@@ -42,24 +46,18 @@ object TypeContextGenerator {
       aliasGenericTypesContext,
       identifiers,
       docComment,
-      inheritances
+      verifyingListContext
     )
   })
 
-  lazy val anyInheritanceContext: Gen[InheritanceContext] = AntlrGenerator.genContext(for {
-    verificationNameToken <- AntlrGenerator.anyIdentifierToken
-    identifier <- AntlrGenerator.anyIdentifierNode
-  } yield {
-    InheritanceContextMock(
-      verificationNameToken,
-      identifier
-    )
-  })
+  lazy val aliasTypeContextWithVerifyingList: Gen[AliasTypeContext] = {
+    anyAliasTypeContext.filter(elt => isVerifyingListDefined(elt.verifyingList()))
+  }
 
   lazy val anyAttributeDefinitionContext: Gen[AttributeDefinitionContext] = AntlrGenerator.genContext(for {
     attributeNameToken <- AntlrGenerator.anyIdentifierToken
     attributeTypeToken <- AntlrGenerator.anyIdentifierToken
-    attributeVerificationsContext <- anyAttributeVerificationContext
+    verifyingListContext <- Gen.option(VerificationContextGenerator.anyVerifyingListContext)
     identifiers <- Generators.listOfBoundedSize(0, 3, AntlrGenerator.anyIdentifierNode)
     docComment <- Gen.option(AntlrGenerator.anyDocCommentNode)
     genericTypeListContext <- GenericTypesContextGenerators.anyGenericTypeListContext
@@ -67,12 +65,16 @@ object TypeContextGenerator {
     AttributeDefinitionContextMock(
       attributeNameToken,
       attributeTypeToken,
-      attributeVerificationsContext,
+      verifyingListContext,
       identifiers,
       docComment,
       genericTypeListContext
     )
   })
+
+  lazy val attributeDefinitionContextWithVerifyingList: Gen[AttributeDefinitionContext] = {
+    anyAttributeDefinitionContext.filter(elt => isVerifyingListDefined(elt.verifyingList()))
+  }
 
   lazy val anyTypeVerificationContext: Gen[TypeVerificationContext] = AntlrGenerator.genContext(for {
     verificationMessageToken <- AntlrGenerator.anyStringToken
@@ -86,12 +88,6 @@ object TypeContextGenerator {
     )
   })
 
-  lazy val anyAttributeVerificationContext: Gen[AttributeVerificationsContext] = AntlrGenerator.genContext(for {
-    identifiers <- Generators.listOfBoundedSize(0, 3, AntlrGenerator.anyIdentifierNode)
-  } yield {
-    AttributeVerificationsContextMock(identifiers)
-  })
-
   lazy val anyTypeVerificationFunctionContext: Gen[TypeVerificationFunctionContext] = AntlrGenerator.genContext(for {
     identifier <- AntlrGenerator.anyIdentifierNode
     chainedExpressionContext <- ExpressionContextGenerator.anyChainedExpressionContext
@@ -101,4 +97,10 @@ object TypeContextGenerator {
       chainedExpressionContext
     )
   })
+
+  private def isVerifyingListDefined(verifyingListContext: VerifyingListContext): Boolean = {
+    verifyingListContext != null &&
+      verifyingListContext.verifying() != null &&
+      !verifyingListContext.verifying().isEmpty
+  }
 }

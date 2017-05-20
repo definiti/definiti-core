@@ -5,13 +5,21 @@ import scala.collection.mutable.ListBuffer
 
 private[core] object CollectionUtils {
   def scalaSeq[A](list: java.util.List[A]): Seq[A] = {
-    list.asScala.toList
+    if (list != null) {
+      list.asScala.toList
+    } else {
+      Seq.empty
+    }
   }
 
   def scalaSeq[A](stream: java.util.stream.Stream[A]): Seq[A] = {
-    val buffer = ListBuffer[A]()
-    stream.forEach((a) => buffer.append(a))
-    buffer
+    if (stream != null) {
+      val buffer = ListBuffer[A]()
+      stream.forEach((a) => buffer.append(a))
+      buffer
+    } else {
+      Seq.empty
+    }
   }
 
   def javaList[A](seq: Seq[A]): java.util.List[A] = {

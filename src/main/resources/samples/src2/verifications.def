@@ -15,7 +15,7 @@ verification NonBlank {
 }
 
 verification PhoneNumber {
-  "Please provide a phone number"
+  "Please provide a valid phone number"
   (string: String) => {
     if (string.nonEmpty()) {
       if (string.startsWith("+33")) {

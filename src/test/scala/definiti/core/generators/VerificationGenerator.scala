@@ -75,4 +75,28 @@ object VerificationGenerator {
       range = range
     )
   }
+
+  def anyVerificationReference(implicit context: Context): Gen[VerificationReference] = for {
+    verificationName <- ASTGenerator.anyIdentifier
+    message <- Gen.option(ASTGenerator.anyString)
+    range <- ASTGenerator.anyRange
+  } yield {
+    VerificationReference(
+      verificationName = verificationName,
+      message = message,
+      range = range
+    )
+  }
+
+  def anyReferencedVerificationReference(implicit context: ReferenceContext): Gen[VerificationReference] = for {
+    verificationName <- Gen.oneOf(context.verifications).map(_.canonicalName)
+    message <- Gen.option(ASTGenerator.anyString)
+    range <- ASTGenerator.anyRange
+  } yield {
+    VerificationReference(
+      verificationName = verificationName,
+      message = message,
+      range = range
+    )
+  }
 }

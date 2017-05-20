@@ -7,7 +7,15 @@ sealed trait Context {
 
   def isVerificationAvailable(verificationName: String): Boolean
 
+  def isVerificationAvailable(verificationReference: VerificationReference): Boolean = {
+    isVerificationAvailable(verificationReference.verificationName)
+  }
+
   def findVerification(verificationName: String): Option[Verification]
+
+  def findVerification(verificationReference: VerificationReference): Option[Verification] = {
+    findVerification(verificationReference.verificationName)
+  }
 }
 
 case class ReferenceContext(

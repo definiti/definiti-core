@@ -16,11 +16,16 @@ sealed trait Context {
   def findVerification(verificationReference: VerificationReference): Option[Verification] = {
     findVerification(verificationReference.verificationName)
   }
+
+  def isFunctionAvailable(functionName: String): Boolean
+
+  def findFunction(functionName: String): Option[NamedFunction]
 }
 
 case class ReferenceContext(
   classes: Seq[ClassDefinition],
-  verifications: Seq[Verification]
+  verifications: Seq[Verification],
+  namedFunctions: Seq[NamedFunction]
 ) extends Context {
   override def isTypeAvailable(typeName: String): Boolean = {
     classes.exists(_.canonicalName == typeName)
@@ -36,6 +41,14 @@ case class ReferenceContext(
 
   override def findVerification(verificationName: String): Option[Verification] = {
     verifications.find(_.canonicalName == verificationName)
+  }
+
+  override def isFunctionAvailable(functionName: String): Boolean = {
+    namedFunctions.exists(_.canonicalName == functionName)
+  }
+
+  override def findFunction(functionName: String): Option[NamedFunction] = {
+    namedFunctions.find(_.canonicalName == functionName)
   }
 }
 
@@ -68,6 +81,14 @@ case class ClassContext(
   override def findVerification(verificationName: String): Option[Verification] = {
     outerContext.findVerification(verificationName)
   }
+
+  override def isFunctionAvailable(functionName: String): Boolean = {
+    outerContext.isFunctionAvailable(functionName)
+  }
+
+  override def findFunction(functionName: String): Option[NamedFunction] = {
+    outerContext.findFunction(functionName)
+  }
 }
 
 case class MethodContext(
@@ -98,5 +119,13 @@ case class MethodContext(
 
   override def findVerification(verificationName: String): Option[Verification] = {
     outerContext.findVerification(verificationName)
+  }
+
+  override def isFunctionAvailable(functionName: String): Boolean = {
+    outerContext.isFunctionAvailable(functionName)
+  }
+
+  override def findFunction(functionName: String): Option[NamedFunction] = {
+    outerContext.findFunction(functionName)
   }
 }

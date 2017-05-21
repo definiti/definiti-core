@@ -35,50 +35,32 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   val trueExpression = BooleanValue(value = true, noRange)
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of boolean expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(trueExpression) should ===(Valid)
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of And expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(And(trueExpression, trueExpression, noRange)) should ===(Valid)
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of Equal expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(Equal(trueExpression, trueExpression, noRange)) should ===(Valid)
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of Number expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(NumberValue(1, noRange)) should ===(Valid)
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of String expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(QuotedStringValue("", noRange)) should ===(Valid)
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of condition expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(
       Condition(
         condition = trueExpression,
@@ -90,10 +72,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate combined expressions" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(
       CombinedExpression(
         Seq(
@@ -111,10 +90,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate variable expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(
       Variable(
         name = "myVariable",
@@ -125,10 +101,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate attribute call expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(
       AttributeCall(
         expression = Variable("myDate", TypeReference("Date", Seq()), noRange),
@@ -139,10 +112,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate method call expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(
       MethodCall(
         expression = Variable("myString", TypeReference("String", Seq()), noRange),
@@ -155,10 +125,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate attribute call expression with generic type" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(
       AttributeCall(
         expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
@@ -169,10 +136,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate method call expression with generic type" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(
       MethodCall(
         expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
@@ -185,10 +149,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate chained attribute call expression with generic type" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(
       AttributeCall(
         expression = AttributeCall(
@@ -203,10 +164,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate chained method call expression with generic type" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     ASTValidation.validateTypeReferenceOfExpression(
       AttributeCall(
         expression = MethodCall(
@@ -221,4 +179,10 @@ class ASTValidationSpec extends FlatSpec with Matchers {
       )
     ) should ===(Valid)
   }
+
+  private lazy val baseReferenceContext = ReferenceContext(
+    classes = coreClasses,
+    verifications = Seq.empty,
+    namedFunctions = Seq.empty
+  )
 }

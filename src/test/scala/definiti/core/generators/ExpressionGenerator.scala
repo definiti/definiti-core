@@ -1,7 +1,7 @@
 package definiti.core.generators
 
-import definiti.core.{BooleanValue, Context, Expression}
 import definiti.core.generators.ASTGenerator.anyRange
+import definiti.core.{BooleanValue, Context, Expression, FunctionCall}
 import org.scalacheck.Gen
 
 object ExpressionGenerator {
@@ -24,5 +24,21 @@ object ExpressionGenerator {
     range <- anyRange
   } yield {
     BooleanValue(value = true, range = range)
+  }
+
+  def anyFunctionCall(implicit context: Context): Gen[Expression] = anyFunctionCall(5)
+
+  def anyFunctionCall(limit: Int)(implicit context: Context): Gen[Expression] = for {
+    name <- Generators.anyIdentifier
+    parameters <- Gen.listOf(anyExpression)
+    generics <- Gen.listOf(ASTGenerator.anyTypeReference)
+    range <- ASTGenerator.anyRange
+  } yield {
+    FunctionCall(
+      name = name,
+      parameters = parameters,
+      generics = generics,
+      range = range
+    )
   }
 }

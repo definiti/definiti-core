@@ -37,6 +37,7 @@ expression
   | '(' parenthesis=expression ')'
   | methodExpression=expression '.' methodName=IDENTIFIER ('[' genericTypeList ']')? '(' methodExpressionParameters=expressionList? ')'
   | attributeExpression=expression '.' attributeName=IDENTIFIER
+  | functionName=IDENTIFIER ('[' functionGenerics=genericTypeList ']')? '(' functionExpressionParameters=expressionList? ')'
   | '!' notExpression=expression
   | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_1  rightExpression=expression
   | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_2  rightExpression=expression

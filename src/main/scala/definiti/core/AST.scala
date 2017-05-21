@@ -164,6 +164,13 @@ case class LambdaExpression(
   range: Range
 ) extends Expression
 
+case class FunctionCall(
+  name: String,
+  parameters: Seq[Expression],
+  generics: Seq[TypeReference],
+  range: Range
+) extends Expression
+
 case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], range: Range)
 
 case class Parameter(name: String, typeReference: TypeReference, range: Range)
@@ -192,4 +199,10 @@ case class VerificationReference(verificationName: String, message: Option[Strin
 
 case class NamedFunction(name: String, packageName: String, function: DefinedFunction, range: Range) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
+
+  def parameters: Seq[ParameterDefinition] = function.parameters
+
+  def genericTypes: Seq[String] = function.genericTypes
+
+  def body: Expression = function.body
 }

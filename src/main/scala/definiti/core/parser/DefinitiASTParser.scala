@@ -190,6 +190,8 @@ private[core] object DefinitiASTParser {
       processConditionExpression(context)
     } else if (context.lambdaExpression != null) {
       processLambdaExpression(context)
+    } else if (context.functionName != null) {
+      processFunctionCall(context)
     } else {
       // This exception exists to remind us to implement expression processing when we add one
       // This should never happen in production code.
@@ -291,6 +293,17 @@ private[core] object DefinitiASTParser {
     LambdaExpression(
       parameterList = lambdaParameters,
       expression = processExpression(context.lambdaExpression)(innerScope),
+      range = getRangeFromContext(context)
+    )
+  }
+
+  def processFunctionCall(context: ExpressionContext)(implicit scope: Scope): Expression = {
+    FunctionCall(
+      name = context.functionName.getText,
+      parameters = Option(context.functionExpressionParameters) map { functionExpressionParameters =>
+        scalaSeq(functionExpressionParameters.expression()).map(processExpression)
+      } getOrElse Seq.empty,
+      generics = processGenericTypeList(context.functionGenerics),
       range = getRangeFromContext(context)
     )
   }

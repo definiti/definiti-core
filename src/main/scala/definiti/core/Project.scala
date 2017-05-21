@@ -36,7 +36,8 @@ class Project(configuration: Configuration) {
   private def createProjectContext(projectParsingResult: ProjectParsingResult) = {
     ReferenceContext(
       classes = projectParsingResult.core ++ projectParsingResult.root.files.flatMap(_.classDefinitions),
-      verifications = projectParsingResult.root.files.flatMap(_.verifications)
+      verifications = projectParsingResult.root.files.flatMap(_.verifications),
+      namedFunctions = projectParsingResult.root.files.flatMap(_.namedFunctions)
     )
   }
 }

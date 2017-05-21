@@ -44,6 +44,8 @@ object ASTHelper {
         parts.lastOption.flatMap(getReturnTypeOptOfExpression)
       case Condition(_, onTrue, onFalseOpt, _) =>
         getReturnTypeOptOfCondition(onTrue, onFalseOpt)
+      case functionCall: FunctionCall =>
+        getReturnTypeOptOfFunctionCall(functionCall)
     }
   }
 
@@ -90,6 +92,11 @@ object ASTHelper {
         }
       case _ => Some(ClassReference(Core.unit, Seq()))
     }
+  }
+
+  private def getReturnTypeOptOfFunctionCall(functionCall: FunctionCall)(implicit context: Context): Option[ClassReference] = {
+    context.findFunction(functionCall.name)
+      .flatMap(namedFunction => getReturnTypeOptOfExpression(namedFunction.body))
   }
 
   private def getClassReference(typeReference: TypeReference)(implicit context: Context): Option[ClassReference] = {

@@ -177,6 +177,12 @@ private[core] object ProjectLinking {
           expression = injectLinksIntoExpression(lambdaExpression.expression, typeMapping),
           parameterList = lambdaExpression.parameterList.map(injectLinksIntoParameter(_, typeMapping))
         )
+      case functionCallExpression: FunctionCall =>
+        functionCallExpression.copy(
+          name = getLink(functionCallExpression.name, typeMapping),
+          parameters = functionCallExpression.parameters.map(injectLinksIntoExpression(_, typeMapping)),
+          generics = functionCallExpression.generics.map(injectLinksIntoTypeReference(_, typeMapping))
+        )
     }
   }
 

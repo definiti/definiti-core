@@ -137,6 +137,20 @@ object ExpressionContextGenerator {
     )
   })
 
+  lazy val anyFunctionCallContext: Gen[ExpressionContext] = anyFunctionCallContext(5)
+
+  def anyFunctionCallContext(limit: Int): Gen[ExpressionContext] = AntlrGenerator.genContext(for {
+    functionNameToken <- AntlrGenerator.anyIdentifierToken
+    functionGenericsContext <- GenericTypesContextGenerators.anyGenericTypeListContext
+    functionExpressionParametersContext <- anyExpressionListContext(limit)
+  } yield {
+    FunctionCallContextMock(
+      functionNameToken = functionNameToken,
+      functionGenericsContext = functionGenericsContext,
+      functionExpressionParametersContext = functionExpressionParametersContext
+    )
+  })
+
   def anyParameterListDefinitionContext(limit: Int): Gen[ParameterListDefinitionContext] = AntlrGenerator.genContext(for {
     parameterDefinitionContexts <- Generators.listDecreasingFrequencySize(0, 5, anyParameterDefinitionContext(limit))
   } yield {

@@ -45,5 +45,5 @@ case class VerifyingContextMock(
 
   override def IDENTIFIER(): TerminalNode = TerminalNodeMock(verificationNameToken)
 
-  override def STRING(): TerminalNode = messageToken.map(TerminalNodeMock).orNull
+  override def STRING(): TerminalNode = messageToken.map(TerminalNodeMock(_)).orNull
 }

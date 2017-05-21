@@ -38,7 +38,7 @@ object AntlrGenerator {
     element
   }
 
-  private def genNode(genToken: Gen[Token]): Gen[TerminalNode] = genToken.map(TerminalNodeMock)
+  private def genNode(genToken: Gen[Token]): Gen[TerminalNode] = genToken.map(TerminalNodeMock(_))
 
   private def genToken(genText: Gen[String]): Gen[Token] = for {
     text <- genText

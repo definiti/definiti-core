@@ -25,7 +25,7 @@ abstract class ExpressionContextMock extends ExpressionContext(null, 0) {
   this.booleanExpression = null
   this.numberExpression = null
   this.stringExpression = null
-  this.variableExpression = null
+  this.referenceExpression = null
   this.conditionExpression = null
   this.conditionIfBody = null
   this.conditionElseBody = null
@@ -34,6 +34,9 @@ abstract class ExpressionContextMock extends ExpressionContext(null, 0) {
   this.methodName = null
   this.methodExpressionParameters = null
   this.attributeName = null
+  this.functionName = null
+  this.functionGenerics = null
+  this.functionExpressionParameters = null
 
   override def parameterListDefinition(): ParameterListDefinitionContext = null
 
@@ -142,10 +145,10 @@ case class StringExpressionContextMock(
   override def STRING(): TerminalNode = string
 }
 
-case class VariableExpressionContextMock(
-  variable: Token
+case class ReferenceExpressionContextMock(
+  reference: Token
 ) extends ExpressionContextMock {
-  this.variableExpression = variable
+  this.referenceExpression = reference
 }
 
 case class ConditionExpressionContextMock(
@@ -164,4 +167,14 @@ case class ExpressionListContextMock(
   override def expression(): JList[ExpressionContext] = javaList(expressionContexts)
 
   override def expression(i: Int): ExpressionContext = expressionContexts(i)
+}
+
+case class FunctionCallContextMock(
+  functionNameToken: Token,
+  functionGenericsContext: GenericTypeListContext,
+  functionExpressionParametersContext: ExpressionListContext
+) extends ExpressionContextMock {
+  this.functionName = functionNameToken
+  this.functionGenerics = functionGenericsContext
+  this.functionExpressionParameters = functionExpressionParametersContext
 }

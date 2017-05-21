@@ -28,6 +28,10 @@ case class TerminalNodeMock(token: Token) extends TerminalNode {
   override def getPayload: AnyRef = ???
 }
 
+object TerminalNodeMock {
+  def apply(text: String) = new TerminalNodeMock(TokenMock(text))
+}
+
 case class TokenMock(
   text: String,
   line: Int,

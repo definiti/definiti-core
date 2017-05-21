@@ -22,7 +22,8 @@ case class RootFile(
   packageName: String,
   imports: ImportsMap,
   verifications: Seq[Verification],
-  classDefinitions: Seq[ClassDefinition]
+  classDefinitions: Seq[ClassDefinition],
+  namedFunctions: Seq[NamedFunction]
 )
 
 sealed trait AbstractTypeReference
@@ -142,7 +143,7 @@ case class NumberValue(value: BigDecimal, range: Range) extends Expression
 
 case class QuotedStringValue(value: String, range: Range) extends Expression
 
-case class Variable(name: String, typeReference: TypeReference, range: Range) extends Expression
+case class Reference(name: String, range: Range) extends Expression
 
 case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression], generics: Seq[TypeReference], range: Range) extends Expression
 
@@ -163,18 +164,19 @@ case class LambdaExpression(
   range: Range
 ) extends Expression
 
+case class FunctionCall(
+  name: String,
+  parameters: Seq[Expression],
+  generics: Seq[TypeReference],
+  range: Range
+) extends Expression
+
 case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], range: Range)
 
 case class Parameter(name: String, typeReference: TypeReference, range: Range)
 
 case class Verification(name: String, packageName: String, message: String, function: DefinedFunction, comment: Option[String], range: Range) {
-  def canonicalName: String = {
-    if (packageName.nonEmpty) {
-      packageName + "." + name
-    } else {
-      name
-    }
-  }
+  def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
 sealed trait Type extends ClassDefinition {
@@ -184,25 +186,23 @@ sealed trait Type extends ClassDefinition {
 case class DefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends Type {
   def methods: Seq[MethodDefinition] = Seq()
 
-  override def canonicalName: String = {
-    if (packageName.nonEmpty) {
-      packageName + "." + name
-    } else {
-      name
-    }
-  }
+  override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
 case class AliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends Type {
-  override def canonicalName: String = {
-    if (packageName.nonEmpty) {
-      packageName + "." + name
-    } else {
-      name
-    }
-  }
+  override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
 case class TypeVerification(message: String, function: DefinedFunction, range: Range)
 
 case class VerificationReference(verificationName: String, message: Option[String], range: Range)
+
+case class NamedFunction(name: String, packageName: String, function: DefinedFunction, range: Range) {
+  def canonicalName: String = ASTHelper.canonical(packageName, name)
+
+  def parameters: Seq[ParameterDefinition] = function.parameters
+
+  def genericTypes: Seq[String] = function.genericTypes
+
+  def body: Expression = function.body
+}

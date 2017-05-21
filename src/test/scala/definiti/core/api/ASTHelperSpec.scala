@@ -36,60 +36,42 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   val trueExpression = BooleanValue(value = true, noRange)
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return a Boolean for a Boolean expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     val input = trueExpression
     val expected = Some(ClassReference(booleanDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return a Boolean for a And expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     val input = And(trueExpression, trueExpression, noRange)
     val expected = Some(ClassReference(booleanDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return a Boolean for a Equal expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     val input = Equal(trueExpression, trueExpression, noRange)
     val expected = Some(ClassReference(booleanDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return a Number for a NumberValue expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     val input = NumberValue(1, noRange)
     val expected = Some(ClassReference(numberDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return a String for a QuotedString expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     val input = QuotedStringValue("", noRange)
     val expected = Some(ClassReference(stringDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return a number expression on condition with onTrue and onFalse as Number" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     val input = Condition(
       condition = trueExpression,
       onTrue = NumberValue(1, noRange),
@@ -101,10 +83,7 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return any expression on condition with onTrue as Number and onFalse as String" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     val input = Condition(
       condition = trueExpression,
       onTrue = NumberValue(1, noRange),
@@ -116,10 +95,7 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return unit expression on condition when onFalse is None" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     val input = Condition(
       condition = trueExpression,
       onTrue = NumberValue(1, noRange),
@@ -131,10 +107,7 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type of the last expression of a combined expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
-    )
+    implicit val context = baseReferenceContext
     val input = CombinedExpression(Seq(
       trueExpression,
       NumberValue(1, noRange)
@@ -144,22 +117,20 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type of the variable in variable expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myVariable", TypeReference("Number", Seq()), noRange)
     )
-    val input = Variable("myVariable", TypeReference("Number", Seq()), noRange)
+    val input = Reference("myVariable", noRange)
     val expected = Some(ClassReference(numberDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type of the attribute in attribute call expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myDate", TypeReference("Date", Seq()), noRange)
     )
     val input = AttributeCall(
-        expression = Variable("myDate", TypeReference("Date", Seq()), noRange),
+      expression = Reference("myDate", noRange),
         attribute = "timestamp",
         range = noRange
     )
@@ -168,12 +139,11 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type of the method return type in method call expression" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myString", TypeReference("String", Seq()), noRange)
     )
     val input = MethodCall(
-      expression = Variable("myString", TypeReference("String", Seq()), noRange),
+      expression = Reference("myString", noRange),
       method = "nonEmpty",
       Seq(),
       Seq(),
@@ -184,22 +154,20 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type the variable with its generic defined" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
     )
-    val input = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
+    val input = Reference("myList", noRange)
     val expected = Some(ClassReference(listDefinition, Seq(ClassReference(numberDefinition, Seq()))))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type the attribute from generic type" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
     )
     val input = AttributeCall(
-      expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
+      expression = Reference("myList", noRange),
       attribute = "head",
       range = noRange
     )
@@ -208,12 +176,11 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate method call expression from generic type" in {
-    implicit val context = ReferenceContext(
-      classes = coreClasses,
-      verifications = Seq()
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
     )
     val input = MethodCall(
-      expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
+      expression = Reference("myList", noRange),
       method = "randomElement",
       parameters = Seq(),
       generics = Seq(),
@@ -222,4 +189,29 @@ class ASTHelperSpec extends FlatSpec with Matchers {
     val expected = Some(ClassReference(numberDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
+
+  private lazy val baseReferenceContext = ReferenceContext(
+    classes = coreClasses,
+    verifications = Seq.empty,
+    namedFunctions = Seq.empty
+  )
+
+  private def baseMethodContext(parameters: ParameterDefinition*) = MethodContext(
+    outerContext = baseReferenceContext,
+    currentMethod = baseMethodDefinition(parameters),
+    genericTypes = Seq.empty
+  )
+
+  private def baseMethodDefinition(parameters: Seq[ParameterDefinition] = Seq.empty) = DefinedMethodDefinition(
+    name = "myMethod",
+    genericTypes = Seq.empty,
+    function = DefinedFunction(
+      parameters = parameters,
+      body = BooleanValue(value = true, range = noRange),
+      genericTypes = Seq.empty,
+      range = noRange
+    ),
+    comment = None,
+    range = noRange
+  )
 }

@@ -125,6 +125,8 @@ object ASTGenerator {
 
   def anyPackageName(implicit context: Context): Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
 
+  def anyDottedIdentifier(implicit context: Context): Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
+
   def anyString(implicit context: Context): Gen[String] = Arbitrary.arbString.arbitrary
 
   def anyRange(implicit context: Context): Gen[Range] = for {

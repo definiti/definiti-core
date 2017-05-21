@@ -17,7 +17,8 @@ trait CoreParser {
   lazy val coreContext: ReferenceContext = {
     ReferenceContext(
       classes = core,
-      verifications = Seq.empty
+      verifications = Seq.empty,
+      namedFunctions = Seq.empty
     )
   }
 

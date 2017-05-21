@@ -25,6 +25,7 @@ toplevel
   : verification
   | definedType
   | aliasType
+  | namedFunction
   ;
 
 chainedExpression : expression+;
@@ -36,6 +37,7 @@ expression
   | '(' parenthesis=expression ')'
   | methodExpression=expression '.' methodName=IDENTIFIER ('[' genericTypeList ']')? '(' methodExpressionParameters=expressionList? ')'
   | attributeExpression=expression '.' attributeName=IDENTIFIER
+  | functionName=IDENTIFIER ('[' functionGenerics=genericTypeList ']')? '(' functionExpressionParameters=expressionList? ')'
   | '!' notExpression=expression
   | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_1  rightExpression=expression
   | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_2  rightExpression=expression
@@ -44,7 +46,7 @@ expression
   | booleanExpression=BOOLEAN
   | numberExpression=NUMBER
   | stringExpression=STRING
-  | variableExpression=IDENTIFIER
+  | referenceExpression=IDENTIFIER
   | 'if' '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' ('else' '{' conditionElseBody=chainedExpression '}')?
   ;
 
@@ -88,6 +90,8 @@ verifying : 'verifying' verificationName=IDENTIFIER ('(' message=STRING ')')?;
 
 parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
+
+namedFunction: 'def' name=IDENTIFIER '=' function;
 
 genericType: IDENTIFIER ('[' genericTypeList ']')?;
 genericTypeList: ((genericType ',')* genericType);

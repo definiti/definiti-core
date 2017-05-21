@@ -8,36 +8,30 @@ import definiti.core.utils.StringUtils
 
 import scala.collection.mutable.ListBuffer
 
-private[parser] case class Scope(variables: Seq[Variable])
-
-private[parser] object Scope {
-  val empty = Scope(Seq())
-}
-
 private[core] object DefinitiASTParser {
   def definitiContextToAST(context: DefinitiContext): RootFile = {
     val verifications = ListBuffer[Verification]()
     val classDefinitions = ListBuffer[ClassDefinition]()
+    val namedFunctions = ListBuffer[NamedFunction]()
 
     scalaSeq(context.toplevel()).foreach { element =>
-      (element.verification(), element.definedType(), element.aliasType()) match {
-        case (verification, null, null) =>
-          verifications.append(processVerification(verification))
-        case (null, definedType, null) =>
-          classDefinitions.append(processDefinedType(definedType))
-        case (null, null, aliasType) =>
-          classDefinitions.append(processAliasType(aliasType))
-        case _ =>
-          // Because all types were treated before, this exception should throw on new element addition.
-          throw new RuntimeException("Unexpected token: " + element)
+      def appendIfDefined[A, B](element: A, buffer: ListBuffer[B], transformer: A => B) = {
+        if (element != null) {
+          buffer.append(transformer(element))
+        }
       }
+      appendIfDefined(element.verification(), verifications, processVerification)
+      appendIfDefined(element.definedType(), classDefinitions, processDefinedType)
+      appendIfDefined(element.aliasType(), classDefinitions, processAliasType)
+      appendIfDefined(element.namedFunction(), namedFunctions, processNamedFunction)
     }
 
     RootFile(
       packageName = extractPackageName(context),
       imports = extractImports(context),
       verifications = List(verifications: _*),
-      classDefinitions = List(classDefinitions: _*)
+      classDefinitions = List(classDefinitions: _*),
+      namedFunctions = List(namedFunctions: _*)
     )
   }
 
@@ -106,7 +100,6 @@ private[core] object DefinitiASTParser {
       typeReference = TypeReference(typeName, Seq.empty),
       range = getRangeFromTerminalNode(context.IDENTIFIER())
     ))
-    implicit val scope = Scope(parametersToVariables(parameters))
     DefinedFunction(
       parameters = parameters,
       body = processChainedExpression(context.chainedExpression()),
@@ -130,9 +123,17 @@ private[core] object DefinitiASTParser {
     )
   }
 
+  def processNamedFunction(context: NamedFunctionContext): NamedFunction = {
+    NamedFunction(
+      name = context.name.getText,
+      packageName = NOT_DEFINED,
+      function = processFunction(context.function()),
+      range = getRangeFromContext(context)
+    )
+  }
+
   def processFunction(context: FunctionContext): DefinedFunction = {
     val parameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter)
-    implicit val scope = Scope(parametersToVariables(parameters))
     DefinedFunction(
       parameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter),
       body = processChainedExpression(context.chainedExpression()),
@@ -151,14 +152,14 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  def processChainedExpression(context: ChainedExpressionContext)(implicit scope: Scope): Expression = {
+  def processChainedExpression(context: ChainedExpressionContext): Expression = {
     scalaSeq(context.expression()) match {
       case head :: Nil => processExpression(head)
       case expressions => CombinedExpression(expressions.map(processExpression), getRangeFromContext(context))
     }
   }
 
-  def processExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processExpression(context: ExpressionContext): Expression = {
     if (context.parenthesis != null) {
       processParenthesisExpression(context)
     } else if (context.methodName != null) {
@@ -175,12 +176,14 @@ private[core] object DefinitiASTParser {
       processNumberExpression(context)
     } else if (context.stringExpression != null) {
       processStringExpression(context)
-    } else if (context.variableExpression != null) {
-      processVariableExpression(context)
+    } else if (context.referenceExpression != null) {
+      processReferenceExpression(context)
     } else if (context.conditionExpression != null) {
       processConditionExpression(context)
     } else if (context.lambdaExpression != null) {
       processLambdaExpression(context)
+    } else if (context.functionName != null) {
+      processFunctionCall(context)
     } else {
       // This exception exists to remind us to implement expression processing when we add one
       // This should never happen in production code.
@@ -188,11 +191,11 @@ private[core] object DefinitiASTParser {
     }
   }
 
-  def processParenthesisExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processParenthesisExpression(context: ExpressionContext): Expression = {
     processExpression(context.parenthesis)
   }
 
-  def processMethodCallExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processMethodCallExpression(context: ExpressionContext): Expression = {
     MethodCall(
       expression = processExpression(context.methodExpression),
       method = context.methodName.getText,
@@ -204,7 +207,7 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  def processAttributeCallExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processAttributeCallExpression(context: ExpressionContext): Expression = {
     AttributeCall(
       expression = processExpression(context.attributeExpression),
       attribute = context.attributeName.getText,
@@ -212,11 +215,11 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  def processNotExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processNotExpression(context: ExpressionContext): Expression = {
     Not(processExpression(context.notExpression), getRangeFromContext(context))
   }
 
-  def processLeftRightExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processLeftRightExpression(context: ExpressionContext): Expression = {
     val left = processExpression(context.leftExpression)
     val right = processExpression(context.rightExpression)
     context.operator.getText match {
@@ -236,36 +239,29 @@ private[core] object DefinitiASTParser {
     }
   }
 
-  def processBooleanExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processBooleanExpression(context: ExpressionContext): Expression = {
     context.booleanExpression.getText match {
       case "true" => BooleanValue(value = true, getRangeFromContext(context))
       case _ => BooleanValue(value = false, getRangeFromContext(context))
     }
   }
 
-  def processNumberExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processNumberExpression(context: ExpressionContext): Expression = {
     NumberValue(BigDecimal(context.numberExpression.getText), getRangeFromContext(context))
   }
 
-  def processStringExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processStringExpression(context: ExpressionContext): Expression = {
     QuotedStringValue(extractStringContent(context.stringExpression.getText), getRangeFromContext(context))
   }
 
-  def processVariableExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
-    val variableName = context.variableExpression.getText
-    scope.variables.find(variable => variable.name == variableName) match {
-      case Some(variable) =>
-        Variable(
-          name = variableName,
-          typeReference = variable.typeReference,
-          getRangeFromContext(context)
-        )
-      case None =>
-        throw new RuntimeException(s"The variable $variableName was not found")
-    }
+  def processReferenceExpression(context: ExpressionContext): Expression = {
+    Reference(
+      name = context.referenceExpression.getText,
+      range = getRangeFromContext(context)
+    )
   }
 
-  def processConditionExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processConditionExpression(context: ExpressionContext): Expression = {
     Condition(
       condition = processExpression(context.conditionExpression),
       onTrue = processChainedExpression(context.conditionIfBody),
@@ -274,14 +270,22 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  def processLambdaExpression(context: ExpressionContext)(implicit scope: Scope): Expression = {
+  def processLambdaExpression(context: ExpressionContext): Expression = {
     val lambdaParameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter)
-    val outerVariableNotShadowed = scope.variables.filter(v => !lambdaParameters.exists(_.name == v.name))
-    val innerVariables = parametersToVariables(lambdaParameters) ++ outerVariableNotShadowed
-    val innerScope = Scope(innerVariables)
     LambdaExpression(
       parameterList = lambdaParameters,
-      expression = processExpression(context.lambdaExpression)(innerScope),
+      expression = processExpression(context.lambdaExpression),
+      range = getRangeFromContext(context)
+    )
+  }
+
+  def processFunctionCall(context: ExpressionContext): Expression = {
+    FunctionCall(
+      name = context.functionName.getText,
+      parameters = Option(context.functionExpressionParameters) map { functionExpressionParameters =>
+        scalaSeq(functionExpressionParameters.expression()).map(processExpression)
+      } getOrElse Seq.empty,
+      generics = processGenericTypeList(context.functionGenerics),
       range = getRangeFromContext(context)
     )
   }

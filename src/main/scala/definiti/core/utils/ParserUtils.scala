@@ -1,6 +1,6 @@
 package definiti.core.utils
 
-import definiti.core.{ParameterDefinition, Position, Range, TypeReference, Variable}
+import definiti.core.{ParameterDefinition, Position, Range, TypeReference}
 import org.antlr.v4.runtime.tree.TerminalNode
 import org.antlr.v4.runtime.{ParserRuleContext, Token}
 
@@ -45,13 +45,5 @@ private[core] object ParserUtils {
       Position(symbol.getLine, symbol.getStartIndex),
       Position(symbol.getLine, symbol.getStopIndex)
     )
-  }
-
-  def parametersToVariables(parameters: Seq[ParameterDefinition]) = {
-    def variableParameter(parameter: ParameterDefinition) = parameter.typeReference match {
-      case typeReference: TypeReference => typeReference
-      case x => throw new RuntimeException(s"The variable could not have $x as type reference")
-    }
-    parameters.map(parameter => Variable(parameter.name, variableParameter(parameter), parameter.range))
   }
 }

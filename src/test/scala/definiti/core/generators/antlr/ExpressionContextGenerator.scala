@@ -122,7 +122,7 @@ object ExpressionContextGenerator {
   lazy val anyVariableExpressionContext: Gen[ExpressionContext] = AntlrGenerator.genContext(for {
     variable <- AntlrGenerator.anyIdentifierToken
   } yield {
-    VariableExpressionContextMock(variable)
+    ReferenceExpressionContextMock(variable)
   })
 
   def anyConditionExpressionContext(limit: Int): Gen[ExpressionContext] = AntlrGenerator.genContext(for {

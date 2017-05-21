@@ -46,7 +46,7 @@ expression
   | booleanExpression=BOOLEAN
   | numberExpression=NUMBER
   | stringExpression=STRING
-  | variableExpression=IDENTIFIER
+  | referenceExpression=IDENTIFIER
   | 'if' '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' ('else' '{' conditionElseBody=chainedExpression '}')?
   ;
 

@@ -10,7 +10,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class DefinitiASTParserProcessFunctionCallSpec extends FlatSpec with Matchers with PropertyChecks {
   "DefinitiASTParser.processFunctionCall" should "return a FunctionCall without exception" in {
     forAll(ExpressionContextGenerator.anyFunctionCallContext) { functionCallContext =>
-      DefinitiASTParser.processFunctionCall(functionCallContext)(Scope.empty)
+      DefinitiASTParser.processFunctionCall(functionCallContext)
     }
   }
 
@@ -37,7 +37,7 @@ class DefinitiASTParserProcessFunctionCallSpec extends FlatSpec with Matchers wi
       generics = Seq(TypeReference("A", Seq.empty)),
       range = defaultRange
     )
-    val output = DefinitiASTParser.processFunctionCall(input)(Scope.empty)
+    val output = DefinitiASTParser.processFunctionCall(input)
     output should equal(expected)
   }
 }

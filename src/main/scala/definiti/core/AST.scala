@@ -143,7 +143,7 @@ case class NumberValue(value: BigDecimal, range: Range) extends Expression
 
 case class QuotedStringValue(value: String, range: Range) extends Expression
 
-case class Variable(name: String, typeReference: TypeReference, range: Range) extends Expression
+case class Reference(name: String, range: Range) extends Expression
 
 case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression], generics: Seq[TypeReference], range: Range) extends Expression
 

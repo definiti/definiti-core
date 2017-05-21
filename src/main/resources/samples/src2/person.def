@@ -3,6 +3,7 @@ package my.person
 import my.verifications.NonEmptyString
 import my.verifications.NonBlank
 import my.verifications.PhoneNumber
+import my.functions.isEmail
 
 type Person {
   firstName: String verifying NonEmptyString("Please provide a first name")
@@ -10,6 +11,14 @@ type Person {
   telephone: String
     verifying NonBlank("Please provide a phone number")
     verifying PhoneNumber
+  emails: List[String]
+
+  verify {
+    "At least one email is invalid"
+    (person) => {
+      person.emails.forall(isEmail)
+    }
+  }
 }
 
 type RequiredString = String verifying NonEmptyString

@@ -25,7 +25,7 @@ abstract class ExpressionContextMock extends ExpressionContext(null, 0) {
   this.booleanExpression = null
   this.numberExpression = null
   this.stringExpression = null
-  this.variableExpression = null
+  this.referenceExpression = null
   this.conditionExpression = null
   this.conditionIfBody = null
   this.conditionElseBody = null
@@ -145,10 +145,10 @@ case class StringExpressionContextMock(
   override def STRING(): TerminalNode = string
 }
 
-case class VariableExpressionContextMock(
-  variable: Token
+case class ReferenceExpressionContextMock(
+  reference: Token
 ) extends ExpressionContextMock {
-  this.variableExpression = variable
+  this.referenceExpression = reference
 }
 
 case class ConditionExpressionContextMock(

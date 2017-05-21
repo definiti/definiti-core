@@ -7,3 +7,7 @@ def contains = [A](list: List[A], element: A) => {
 def nonBlank = (string: String) => {
   string.trim().nonEmpty()
 }
+
+def isEmail = (string: String) => {
+  string.matches("(.+)@(.+)")
+}

@@ -90,21 +90,24 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate variable expression" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myVariable", TypeReference("Boolean", Seq()), noRange)
+    )
     ASTValidation.validateTypeReferenceOfExpression(
-      Variable(
+      Reference(
         name = "myVariable",
-        typeReference = TypeReference("Boolean", Seq()),
         range = noRange
       )
     ) should ===(Valid)
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate attribute call expression" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myDate", TypeReference("Date", Seq()), noRange)
+    )
     ASTValidation.validateTypeReferenceOfExpression(
       AttributeCall(
-        expression = Variable("myDate", TypeReference("Date", Seq()), noRange),
+        expression = Reference("myDate", noRange),
         attribute = "timestamp",
         range = noRange
       )
@@ -112,10 +115,12 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate method call expression" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myString", TypeReference("String", Seq()), noRange)
+    )
     ASTValidation.validateTypeReferenceOfExpression(
       MethodCall(
-        expression = Variable("myString", TypeReference("String", Seq()), noRange),
+        expression = Reference("myString", noRange),
         method = "nonEmpty",
         Seq(),
         Seq(),
@@ -125,10 +130,12 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate attribute call expression with generic type" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
+    )
     ASTValidation.validateTypeReferenceOfExpression(
       AttributeCall(
-        expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
+        expression = Reference("myList", noRange),
         attribute = "head",
         range = noRange
       )
@@ -136,10 +143,12 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate method call expression with generic type" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
+    )
     ASTValidation.validateTypeReferenceOfExpression(
       MethodCall(
-        expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
+        expression = Reference("myList", noRange),
         method = "nonEmpty",
         parameters = Seq(),
         generics = Seq(),
@@ -149,11 +158,13 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate chained attribute call expression with generic type" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Date", Seq()))), noRange)
+    )
     ASTValidation.validateTypeReferenceOfExpression(
       AttributeCall(
         expression = AttributeCall(
-          expression = Variable("myList", TypeReference("List", Seq(TypeReference("Date", Seq()))), noRange),
+          expression = Reference("myList", noRange),
           attribute = "head",
           range = noRange
         ),
@@ -164,11 +175,13 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate chained method call expression with generic type" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Date", Seq()))), noRange)
+    )
     ASTValidation.validateTypeReferenceOfExpression(
       AttributeCall(
         expression = MethodCall(
-          expression = Variable("myList", TypeReference("List", Seq(TypeReference("Date", Seq()))), noRange),
+          expression = Reference("myList", noRange),
           method = "randomElement",
           parameters = Seq(),
           generics = Seq(),
@@ -184,5 +197,24 @@ class ASTValidationSpec extends FlatSpec with Matchers {
     classes = coreClasses,
     verifications = Seq.empty,
     namedFunctions = Seq.empty
+  )
+
+  private def baseMethodContext(parameters: ParameterDefinition*) = MethodContext(
+    outerContext = baseReferenceContext,
+    currentMethod = baseMethodDefinition(parameters),
+    genericTypes = Seq.empty
+  )
+
+  private def baseMethodDefinition(parameters: Seq[ParameterDefinition] = Seq.empty) = DefinedMethodDefinition(
+    name = "myMethod",
+    genericTypes = Seq.empty,
+    function = DefinedFunction(
+      parameters = parameters,
+      body = BooleanValue(value = true, range = noRange),
+      genericTypes = Seq.empty,
+      range = noRange
+    ),
+    comment = None,
+    range = noRange
   )
 }

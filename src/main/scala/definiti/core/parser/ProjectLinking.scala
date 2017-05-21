@@ -151,7 +151,10 @@ private[core] object ProjectLinking {
       case calculatorExpression: CalculatorExpression => calculatorExpression
       case numberValue: NumberValue => numberValue
       case quotedStringValue: QuotedStringValue => quotedStringValue
-      case variable: Variable => variable
+      case reference: Reference =>
+        reference.copy(
+          name = getLink(reference.name, typeMapping)
+        )
       case methodCall: MethodCall =>
         methodCall.copy(
           expression = injectLinksIntoExpression(methodCall.expression, typeMapping),

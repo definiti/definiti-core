@@ -117,16 +117,20 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type of the variable in variable expression" in {
-    implicit val context = baseReferenceContext
-    val input = Variable("myVariable", TypeReference("Number", Seq()), noRange)
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myVariable", TypeReference("Number", Seq()), noRange)
+    )
+    val input = Reference("myVariable", noRange)
     val expected = Some(ClassReference(numberDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type of the attribute in attribute call expression" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myDate", TypeReference("Date", Seq()), noRange)
+    )
     val input = AttributeCall(
-        expression = Variable("myDate", TypeReference("Date", Seq()), noRange),
+      expression = Reference("myDate", noRange),
         attribute = "timestamp",
         range = noRange
     )
@@ -135,9 +139,11 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type of the method return type in method call expression" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myString", TypeReference("String", Seq()), noRange)
+    )
     val input = MethodCall(
-      expression = Variable("myString", TypeReference("String", Seq()), noRange),
+      expression = Reference("myString", noRange),
       method = "nonEmpty",
       Seq(),
       Seq(),
@@ -148,16 +154,20 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type the variable with its generic defined" in {
-    implicit val context = baseReferenceContext
-    val input = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
+    )
+    val input = Reference("myList", noRange)
     val expected = Some(ClassReference(listDefinition, Seq(ClassReference(numberDefinition, Seq()))))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return the type the attribute from generic type" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
+    )
     val input = AttributeCall(
-      expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
+      expression = Reference("myList", noRange),
       attribute = "head",
       range = noRange
     )
@@ -166,9 +176,11 @@ class ASTHelperSpec extends FlatSpec with Matchers {
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate method call expression from generic type" in {
-    implicit val context = baseReferenceContext
+    implicit val context = baseMethodContext(
+      ParameterDefinition("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange)
+    )
     val input = MethodCall(
-      expression = Variable("myList", TypeReference("List", Seq(TypeReference("Number", Seq()))), noRange),
+      expression = Reference("myList", noRange),
       method = "randomElement",
       parameters = Seq(),
       generics = Seq(),
@@ -182,5 +194,24 @@ class ASTHelperSpec extends FlatSpec with Matchers {
     classes = coreClasses,
     verifications = Seq.empty,
     namedFunctions = Seq.empty
+  )
+
+  private def baseMethodContext(parameters: ParameterDefinition*) = MethodContext(
+    outerContext = baseReferenceContext,
+    currentMethod = baseMethodDefinition(parameters),
+    genericTypes = Seq.empty
+  )
+
+  private def baseMethodDefinition(parameters: Seq[ParameterDefinition] = Seq.empty) = DefinedMethodDefinition(
+    name = "myMethod",
+    genericTypes = Seq.empty,
+    function = DefinedFunction(
+      parameters = parameters,
+      body = BooleanValue(value = true, range = noRange),
+      genericTypes = Seq.empty,
+      range = noRange
+    ),
+    comment = None,
+    range = noRange
   )
 }

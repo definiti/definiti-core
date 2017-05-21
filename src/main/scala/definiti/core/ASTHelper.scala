@@ -2,10 +2,14 @@ package definiti.core
 
 import definiti.core.utils.Core
 
-case class ClassReference(classDefinition: ClassDefinition, genericTypes: Seq[ClassReference])
+sealed trait ElementReference
+
+case class ClassReference(classDefinition: ClassDefinition, genericTypes: Seq[ClassReference]) extends ElementReference
+
+case class NamedFunctionReference(namedFunction: NamedFunction) extends ElementReference
 
 object ASTHelper {
-  def getReturnTypeOptOfMethod(methodDefinition: MethodDefinition, methodCall: MethodCall)(implicit context: Context): Option[ClassReference] = {
+  def getReturnTypeOptOfMethod(methodDefinition: MethodDefinition, methodCall: MethodCall)(implicit context: Context): Option[ElementReference] = {
     methodDefinition match {
       case nativeMethodDefinition: NativeMethodDefinition =>
         val generics = methodCall.generics.map(getClassReference)
@@ -24,18 +28,18 @@ object ASTHelper {
     }
   }
 
-  def getReturnTypeOfMethod(methodDefinition: MethodDefinition, methodCall: MethodCall)(implicit context: Context): ClassReference = {
+  def getReturnTypeOfMethod(methodDefinition: MethodDefinition, methodCall: MethodCall)(implicit context: Context): ElementReference = {
     getReturnTypeOptOfMethod(methodDefinition, methodCall).get
   }
 
-  def getReturnTypeOptOfExpression(expression: Expression)(implicit context: Context): Option[ClassReference] = {
+  def getReturnTypeOptOfExpression(expression: Expression)(implicit context: Context): Option[ElementReference] = {
     expression match {
       case _: LogicalExpression => context.findType("Boolean").map(ClassReference(_, Seq()))
       case _: CalculatorExpression => context.findType("Number").map(ClassReference(_, Seq()))
       case NumberValue(_, _) => context.findType("Number").map(ClassReference(_, Seq()))
       case QuotedStringValue(_, _) => context.findType("String").map(ClassReference(_, Seq()))
-      case Variable(_, typeReference, _) =>
-        getClassReference(typeReference)
+      case Reference(name, _) =>
+        getReference(name)
       case methodCall: MethodCall =>
         getReturnTypeOfMethodCall(methodCall)
       case attributeCall: AttributeCall =>
@@ -49,29 +53,37 @@ object ASTHelper {
     }
   }
 
-  private def getReturnTypeOfMethodCall(methodCall: MethodCall)(implicit context: Context) = {
-    getReturnTypeOptOfExpression(methodCall.expression).flatMap { expressionType =>
-      getMethodOpt(expressionType.classDefinition, methodCall.method).flatMap { method =>
-        val classContext = ClassContext(
-          context,
-          currentType = expressionType.classDefinition,
-          expressionType.genericTypes
-        )
-        getReturnTypeOptOfMethod(method, methodCall)(classContext)
-      }
+  private def getReturnTypeOfMethodCall(methodCall: MethodCall)(implicit context: Context): Option[ElementReference] = {
+    getReturnTypeOptOfExpression(methodCall.expression).flatMap {
+      case expressionType: ClassReference =>
+        getMethodOpt(expressionType.classDefinition, methodCall.method).flatMap { method =>
+          val classContext = ClassContext(
+            context,
+            currentType = expressionType.classDefinition,
+            expressionType.genericTypes
+          )
+          getReturnTypeOptOfMethod(method, methodCall)(classContext)
+        }
+      case _: NamedFunctionReference =>
+        // Returning None, but maybe a more accurate error should be given?
+        None
     }
   }
 
   private def getReturnTypeOfAttributeCall(attributeCall: AttributeCall)(implicit context: Context): Option[ClassReference] = {
-    getReturnTypeOptOfExpression(attributeCall.expression).flatMap { expressionType =>
-      getAttributeOpt(expressionType.classDefinition, attributeCall.attribute).flatMap { attributeDefinition =>
-        val classContext = ClassContext(
-          context,
-          currentType = expressionType.classDefinition,
-          expressionType.genericTypes
-        )
-        getClassReference(attributeDefinition.typeReference)(classContext)
-      }
+    getReturnTypeOptOfExpression(attributeCall.expression).flatMap {
+      case expressionType: ClassReference =>
+        getAttributeOpt(expressionType.classDefinition, attributeCall.attribute).flatMap { attributeDefinition =>
+          val classContext = ClassContext(
+            context,
+            currentType = expressionType.classDefinition,
+            expressionType.genericTypes
+          )
+          getClassReference(attributeDefinition.typeReference)(classContext)
+        }
+      case _: NamedFunctionReference =>
+        // Returning None, but maybe a more accurate error should be given?
+        None
     }
   }
 
@@ -83,20 +95,27 @@ object ASTHelper {
           getReturnTypeOptOfExpression(onFalse)
         ) match {
           case (Some(onTrueType), Some(onFalseType)) =>
-            if (onTrueType.classDefinition.name == onFalseType.classDefinition.name) {
-              Some(onTrueType)
-            } else {
-              Some(ClassReference(Core.any, Seq()))
-            }
+            Some((onTrueType, onFalseType) match {
+              case (ClassReference(cd1, _), ClassReference(cd2, _)) if cd1.canonicalName == cd2.canonicalName =>
+                onTrueType
+              case (NamedFunctionReference(nf1), NamedFunctionReference(nf2)) if nf1.canonicalName == nf2.canonicalName =>
+                onTrueType
+              case _ =>
+                ClassReference(Core.any, Seq())
+            })
           case _ => None
         }
       case _ => Some(ClassReference(Core.unit, Seq()))
     }
   }
 
-  private def getReturnTypeOptOfFunctionCall(functionCall: FunctionCall)(implicit context: Context): Option[ClassReference] = {
+  private def getReturnTypeOptOfFunctionCall(functionCall: FunctionCall)(implicit context: Context): Option[ElementReference] = {
     context.findFunction(functionCall.name)
       .flatMap(namedFunction => getReturnTypeOptOfExpression(namedFunction.body))
+  }
+
+  private def getReference(name: String)(implicit context: Context): Option[ElementReference] = {
+    context.findReference(name)
   }
 
   private def getClassReference(typeReference: TypeReference)(implicit context: Context): Option[ClassReference] = {
@@ -112,7 +131,7 @@ object ASTHelper {
     }
   }
 
-  def getReturnTypeOfExpression(expression: Expression)(implicit context: Context): ClassReference = {
+  def getReturnTypeOfExpression(expression: Expression)(implicit context: Context): ElementReference = {
     getReturnTypeOptOfExpression(expression).get
   }
 

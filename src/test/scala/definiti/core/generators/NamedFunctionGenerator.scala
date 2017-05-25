@@ -1,6 +1,6 @@
 package definiti.core.generators
 
-import definiti.core.parser._
+import definiti.core._
 import definiti.core.{NamedFunction, ReferenceContext}
 import org.scalacheck.Gen
 

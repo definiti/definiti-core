@@ -1,4 +1,4 @@
-package definiti.core.parser
+package definiti.core.parser.project
 
 import definiti.core.generators.antlr.ExpressionContextGenerator
 import definiti.core.mock.antlr._
@@ -7,7 +7,7 @@ import definiti.core.{BooleanValue, FunctionCall, NumberValue, TypeReference}
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
-class DefinitiASTParserProcessFunctionCallSpec extends FlatSpec with Matchers with PropertyChecks {
+class ProcessFunctionCallSpec extends FlatSpec with Matchers with PropertyChecks {
   "DefinitiASTParser.processFunctionCall" should "return a FunctionCall without exception" in {
     forAll(ExpressionContextGenerator.anyFunctionCallContext) { functionCallContext =>
       DefinitiASTParser.processFunctionCall(functionCallContext)

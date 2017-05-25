@@ -1,6 +1,7 @@
-package definiti.core.parser
+package definiti.core.validation
 
 import definiti.core.generators.VerificationGenerator
+import definiti.core.parser.project.CoreParser
 import definiti.core.{BooleanValue, NumberValue}
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}

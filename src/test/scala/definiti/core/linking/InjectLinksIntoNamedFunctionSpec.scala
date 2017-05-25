@@ -1,10 +1,11 @@
-package definiti.core.parser
+package definiti.core.linking
 
 import definiti.core.generators.{ASTGenerator, NamedFunctionGenerator}
+import definiti.core.parser.project.CoreParser
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
-class ProjectLinkingInjectLinksIntoNamedFunctionSpec extends FlatSpec with Matchers with PropertyChecks with CoreParser {
+class InjectLinksIntoNamedFunctionSpec extends FlatSpec with Matchers with PropertyChecks with CoreParser {
   "ProjectLinking.injectLinksIntoNamedFunction" should "inject the package name into `NamedFunction`" in {
     implicit val context = coreContext
     val cases = for {

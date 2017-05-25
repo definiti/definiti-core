@@ -1,10 +1,10 @@
-package definiti.core.parser
+package definiti.core.parser.project
 
 import definiti.core.generators.antlr.VerificationContextGenerator
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Inspectors, Matchers}
 
-class DefinitiASTParserProcessVerifyingListSpec extends FlatSpec with Matchers with PropertyChecks {
+class ProcessVerifyingListSpec extends FlatSpec with Matchers with PropertyChecks {
   "DefinitiASTParser.processVerifyingList" should "return VerificationReference without message when not set" in {
     forAll(VerificationContextGenerator.verifyingListContextWithoutMessage) { verifyingListContext =>
       val result = DefinitiASTParser.processVerifyingList(verifyingListContext)

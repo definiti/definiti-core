@@ -1,4 +1,4 @@
-package definiti.core.parser
+package definiti.core.parser.project
 
 import definiti.core.TypeReference
 import definiti.core.generators.Generators
@@ -8,7 +8,7 @@ import org.scalacheck.Gen
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Inspectors, Matchers}
 
-class DefinitiASTParserProcessDefinedTypeSpec extends FlatSpec with Matchers with PropertyChecks {
+class ProcessDefinedTypeSpec extends FlatSpec with Matchers with PropertyChecks {
   "DefinitiASTParser.processDefinedType" should "have only TypeVerification with DefinedTypeName" in {
     forAll(TypeContextGenerator.anyDefinedTypeContext) { definedTypeContext =>
       val result = DefinitiASTParser.processDefinedType(definedTypeContext)

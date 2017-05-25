@@ -3,6 +3,8 @@ package definiti.core.parser
 import java.nio.file.{Files, Path}
 
 import definiti.core.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser, DefinitiLexer, DefinitiParser}
+import definiti.core.parser.api.CoreDefinitionASTParser
+import definiti.core.parser.project.DefinitiASTParser
 import definiti.core.utils.{ErrorItem, ErrorListener}
 import definiti.core.{ClassDefinition, Configuration, Root, RootFile}
 import org.antlr.v4.runtime._

@@ -1,6 +1,8 @@
 package definiti.core
 
+import definiti.core.linking.ProjectLinking
 import definiti.core.parser._
+import definiti.core.validation.{ASTValidation, Invalid, Valid}
 
 case class ProjectResult(
   root: Root,

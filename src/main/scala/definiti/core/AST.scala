@@ -1,7 +1,5 @@
 package definiti.core
 
-import definiti.core.parser.ImportsMap
-
 case class Position(line: Long, column: Long) {
   def prettyPrint: String = {
     s"""$line-$column"""

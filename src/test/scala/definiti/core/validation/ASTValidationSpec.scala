@@ -1,4 +1,4 @@
-package definiti.core.parser
+package definiti.core.validation
 
 import definiti.core._
 import org.scalatest.{FlatSpec, Matchers}

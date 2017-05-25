@@ -1,4 +1,4 @@
-package definiti.core.parser
+package definiti.core.parser.project
 
 import definiti.core._
 import definiti.core.parser.antlr.DefinitiParser._

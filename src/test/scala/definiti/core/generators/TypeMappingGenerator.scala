@@ -1,7 +1,7 @@
 package definiti.core.generators
 
 import definiti.core.Context
-import definiti.core.parser.ProjectLinking.TypeMapping
+import definiti.core.linking.ProjectLinking.TypeMapping
 import org.scalacheck.Gen
 
 object TypeMappingGenerator {

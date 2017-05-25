@@ -1,11 +1,12 @@
-package definiti.core.parser
+package definiti.core.linking
 
 import definiti.core.FunctionCall
 import definiti.core.generators.{ExpressionGenerator, TypeMappingGenerator}
+import definiti.core.parser.project.CoreParser
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
-class ProjectLinkingInjectLinksIntoExpressionSpec extends FlatSpec with Matchers with PropertyChecks with CoreParser {
+class InjectLinksIntoExpressionSpec extends FlatSpec with Matchers with PropertyChecks with CoreParser {
   "ProjectLinking.injectLinksIntoExpression" should "inject full name into `FunctionCall` without exception" in {
     implicit val context = coreContext
     val cases = for {

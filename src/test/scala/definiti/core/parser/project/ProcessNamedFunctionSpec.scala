@@ -1,4 +1,4 @@
-package definiti.core.parser
+package definiti.core.parser.project
 
 import definiti.core.generators.antlr.NamedFunctionContextGenerator
 import definiti.core.mock.antlr._
@@ -6,8 +6,9 @@ import definiti.core.parser.TestConstants._
 import definiti.core.{BooleanValue, DefinedFunction, NamedFunction}
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
+import definiti.core._
 
-class DefinitiASTParserProcessNamedFunctionSpec extends FlatSpec with Matchers with PropertyChecks {
+class ProcessNamedFunctionSpec extends FlatSpec with Matchers with PropertyChecks {
   "DefinitiASTParser.processNamedFunction" should "return a NamedFunction without exception" in {
     forAll(NamedFunctionContextGenerator.anyNamedFunctionContext) { namedFunctionContext =>
       DefinitiASTParser.processNamedFunction(namedFunctionContext)

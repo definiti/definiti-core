@@ -1,4 +1,4 @@
-package definiti.core.parser
+package definiti.core.parser.project
 
 import definiti.core.generators.Generators
 import definiti.core.generators.antlr.TypeContextGenerator
@@ -7,7 +7,7 @@ import org.scalacheck.Gen
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
-class DefinitiASTParserProcessAttributeDefinitionSpec extends FlatSpec with Matchers with PropertyChecks {
+class ProcessAttributeDefinitionSpec extends FlatSpec with Matchers with PropertyChecks {
   "DefinitiASTParser.processAttributeDefinition" should "returns an attribute definition with defined list of verifications" in {
     val cases = for {
       attributeDefinitionContext <- TypeContextGenerator.anyAttributeDefinitionContext

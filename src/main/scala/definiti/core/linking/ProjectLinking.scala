@@ -1,6 +1,7 @@
-package definiti.core.parser
+package definiti.core.linking
 
 import definiti.core._
+import definiti.core.parser.ProjectParsingResult
 import definiti.core.utils.StringUtils
 
 private[core] object ProjectLinking {

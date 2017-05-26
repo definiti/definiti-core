@@ -38,6 +38,7 @@ private[core] object HttpParser {
   def processRequest(context: HttpRequestContext): Request = {
     Request(
       name = context.name.getText,
+      packageName = NOT_DEFINED,
       input = processRequestInput(context.httpRequestInput()),
       requiring = Option(context.httpRequestRequiring()).map(processRequestRequiring).getOrElse(Seq.empty),
       returning = processRequestReturning(context.httpRequestReturning()),

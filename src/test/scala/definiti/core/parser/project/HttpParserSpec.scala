@@ -3,7 +3,6 @@ package definiti.core.parser.project
 import definiti.core._
 import definiti.core.mock.antlr._
 import definiti.core.parser.TestConstants._
-import definiti.core.utils.ParserUtils.getRangeFromContext
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -106,6 +105,7 @@ class HttpParserSpec extends FlatSpec with Matchers with PropertyChecks {
     )
     val expected = Request(
       name = "MyRequest",
+      packageName = NOT_DEFINED,
       input = RequestInput(
         method = "POST",
         requestUri = RequestUri(

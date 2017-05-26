@@ -13,16 +13,21 @@ case class Requirement(
   returnType: TypeReference,
   comment: Option[String],
   range: Range
-)
+) {
+  def canonicalName: String = ASTHelper.canonical(packageName, name)
+}
 
 case class Request(
   name: String,
+  packageName: String,
   input: RequestInput,
   requiring: Seq[RequestRequirement],
   returning: Seq[RequestResult],
   comment: Option[String],
   range: Range
-)
+) {
+  def canonicalName: String = ASTHelper.canonical(packageName, name)
+}
 
 case class RequestInput(
   method: String,

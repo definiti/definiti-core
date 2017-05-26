@@ -21,7 +21,8 @@ case class RootFile(
   imports: ImportsMap,
   verifications: Seq[Verification],
   classDefinitions: Seq[ClassDefinition],
-  namedFunctions: Seq[NamedFunction]
+  namedFunctions: Seq[NamedFunction],
+  http: Seq[HttpAST]
 )
 
 sealed trait AbstractTypeReference

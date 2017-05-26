@@ -27,13 +27,11 @@ object FunctionContextGenerator {
   lazy val anyParameterDefinitionContexts: Gen[ParameterDefinitionContext] = AntlrGenerator.genContext(for {
     parameterNameToken <- AntlrGenerator.anyIdentifierToken
     parameterTypeToken <- AntlrGenerator.anyIdentifierToken
-    identifiers <- Generators.listOfBoundedSize(0, 3, AntlrGenerator.anyIdentifierNode)
     genericTypeListContexts <- GenericTypesContextGenerators.anyGenericTypeListContext
   } yield {
     ParameterDefinitionContextMock(
       parameterNameToken,
       parameterTypeToken,
-      identifiers,
       genericTypeListContexts
     )
   })

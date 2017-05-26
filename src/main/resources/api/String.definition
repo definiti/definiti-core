@@ -6,4 +6,6 @@ type String {
   startsWith(prefix: String): Boolean
 
   matches(regex: String): Boolean
+
+  length: Number
 }

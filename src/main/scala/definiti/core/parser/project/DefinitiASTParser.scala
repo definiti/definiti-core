@@ -13,17 +13,14 @@ private[core] object DefinitiASTParser {
     val verifications = ListBuffer[Verification]()
     val classDefinitions = ListBuffer[ClassDefinition]()
     val namedFunctions = ListBuffer[NamedFunction]()
+    val http = ListBuffer[HttpAST]()
 
     scalaSeq(context.toplevel()).foreach { element =>
-      def appendIfDefined[A, B](element: A, buffer: ListBuffer[B], transformer: A => B) = {
-        if (element != null) {
-          buffer.append(transformer(element))
-        }
-      }
       appendIfDefined(element.verification(), verifications, processVerification)
       appendIfDefined(element.definedType(), classDefinitions, processDefinedType)
       appendIfDefined(element.aliasType(), classDefinitions, processAliasType)
       appendIfDefined(element.namedFunction(), namedFunctions, processNamedFunction)
+      appendIfDefined(element.http(), http, HttpParser.processHttp)
     }
 
     RootFile(
@@ -31,7 +28,8 @@ private[core] object DefinitiASTParser {
       imports = extractImports(context),
       verifications = List(verifications: _*),
       classDefinitions = List(classDefinitions: _*),
-      namedFunctions = List(namedFunctions: _*)
+      namedFunctions = List(namedFunctions: _*),
+      http = List(http: _*)
     )
   }
 
@@ -133,9 +131,8 @@ private[core] object DefinitiASTParser {
   }
 
   def processFunction(context: FunctionContext): DefinedFunction = {
-    val parameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter)
     DefinedFunction(
-      parameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter),
+      parameters = processParameterListDefinition(context.parameterListDefinition()),
       body = processChainedExpression(context.chainedExpression()),
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
@@ -271,9 +268,8 @@ private[core] object DefinitiASTParser {
   }
 
   def processLambdaExpression(context: ExpressionContext): Expression = {
-    val lambdaParameters = scalaSeq(context.parameterListDefinition().parameterDefinition()).map(processParameter)
     LambdaExpression(
-      parameterList = lambdaParameters,
+      parameterList = processParameterListDefinition(context.parameterListDefinition()),
       expression = processExpression(context.lambdaExpression),
       range = getRangeFromContext(context)
     )
@@ -325,5 +321,16 @@ private[core] object DefinitiASTParser {
 
   def dottedIdentifierToIdentifier(context: DottedIdentifierContext): String = {
     scalaSeq(context.IDENTIFIER()).map(_.getText).mkString(".")
+  }
+
+  def processParameterListDefinition(context: ParameterListDefinitionContext): Seq[ParameterDefinition] = {
+    scalaSeq(context.parameterDefinition()).map(processParameter)
+  }
+
+  def processTypeReference(context: TypeReferenceContext): TypeReference = {
+    TypeReference(
+      typeName = context.typeName.getText,
+      genericTypes = processGenericTypeList(context.genericTypeList())
+    )
   }
 }

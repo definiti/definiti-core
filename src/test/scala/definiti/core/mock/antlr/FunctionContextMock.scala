@@ -30,15 +30,14 @@ case class ParameterListDefinitionContextMock(
 case class ParameterDefinitionContextMock(
   parameterNameToken: Token,
   parameterTypeToken: Token,
-  identifiers: Seq[TerminalNode],
-  genericTypeListContexts: GenericTypeListContext
+  genericTypeListContext: GenericTypeListContext
 ) extends ParameterDefinitionContext(null, 0) {
   this.parameterName = parameterNameToken
   this.parameterType = parameterTypeToken
 
-  override def IDENTIFIER(): JList[TerminalNode] = javaList(identifiers)
+  override def IDENTIFIER(): JList[TerminalNode] = javaList(Seq(TerminalNodeMock(parameterNameToken), TerminalNodeMock(parameterTypeToken)))
 
-  override def IDENTIFIER(i: Int): TerminalNode = identifiers(i)
+  override def IDENTIFIER(i: Int): TerminalNode = IDENTIFIER().get(i)
 
-  override def genericTypeList(): GenericTypeListContext = genericTypeListContexts
+  override def genericTypeList(): GenericTypeListContext = genericTypeListContext
 }

@@ -53,19 +53,19 @@ http {
   }
 
   request CreateArticle {
-    POST "articles" with CreateArticle
+    POST "articles" with ArticleCreation
     requiring {
       IsLoggedIn() abort 401 with "Please login before creating articles"
       IsAdmin() abort 403 with "You do not have enough rights to create articles"
     }
     returning {
       Ok
-      BadRequest with CreateArticleErrors
+      BadRequest with ArticleCreationErrors
     }
   }
 
   request UpdateArticle {
-    PUT "articles" / (id: Number) with UpdateArticle
+    PUT "articles" / (id: Number) with ArticleUpdate
     requiring {
       IsLoggedIn() abort Unauthorized with "Please login before updating articles"
       IsAdmin() abort Forbidden with "You do not have enough rights to update articles"
@@ -73,7 +73,7 @@ http {
     }
     returning {
       200
-      400 with UpdateArticleErrors
+      400 with ArticleUpdateErrors
       404 with "Article not found"
     }
   }

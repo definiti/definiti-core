@@ -39,7 +39,8 @@ class Project(configuration: Configuration) {
     ReferenceContext(
       classes = projectParsingResult.core ++ projectParsingResult.root.files.flatMap(_.classDefinitions),
       verifications = projectParsingResult.root.files.flatMap(_.verifications),
-      namedFunctions = projectParsingResult.root.files.flatMap(_.namedFunctions)
+      namedFunctions = projectParsingResult.root.files.flatMap(_.namedFunctions),
+      requirements = projectParsingResult.root.files.flatMap(_.http.flatMap(_.requirements))
     )
   }
 }

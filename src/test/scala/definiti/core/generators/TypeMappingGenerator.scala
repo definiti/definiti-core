@@ -1,11 +1,10 @@
 package definiti.core.generators
 
-import definiti.core.Context
-import definiti.core.linking.ProjectLinking.TypeMapping
+import definiti.core.linking.TypeMapping
 import org.scalacheck.Gen
 
 object TypeMappingGenerator {
-  def anyTypeMapping(implicit context: Context): Gen[TypeMapping] = for {
+  lazy val anyTypeMapping: Gen[TypeMapping] = for {
     numberOfEntries <- Gen.posNum[Int]
     keys <- Gen.listOfN(numberOfEntries, ASTGenerator.anyIdentifier)
     values <- Gen.listOfN(numberOfEntries, ASTGenerator.anyDottedIdentifier)

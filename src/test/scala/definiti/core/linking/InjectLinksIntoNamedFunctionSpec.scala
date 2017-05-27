@@ -13,7 +13,7 @@ class InjectLinksIntoNamedFunctionSpec extends FlatSpec with Matchers with Prope
       packageName <- ASTGenerator.anyIdentifier
     } yield (namedFunction, packageName)
     forAll(cases) { case (namedFunction, packageName) =>
-      val result = ProjectLinking.injectLinksIntoNamedFunction(namedFunction, packageName, ProjectLinking.emptyTypeMapping)
+      val result = ProjectLinking.injectLinksIntoNamedFunction(namedFunction, packageName, emptyTypeMapping)
       result.packageName should be(packageName)
     }
   }

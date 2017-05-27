@@ -4,6 +4,8 @@ import definiti.core.{ParameterDefinition, Position, Range, TypeReference}
 import org.antlr.v4.runtime.tree.TerminalNode
 import org.antlr.v4.runtime.{ParserRuleContext, Token}
 
+import scala.collection.mutable.ListBuffer
+
 private[core] object ParserUtils {
   def extractStringContent(string: String): String = {
     var temporaryResult = string
@@ -45,5 +47,18 @@ private[core] object ParserUtils {
       Position(symbol.getLine, symbol.getStartIndex),
       Position(symbol.getLine, symbol.getStopIndex)
     )
+  }
+
+  def getRangeFromToken(token: Token): Range = {
+    Range(
+      Position(token.getLine, token.getStartIndex),
+      Position(token.getLine, token.getStopIndex)
+    )
+  }
+
+  def appendIfDefined[A, B](element: A, buffer: ListBuffer[B], transformer: A => B): Unit = {
+    if (element != null) {
+      buffer.append(transformer(element))
+    }
   }
 }

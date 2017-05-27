@@ -31,7 +31,8 @@ class ASTValidationSpec extends FlatSpec with Matchers {
     ),
     None
   )
-  val coreClasses = Seq(booleanDefinition, numberDefinition, stringDefinition, dateDefinition, listDefinition)
+  val unitDefinition = NativeClassDefinition("Unit", Seq.empty, Seq.empty, Seq.empty, None)
+  val coreClasses = Seq(booleanDefinition, numberDefinition, stringDefinition, dateDefinition, listDefinition, unitDefinition)
   val trueExpression = BooleanValue(value = true, noRange)
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of boolean expression" in {
@@ -196,7 +197,8 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   private lazy val baseReferenceContext = ReferenceContext(
     classes = coreClasses,
     verifications = Seq.empty,
-    namedFunctions = Seq.empty
+    namedFunctions = Seq.empty,
+    requirements = Seq.empty
   )
 
   private def baseMethodContext(parameters: ParameterDefinition*) = MethodContext(

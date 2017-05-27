@@ -160,13 +160,11 @@ object ExpressionContextGenerator {
   def anyParameterDefinitionContext(limit: Int): Gen[ParameterDefinitionContext] = AntlrGenerator.genContext(for {
     parameterNameToken <- AntlrGenerator.anyIdentifierToken
     parameterTypeToken <- AntlrGenerator.anyIdentifierToken
-    identifiers <- Generators.listDecreasingFrequencySize(0, 5, AntlrGenerator.anyIdentifierNode)
     genericTypeListContexts <- GenericTypesContextGenerators.anyGenericTypeListContext
   } yield {
     ParameterDefinitionContextMock(
       parameterNameToken,
       parameterTypeToken,
-      identifiers,
       genericTypeListContexts
     )
   })

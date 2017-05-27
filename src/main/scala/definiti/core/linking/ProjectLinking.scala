@@ -5,9 +5,6 @@ import definiti.core.parser.ProjectParsingResult
 import definiti.core.utils.StringUtils
 
 private[core] object ProjectLinking {
-  type TypeMapping = Map[String, String]
-  def emptyTypeMapping = Map.empty[String, String]
-
   def injectLinks(projectParsingResult: ProjectParsingResult): ProjectParsingResult = {
     val coreTypeMapping = extractTypeMappingFromCore(projectParsingResult.core)
     projectParsingResult.copy(
@@ -36,7 +33,8 @@ private[core] object ProjectLinking {
     rootFile.copy(
       verifications = rootFile.verifications.map(injectLinksIntoVerification(_, rootFile.packageName, typeMapping)),
       classDefinitions = rootFile.classDefinitions.map(injectLinksIntoClassDefinition(_, rootFile.packageName, typeMapping)),
-      namedFunctions = rootFile.namedFunctions.map(injectLinksIntoNamedFunction(_, rootFile.packageName, typeMapping))
+      namedFunctions = rootFile.namedFunctions.map(injectLinksIntoNamedFunction(_, rootFile.packageName, typeMapping)),
+      http = rootFile.http.map(HttpLinking.injectIntoHttp(_, rootFile.packageName, typeMapping))
     )
   }
 

@@ -21,7 +21,7 @@ object ASTGenerator {
   }
 
   // We do not generate recursive ParameterDefinition (eg: List[Option[List[String]]]) because of possible stack overflows
-  def anyParameterDefinition(implicit context: Context): Gen[ParameterDefinition] = for {
+  lazy val anyParameterDefinition: Gen[ParameterDefinition] = for {
     name <- anyIdentifier
     typeReference <- anyTypeReference
     range <- anyRange
@@ -33,7 +33,7 @@ object ASTGenerator {
     )
   }
 
-  def anyTypeReference(implicit context: Context): Gen[TypeReference] = for {
+  lazy val anyTypeReference: Gen[TypeReference] = for {
     typeName <- anyIdentifier
   } yield {
     TypeReference(
@@ -121,15 +121,15 @@ object ASTGenerator {
     verification.canonicalName
   }
 
-  def anyIdentifier(implicit context: Context): Gen[String] = Gen.alphaNumStr
+  lazy val anyIdentifier: Gen[String] = Gen.alphaNumStr
 
-  def anyPackageName(implicit context: Context): Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
+  lazy val  anyPackageName: Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
 
-  def anyDottedIdentifier(implicit context: Context): Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
+  lazy val anyDottedIdentifier: Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
 
-  def anyString(implicit context: Context): Gen[String] = Arbitrary.arbString.arbitrary
+  lazy val anyString: Gen[String] = Arbitrary.arbString.arbitrary
 
-  def anyRange(implicit context: Context): Gen[Range] = for {
+  lazy val anyRange: Gen[Range] = for {
     firstLine <- Gen.choose(0, Int.MaxValue)
     secondLine <- Gen.choose(0, Int.MaxValue)
     firstColumn <- Gen.choose(0, Int.MaxValue)

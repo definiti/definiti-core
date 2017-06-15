@@ -6,7 +6,7 @@ import definiti.core.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser, De
 import definiti.core.parser.api.CoreDefinitionASTParser
 import definiti.core.parser.project.DefinitiASTParser
 import definiti.core.utils.{ErrorItem, ErrorListener}
-import definiti.core.{ClassDefinition, Configuration, Root, RootFile}
+import definiti.core.{ClassDefinition, Root, RootFile}
 import org.antlr.v4.runtime._
 import definiti.core.utils.CollectionUtils._
 
@@ -15,7 +15,7 @@ private[core] case class ProjectParsingResult(
   core: Seq[ClassDefinition]
 )
 
-private[core] class ProjectParser(configuration: Configuration) {
+private[core] class ProjectParser(source: Path, coreSource: Path) {
   def buildAST(): Either[Seq[ErrorItem], ProjectParsingResult] = {
     (buildDefinitiAST(), buildCoreDefinitionAST()) match {
       case (Left(definitiErrors), Left(coreErrors)) => Left(definitiErrors ++ coreErrors)
@@ -40,7 +40,7 @@ private[core] class ProjectParser(configuration: Configuration) {
   }
 
   private def extractDefinitiFiles(): Seq[Path] = {
-    scalaSeq(Files.find(configuration.source, 1000, (path, _) => String.valueOf(path).endsWith(".def")))
+    scalaSeq(Files.find(source, 1000, (path, _) => String.valueOf(path).endsWith(".def")))
   }
 
   private def parseDefinitiFile(source: String): Either[Seq[ErrorItem], RootFile] = {
@@ -69,7 +69,7 @@ private[core] class ProjectParser(configuration: Configuration) {
   }
 
   private def extractCoreDefinitionFiles(): Seq[Path] = {
-    scalaSeq(Files.find(configuration.core.source, 1000, (path, _) => String.valueOf(path).endsWith(".definition")))
+    scalaSeq(Files.find(coreSource, 1000, (path, _) => String.valueOf(path).endsWith(".definition")))
   }
 
   private def parseCoreDefinitionFile(source: String): Either[Seq[ErrorItem], Seq[ClassDefinition]] = {

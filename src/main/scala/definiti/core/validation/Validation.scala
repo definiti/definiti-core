@@ -34,11 +34,19 @@ private[core] case class Invalid(errors: Seq[Error]) extends Validation {
 }
 
 private[core] object Invalid {
-  def apply(message: String, range: Range): Invalid = new Invalid(Seq(Error(message, range)))
+  def apply(message: String, range: Range): Invalid = new Invalid(Seq(ASTError(message, range)))
 }
 
-private[core] case class Error(message: String, range: Range) {
+sealed trait Error {
+  def prettyPrint: String
+}
+
+private[core] case class ASTError(message: String, range: Range) extends Error {
   def prettyPrint: String = {
     s"""Error at ${range.prettyPrint}: $message"""
   }
+}
+
+private[core] case class SimpleError(message: String) extends Error {
+  override def prettyPrint: String = message
 }

@@ -30,8 +30,8 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         range = defaultRange
       )
       val expected = Invalid(Seq(
-        Error("Undefined type: Unknown", defaultRange),
-        Error("Undefined type: NotRegistered", defaultRange)
+        ASTError("Undefined type: Unknown", defaultRange),
+        ASTError("Undefined type: NotRegistered", defaultRange)
       ))
       val output = HttpValidation.validateRequirement(input)
       output should equal(expected)
@@ -74,9 +74,9 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         range = defaultRange
       )
       val expected = Invalid(Seq(
-        Error("Undefined type: Unknown", defaultRange),
-        Error("Undefined type: Invalid", defaultRange),
-        Error("Undefined type: TryAgain", defaultRange)
+        ASTError("Undefined type: Unknown", defaultRange),
+        ASTError("Undefined type: Invalid", defaultRange),
+        ASTError("Undefined type: TryAgain", defaultRange)
       ))
       val output = HttpValidation.validateRequestInput(input)
       output should equal(expected)
@@ -148,8 +148,8 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         inputType = None
       )
       val expected = Invalid(Seq(
-        Error("Undefined variable: unknown", defaultRange),
-        Error("Undefined type: Invalid", defaultRange)
+        ASTError("Undefined variable: unknown", defaultRange),
+        ASTError("Undefined type: Invalid", defaultRange)
       ))
       val result = HttpValidation.validateRequestRequirement(requestRequirementInput, requestInputInput)
       result should equal(expected)
@@ -175,7 +175,7 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         output = Some(ReferenceOutput(TypeReference("Invalid", Seq.empty), defaultRange))
       )
       val expected = Invalid(Seq(
-        Error("Undefined type: Invalid", defaultRange)
+        ASTError("Undefined type: Invalid", defaultRange)
       ))
       val result = HttpValidation.validateRequestResult(input)
       result should equal(expected)

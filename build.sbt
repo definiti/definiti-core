@@ -8,8 +8,11 @@ scalaVersion := "2.12.1"
 
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.3"
 libraryDependencies += "org.antlr" % "antlr4" % "4.7"
+libraryDependencies += "com.typesafe" % "config" % "1.3.1"
+libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
+libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.25"
 
-// For developmen purposes
+// For development purposes
 libraryDependencies += "com.googlecode.kiama" %% "kiama" % "1.8.0"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"

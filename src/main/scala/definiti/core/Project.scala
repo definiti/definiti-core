@@ -13,48 +13,41 @@ private[core] class Project(configuration: Configuration) {
   private val projectParser: ProjectParser = new ProjectParser(configuration.source, configuration.apiSource)
 
   def process(): Validation = {
-    processInternalParser() match {
-      case Left(errors) => Invalid(errors.map(SimpleError))
-      case Right(projectParsingResult) =>
-        processPluginParsers(projectParsingResult.root) match {
-          case Left(errors) => Invalid(errors.map(SimpleError))
-          case Right(updatedRoot) =>
-            val context = createProjectContext(projectParsingResult.copy(root = updatedRoot))
-            processInternalValidation(updatedRoot, context) match {
-              case Invalid(errors) => Invalid(errors)
-              case Valid =>
-                processExternalValidation(updatedRoot, context) match {
-                  case Invalid(errors) => Invalid(errors)
-                  case Valid =>
-                    processGenerators(updatedRoot, context)
-                      .foreach { case (path, content) =>
-                        Files.createDirectories(path.getParent)
-                        Files.write(path, Seq(content).asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
-                      }
-                    Valid
-                }
-            }
-        }
-    }
+    processInternalParser()
+      .flatMap { projectParsingResult =>
+        processPluginParsers(projectParsingResult.root)
+          .map { updatedRoot => projectParsingResult.copy(root = updatedRoot) }
+      }
+      .map { projectParsingResult =>
+        (projectParsingResult, createProjectContext(projectParsingResult))
+      }
+      .filter { case (projectParsingResult, context) =>
+        processInternalValidation(projectParsingResult.root, context)
+          .and(processExternalValidation(projectParsingResult.root, context))
+      }
+      .foreach { case (projectParsingResult, context) =>
+        processGenerators(projectParsingResult.root, context)
+          .foreach { case (path, content) =>
+            Files.createDirectories(path.getParent)
+            Files.write(path, Seq(content).asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+          }
+      }
+      .toValidation
   }
 
-  private def processInternalParser(): Either[Seq[String], ProjectParsingResult] = {
-    projectParser.buildAST() match {
-      case Left(errors) =>
-        Left(errors.map(_.prettyPrint))
-      case Right(projectParsingResult) =>
-        Right(ProjectLinking.injectLinks(projectParsingResult))
-    }
+  private def processInternalParser(): Validated[ProjectParsingResult] = {
+    projectParser.buildAST()
+      .map(ProjectLinking.injectLinks)
   }
 
-  private def processPluginParsers(root: Root): Either[Seq[String], Root] = {
+  private def processPluginParsers(root: Root): Validated[Root] = {
     // Do not accumulate errors because of eventual dependencies between plugins
     // See what is done and validate or update behavior
-    val initialRoot: Either[Seq[String], Root] = Right(root)
+    val initialRoot: Validated[Root] = ValidValue(root)
     configuration.parsers.foldLeft(initialRoot) { case (acc, parser) =>
       acc match {
-        case errors@Left(_) => errors
-        case Right(updatedRoot) => parser.transform(updatedRoot)
+        case errors@Invalid(_) => errors
+        case ValidValue(updatedRoot) => parser.transform(updatedRoot)
       }
     }
   }

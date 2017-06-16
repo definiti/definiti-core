@@ -1,5 +1,6 @@
 package definiti.core.utils
 
+import definiti.core.{Error, SimpleError}
 import org.antlr.v4.runtime._
 
 import scala.collection.mutable.ListBuffer
@@ -8,6 +9,8 @@ private[core] case class ErrorItem(file: String, line: Int, column: Int, msg: St
   def prettyPrint: String = {
     s"""Error on file $file position $line-$column: $msg"""
   }
+
+  def toError: Error = SimpleError(prettyPrint)
 }
 
 /**

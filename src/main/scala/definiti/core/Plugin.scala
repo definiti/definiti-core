@@ -2,14 +2,12 @@ package definiti.core
 
 import java.nio.file.Path
 
-import definiti.core.validation.Validation
-
 trait Plugin {
   def name: String
 }
 
 trait ParserPlugin extends Plugin {
-  def transform(root: Root): Either[Seq[String], Root]
+  def transform(root: Root): Validated[Root]
 }
 
 trait ValidatorPlugin extends Plugin {

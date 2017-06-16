@@ -1,7 +1,5 @@
 package definiti.core
 
-import definiti.core.validation.{Invalid, Valid}
-
 object Boot {
   def main(args: Array[String]): Unit = {
     val configuration = new Configuration()

@@ -1,38 +1,67 @@
 package definiti.core
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path, StandardOpenOption}
+
 import definiti.core.linking.ProjectLinking
-import definiti.core.parser._
-import definiti.core.validation.{ASTValidation, Invalid, Valid}
+import definiti.core.parser.{ProjectParser, ProjectParsingResult}
+import definiti.core.validation._
 
-case class ProjectResult(
-  root: Root,
-  context: Context
-)
+import scala.collection.JavaConverters._
 
-class Project(configuration: Configuration) {
-  private val projectParser: ProjectParser = new ProjectParser(configuration)
+private[core] class Project(configuration: Configuration) {
+  private val projectParser: ProjectParser = new ProjectParser(configuration.source, configuration.apiSource)
 
-  def buildAST(): Either[Seq[String], ProjectParsingResult] = {
-    projectParser.buildAST() match {
-      case Left(errors) => Left(errors.map(_.prettyPrint))
-      case Right(projectParsingResult) => Right(projectParsingResult)
+  def process(): Validation = {
+    processInternalParser()
+      .flatMap { projectParsingResult =>
+        processPluginParsers(projectParsingResult.root)
+          .map { updatedRoot => projectParsingResult.copy(root = updatedRoot) }
+      }
+      .map { projectParsingResult =>
+        (projectParsingResult, createProjectContext(projectParsingResult))
+      }
+      .filter { case (projectParsingResult, context) =>
+        processInternalValidation(projectParsingResult.root, context)
+          .and(processExternalValidation(projectParsingResult.root, context))
+      }
+      .foreach { case (projectParsingResult, context) =>
+        processGenerators(projectParsingResult.root, context)
+          .foreach { case (path, content) =>
+            Files.createDirectories(path.getParent)
+            Files.write(path, Seq(content).asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
+          }
+      }
+      .toValidation
+  }
+
+  private def processInternalParser(): Validated[ProjectParsingResult] = {
+    projectParser.buildAST()
+      .map(ProjectLinking.injectLinks)
+  }
+
+  private def processPluginParsers(root: Root): Validated[Root] = {
+    // Do not accumulate errors because of eventual dependencies between plugins
+    // See what is done and validate or update behavior
+    val initialRoot: Validated[Root] = ValidValue(root)
+    configuration.parsers.foldLeft(initialRoot) { case (acc, parser) =>
+      acc match {
+        case errors@Invalid(_) => errors
+        case ValidValue(updatedRoot) => parser.transform(updatedRoot)
+      }
     }
   }
 
-  def load(): Either[Seq[String], ProjectResult] = {
-    projectParser.buildAST() match {
-      case Left(errors) =>
-        Left(errors.map(_.prettyPrint))
-      case Right(project) =>
-        val projectWithLinks = ProjectLinking.injectLinks(project)
-        val context = createProjectContext(projectWithLinks)
-        ASTValidation.validate(projectWithLinks.root)(context) match {
-          case Valid =>
-            Right(ProjectResult(projectWithLinks.root, context))
-          case Invalid(errors) =>
-            Left(errors.map(_.prettyPrint))
-        }
-    }
+  private def processInternalValidation(root: Root, context: ReferenceContext): Validation = {
+    ASTValidation.validate(root)(context)
+  }
+
+  private def processExternalValidation(root: Root, context: ReferenceContext): Validation = {
+    Validation.join(configuration.validators.map(_.validate(root, context)))
+  }
+
+  private def processGenerators(root: Root, context: ReferenceContext): Map[Path, String] = {
+    configuration.generators.flatMap(_.generate(root, context)).toMap
   }
 
   private def createProjectContext(projectParsingResult: ProjectParsingResult) = {

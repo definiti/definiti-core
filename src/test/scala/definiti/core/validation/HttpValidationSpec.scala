@@ -8,6 +8,8 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
 class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with CoreParser {
+  private val httpValidation = new HttpValidation()
+
   "HttpValidation.validateRequirement" should "accept a valid requirement" in {
     implicit val context = coreContext
     forAll(HttpASTGenerator.anyRequirement) { requirement =>
@@ -16,7 +18,7 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         returnType = TypeReference("Unit", Seq.empty)
       )
       val expected = Valid
-      val output = HttpValidation.validateRequirement(input)
+      val output = httpValidation.validateRequirement(input)
       output should equal(expected)
     }
   }
@@ -33,7 +35,7 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         ASTError("Undefined type: Unknown", defaultRange),
         ASTError("Undefined type: NotRegistered", defaultRange)
       ))
-      val output = HttpValidation.validateRequirement(input)
+      val output = httpValidation.validateRequirement(input)
       output should equal(expected)
     }
   }
@@ -53,7 +55,7 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         inputType = Some(TypeReference("String", Seq.empty))
       )
       val expected = Valid
-      val output = HttpValidation.validateRequestInput(input)
+      val output = httpValidation.validateRequestInput(input)
       output should equal(expected)
     }
   }
@@ -78,7 +80,7 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         ASTError("Undefined type: Invalid", defaultRange),
         ASTError("Undefined type: TryAgain", defaultRange)
       ))
-      val output = HttpValidation.validateRequestInput(input)
+      val output = httpValidation.validateRequestInput(input)
       output should equal(expected)
     }
   }
@@ -113,7 +115,7 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         inputType = None
       )
       val expected = Valid
-      val result = HttpValidation.validateRequestRequirement(requestRequirementInput, requestInputInput)
+      val result = httpValidation.validateRequestRequirement(requestRequirementInput, requestInputInput)
       result should equal(expected)
     }
   }
@@ -151,7 +153,7 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         ASTError("Undefined variable: unknown", defaultRange),
         ASTError("Undefined type: Invalid", defaultRange)
       ))
-      val result = HttpValidation.validateRequestRequirement(requestRequirementInput, requestInputInput)
+      val result = httpValidation.validateRequestRequirement(requestRequirementInput, requestInputInput)
       result should equal(expected)
     }
   }
@@ -163,7 +165,7 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
         output = Some(ReferenceOutput(TypeReference("Boolean", Seq.empty), defaultRange))
       )
       val expected = Valid
-      val result = HttpValidation.validateRequestResult(input)
+      val result = httpValidation.validateRequestResult(input)
       result should equal(expected)
     }
   }
@@ -177,7 +179,7 @@ class HttpValidationSpec extends FlatSpec with Matchers with PropertyChecks with
       val expected = Invalid(Seq(
         ASTError("Undefined type: Invalid", defaultRange)
       ))
-      val result = HttpValidation.validateRequestResult(input)
+      val result = httpValidation.validateRequestResult(input)
       result should equal(expected)
     }
   }

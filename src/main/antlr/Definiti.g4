@@ -1,5 +1,24 @@
 grammar Definiti;
 
+PACKAGE      : 'package';
+IMPORT       : 'import';
+TYPE         : 'type';
+IF           : 'if';
+ELSE         : 'else';
+VERIFICATION : 'verification';
+VERIFY       : 'verify';
+VERIFYING    : 'verifying';
+DEF          : 'def';
+CONTEXT      : 'context';
+
+HTTP        : 'http';
+REQUIREMENT : 'requirement';
+REQUEST     : 'request';
+WITH        : 'with';
+REQUIRING   : 'requiring';
+ABORT       : 'abort';
+RETURNING   : 'returning';
+
 BOOLEAN                      : 'true' | 'false';
 NUMBER                       : [0-9]+('.'[0-9]+)?;
 STRING                       : '"' ( '\\"' | . )*? '"';
@@ -16,9 +35,9 @@ definiti:
   toplevel*
   EOF;
 
-packageName: 'package' dottedIdentifier;
+packageName: PACKAGE dottedIdentifier;
 
-imports: 'import' dottedIdentifier;
+imports: IMPORT dottedIdentifier;
 
 dottedIdentifier: (IDENTIFIER '.')* IDENTIFIER;
 
@@ -28,6 +47,7 @@ toplevel
   | aliasType
   | namedFunction
   | http
+  | context
   ;
 
 chainedExpression : expression+;
@@ -49,21 +69,21 @@ expression
   | numberExpression=NUMBER
   | stringExpression=STRING
   | referenceExpression=IDENTIFIER
-  | 'if' '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' ('else' '{' conditionElseBody=chainedExpression '}')?
+  | IF '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' (ELSE '{' conditionElseBody=chainedExpression '}')?
   ;
 
 expressionList : expression (',' expression)*;
 
 verification :
   DOC_COMMENT?
-  'verification' verificationName=IDENTIFIER '{'
+  VERIFICATION verificationName=IDENTIFIER '{'
     verificationMessage=STRING
     function
   '}';
 
 definedType :
   DOC_COMMENT?
-  'type' typeName=IDENTIFIER ('[' genericTypeList ']')? verifyingList '{'
+  TYPE typeName=IDENTIFIER ('[' genericTypeList ']')? verifyingList '{'
     attributeDefinition+
 
     (typeVerification)*
@@ -74,7 +94,7 @@ attributeDefinition:
   attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')? verifyingList;
 
 typeVerification:
-  'verify' '{'
+  VERIFY '{'
     verificationMessage=STRING
     typeVerificationFunction
   '}';
@@ -83,26 +103,82 @@ typeVerificationFunction: '(' IDENTIFIER ')' '=>' '{' chainedExpression '}';
 
 aliasType :
   DOC_COMMENT?
-  'type' typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList;
+  TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList;
 
 function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
 
 verifyingList : verifying*;
-verifying : 'verifying' verificationName=IDENTIFIER ('(' message=STRING ')')?;
+verifying : VERIFYING verificationName=IDENTIFIER ('(' message=STRING ')')?;
 
 parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
 
-namedFunction: 'def' name=IDENTIFIER '=' function;
+namedFunction: DEF name=IDENTIFIER '=' function;
 
 genericType: IDENTIFIER ('[' genericTypeList ']')?;
 genericTypeList: ((genericType ',')* genericType);
 
 typeReference: typeName=IDENTIFIER ('[' genericTypeList ']')?;
 
+// Contexts
+
+context:
+  CONTEXT IDENTIFIER '{{{'
+    contextContent
+  '}}}'
+;
+
+contextContent: contextContentSymbol*;
+
+contextContentSymbol
+  : BOOLEAN
+  | NUMBER
+  | STRING
+  | IDENTIFIER
+  | CALCULATOR_OPERATOR_LEVEL_1
+  | CALCULATOR_OPERATOR_LEVEL_2
+  | LOGICAL_OPERATOR
+  | LOGICAL_COMBINATION_OPERATOR
+  | NOT_OPERATOR
+  | PACKAGE
+  | IMPORT
+  | TYPE
+  | IF
+  | ELSE
+  | VERIFICATION
+  | VERIFY
+  | VERIFYING
+  | DEF
+  | CONTEXT
+  | HTTP
+  | REQUIREMENT
+  | REQUEST
+  | WITH
+  | REQUIRING
+  | ABORT
+  | RETURNING
+  | httpVerb
+  | httpStatus
+  | '.'
+  | ':'
+  | '(' | ')'
+  | '{' | '}'
+  | '[' | ']'
+  | '=>'
+  | '='
+  | ','
+  | '?'
+  | '/'
+  | DOC_COMMENT
+  | BLOCK_COMMENT
+  | LINE_COMMENT
+  | WS
+  | ANY
+  ;
+
 // HTTP api
 
-http: 'http' '{' httpEntry* '}';
+http: HTTP '{' httpEntry* '}';
 
 httpEntry
   : httpRequirement
@@ -111,12 +187,12 @@ httpEntry
 
 httpRequirement:
   DOC_COMMENT?
-  'requirement' name=IDENTIFIER '(' parameterListDefinition ')' ':' typeReference
+  REQUIREMENT name=IDENTIFIER '(' parameterListDefinition ')' ':' typeReference
 ;
 
 httpRequest:
   DOC_COMMENT?
-  'request' name=IDENTIFIER '{'
+  REQUEST name=IDENTIFIER '{'
     httpRequestInput
     httpRequestRequiring?
     httpRequestReturning
@@ -125,7 +201,7 @@ httpRequest:
 httpRequestInput:
   httpVerb
   httpRequestURI
-  ('with' typeReference)?
+  (WITH typeReference)?
 ;
 
 httpRequestURI:
@@ -138,15 +214,15 @@ httpRequestURIPart
   ;
 
 httpRequestRequiring:
-  'requiring' '{'
+  REQUIRING '{'
     httpRequestRequirement*
   '}'
 ;
-httpRequestRequirement: httpRequestRequirementReference 'abort' httpResult;
+httpRequestRequirement: httpRequestRequirementReference ABORT httpResult;
 httpRequestRequirementReference: name=IDENTIFIER '(' httpParameterList ')';
 
 httpRequestReturning:
-  'returning' '{'
+  RETURNING '{'
     httpResult*
   '}'
 ;
@@ -154,7 +230,7 @@ httpRequestReturning:
 httpParameterList: ((httpParameter ',')* httpParameter | );
 httpParameter: name=IDENTIFIER;
 
-httpResult: (httpStatus|httpStatusNumber) ('with' (raw=STRING|typeReference))?;
+httpResult: (httpStatus|httpStatusNumber) (WITH (raw=STRING|typeReference))?;
 
 httpVerb
   : 'CONNECT'
@@ -241,3 +317,4 @@ BLOCK_COMMENT : '/*' .*? '*/' -> skip;
 LINE_COMMENT  : '//' ~[\r\n]* -> skip;
 
 WS : [ \r\n\t]+ -> skip;
+ANY : .;

@@ -7,7 +7,7 @@ import definiti.core.{HttpAST, Request, Requirement, _}
 
 import scala.collection.mutable.ListBuffer
 
-private[core] object HttpParser {
+private[core] object HttpParser extends CommonParser {
   def processHttp(context: HttpContext): HttpAST = {
     val requirements = ListBuffer[Requirement]()
     val requests = ListBuffer[Request]()
@@ -28,8 +28,8 @@ private[core] object HttpParser {
     Requirement(
       name = context.name.getText,
       packageName = NOT_DEFINED,
-      parameters = DefinitiASTParser.processParameterListDefinition(context.parameterListDefinition()),
-      returnType = DefinitiASTParser.processTypeReference(context.typeReference()),
+      parameters = processParameterListDefinition(context.parameterListDefinition()),
+      returnType = processTypeReference(context.typeReference()),
       comment = Option(context.DOC_COMMENT()).map(_.getText),
       range = getRangeFromContext(context)
     )
@@ -51,14 +51,14 @@ private[core] object HttpParser {
     RequestInput(
       method = context.httpVerb().getText,
       requestUri = processRequestURI(context.httpRequestURI()),
-      inputType = Option(context.typeReference()).map(DefinitiASTParser.processTypeReference),
+      inputType = Option(context.typeReference()).map(processTypeReference),
       range = getRangeFromContext(context)
     )
   }
 
   def processRequestURI(context: HttpRequestURIContext): RequestUri = {
     val query = Option(context.parameterListDefinition())
-      .map(DefinitiASTParser.processParameterListDefinition)
+      .map(processParameterListDefinition)
       .getOrElse(Seq.empty)
 
     RequestUri(
@@ -76,7 +76,7 @@ private[core] object HttpParser {
       )
     } else if (context.parameterDefinition() != null) {
       VariablePart(
-        parameterDefinition = DefinitiASTParser.processParameter(context.parameterDefinition()),
+        parameterDefinition = processParameter(context.parameterDefinition()),
         range = getRangeFromContext(context)
       )
     } else {
@@ -149,7 +149,7 @@ private[core] object HttpParser {
     } else if (typeReference != null) {
       Some(
         ReferenceOutput(
-          typeReference = DefinitiASTParser.processTypeReference(typeReference),
+          typeReference = processTypeReference(typeReference),
           range = getRangeFromContext(typeReference)
         )
       )

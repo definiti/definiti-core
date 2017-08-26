@@ -15,7 +15,11 @@ private[core] case class ProjectParsingResult(
   core: Seq[ClassDefinition]
 )
 
-private[core] class ProjectParser(source: Path, coreSource: Path) {
+private[core] class ProjectParser(configuration: Configuration) {
+  private val source = configuration.source
+  private val coreSource = configuration.apiSource
+  private val definitiASTParser = new DefinitiASTParser(configuration)
+
   def buildAST(): Validated[ProjectParsingResult] = {
     Validated.both(buildDefinitiAST(), buildCoreDefinitionAST())
       .map { case (definitiAST, coreAST) => ProjectParsingResult(definitiAST, coreAST) }
@@ -40,7 +44,7 @@ private[core] class ProjectParser(source: Path, coreSource: Path) {
     if (errorListener.hasError) {
       Invalid(errorListener.errors.map(_.toError))
     } else {
-      ValidValue(DefinitiASTParser.definitiContextToAST(result))
+      ValidValue(definitiASTParser.definitiContextToAST(result))
     }
   }
 

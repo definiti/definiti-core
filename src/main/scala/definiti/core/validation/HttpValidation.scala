@@ -2,7 +2,7 @@ package definiti.core.validation
 
 import definiti.core._
 
-private[core] object HttpValidation {
+private[core] class HttpValidation extends CommonValidation {
   def validateHttp(httpAST: HttpAST)(implicit context: Context): Validation = {
     val requirementValidations = httpAST.requirements.map(validateRequirement)
     val requestValidations = httpAST.requests.map(validateRequest)
@@ -11,8 +11,8 @@ private[core] object HttpValidation {
   }
 
   def validateRequirement(requirement: Requirement)(implicit context: Context): Validation = {
-    val parameterValidations = requirement.parameters.map(ASTValidation.validateParameterDefinition)
-    val returnTypeValidation = ASTValidation.validateTypeReference(requirement.returnType, requirement.range)
+    val parameterValidations = requirement.parameters.map(validateParameterDefinition)
+    val returnTypeValidation = validateTypeReference(requirement.returnType, requirement.range)
     Validation.join(parameterValidations :+ returnTypeValidation)
   }
 
@@ -26,20 +26,20 @@ private[core] object HttpValidation {
   def validateRequestInput(requestInput: RequestInput)(implicit context: Context): Validation = {
     val requestUriValidation = validateRequestUri(requestInput.requestUri)
     val inputTypeValidation = requestInput.inputType
-      .map(inputType => ASTValidation.validateTypeReference(inputType, requestInput.range))
+      .map(inputType => validateTypeReference(inputType, requestInput.range))
       .getOrElse(Valid)
     Validation.join(requestUriValidation, inputTypeValidation)
   }
 
   def validateRequestUri(requestUri: RequestUri)(implicit context: Context): Validation = {
     val partValidations = requestUri.parts.map(validateRequestUriPart)
-    val queryValidations = requestUri.query.map(ASTValidation.validateParameterDefinition)
+    val queryValidations = requestUri.query.map(validateParameterDefinition)
     Validation.join(partValidations ++ queryValidations)
   }
 
   def validateRequestUriPart(requestUriPart: RequestUriPart)(implicit context: Context): Validation = {
     requestUriPart match {
-      case VariablePart(parameterDefinition, _) => ASTValidation.validateParameterDefinition(parameterDefinition)
+      case VariablePart(parameterDefinition, _) => validateParameterDefinition(parameterDefinition)
       case _ => Valid
     }
   }
@@ -58,7 +58,7 @@ private[core] object HttpValidation {
             requirement.parameters.zip(requirementReference.parameters).map { case (requirementParameter, referenceParameter) =>
               extractVariableTypeReference(referenceParameter, requestInput) match {
                 case Some(variableTypeReference) =>
-                  if (ASTValidation.isSameTypeReference(variableTypeReference, requirementParameter.typeReference)) {
+                  if (isSameTypeReference(variableTypeReference, requirementParameter.typeReference)) {
                     Valid
                   } else {
                     Invalid(s"Expected type: ${requirementParameter.typeReference}, got: $variableTypeReference", requirementParameter.range)
@@ -99,7 +99,7 @@ private[core] object HttpValidation {
         case _: RawOutput =>
           Valid
         case referenceOutput: ReferenceOutput =>
-          ASTValidation.validateTypeReference(referenceOutput.typeReference, referenceOutput.range)
+          validateTypeReference(referenceOutput.typeReference, referenceOutput.range)
       }
       .getOrElse(Valid)
   }

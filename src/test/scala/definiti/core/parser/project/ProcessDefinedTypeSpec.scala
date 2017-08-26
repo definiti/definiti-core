@@ -1,17 +1,20 @@
 package definiti.core.parser.project
 
-import definiti.core.TypeReference
 import definiti.core.generators.Generators
 import definiti.core.generators.antlr.TypeContextGenerator
 import definiti.core.mock.antlr._
+import definiti.core.{ConfigurationMock, TypeReference}
 import org.scalacheck.Gen
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Inspectors, Matchers}
 
 class ProcessDefinedTypeSpec extends FlatSpec with Matchers with PropertyChecks {
+  private val configuration = ConfigurationMock()
+  private val definitiASTParser = new DefinitiASTParser(configuration)
+
   "DefinitiASTParser.processDefinedType" should "have only TypeVerification with DefinedTypeName" in {
     forAll(TypeContextGenerator.anyDefinedTypeContext) { definedTypeContext =>
-      val result = DefinitiASTParser.processDefinedType(definedTypeContext)
+      val result = definitiASTParser.processDefinedType(definedTypeContext)
 
       Inspectors.forAll(result.verifications.toList) { verification =>
         verification.function.parameters should have length 1
@@ -23,7 +26,7 @@ class ProcessDefinedTypeSpec extends FlatSpec with Matchers with PropertyChecks 
 
   it should "return a type definition with defined list of verifications" in {
     forAll(TypeContextGenerator.anyDefinedTypeContext) { definedTypeContext =>
-      val result = DefinitiASTParser.processDefinedType(definedTypeContext)
+      val result = definitiASTParser.processDefinedType(definedTypeContext)
 
       Inspectors.forAll(result.verifications.toList) { verification =>
         verification.function.parameters should have length 1
@@ -49,7 +52,7 @@ class ProcessDefinedTypeSpec extends FlatSpec with Matchers with PropertyChecks 
           }
         ))
       )
-      val result = DefinitiASTParser.processDefinedType(normalized)
+      val result = definitiASTParser.processDefinedType(normalized)
       result.inherited should not be empty
       result.inherited.map(_.verificationName) should contain allElementsOf verificationNames
       result.inherited.map(_.message) should contain allElementsOf verificationMessages
@@ -58,7 +61,7 @@ class ProcessDefinedTypeSpec extends FlatSpec with Matchers with PropertyChecks 
 
   it should "returns a type definition with list of verifications if verifyingList is set" in {
     forAll(TypeContextGenerator.definedTypeContextWithVerifyingList) { attributeDefinitionContext =>
-      val result = DefinitiASTParser.processDefinedType(attributeDefinitionContext)
+      val result = definitiASTParser.processDefinedType(attributeDefinitionContext)
       result.inherited should not be empty
     }
   }

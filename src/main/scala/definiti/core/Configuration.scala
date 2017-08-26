@@ -8,7 +8,21 @@ import definiti.core.utils.CollectionUtils._
 
 import scala.util.{Failure, Success, Try}
 
-private[core] class Configuration(config: Config) {
+private[core] trait Configuration {
+  def source: Path
+
+  def apiSource: Path
+
+  def parsers: Seq[ParserPlugin]
+
+  def validators: Seq[ValidatorPlugin]
+
+  def generators: Seq[GeneratorPlugin]
+
+  def contexts: Seq[ContextPlugin[_]]
+}
+
+private[core] class FileConfiguration(config: Config) extends Configuration{
   private val logger = Logger(getClass)
 
   def this() {
@@ -24,6 +38,8 @@ private[core] class Configuration(config: Config) {
   lazy val validators: Seq[ValidatorPlugin] = generateInstancesOf(classOf[ValidatorPlugin], "validators")
 
   lazy val generators: Seq[GeneratorPlugin] = generateInstancesOf(classOf[GeneratorPlugin], "generators")
+
+  lazy val contexts: Seq[ContextPlugin[_]] = generateInstancesOf(classOf[ContextPlugin[_]], "contexts")
 
   private def getPathOrElse(configurationPath: String, defaultValue: => Path): Path = {
     if (config.hasPath(configurationPath)) {

@@ -1,5 +1,6 @@
 package definiti.core.parser.project
 
+import definiti.core.ConfigurationMock
 import definiti.core.generators.Generators
 import definiti.core.generators.antlr.TypeContextGenerator
 import definiti.core.mock.antlr._
@@ -8,6 +9,9 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
 class ProcessAliasTypeSpec extends FlatSpec with Matchers with PropertyChecks {
+  private val configuration = ConfigurationMock()
+  private val definitiASTParser = new DefinitiASTParser(configuration)
+
   "DefinitiASTParser.processAliasType" should "returns an alias type with defined list of verifications" in {
     val cases = for {
       aliasTypeContext <- TypeContextGenerator.anyAliasTypeContext
@@ -24,7 +28,7 @@ class ProcessAliasTypeSpec extends FlatSpec with Matchers with PropertyChecks {
           }
         ))
       )
-      val result = DefinitiASTParser.processAliasType(normalized)
+      val result = definitiASTParser.processAliasType(normalized)
       result.inherited should not be empty
       result.inherited.map(_.verificationName) should contain allElementsOf verificationNames
       result.inherited.map(_.message) should contain allElementsOf verificationMessages
@@ -33,7 +37,7 @@ class ProcessAliasTypeSpec extends FlatSpec with Matchers with PropertyChecks {
 
   it should "returns an alias type with list of verifications if verifyingList is set" in {
     forAll(TypeContextGenerator.aliasTypeContextWithVerifyingList) { attributeDefinitionContext =>
-      val result = DefinitiASTParser.processAliasType(attributeDefinitionContext)
+      val result = definitiASTParser.processAliasType(attributeDefinitionContext)
       result.inherited should not be empty
     }
   }

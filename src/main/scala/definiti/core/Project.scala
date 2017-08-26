@@ -10,7 +10,8 @@ import definiti.core.validation._
 import scala.collection.JavaConverters._
 
 private[core] class Project(configuration: Configuration) {
-  private val projectParser: ProjectParser = new ProjectParser(configuration.source, configuration.apiSource)
+  private val projectParser: ProjectParser = new ProjectParser(configuration)
+  private val astValidation: ASTValidation = new ASTValidation(configuration)
 
   def process(): Validation = {
     processInternalParser()
@@ -53,7 +54,7 @@ private[core] class Project(configuration: Configuration) {
   }
 
   private def processInternalValidation(root: Root, context: ReferenceContext): Validation = {
-    ASTValidation.validate(root)(context)
+    astValidation.validate(root)(context)
   }
 
   private def processExternalValidation(root: Root, context: ReferenceContext): Validation = {

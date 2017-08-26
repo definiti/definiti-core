@@ -22,7 +22,8 @@ case class RootFile(
   verifications: Seq[Verification],
   classDefinitions: Seq[ClassDefinition],
   namedFunctions: Seq[NamedFunction],
-  http: Seq[HttpAST]
+  http: Seq[HttpAST],
+  contexts: Seq[ExtendedContext[_]]
 )
 
 sealed trait AbstractTypeReference
@@ -205,3 +206,5 @@ case class NamedFunction(name: String, packageName: String, function: DefinedFun
 
   def body: Expression = function.body
 }
+
+case class ExtendedContext[A](name: String, content: A, range: Range)

@@ -1,5 +1,6 @@
 package definiti.core.parser.project
 
+import definiti.core.ConfigurationMock
 import definiti.core.generators.Generators
 import definiti.core.generators.antlr.TypeContextGenerator
 import definiti.core.mock.antlr.{AttributeDefinitionContextMock, TokenMock, VerifyingContextMock, VerifyingListContextMock}
@@ -8,6 +9,9 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
 class ProcessAttributeDefinitionSpec extends FlatSpec with Matchers with PropertyChecks {
+  private val configuration = ConfigurationMock()
+  private val definitiASTParser = new DefinitiASTParser(configuration)
+
   "DefinitiASTParser.processAttributeDefinition" should "returns an attribute definition with defined list of verifications" in {
     val cases = for {
       attributeDefinitionContext <- TypeContextGenerator.anyAttributeDefinitionContext
@@ -24,7 +28,7 @@ class ProcessAttributeDefinitionSpec extends FlatSpec with Matchers with Propert
           }
         ))
       )
-      val result = DefinitiASTParser.processAttributeDefinition(normalized)
+      val result = definitiASTParser.processAttributeDefinition(normalized)
       result.verifications should not be empty
       result.verifications.map(_.verificationName) should contain allElementsOf verificationNames
       result.verifications.map(_.message) should contain allElementsOf verificationMessages
@@ -33,7 +37,7 @@ class ProcessAttributeDefinitionSpec extends FlatSpec with Matchers with Propert
 
   it should "returns an attribute definition with list of verifications if verifyingList is set" in {
     forAll(TypeContextGenerator.attributeDefinitionContextWithVerifyingList) { attributeDefinitionContext =>
-      val result = DefinitiASTParser.processAttributeDefinition(attributeDefinitionContext)
+      val result = definitiASTParser.processAttributeDefinition(attributeDefinitionContext)
       result.verifications should not be empty
     }
   }

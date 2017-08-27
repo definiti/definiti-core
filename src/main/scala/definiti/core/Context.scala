@@ -30,15 +30,12 @@ sealed trait Context {
   def isRequirementAvailable(name: String): Boolean = {
     findReference(name).isDefined
   }
-
-  def findRequirement(name: String): Option[Requirement]
 }
 
 case class ReferenceContext(
   classes: Seq[ClassDefinition],
   verifications: Seq[Verification],
-  namedFunctions: Seq[NamedFunction],
-  requirements: Seq[Requirement]
+  namedFunctions: Seq[NamedFunction]
 ) extends Context {
   override def isTypeAvailable(typeName: String): Boolean = {
     classes.exists(_.canonicalName == typeName)
@@ -68,10 +65,6 @@ case class ReferenceContext(
     namedFunctions
       .find(_.canonicalName == name)
       .map(NamedFunctionReference)
-  }
-
-  override def findRequirement(name: String): Option[Requirement] = {
-    requirements.find(_.name == name)
   }
 }
 
@@ -115,10 +108,6 @@ case class ClassContext(
 
   override def findReference(name: String): Option[ElementReference] = {
     outerContext.findReference(name)
-  }
-
-  override def findRequirement(name: String): Option[Requirement] = {
-    outerContext.findRequirement(name)
   }
 }
 
@@ -172,11 +161,6 @@ case class MethodContext(
       .orElse(outerContext.findReference(name))
   }
 
-
-  override def findRequirement(name: String): Option[Requirement] = {
-    outerContext.findRequirement(name)
-  }
-
   private def getClassReference(typeReference: TypeReference): Option[ClassReference] = {
     val classReferenceOpt = findType(typeReference.typeName)
     val genericClassReferenceOpts = typeReference.genericTypes.map(getClassReference(_).getOrElse(ClassReference(Core.any, Seq())))
@@ -227,11 +211,6 @@ case class DefinedFunctionContext(
         }
       }
       .orElse(outerContext.findReference(name))
-  }
-
-
-  override def findRequirement(name: String): Option[Requirement] = {
-    outerContext.findRequirement(name)
   }
 
   private def getClassReference(typeReference: TypeReference): Option[ClassReference] = {

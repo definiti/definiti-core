@@ -3,8 +3,6 @@ package definiti.core.validation
 import definiti.core._
 
 private[core] class ASTValidation(configuration: Configuration) extends CommonValidation {
-  private val httpValidation = new HttpValidation()
-
   def validate(root: Root)(implicit context: Context): Validation = {
     val verificationValidations = root.files.flatMap(_.verifications).map(validateVerification)
 
@@ -16,9 +14,7 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
 
     val namedFunctionValidations = root.files.flatMap(_.namedFunctions).map(validateNamedFunction)
 
-    val httpValidations = root.files.flatMap(_.http).map(httpValidation.validateHttp)
-
-    Validation.join(verificationValidations ++ classDefinitionValidations ++ namedFunctionValidations ++ httpValidations)
+    Validation.join(verificationValidations ++ classDefinitionValidations ++ namedFunctionValidations)
   }
 
   def validateVerification(verification: Verification)(implicit context: Context): Validation = {

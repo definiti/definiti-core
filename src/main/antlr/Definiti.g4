@@ -11,7 +11,6 @@ VERIFYING    : 'verifying';
 DEF          : 'def';
 CONTEXT      : 'context';
 
-HTTP        : 'http';
 REQUIREMENT : 'requirement';
 REQUEST     : 'request';
 WITH        : 'with';
@@ -46,7 +45,6 @@ toplevel
   | definedType
   | aliasType
   | namedFunction
-  | http
   | context
   ;
 
@@ -118,8 +116,6 @@ namedFunction: DEF name=IDENTIFIER '=' function;
 genericType: IDENTIFIER ('[' genericTypeList ']')?;
 genericTypeList: ((genericType ',')* genericType);
 
-typeReference: typeName=IDENTIFIER ('[' genericTypeList ']')?;
-
 // Contexts
 
 context:
@@ -150,15 +146,12 @@ contextContentSymbol
   | VERIFYING
   | DEF
   | CONTEXT
-  | HTTP
   | REQUIREMENT
   | REQUEST
   | WITH
   | REQUIRING
   | ABORT
   | RETURNING
-  | httpVerb
-  | httpStatus
   | '.'
   | ':'
   | '(' | ')'
@@ -175,142 +168,6 @@ contextContentSymbol
   | WS
   | ANY
   ;
-
-// HTTP api
-
-http: HTTP '{' httpEntry* '}';
-
-httpEntry
-  : httpRequirement
-  | httpRequest
-  ;
-
-httpRequirement:
-  DOC_COMMENT?
-  REQUIREMENT name=IDENTIFIER '(' parameterListDefinition ')' ':' typeReference
-;
-
-httpRequest:
-  DOC_COMMENT?
-  REQUEST name=IDENTIFIER '{'
-    httpRequestInput
-    httpRequestRequiring?
-    httpRequestReturning
-  '}';
-
-httpRequestInput:
-  httpVerb
-  httpRequestURI
-  (WITH typeReference)?
-;
-
-httpRequestURI:
-  (httpRequestURIPart '/')* httpRequestURIPart
-  ('?' '(' parameterListDefinition ')')?;
-
-httpRequestURIPart
-  : STRING
-  | '(' parameterDefinition ')'
-  ;
-
-httpRequestRequiring:
-  REQUIRING '{'
-    httpRequestRequirement*
-  '}'
-;
-httpRequestRequirement: httpRequestRequirementReference ABORT httpResult;
-httpRequestRequirementReference: name=IDENTIFIER '(' httpParameterList ')';
-
-httpRequestReturning:
-  RETURNING '{'
-    httpResult*
-  '}'
-;
-
-httpParameterList: ((httpParameter ',')* httpParameter | );
-httpParameter: name=IDENTIFIER;
-
-httpResult: (httpStatus|httpStatusNumber) (WITH (raw=STRING|typeReference))?;
-
-httpVerb
-  : 'CONNECT'
-  | 'DELETE'
-  | 'GET'
-  | 'HEAD'
-  | 'PATCH'
-  | 'POST'
-  | 'PUT'
-  | 'OPTIONS'
-  | 'TRACE'
-  ;
-httpStatus
-  : 'Continue' // 100
-  | 'SwitchingProtocols' // 101
-  | 'Processing' // 102
-
-  | 'Ok' // 200
-  | 'Created' // 201
-  | 'Accepted' // 202
-  | 'NonAuthoritativeInformation' // 203
-  | 'NoContent' // 204
-  | 'ResetContent' // 205
-  | 'PartialContent' // 206
-  | 'MultiStatus' // 207
-  | 'AlreadyReported' // 208
-  | 'IMUsed' // 209
-
-  | 'MultipleChoices' // 300
-  | 'MovedPermanently' // 301
-  | 'Found' // 302
-  | 'SeeOther' // 303
-  | 'NotModified' // 304
-  | 'UseProxy' // 305
-  | 'SwitchProxy' // 306
-  | 'TemporaryRedirect' // 307
-  | 'PermanentRedirect' // 308
-
-  | 'BadRequest' // 400
-  | 'Unauthorized' // 401
-  | 'PaymentRequired' // 402
-  | 'Forbidden' // 403
-  | 'NotFound' // 404
-  | 'MethodNotAllowed' // 405
-  | 'NotAcceptable' // 406
-  | 'ProxyAuthenticationRequired' // 407
-  | 'RequestTimeout' // 408
-  | 'Conflict' // 409
-  | 'Gone' // 410
-  | 'LengthRequired' // 411
-  | 'PreconditionFailed' // 412
-  | 'PayloadTooLarge' // 413
-  | 'URITooLong' // 414
-  | 'UnsupportedMediaType' // 415
-  | 'RangeNotSatisfiable' // 416
-  | 'ExpectationFailed' // 417
-  | 'ImATeapot' // 418
-  | 'MisdirectedRequest' // 421
-  | 'UnprocessableEntity' // 422
-  | 'Locked' // 423
-  | 'FailedDependency' // 424
-  | 'UpgradeRequired' // 426
-  | 'PreconditionRequired' // 428
-  | 'TooManyRequests' // 429
-  | 'RequestHeaderFieldsTooLarge' // 431
-  | 'UnavailableForLegalReasons' // 451
-
-  | 'InternalServerError' // 500
-  | 'NotImplemented' // 501
-  | 'BadGateway' // 502
-  | 'ServiceUnavailable' // 503
-  | 'GatewayTimeout' // 504
-  | 'HTTPVersionNotSupported' // 505
-  | 'VariantAlsoNegotiates' // 506
-  | 'InsufficientStorage' // 507
-  | 'LoopDetected' // 508
-  | 'NotExtended' // 510
-  | 'NetworkAuthenticationRequired' // 511
-  ;
-httpStatusNumber: NUMBER;
 
 DOC_COMMENT   : '/**' .*? '*/';
 BLOCK_COMMENT : '/*' .*? '*/' -> skip;

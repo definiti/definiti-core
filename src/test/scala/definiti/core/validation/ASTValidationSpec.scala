@@ -200,8 +200,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
   private lazy val baseReferenceContext = ReferenceContext(
     classes = coreClasses,
     verifications = Seq.empty,
-    namedFunctions = Seq.empty,
-    requirements = Seq.empty
+    namedFunctions = Seq.empty
   )
 
   private def baseMethodContext(parameters: ParameterDefinition*) = MethodContext(

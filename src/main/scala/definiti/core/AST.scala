@@ -22,7 +22,6 @@ case class RootFile(
   verifications: Seq[Verification],
   classDefinitions: Seq[ClassDefinition],
   namedFunctions: Seq[NamedFunction],
-  http: Seq[HttpAST],
   contexts: Seq[ExtendedContext[_]]
 )
 

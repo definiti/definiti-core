@@ -14,7 +14,6 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     val verifications = ListBuffer[Verification]()
     val classDefinitions = ListBuffer[ClassDefinition]()
     val namedFunctions = ListBuffer[NamedFunction]()
-    val http = ListBuffer[HttpAST]()
     val contexts = ListBuffer[ExtendedContext[_]]()
 
     scalaSeq(context.toplevel()).foreach { element =>
@@ -22,7 +21,6 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
       appendIfDefined(element.definedType(), classDefinitions, processDefinedType)
       appendIfDefined(element.aliasType(), classDefinitions, processAliasType)
       appendIfDefined(element.namedFunction(), namedFunctions, processNamedFunction)
-      appendIfDefined(element.http(), http, HttpParser.processHttp)
       Option(element.context()).foreach { internalContext =>
         processContext(internalContext) match {
           case Some(parsedContext) => contexts.append(parsedContext)
@@ -37,7 +35,6 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
       verifications = List(verifications: _*),
       classDefinitions = List(classDefinitions: _*),
       namedFunctions = List(namedFunctions: _*),
-      http = List(http: _*),
       contexts = List(contexts: _*)
     )
   }

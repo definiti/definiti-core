@@ -2,7 +2,7 @@ package definiti.core.validation
 
 import definiti.core._
 
-private[core] object ASTValidation {
+private[core] class ASTValidation(configuration: Configuration) extends CommonValidation {
   def validate(root: Root)(implicit context: Context): Validation = {
     val verificationValidations = root.files.flatMap(_.verifications).map(validateVerification)
 
@@ -14,9 +14,7 @@ private[core] object ASTValidation {
 
     val namedFunctionValidations = root.files.flatMap(_.namedFunctions).map(validateNamedFunction)
 
-    val httpValidations = root.files.flatMap(_.http).map(HttpValidation.validateHttp)
-
-    Validation.join(verificationValidations ++ classDefinitionValidations ++ namedFunctionValidations ++ httpValidations)
+    Validation.join(verificationValidations ++ classDefinitionValidations ++ namedFunctionValidations)
   }
 
   def validateVerification(verification: Verification)(implicit context: Context): Validation = {
@@ -442,47 +440,14 @@ private[core] object ASTValidation {
     }
   }
 
-  def isSameTypeReference(firstTypeReference: AbstractTypeReference, secondTypeReference: AbstractTypeReference): Boolean = {
-    (firstTypeReference, secondTypeReference) match {
-      case (firstLambdaReference: LambdaReference, secondLambdaReference: LambdaReference) =>
-        lazy val sameNumberOfInputTypes = firstLambdaReference.inputTypes.length == secondLambdaReference.inputTypes.length
-        lazy val sameInputTypes = firstLambdaReference.inputTypes.zip(secondLambdaReference.inputTypes).forall {
-          case (firstGeneric, secondGeneric) => isSameTypeReference(firstGeneric, secondGeneric)
-        }
-        lazy val sameOutputType = isSameTypeReference(firstLambdaReference.outputType, secondLambdaReference.outputType)
-        sameNumberOfInputTypes && sameInputTypes && sameOutputType
-      case (firstTypeReference: TypeReference, secondTypeReference: TypeReference) =>
-        lazy val sameType = firstTypeReference.typeName == secondTypeReference.typeName
-        lazy val sameNumberOfGenerics = firstTypeReference.genericTypes.length == secondTypeReference.genericTypes.length
-        lazy val sameGenerics = firstTypeReference.genericTypes.zip(secondTypeReference.genericTypes).forall {
-          case (firstGeneric, secondGeneric) => isSameTypeReference(firstGeneric, secondGeneric)
-        }
-        sameType && sameNumberOfGenerics && sameGenerics
-      case _ =>
-        false
-    }
-  }
-
-  def validateParameterDefinition(parameterDefinition: ParameterDefinition)(implicit context: Context): Validation = {
-    ASTValidation.validateAbstractTypeReference(parameterDefinition.typeReference, parameterDefinition.range)
-  }
-
-  def validateAbstractTypeReference(abstractTypeReference: AbstractTypeReference, range: Range)(implicit context: Context): Validation = {
-    abstractTypeReference match {
-      case typeReference: TypeReference => validateTypeReference(typeReference, range)
-      case _ => Valid
-    }
-  }
-
-  def validateTypeReference(typeReference: TypeReference, range: Range)(implicit context: Context): Validation = {
-    val typeValidation = if (context.isTypeAvailable(typeReference.typeName)) {
-      Valid
-    } else {
-      Invalid("Undefined type: " + typeReference.typeName, range)
-    }
-
-    val genericValidations = typeReference.genericTypes.map(validateTypeReference(_, range))
-
-    Validation.join(typeValidation +: genericValidations)
+  def validateContexts[A](context: ExtendedContext[A])(implicit outerContext: Context): Validation = {
+    configuration.contexts
+      .find(_.contextName == context.name)
+      .map { contextPlugin =>
+        // asInstanceOf because it should be the exact same plugin than for parsing.
+        contextPlugin.asInstanceOf[ContextPlugin[A]]
+          .validate(context.content)
+      }
+      .getOrElse(Valid)
   }
 }

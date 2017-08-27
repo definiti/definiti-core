@@ -48,6 +48,8 @@ abstract class ToplevelContextMock extends ToplevelContext(null, 0) {
   override def definedType(): DefinedTypeContext = null
 
   override def aliasType(): AliasTypeContext = null
+
+  override def context(): ContextContext = null
 }
 
 case class ToplevelVerificationContextMock(
@@ -66,4 +68,11 @@ case class ToplevelAliasTypeContextMock(
   aliasTypeContext: AliasTypeContext
 ) extends ToplevelContextMock {
   override def aliasType(): AliasTypeContext = aliasTypeContext
+}
+
+
+case class ToplevelContextContextMock(
+  contextContext: ContextContext
+) extends ToplevelContextMock {
+  override def context(): ContextContext = contextContext
 }

@@ -1,12 +1,15 @@
 package definiti.core.validation
 
+import definiti.core._
 import definiti.core.generators.VerificationGenerator
 import definiti.core.parser.project.CoreParser
-import definiti.core.{BooleanValue, Invalid, NumberValue, Valid}
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
 class ASTValidationVerificationSpec extends FlatSpec with Matchers with PropertyChecks with CoreParser {
+  private val configuration = ConfigurationMock()
+  private val astValidation = new ASTValidation(configuration)
+
   "ASTValidation.validateVerification" should "accept a function returning a Boolean" in {
     implicit val context = coreContext
     forAll(VerificationGenerator.anyVerification) { verification =>
@@ -16,7 +19,7 @@ class ASTValidationVerificationSpec extends FlatSpec with Matchers with Property
         )
       )
 
-      ASTValidation.validateVerification(normalizedVerification) should be(Valid)
+      astValidation.validateVerification(normalizedVerification) should be(Valid)
     }
   }
 
@@ -29,7 +32,7 @@ class ASTValidationVerificationSpec extends FlatSpec with Matchers with Property
         )
       )
 
-      ASTValidation.validateVerification(normalizedVerification) should be(an[Invalid])
+      astValidation.validateVerification(normalizedVerification) should be(an[Invalid])
     }
   }
 }

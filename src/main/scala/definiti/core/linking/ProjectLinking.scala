@@ -33,8 +33,7 @@ private[core] object ProjectLinking {
     rootFile.copy(
       verifications = rootFile.verifications.map(injectLinksIntoVerification(_, rootFile.packageName, typeMapping)),
       classDefinitions = rootFile.classDefinitions.map(injectLinksIntoClassDefinition(_, rootFile.packageName, typeMapping)),
-      namedFunctions = rootFile.namedFunctions.map(injectLinksIntoNamedFunction(_, rootFile.packageName, typeMapping)),
-      http = rootFile.http.map(HttpLinking.injectIntoHttp(_, rootFile.packageName, typeMapping))
+      namedFunctions = rootFile.namedFunctions.map(injectLinksIntoNamedFunction(_, rootFile.packageName, typeMapping))
     )
   }
 

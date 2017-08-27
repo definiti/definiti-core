@@ -19,8 +19,7 @@ trait CoreParser {
     ReferenceContext(
       classes = core,
       verifications = Seq.empty,
-      namedFunctions = Seq.empty,
-      requirements = Seq.empty
+      namedFunctions = Seq.empty
     )
   }
 

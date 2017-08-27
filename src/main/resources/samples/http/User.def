@@ -1,7 +1,0 @@
-package samplehttp
-
-import samplehttp.RequiredString
-
-type User {
-  username: String verifying RequiredString
-}

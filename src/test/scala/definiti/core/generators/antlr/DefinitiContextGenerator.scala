@@ -38,7 +38,8 @@ object DefinitiContextGenerator {
   lazy val anyToplevelContext: Gen[ToplevelContext] = Gen.oneOf(
     anyToplevelVerificationContext,
     anyToplevelDefinedTypeContextMock,
-    anyToplevelAliasTypeContextMock
+    anyToplevelAliasTypeContextMock,
+    anyToplevelContextContextMock
   )
 
   lazy val anyToplevelVerificationContext: Gen[ToplevelVerificationContextMock] = {
@@ -51,5 +52,9 @@ object DefinitiContextGenerator {
 
   lazy val anyToplevelAliasTypeContextMock: Gen[ToplevelAliasTypeContextMock] = {
     AntlrGenerator.genContext(TypeContextGenerator.anyAliasTypeContext.map(ToplevelAliasTypeContextMock))
+  }
+
+  lazy val anyToplevelContextContextMock: Gen[ToplevelContextContextMock] = {
+    AntlrGenerator.genContext(ContextGenerator.anyContextContext.map(ToplevelContextContextMock))
   }
 }

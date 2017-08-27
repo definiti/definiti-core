@@ -1,12 +1,15 @@
 package definiti.core.validation
 
-import definiti.core.{Invalid, Valid}
 import definiti.core.generators.{ASTGenerator, ContextGenerator}
 import definiti.core.parser.project.CoreParser
+import definiti.core.{ConfigurationMock, Invalid, Valid}
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
 class ASTValidationAttributeDefinitionSpec extends FlatSpec with Matchers with PropertyChecks with CoreParser {
+  private val configuration = ConfigurationMock()
+  private val astValidation = new ASTValidation(configuration)
+
   "ASTValidation.validateAttributeDefinition" should "accept any attribute with a referenced type" in {
     val testGenerator = for {
       context <- ContextGenerator.anyContextWithNonEmptyVerifications(coreContext)
@@ -15,7 +18,7 @@ class ASTValidationAttributeDefinitionSpec extends FlatSpec with Matchers with P
       (context, attributeDefinition)
     }
     forAll(testGenerator) { case (context, attributeDefinition) =>
-      ASTValidation.validateAttributeDefinition(attributeDefinition)(context) should be(Valid)
+      astValidation.validateAttributeDefinition(attributeDefinition)(context) should be(Valid)
     }
   }
 
@@ -27,7 +30,7 @@ class ASTValidationAttributeDefinitionSpec extends FlatSpec with Matchers with P
       (context, attributeDefinition)
     }
     forAll(testGenerator) { case (context, attributeDefinition) =>
-      ASTValidation.validateAttributeDefinition(attributeDefinition)(context) should be(an[Invalid])
+      astValidation.validateAttributeDefinition(attributeDefinition)(context) should be(an[Invalid])
     }
   }
 
@@ -39,7 +42,7 @@ class ASTValidationAttributeDefinitionSpec extends FlatSpec with Matchers with P
       (context, attributeDefinition)
     }
     forAll(testGenerator) { case (context, attributeDefinition) =>
-      ASTValidation.validateAttributeDefinition(attributeDefinition)(context) should be(an[Invalid])
+      astValidation.validateAttributeDefinition(attributeDefinition)(context) should be(an[Invalid])
     }
   }
 }

@@ -5,22 +5,28 @@ import definiti.core.parser.antlr.DefinitiParser._
 import definiti.core.utils.CollectionUtils._
 import definiti.core.utils.ParserUtils._
 import definiti.core.utils.StringUtils
+import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.mutable.ListBuffer
 
-private[core] object DefinitiASTParser {
+private[core] class DefinitiASTParser(configuration: Configuration) extends CommonParser {
   def definitiContextToAST(context: DefinitiContext): RootFile = {
     val verifications = ListBuffer[Verification]()
     val classDefinitions = ListBuffer[ClassDefinition]()
     val namedFunctions = ListBuffer[NamedFunction]()
-    val http = ListBuffer[HttpAST]()
+    val contexts = ListBuffer[ExtendedContext[_]]()
 
     scalaSeq(context.toplevel()).foreach { element =>
       appendIfDefined(element.verification(), verifications, processVerification)
       appendIfDefined(element.definedType(), classDefinitions, processDefinedType)
       appendIfDefined(element.aliasType(), classDefinitions, processAliasType)
       appendIfDefined(element.namedFunction(), namedFunctions, processNamedFunction)
-      appendIfDefined(element.http(), http, HttpParser.processHttp)
+      Option(element.context()).foreach { internalContext =>
+        processContext(internalContext) match {
+          case Some(parsedContext) => contexts.append(parsedContext)
+          case None => println(s"No plugin set for context: ${internalContext.IDENTIFIER().getText}")
+        }
+      }
     }
 
     RootFile(
@@ -29,7 +35,7 @@ private[core] object DefinitiASTParser {
       verifications = List(verifications: _*),
       classDefinitions = List(classDefinitions: _*),
       namedFunctions = List(namedFunctions: _*),
-      http = List(http: _*)
+      contexts = List(contexts: _*)
     )
   }
 
@@ -137,14 +143,6 @@ private[core] object DefinitiASTParser {
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
         .getOrElse(Seq.empty),
-      getRangeFromContext(context)
-    )
-  }
-
-  def processParameter(context: ParameterDefinitionContext): ParameterDefinition = {
-    ParameterDefinition(
-      name = context.parameterName.getText,
-      typeReference = TypeReference(context.parameterType.getText, processGenericTypeList(context.genericTypeList())),
       getRangeFromContext(context)
     )
   }
@@ -286,19 +284,6 @@ private[core] object DefinitiASTParser {
     )
   }
 
-  def processGenericTypeList(context: GenericTypeListContext): Seq[TypeReference] = {
-    if (context != null) {
-      scalaSeq(context.genericType()).map { genericTypeContext =>
-        TypeReference(
-          genericTypeContext.IDENTIFIER().getText,
-          processGenericTypeList(genericTypeContext.genericTypeList())
-        )
-      }
-    } else {
-      Seq()
-    }
-  }
-
   def processGenericTypeListDefinition(context: GenericTypeListContext): Seq[String] = {
     Option(context)
       .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
@@ -323,14 +308,16 @@ private[core] object DefinitiASTParser {
     scalaSeq(context.IDENTIFIER()).map(_.getText).mkString(".")
   }
 
-  def processParameterListDefinition(context: ParameterListDefinitionContext): Seq[ParameterDefinition] = {
-    scalaSeq(context.parameterDefinition()).map(processParameter)
-  }
-
-  def processTypeReference(context: TypeReferenceContext): TypeReference = {
-    TypeReference(
-      typeName = context.typeName.getText,
-      genericTypes = processGenericTypeList(context.genericTypeList())
-    )
+  def processContext(context: ContextContext): Option[ExtendedContext[_]] = {
+    val contextName = context.IDENTIFIER().getText
+    configuration.contexts
+      .find(_.contextName == contextName)
+      .map { contextPlugin =>
+        val contextContent = context.contextContent()
+        val contentInterval = new Interval(contextContent.getStart.getStartIndex, contextContent.getStop.getStopIndex)
+        val content = contextContent.getStart.getInputStream.getText(contentInterval)
+        val range = getRangeFromContext(contextContent)
+        ExtendedContext(contextName, contextPlugin.parse(content, range), range)
+      }
   }
 }

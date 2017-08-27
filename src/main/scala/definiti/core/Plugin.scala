@@ -17,3 +17,11 @@ trait ValidatorPlugin extends Plugin {
 trait GeneratorPlugin extends Plugin {
   def generate(root: Root, context: Context): Map[Path, String]
 }
+
+trait ContextPlugin[A] extends Plugin {
+  def contextName: String
+
+  def parse(content: String, range: Range): A
+
+  def validate(context: A)(implicit outerContext: Context): Validation
+}

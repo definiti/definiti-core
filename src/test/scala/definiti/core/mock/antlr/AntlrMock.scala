@@ -54,7 +54,7 @@ case class TokenMock(
 
   override def getTokenSource: TokenSource = ???
 
-  override def getInputStream: CharStream = ???
+  override def getInputStream: CharStream = new ANTLRInputStream(text)
 
   override def getType: Int = ???
 }

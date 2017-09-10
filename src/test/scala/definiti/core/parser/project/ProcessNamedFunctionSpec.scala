@@ -21,9 +21,9 @@ class ProcessNamedFunctionSpec extends FlatSpec with Matchers with PropertyCheck
     val input = NamedFunctionContextMock(
       nameToken = TokenMock("myName"),
       parameterListDefinitionContext = ParameterListDefinitionContextMock(Seq.empty),
-      chainedExpressionContext = ChainedExpressionContextMock(Seq(
+      namedFunctionBodyContext = NamedFunctionBodyContextMock(ChainedExpressionContextMock(Seq(
         BooleanExpressionContextMock(TerminalNodeMock(TokenMock("true")))
-      )),
+      ))),
       genericTypeContext = GenericTypeContextMock(
         identifier = TerminalNodeMock(TokenMock("Boolean")),
         genericTypeListContext = None

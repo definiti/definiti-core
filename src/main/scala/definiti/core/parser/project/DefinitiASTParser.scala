@@ -147,9 +147,17 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
         .getOrElse(Seq.empty),
       returnType = processGenericType(context.genericType()),
-      body = processChainedExpression(context.chainedExpression()),
+      body = processNamedFunctionBody(context.namedFunctionBody()),
       range = getRangeFromContext(context)
     )
+  }
+
+  def processNamedFunctionBody(context: NamedFunctionBodyContext): Expression = {
+    if (context.chainedExpression() != null) {
+      processChainedExpression(context.chainedExpression())
+    } else {
+      processExpression(context.expression())
+    }
   }
 
   def processChainedExpression(context: ChainedExpressionContext): Expression = {

@@ -111,7 +111,7 @@ object ASTHelper {
 
   private def getReturnTypeOptOfFunctionCall(functionCall: FunctionCall)(implicit context: Context): Option[ElementReference] = {
     context.findFunction(functionCall.name)
-      .flatMap(namedFunction => getReturnTypeOptOfExpression(namedFunction.body))
+      .flatMap(function => getClassReference(function.returnType))
   }
 
   private def getReference(name: String)(implicit context: Context): Option[ElementReference] = {

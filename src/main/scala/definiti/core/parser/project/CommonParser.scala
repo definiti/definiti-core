@@ -1,7 +1,7 @@
 package definiti.core.parser.project
 
 import definiti.core.{ParameterDefinition, TypeReference}
-import definiti.core.parser.antlr.DefinitiParser.{GenericTypeListContext, ParameterDefinitionContext, ParameterListDefinitionContext}
+import definiti.core.parser.antlr.DefinitiParser.{GenericTypeContext, GenericTypeListContext, ParameterDefinitionContext, ParameterListDefinitionContext}
 import definiti.core.utils.CollectionUtils.scalaSeq
 import definiti.core.utils.ParserUtils.getRangeFromContext
 
@@ -20,14 +20,16 @@ trait CommonParser {
 
   def processGenericTypeList(context: GenericTypeListContext): Seq[TypeReference] = {
     if (context != null) {
-      scalaSeq(context.genericType()).map { genericTypeContext =>
-        TypeReference(
-          genericTypeContext.IDENTIFIER().getText,
-          processGenericTypeList(genericTypeContext.genericTypeList())
-        )
-      }
+      scalaSeq(context.genericType()).map(processGenericType)
     } else {
       Seq()
     }
+  }
+
+  def processGenericType(context: GenericTypeContext): TypeReference = {
+    TypeReference(
+      context.IDENTIFIER().getText,
+      processGenericTypeList(context.genericTypeList())
+    )
   }
 }

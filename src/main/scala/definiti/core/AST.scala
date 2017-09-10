@@ -196,14 +196,16 @@ case class TypeVerification(message: String, function: DefinedFunction, range: R
 
 case class VerificationReference(verificationName: String, message: Option[String], range: Range)
 
-case class NamedFunction(name: String, packageName: String, function: DefinedFunction, range: Range) {
+case class NamedFunction(
+  name: String,
+  packageName: String,
+  genericTypes: Seq[String],
+  parameters: Seq[ParameterDefinition],
+  returnType: TypeReference,
+  body: Expression,
+  range: Range
+) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
-
-  def parameters: Seq[ParameterDefinition] = function.parameters
-
-  def genericTypes: Seq[String] = function.genericTypes
-
-  def body: Expression = function.body
 }
 
 case class ExtendedContext[A](name: String, content: A, range: Range)

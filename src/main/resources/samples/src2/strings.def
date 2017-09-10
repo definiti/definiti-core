@@ -1,13 +1,13 @@
 package my.functions
 
-def contains = [A](list: List[A], element: A) => {
+def contains = [A](list: List[A], element: A): Boolean => {
   list.exists((item: A) => {item == element})
 }
 
-def nonBlank = (string: String) => {
+def nonBlank = (string: String): Boolean => {
   string.trim().nonEmpty()
 }
 
-def isEmail = (string: String) => {
+def isEmail = (string: String): Boolean => {
   string.matches("(.+)@(.+)")
 }

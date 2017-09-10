@@ -111,7 +111,7 @@ verifying : VERIFYING verificationName=IDENTIFIER ('(' message=STRING ')')?;
 parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
 
-namedFunction: DEF name=IDENTIFIER '=' function;
+namedFunction: DEF name=IDENTIFIER '=' ('[' genericTypeList ']')? '(' parameterListDefinition ')' ':' genericType '=>' '{' chainedExpression '}';
 
 genericType: IDENTIFIER ('[' genericTypeList ']')?;
 genericTypeList: ((genericType ',')* genericType);

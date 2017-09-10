@@ -99,7 +99,9 @@ private[core] object ProjectLinking {
   def injectLinksIntoNamedFunction(namedFunction: NamedFunction, packageName: String, typeMapping: TypeMapping): NamedFunction = {
     namedFunction.copy(
       packageName = packageName,
-      function = injectLinksIntoFunction(namedFunction.function, typeMapping)
+      parameters = namedFunction.parameters.map(injectLinksIntoParameter(_, typeMapping)),
+      returnType = injectLinksIntoTypeReference(namedFunction.returnType, typeMapping),
+      body = injectLinksIntoExpression(namedFunction.body, typeMapping)
     )
   }
 

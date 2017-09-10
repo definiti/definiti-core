@@ -50,6 +50,17 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     )
   }
 
+  def processFunction(context: FunctionContext): DefinedFunction = {
+    DefinedFunction(
+      parameters = processParameterListDefinition(context.parameterListDefinition()),
+      body = processChainedExpression(context.chainedExpression()),
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq.empty),
+      getRangeFromContext(context)
+    )
+  }
+
   def processDefinedType(context: DefinedTypeContext): DefinedType = {
     val typeName = context.typeName.getText
     DefinedType(
@@ -131,19 +142,13 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     NamedFunction(
       name = context.name.getText,
       packageName = NOT_DEFINED,
-      function = processFunction(context.function()),
-      range = getRangeFromContext(context)
-    )
-  }
-
-  def processFunction(context: FunctionContext): DefinedFunction = {
-    DefinedFunction(
       parameters = processParameterListDefinition(context.parameterListDefinition()),
-      body = processChainedExpression(context.chainedExpression()),
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
         .getOrElse(Seq.empty),
-      getRangeFromContext(context)
+      returnType = processGenericType(context.genericType()),
+      body = processChainedExpression(context.chainedExpression()),
+      range = getRangeFromContext(context)
     )
   }
 

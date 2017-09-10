@@ -1,6 +1,6 @@
 package definiti.core.linking
 
-import definiti.core._
+import definiti.core.ast.pure._
 import definiti.core.parser.ProjectParsingResult
 import definiti.core.utils.StringUtils
 

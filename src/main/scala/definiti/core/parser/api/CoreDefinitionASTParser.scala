@@ -1,13 +1,13 @@
 package definiti.core.parser.api
 
-import definiti.core._
+import definiti.core.ast.pure._
 import definiti.core.parser.antlr.CoreDefinitionParser._
+import definiti.core.parser.project.CommonParser
 import definiti.core.utils.CollectionUtils._
-import definiti.core.utils.ParserUtils._
 
 import scala.collection.mutable.ListBuffer
 
-private[core] object CoreDefinitionASTParser {
+private[core] object CoreDefinitionASTParser extends CommonParser {
   def definitionContextToAST(context: CoreDefinitionContext): Seq[ClassDefinition] = {
     val classDefinitions = ListBuffer[ClassDefinition]()
 

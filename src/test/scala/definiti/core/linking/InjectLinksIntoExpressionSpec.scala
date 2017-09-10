@@ -1,6 +1,6 @@
 package definiti.core.linking
 
-import definiti.core.FunctionCall
+import definiti.core.ast.pure._
 import definiti.core.generators.{ExpressionGenerator, TypeMappingGenerator}
 import definiti.core.parser.project.CoreParser
 import org.scalatest.prop.PropertyChecks

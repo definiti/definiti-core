@@ -2,10 +2,11 @@ package definiti.core.parser.project
 
 import java.nio.file.{Files, Path, Paths}
 
+import definiti.core.ReferenceContext
+import definiti.core.ast.pure._
 import definiti.core.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser}
 import definiti.core.parser.api.CoreDefinitionASTParser
 import definiti.core.utils.CollectionUtils.scalaSeq
-import definiti.core.{ClassDefinition, ReferenceContext}
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 
 trait CoreParser {

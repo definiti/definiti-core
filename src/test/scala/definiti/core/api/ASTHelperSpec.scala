@@ -1,6 +1,8 @@
 package definiti.core.api
 
 import definiti.core._
+import definiti.core.ast._
+import definiti.core.ast.pure._
 import definiti.core.utils.Core
 import org.scalatest.{FlatSpec, Matchers}
 

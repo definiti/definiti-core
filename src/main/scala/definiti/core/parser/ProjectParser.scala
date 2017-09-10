@@ -3,6 +3,7 @@ package definiti.core.parser
 import java.nio.file.{Files, Path}
 
 import definiti.core._
+import definiti.core.ast.pure._
 import definiti.core.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser, DefinitiLexer, DefinitiParser}
 import definiti.core.parser.api.CoreDefinitionASTParser
 import definiti.core.parser.project.DefinitiASTParser

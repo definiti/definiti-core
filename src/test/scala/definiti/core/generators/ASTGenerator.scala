@@ -1,6 +1,8 @@
 package definiti.core.generators
 
-import definiti.core.{AttributeDefinition, Context, DefinedFunction, ParameterDefinition, Position, Range, ReferenceContext, TypeReference}
+import definiti.core._
+import definiti.core.ast._
+import definiti.core.ast.pure._
 import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.tailrec

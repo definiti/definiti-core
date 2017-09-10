@@ -1,5 +1,6 @@
 package definiti.core
 
+import definiti.core.ast.pure._
 import definiti.core.utils.Core
 
 sealed trait ElementReference

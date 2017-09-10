@@ -1,10 +1,10 @@
 package definiti.core.parser.project
 
-import definiti.core._
+import definiti.core.ast.pure._
 import definiti.core.parser.antlr.DefinitiParser._
 import definiti.core.utils.CollectionUtils._
-import definiti.core.utils.ParserUtils._
 import definiti.core.utils.StringUtils
+import definiti.core.{Configuration, NOT_DEFINED}
 import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.mutable.ListBuffer

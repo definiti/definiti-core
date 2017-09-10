@@ -1,9 +1,10 @@
 package definiti.core.parser.project
 
+import definiti.core.ConfigurationMock
+import definiti.core.ast.pure._
 import definiti.core.generators.Generators
 import definiti.core.generators.antlr.TypeContextGenerator
 import definiti.core.mock.antlr._
-import definiti.core.{ConfigurationMock, TypeReference}
 import org.scalacheck.Gen
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Inspectors, Matchers}

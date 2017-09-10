@@ -1,6 +1,7 @@
 package definiti.core.validation
 
 import definiti.core._
+import definiti.core.ast.pure._
 import definiti.core.generators.VerificationGenerator
 import definiti.core.parser.project.CoreParser
 import org.scalatest.prop.PropertyChecks

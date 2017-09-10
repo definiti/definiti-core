@@ -1,5 +1,7 @@
 package definiti.core
 
+import definiti.core.ast.Range
+
 // TODO: Remove Valid (and change dependencies) because it can throw exceptions or correct API
 
 sealed trait Validated[+A] {

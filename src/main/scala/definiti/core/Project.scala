@@ -3,6 +3,7 @@ package definiti.core
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
+import definiti.core.ast.pure.Root
 import definiti.core.linking.ProjectLinking
 import definiti.core.parser.{ProjectParser, ProjectParsingResult}
 import definiti.core.validation._

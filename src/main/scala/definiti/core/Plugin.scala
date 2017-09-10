@@ -2,6 +2,8 @@ package definiti.core
 
 import java.nio.file.Path
 
+import definiti.core.ast.pure.Root
+
 trait Plugin {
   def name: String
 }
@@ -21,7 +23,7 @@ trait GeneratorPlugin extends Plugin {
 trait ContextPlugin[A] extends Plugin {
   def contextName: String
 
-  def parse(content: String, range: Range): A
+  def parse(content: String, range: definiti.core.ast.Range): A
 
   def validate(context: A)(implicit outerContext: Context): Validation
 }

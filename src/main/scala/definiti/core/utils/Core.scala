@@ -1,6 +1,7 @@
 package definiti.core.utils
 
 import definiti.core._
+import definiti.core.ast.pure._
 
 private[core] object Core {
   val unit = NativeClassDefinition("unit", Seq(), Seq(), Seq(), None)

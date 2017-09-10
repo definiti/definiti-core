@@ -1,9 +1,11 @@
 package definiti.core.parser.project
 
+import definiti.core.ConfigurationMock
+import definiti.core._
+import definiti.core.ast.pure._
 import definiti.core.generators.antlr.NamedFunctionContextGenerator
 import definiti.core.mock.antlr._
 import definiti.core.parser.TestConstants._
-import definiti.core.{BooleanValue, NamedFunction, _}
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 

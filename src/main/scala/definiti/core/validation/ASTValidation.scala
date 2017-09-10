@@ -1,6 +1,8 @@
 package definiti.core.validation
 
 import definiti.core._
+import definiti.core.ast._
+import definiti.core.ast.pure._
 
 private[core] class ASTValidation(configuration: Configuration) extends CommonValidation {
   def validate(root: Root)(implicit context: Context): Validation = {

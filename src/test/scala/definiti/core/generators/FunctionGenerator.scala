@@ -1,6 +1,7 @@
 package definiti.core.generators
 
-import definiti.core.{DefinedFunction, ParameterDefinition, ReferenceContext}
+import definiti.core.ReferenceContext
+import definiti.core.ast.pure._
 import org.scalacheck.Gen
 
 object FunctionGenerator {

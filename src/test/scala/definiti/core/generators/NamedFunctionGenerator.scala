@@ -1,7 +1,7 @@
 package definiti.core.generators
 
 import definiti.core._
-import definiti.core.{NamedFunction, ReferenceContext}
+import definiti.core.ast.pure._
 import org.scalacheck.Gen
 
 object NamedFunctionGenerator {

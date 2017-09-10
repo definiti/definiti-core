@@ -1,6 +1,7 @@
 package definiti.core.parser.project
 
 import definiti.core._
+import definiti.core.ast.pure._
 import definiti.core.generators.antlr.ExpressionContextGenerator
 import definiti.core.mock.antlr._
 import definiti.core.parser.TestConstants.defaultRange

@@ -1,6 +1,8 @@
 package definiti.core.validation
 
-import definiti.core.{AbstractTypeReference, Context, Invalid, LambdaReference, ParameterDefinition, Range, TypeReference, Valid, Validation}
+import definiti.core._
+import definiti.core.ast._
+import definiti.core.ast.pure._
 
 trait CommonValidation {
   def validateParameterDefinition(parameterDefinition: ParameterDefinition)(implicit context: Context): Validation = {

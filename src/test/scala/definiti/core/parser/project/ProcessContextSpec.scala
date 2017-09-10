@@ -1,7 +1,7 @@
 package definiti.core.parser.project
 
-import definiti.core
 import definiti.core._
+import definiti.core.ast._
 import definiti.core.generators.antlr.ContextGenerator
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
@@ -28,12 +28,12 @@ class ProcessContextSpec extends FlatSpec with Matchers with PropertyChecks {
 object ProcessContextSpec {
   val contextPluginName: String = "myContext"
 
-  case class ContextPluginTestContent(content: String, range: core.Range)
+  case class ContextPluginTestContent(content: String, range: Range)
 
   class ContextPluginTest extends ContextPlugin[ContextPluginTestContent] {
     override def contextName: String = contextPluginName
 
-    override def parse(content: String, range: core.Range): ContextPluginTestContent = {
+    override def parse(content: String, range: Range): ContextPluginTestContent = {
       ContextPluginTestContent(content, range)
     }
 

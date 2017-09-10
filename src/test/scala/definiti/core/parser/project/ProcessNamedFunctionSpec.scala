@@ -3,7 +3,7 @@ package definiti.core.parser.project
 import definiti.core.generators.antlr.NamedFunctionContextGenerator
 import definiti.core.mock.antlr._
 import definiti.core.parser.TestConstants._
-import definiti.core.{BooleanValue, DefinedFunction, NamedFunction, _}
+import definiti.core.{BooleanValue, NamedFunction, _}
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -20,23 +20,23 @@ class ProcessNamedFunctionSpec extends FlatSpec with Matchers with PropertyCheck
   it should "map the NamedFunctionContext into NamedFunction" in {
     val input = NamedFunctionContextMock(
       nameToken = TokenMock("myName"),
-      functionContext = FunctionContextMock(
-        parameterListDefinitionContext = ParameterListDefinitionContextMock(Seq.empty),
-        chainedExpressionContext = ChainedExpressionContextMock(Seq(
-          BooleanExpressionContextMock(TerminalNodeMock(TokenMock("true")))
-        )),
-        genericTypeListContext = GenericTypeListContextMock(Seq.empty)
-      )
+      parameterListDefinitionContext = ParameterListDefinitionContextMock(Seq.empty),
+      namedFunctionBodyContext = NamedFunctionBodyContextMock(ChainedExpressionContextMock(Seq(
+        BooleanExpressionContextMock(TerminalNodeMock(TokenMock("true")))
+      ))),
+      genericTypeContext = GenericTypeContextMock(
+        identifier = TerminalNodeMock(TokenMock("Boolean")),
+        genericTypeListContext = None
+      ),
+      genericTypeListContext = GenericTypeListContextMock(Seq.empty)
     )
     val expected = NamedFunction(
       name = "myName",
       packageName = NOT_DEFINED,
-      function = DefinedFunction(
-        parameters = Seq.empty,
-        body = BooleanValue(value = true, defaultRange),
-        genericTypes = Seq.empty,
-        range = defaultRange
-      ),
+      parameters = Seq.empty,
+      body = BooleanValue(value = true, defaultRange),
+      genericTypes = Seq.empty,
+      returnType = TypeReference("Boolean", Seq.empty),
       range = defaultRange
     )
     val output = definitiASTParser.processNamedFunction(input)

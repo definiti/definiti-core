@@ -224,3 +224,55 @@ case class DefinedFunctionContext(
     }
   }
 }
+
+case class NamedFunctionReferenceContext(
+  outerContext: Context,
+  currentFunction: NamedFunction
+) extends Context {
+  override def isTypeAvailable(typeName: String): Boolean = {
+    currentFunction.genericTypes.contains(typeName) || outerContext.isTypeAvailable(typeName)
+  }
+
+  override def findType(typeName: String): Option[ClassDefinition] = {
+    outerContext.findType(typeName)
+  }
+
+  override def isVerificationAvailable(verificationName: String): Boolean = {
+    outerContext.isVerificationAvailable(verificationName)
+  }
+
+  override def findVerification(verificationName: String): Option[Verification] = {
+    outerContext.findVerification(verificationName)
+  }
+
+  override def isFunctionAvailable(functionName: String): Boolean = {
+    outerContext.isFunctionAvailable(functionName)
+  }
+
+  override def findFunction(functionName: String): Option[NamedFunction] = {
+    outerContext.findFunction(functionName)
+  }
+
+  override def findReference(name: String): Option[ElementReference] = {
+    currentFunction.parameters
+      .find(_.name == name)
+      .flatMap {
+        _.typeReference match {
+          case typeReference: TypeReference => getClassReference(typeReference)
+          case _ => None // Currently, lambdaReference are not accepted for definiti functions
+        }
+      }
+      .orElse(outerContext.findReference(name))
+  }
+
+  private def getClassReference(typeReference: TypeReference): Option[ClassReference] = {
+    val classReferenceOpt = findType(typeReference.typeName)
+    val genericClassReferenceOpts = typeReference.genericTypes.map(getClassReference(_).getOrElse(ClassReference(Core.any, Seq())))
+    classReferenceOpt.map { classReference =>
+      ClassReference(
+        classDefinition = classReference,
+        genericTypes = genericClassReferenceOpts
+      )
+    }
+  }
+}

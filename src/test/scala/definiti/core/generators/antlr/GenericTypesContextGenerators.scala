@@ -18,8 +18,8 @@ object GenericTypesContextGenerators {
 
   private def anyGenericTypesContext(limit: Int): Gen[GenericTypeContext] = {
     val genericTypeListContextGenerator = limit match {
-      case 0 => Gen.const(None)
-      case n => Gen.option(anyGenericTypeListContext(n - 1))
+      case n if n > 0 => Gen.option(anyGenericTypeListContext(n - 1))
+      case _ => Gen.const(None)
     }
     AntlrGenerator.genContext(for {
       identifier <- AntlrGenerator.anyIdentifierNode

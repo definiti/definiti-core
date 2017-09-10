@@ -72,11 +72,11 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
   }
 
   def validateNamedFunction(namedFunction: NamedFunction)(implicit context: Context): Validation = {
-    val methodContext = DefinedFunctionContext(
+    val methodContext = NamedFunctionReferenceContext(
       outerContext = context,
-      currentFunction = namedFunction.function
+      currentFunction = namedFunction
     )
-    validateExpression(namedFunction.function.body)(methodContext)
+    validateExpression(namedFunction.body)(methodContext)
   }
 
   private[definiti] def validateExpression(expression: Expression)(implicit context: Context): Validation = expression match {

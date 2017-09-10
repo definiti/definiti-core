@@ -50,6 +50,17 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     )
   }
 
+  def processFunction(context: FunctionContext): DefinedFunction = {
+    DefinedFunction(
+      parameters = processParameterListDefinition(context.parameterListDefinition()),
+      body = processChainedExpression(context.chainedExpression()),
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq.empty),
+      getRangeFromContext(context)
+    )
+  }
+
   def processDefinedType(context: DefinedTypeContext): DefinedType = {
     val typeName = context.typeName.getText
     DefinedType(
@@ -131,20 +142,22 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     NamedFunction(
       name = context.name.getText,
       packageName = NOT_DEFINED,
-      function = processFunction(context.function()),
+      parameters = processParameterListDefinition(context.parameterListDefinition()),
+      genericTypes = Option(context.genericTypeList())
+        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
+        .getOrElse(Seq.empty),
+      returnType = processGenericType(context.genericType()),
+      body = processNamedFunctionBody(context.namedFunctionBody()),
       range = getRangeFromContext(context)
     )
   }
 
-  def processFunction(context: FunctionContext): DefinedFunction = {
-    DefinedFunction(
-      parameters = processParameterListDefinition(context.parameterListDefinition()),
-      body = processChainedExpression(context.chainedExpression()),
-      genericTypes = Option(context.genericTypeList())
-        .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
-        .getOrElse(Seq.empty),
-      getRangeFromContext(context)
-    )
+  def processNamedFunctionBody(context: NamedFunctionBodyContext): Expression = {
+    if (context.chainedExpression() != null) {
+      processChainedExpression(context.chainedExpression())
+    } else {
+      processExpression(context.expression())
+    }
   }
 
   def processChainedExpression(context: ChainedExpressionContext): Expression = {

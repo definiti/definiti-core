@@ -11,26 +11,17 @@ case class NamedFunctionReference(namedFunction: NamedFunction) extends ElementR
 
 object ASTHelper {
   def getReturnTypeOptOfMethod(methodDefinition: MethodDefinition, methodCall: MethodCall)(implicit context: Context): Option[ElementReference] = {
-    methodDefinition match {
-      case nativeMethodDefinition: NativeMethodDefinition =>
-        val generics = methodCall.generics.map(getClassReference)
-        if (generics.exists(_.isEmpty)) {
-          None
-        } else {
-          val methodContext = MethodContext(
-            outerContext = context,
-            currentMethod = methodDefinition,
-            genericTypes = generics.map(_.get)
-          )
-          getClassReference(nativeMethodDefinition.returnTypeReference)(methodContext)
-        }
-      case definedMethodDefinition: DefinedMethodDefinition =>
-        getReturnTypeOptOfExpression(definedMethodDefinition.function.body)
+    val generics = methodCall.generics.map(getClassReference)
+    if (generics.exists(_.isEmpty)) {
+      None
+    } else {
+      val methodContext = MethodContext(
+        outerContext = context,
+        currentMethod = methodDefinition,
+        genericTypes = generics.map(_.get)
+      )
+      getClassReference(methodDefinition.returnType)(methodContext)
     }
-  }
-
-  def getReturnTypeOfMethod(methodDefinition: MethodDefinition, methodCall: MethodCall)(implicit context: Context): ElementReference = {
-    getReturnTypeOptOfMethod(methodDefinition, methodCall).get
   }
 
   def getReturnTypeOptOfExpression(expression: Expression)(implicit context: Context): Option[ElementReference] = {
@@ -88,7 +79,7 @@ object ASTHelper {
     }
   }
 
-  private def getReturnTypeOptOfCondition(onTrue: Expression, onFalseOpt: Option[Expression])(implicit context: Context) = {
+  private def getReturnTypeOptOfCondition(onTrue: Expression, onFalseOpt: Option[Expression])(implicit context: Context): Option[ElementReference] = {
     onFalseOpt match {
       case Some(onFalse) =>
         (

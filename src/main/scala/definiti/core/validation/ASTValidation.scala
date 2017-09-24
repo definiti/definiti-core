@@ -133,7 +133,7 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
       validateNotExpression(not)
   }
 
-  private def validateNotExpression(not: Not)(implicit context: Context) = {
+  private def validateNotExpression(not: Not)(implicit context: Context): Validation = {
     validateBooleanExpression(not.inner)
   }
 
@@ -145,7 +145,7 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
     )
   }
 
-  private def validateAttributeCall(attributeCall: AttributeCall)(implicit context: Context) = {
+  private def validateAttributeCall(attributeCall: AttributeCall)(implicit context: Context): Validation = {
     val inner = attributeCall.expression
     val attribute = attributeCall.attribute
     val range = attributeCall.range
@@ -345,15 +345,6 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
       Valid
     } else {
       Invalid("Undefined type: " + aliasType.alias, aliasType.range)
-    }
-  }
-
-  def validateTypeReferencesOfMethod(methodDefinition: MethodDefinition)(implicit context: Context): Validation = {
-    methodDefinition match {
-      case _: NativeMethodDefinition =>
-        Valid
-      case definedMethodDefinition: DefinedMethodDefinition =>
-        validateTypeReferenceOfExpression(definedMethodDefinition.function.body)
     }
   }
 

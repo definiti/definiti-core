@@ -50,6 +50,21 @@ object Validated {
       case _ => throw new UnsupportedOperationException("Validated.both with Valid")
     }
   }
+
+  def both[A, B, C](validatedA: Validated[A], validatedB: Validated[B], validatedC: Validated[C]): Validated[(A, B, C)] = {
+    both(both(validatedA, validatedB), validatedC) match {
+      case Invalid(errors) => Invalid(errors)
+      case ValidValue(((valueA, valueB), valueC)) => ValidValue((valueA, valueB, valueC))
+    }
+  }
+
+  def reverseOption[A](option: Option[Validated[A]]): Validated[Option[A]] = {
+    option match {
+      case Some(ValidValue(value)) => ValidValue(Some(value))
+      case Some(Invalid(errors)) => Invalid(errors)
+      case None => ValidValue(None)
+    }
+  }
 }
 
 case class ValidValue[+A](value: A) extends Validated[A] {

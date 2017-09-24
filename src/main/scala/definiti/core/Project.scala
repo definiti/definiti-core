@@ -6,6 +6,8 @@ import java.nio.file.{Files, Path, StandardOpenOption}
 import definiti.core.ast.pure.Root
 import definiti.core.linking.ProjectLinking
 import definiti.core.parser.{ProjectParser, ProjectParsingResult}
+import definiti.core.structure.ProjectStructure
+import definiti.core.typing.ProjectTyping
 import definiti.core.validation._
 
 import scala.collection.JavaConverters._
@@ -35,6 +37,29 @@ private[core] class Project(configuration: Configuration) {
           }
       }
       .toValidation
+  }
+
+  def generatePublicAST(): Validated[ast.structure.Root] = {
+    processInternalParser()
+      .flatMap { projectParsingResult =>
+        processPluginParsers(projectParsingResult.root)
+          .map { updatedRoot => projectParsingResult.copy(root = updatedRoot) }
+      }
+      .map { projectParsingResult =>
+        (projectParsingResult, createProjectContext(projectParsingResult))
+      }
+      .filter { case (projectParsingResult, context) =>
+        processInternalValidation(projectParsingResult.root, context)
+          .and(processExternalValidation(projectParsingResult.root, context))
+      }
+      .flatMap { case (projectParsingResult, context) =>
+        val typing = new ProjectTyping(context)
+        typing.addTypes(projectParsingResult.root)
+      }
+      .map { typedRoot =>
+        val projectStructure = new ProjectStructure(typedRoot)
+        projectStructure.generateStructure()
+      }
   }
 
   private def processInternalParser(): Validated[ProjectParsingResult] = {

@@ -13,7 +13,7 @@ class ASTValidationSpec extends FlatSpec with Matchers {
     "String",
     Seq(),
     Seq(),
-    Seq(NativeMethodDefinition("nonEmpty", Seq(), Seq(), TypeReference("Boolean", Seq()), None)),
+    Seq(MethodDefinition("nonEmpty", Seq(), Seq(), TypeReference("Boolean", Seq()), None)),
     None
   )
   val dateDefinition = NativeClassDefinition(
@@ -28,8 +28,8 @@ class ASTValidationSpec extends FlatSpec with Matchers {
     Seq("A"),
     Seq(AttributeDefinition("head", TypeReference("A", Seq()), None, Seq(), noRange)),
     Seq(
-      NativeMethodDefinition("nonEmpty", Seq(), Seq(), TypeReference("Boolean", Seq()), None),
-      NativeMethodDefinition("randomElement", Seq(), Seq(), TypeReference("A", Seq()), None)
+      MethodDefinition("nonEmpty", Seq(), Seq(), TypeReference("Boolean", Seq()), None),
+      MethodDefinition("randomElement", Seq(), Seq(), TypeReference("A", Seq()), None)
     ),
     None
   )
@@ -211,16 +211,11 @@ class ASTValidationSpec extends FlatSpec with Matchers {
     genericTypes = Seq.empty
   )
 
-  private def baseMethodDefinition(parameters: Seq[ParameterDefinition] = Seq.empty) = DefinedMethodDefinition(
+  private def baseMethodDefinition(parameters: Seq[ParameterDefinition] = Seq.empty) = MethodDefinition(
     name = "myMethod",
     genericTypes = Seq.empty,
-    function = DefinedFunction(
       parameters = parameters,
-      body = BooleanValue(value = true, range = noRange),
-      genericTypes = Seq.empty,
-      range = noRange
-    ),
-    comment = None,
-    range = noRange
+    returnType = TypeReference(NOT_DEFINED, Seq.empty),
+    comment = None
   )
 }

@@ -46,8 +46,8 @@ private[core] object CoreDefinitionASTParser extends CommonParser {
     )
   }
 
-  private def processMethod(context: MethodDefinitionContext): NativeMethodDefinition = {
-    NativeMethodDefinition(
+  private def processMethod(context: MethodDefinitionContext): MethodDefinition = {
+    MethodDefinition(
       name = context.methodName.getText,
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
@@ -55,7 +55,7 @@ private[core] object CoreDefinitionASTParser extends CommonParser {
       parameters = Option(context.parameterListDefinition())
         .map(parameters => scalaSeq(parameters.parameterDefinition()).map(processParameter))
         .getOrElse(Seq.empty),
-      returnTypeReference = processTypeReference(context.methodType),
+      returnType = processTypeReference(context.methodType),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment)
     )
   }
@@ -80,7 +80,7 @@ private[core] object CoreDefinitionASTParser extends CommonParser {
     }
   }
 
-  private def processLambdaReference(lambdaReference: => LambdaReferenceContext) = {
+  private def processLambdaReference(lambdaReference: => LambdaReferenceContext): LambdaReference = {
     if (lambdaReference.inputList != null) {
       LambdaReference(
         inputTypes = scalaSeq(lambdaReference.inputList.typeReference()).map(processTypeReference),

@@ -18,6 +18,12 @@ case class Range(
   }
 }
 
+object Range {
+  def apply(startLine: Int, startColumn: Int, endLine: Int, endColumn: Int): Range = {
+    new Range(Position(startLine, startColumn), Position(endLine, endColumn))
+  }
+}
+
 case class Position(
   line: Int,
   column: Int

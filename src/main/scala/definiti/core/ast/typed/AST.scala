@@ -1,7 +1,8 @@
-package definiti.core.ast.pure
+package definiti.core.ast.typed
 
 import definiti.core.ASTHelper
-import definiti.core.ast.{ImportsMap, Range}
+import definiti.core.ast.Range
+import definiti.core.ast.pure._
 
 case class Root(
   files: Seq[RootFile]
@@ -9,41 +10,10 @@ case class Root(
 
 case class RootFile(
   packageName: String,
-  imports: ImportsMap,
   verifications: Seq[Verification],
   classDefinitions: Seq[ClassDefinition],
   namedFunctions: Seq[NamedFunction],
   contexts: Seq[ExtendedContext[_]]
-)
-
-sealed trait AbstractTypeReference
-
-case class TypeReference(
-  typeName: String,
-  genericTypes: Seq[TypeReference] = Seq.empty
-) extends AbstractTypeReference {
-  def readableString: String = s"$typeName[${genericTypes.map(_.readableString).mkString(",")}]"
-}
-
-case class LambdaReference(
-  inputTypes: Seq[TypeReference],
-  outputType: TypeReference
-) extends AbstractTypeReference {
-  def readableString: String = s"(${inputTypes.map(_.readableString).mkString(", ")}) => ${outputType.readableString}"
-}
-
-case class AttributeDefinition(
-  name: String,
-  typeReference: TypeReference,
-  comment: Option[String],
-  verifications: Seq[VerificationReference],
-  range: Range
-)
-
-case class ParameterDefinition(
-  name: String,
-  typeReference: AbstractTypeReference,
-  range: Range
 )
 
 sealed trait ClassDefinition {
@@ -63,14 +33,6 @@ case class NativeClassDefinition(
 ) extends ClassDefinition {
   override def canonicalName: String = name
 }
-
-case class MethodDefinition(
-  name: String,
-  genericTypes: Seq[String],
-  parameters: Seq[ParameterDefinition],
-  returnType: TypeReference,
-  comment: Option[String]
-)
 
 case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], range: Range)
 
@@ -96,8 +58,6 @@ case class AliasType(name: String, packageName: String, genericTypes: Seq[String
 
 case class TypeVerification(message: String, function: DefinedFunction, range: Range)
 
-case class VerificationReference(verificationName: String, message: Option[String], range: Range)
-
 case class NamedFunction(
   name: String,
   packageName: String,
@@ -106,8 +66,4 @@ case class NamedFunction(
   returnType: TypeReference,
   body: Expression,
   range: Range
-) {
-  def canonicalName: String = ASTHelper.canonical(packageName, name)
-}
-
-case class ExtendedContext[A](name: String, content: A, range: Range)
+)

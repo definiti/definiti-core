@@ -96,7 +96,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
   def processVerifying(context: VerifyingContext): VerificationReference = {
     VerificationReference(
       verificationName = context.verificationName.getText,
-      message = Option(context.message).map(_.getText),
+      message = Option(context.message).map(message => extractStringContent(message.getText)),
       range = getRangeFromContext(context)
     )
   }

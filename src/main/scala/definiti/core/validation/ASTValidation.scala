@@ -34,7 +34,7 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
       Validation.join(aliasType.inherited.map { verification =>
         context.findVerification(verification) match {
           case Some(_) => Valid
-          case None => Invalid("Undefined verification: " + verification, aliasType.range)
+          case None => Invalid("Undefined verification: " + verification.verificationName, aliasType.range)
         }
       })
     }
@@ -44,7 +44,7 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
     val inheritedValidations = definedType.inherited.map { verification =>
       context.findVerification(verification) match {
         case Some(_) => Valid
-        case None => Invalid("Undefined verification: " + verification, definedType.range)
+        case None => Invalid("Undefined verification: " + verification.verificationName, definedType.range)
       }
     }
     val attributeValidations = definedType.attributes.map(validateAttributeDefinition)
@@ -61,13 +61,13 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
   def validateAttributeDefinition(attribute: AttributeDefinition)(implicit context: Context): Validation = {
     val typeReferenceValidation = context.findType(attribute.typeReference.typeName) match {
       case Some(_) => Valid
-      case None => Invalid("Undefined type: " + attribute.typeReference, attribute.range)
+      case None => Invalid("Undefined type: " + attribute.typeReference.readableString, attribute.range)
     }
     val verificationsValidation = attribute.verifications.map { verification =>
       if (context.isVerificationAvailable(verification)) {
         Valid
       } else {
-        Invalid("Undefined verification: " + verification, attribute.range)
+        Invalid("Undefined verification: " + verification.verificationName, attribute.range)
       }
     }
     Validation.join(typeReferenceValidation +: verificationsValidation)
@@ -344,7 +344,7 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
     if (context.isTypeAvailable(aliasType.alias.typeName)) {
       Valid
     } else {
-      Invalid("Undefined type: " + aliasType.alias, aliasType.range)
+      Invalid("Undefined type: " + aliasType.alias.readableString, aliasType.range)
     }
   }
 

@@ -20,7 +20,7 @@ trait CommonValidation {
     val typeValidation = if (context.isTypeAvailable(typeReference.typeName)) {
       Valid
     } else {
-      Invalid("Undefined type: " + typeReference.typeName, range)
+      Invalid("Undefined type: " + typeReference.readableString, range)
     }
 
     val genericValidations = typeReference.genericTypes.map(validateTypeReference(_, range))

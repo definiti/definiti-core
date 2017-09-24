@@ -22,7 +22,13 @@ case class TypeReference(
   typeName: String,
   genericTypes: Seq[TypeReference] = Seq.empty
 ) extends AbstractTypeReference {
-  def readableString: String = s"$typeName[${genericTypes.map(_.readableString).mkString(",")}]"
+  def readableString: String = {
+    if (genericTypes.nonEmpty) {
+      s"$typeName[${genericTypes.map(_.readableString).mkString(",")}]"
+    } else {
+      typeName
+    }
+  }
 }
 
 case class LambdaReference(

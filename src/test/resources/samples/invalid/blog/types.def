@@ -1,0 +1,29 @@
+package blog
+
+import blog.NonBlank
+import blog.ShortString
+
+type Blog {
+  title: String verifying NonBlank("Please provide a title")
+  content: String verifying Unexisting
+  tags: List[String]
+
+  verify {
+    "No tag can be empty"
+    (blog) => {
+      if (blog.tags.nonEmpty()) {
+        blog.tags.forAll((tag: String) => {
+          tag.nonEmpty()
+        })
+      } else {
+        1
+      }
+    }
+  }
+}
+
+type Comment {
+  user: String verifying NonBlank verifying ShortString
+  title: Option[String]
+  content: Something verifying NonBlank
+}

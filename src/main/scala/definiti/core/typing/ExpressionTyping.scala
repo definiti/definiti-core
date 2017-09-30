@@ -9,21 +9,8 @@ class ExpressionTyping(context: Context) {
 
   def addTypesIntoExpression(expression: pure.Expression): Validated[typed.Expression] = {
     expression match {
-      case pure.Or(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.Or)
-      case pure.And(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.And)
-      case pure.Equal(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.Equal)
-      case pure.NotEqual(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.NotEqual)
-      case pure.Lower(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.Lower)
-      case pure.Upper(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.Upper)
-      case pure.LowerOrEqual(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.LowerOrEqual)
-      case pure.UpperOrEqual(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.UpperOrEqual)
-
-      case pure.Plus(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.Plus)
-      case pure.Minus(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.Minus)
-      case pure.Modulo(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.Modulo)
-      case pure.Time(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.Time)
-      case pure.Divide(left, right, range) => addTypesIntoLeftRightExpression(left, right, range, typed.Divide)
-
+      case LogicalExpression(operator, left, right, range) => addTypeIntoLogicalExpression(operator, left, right, range)
+      case CalculatorExpression(operator, left, right, range) => addTypeIntoCalculatorExpression(operator, left, right, range)
       case not: pure.Not => addTypesIntoNotExpression(not)
 
       case booleanValue: pure.BooleanValue => ValidValue(typed.BooleanValue(booleanValue.value, boolean, booleanValue.range))
@@ -44,10 +31,17 @@ class ExpressionTyping(context: Context) {
     }
   }
 
-  def addTypesIntoLeftRightExpression(left: pure.Expression, right: pure.Expression, range: Range, constructor: LeftRightExpressionConstructor): Validated[typed.Expression] = {
+  def addTypeIntoLogicalExpression(operator: LogicalOperator.Value, left: pure.Expression, right: pure.Expression, range: Range): Validated[typed.Expression] = {
     Validated.both(addTypesIntoExpression(left), addTypesIntoExpression(right))
       .map { case (typedLeft, typedRight) =>
-        constructor(typedLeft, typedRight, boolean, range)
+        typed.LogicalExpression(operator, typedLeft, typedRight, boolean, range)
+      }
+  }
+
+  def addTypeIntoCalculatorExpression(operator: CalculatorOperator.Value, left: pure.Expression, right: pure.Expression, range: Range): Validated[typed.Expression] = {
+    Validated.both(addTypesIntoExpression(left), addTypesIntoExpression(right))
+      .map { case (typedLeft, typedRight) =>
+        typed.CalculatorExpression(operator, typedLeft, typedRight, number, range)
       }
   }
 

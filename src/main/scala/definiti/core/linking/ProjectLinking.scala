@@ -149,6 +149,8 @@ private[core] object ProjectLinking {
     expression match {
       case logicalExpression: LogicalExpression => logicalExpression
       case calculatorExpression: CalculatorExpression => calculatorExpression
+      case not: Not => not
+      case booleanValue: BooleanValue => booleanValue
       case numberValue: NumberValue => numberValue
       case quotedStringValue: QuotedStringValue => quotedStringValue
       case reference: Reference =>

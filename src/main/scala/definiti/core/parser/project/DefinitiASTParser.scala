@@ -228,22 +228,24 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
   }
 
   def processLeftRightExpression(context: ExpressionContext): Expression = {
+    import CalculatorOperator._
+    import LogicalOperator._
     val left = processExpression(context.leftExpression)
     val right = processExpression(context.rightExpression)
     context.operator.getText match {
-      case "*" => Time(left, right, getRangeFromContext(context))
-      case "/" => Divide(left, right, getRangeFromContext(context))
-      case "%" => Modulo(left, right, getRangeFromContext(context))
-      case "+" => Plus(left, right, getRangeFromContext(context))
-      case "-" => Minus(left, right, getRangeFromContext(context))
-      case "==" => Equal(left, right, getRangeFromContext(context))
-      case "!=" => NotEqual(left, right, getRangeFromContext(context))
-      case "<" => Lower(left, right, getRangeFromContext(context))
-      case "<=" => LowerOrEqual(left, right, getRangeFromContext(context))
-      case ">" => Upper(left, right, getRangeFromContext(context))
-      case ">=" => UpperOrEqual(left, right, getRangeFromContext(context))
-      case "&&" => And(left, right, getRangeFromContext(context))
-      case "||" => Or(left, right, getRangeFromContext(context))
+      case "*" => CalculatorExpression(Time, left, right, getRangeFromContext(context))
+      case "/" => CalculatorExpression(Divide, left, right, getRangeFromContext(context))
+      case "%" => CalculatorExpression(Modulo, left, right, getRangeFromContext(context))
+      case "+" => CalculatorExpression(Plus, left, right, getRangeFromContext(context))
+      case "-" => CalculatorExpression(Minus, left, right, getRangeFromContext(context))
+      case "==" => LogicalExpression(Equal, left, right, getRangeFromContext(context))
+      case "!=" => LogicalExpression(NotEqual, left, right, getRangeFromContext(context))
+      case "<" => LogicalExpression(Lower, left, right, getRangeFromContext(context))
+      case "<=" => LogicalExpression(LowerOrEqual, left, right, getRangeFromContext(context))
+      case ">" => LogicalExpression(Upper, left, right, getRangeFromContext(context))
+      case ">=" => LogicalExpression(UpperOrEqual, left, right, getRangeFromContext(context))
+      case "&&" => LogicalExpression(And, left, right, getRangeFromContext(context))
+      case "||" => LogicalExpression(Or, left, right, getRangeFromContext(context))
     }
   }
 

@@ -81,56 +81,39 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
     validateExpression(namedFunction.body)(methodContext)
   }
 
-  private[definiti] def validateExpression(expression: Expression)(implicit context: Context): Validation = expression match {
-    case BooleanValue(_, _) => Valid
-    case NumberValue(_, _) => Valid
-    case QuotedStringValue(_, _) => Valid
-    case Reference(name, range) =>
-      context.findReference(name) match {
-        case Some(_) => Valid
-        case None => Invalid("Unknown reference: " + name, range)
-      }
-    case methodCall: MethodCall =>
-      validateMethodCall(methodCall)
-    case attributeCall: AttributeCall =>
-      validateAttributeCall(attributeCall)
-    case CombinedExpression(parts, _) =>
-      Validation.join(parts.map(validateExpression))
-    case condition: Condition =>
-      validateCondition(condition)
-    case Or(left, right, _) =>
-      validateBooleanExpression(left, right)
-    case And(left, right, _) =>
-      validateBooleanExpression(left, right)
-    case Equal(left, right, _) =>
-      validateExpressions(left, right)
-    case NotEqual(left, right, _) =>
-      validateExpressions(left, right)
-    case Lower(left, right, _) =>
-      validateExpressions(left, right)
-    case Upper(left, right, _) =>
-      validateExpressions(left, right)
-    case LowerOrEqual(left, right, _) =>
-      validateExpressions(left, right)
-    case UpperOrEqual(left, right, _) =>
-      validateExpressions(left, right)
-    case Plus(left, right, _) =>
-      validateExpressions(left, right)
-    case Minus(left, right, _) =>
-      validateExpressions(left, right)
-    case Modulo(left, right, _) =>
-      validateExpressions(left, right)
-    case Time(left, right, _) =>
-      validateExpressions(left, right)
-    case Divide(left, right, _) =>
-      validateExpressions(left, right)
-    case lambdaExpression: LambdaExpression =>
-      // Expected only in method call, processed in validateMethodCall or validateFunctionCall
-      Invalid("Unexpected lambda reference", lambdaExpression.range)
-    case functionCallExpression: FunctionCall =>
-      validateFunctionCall(functionCallExpression)
-    case not: Not =>
-      validateNotExpression(not)
+  private[definiti] def validateExpression(expression: Expression)(implicit context: Context): Validation = {
+    import LogicalOperator._
+    expression match {
+      case BooleanValue(_, _) => Valid
+      case NumberValue(_, _) => Valid
+      case QuotedStringValue(_, _) => Valid
+      case Reference(name, range) =>
+        context.findReference(name) match {
+          case Some(_) => Valid
+          case None => Invalid("Unknown reference: " + name, range)
+        }
+      case methodCall: MethodCall =>
+        validateMethodCall(methodCall)
+      case attributeCall: AttributeCall =>
+        validateAttributeCall(attributeCall)
+      case CombinedExpression(parts, _) =>
+        Validation.join(parts.map(validateExpression))
+      case condition: Condition =>
+        validateCondition(condition)
+      case LogicalExpression(Or | And, left, right, _) =>
+        validateBooleanExpression(left, right)
+      case LogicalExpression(Equal | NotEqual | Lower | Upper | LowerOrEqual | UpperOrEqual, left, right, _) =>
+        validateExpressions(left, right)
+      case CalculatorExpression(_, left, right, _) =>
+        validateExpressions(left, right)
+      case lambdaExpression: LambdaExpression =>
+        // Expected only in method call, processed in validateMethodCall or validateFunctionCall
+        Invalid("Unexpected lambda reference", lambdaExpression.range)
+      case functionCallExpression: FunctionCall =>
+        validateFunctionCall(functionCallExpression)
+      case not: Not =>
+        validateNotExpression(not)
+    }
   }
 
   private def validateNotExpression(not: Not)(implicit context: Context): Validation = {
@@ -352,6 +335,8 @@ private[core] class ASTValidation(configuration: Configuration) extends CommonVa
     expression match {
       case _: LogicalExpression => Valid
       case _: CalculatorExpression => Valid
+      case _: Not => Valid
+      case _: BooleanValue => Valid
       case NumberValue(_, _) => Valid
       case QuotedStringValue(_, _) => Valid
       case Reference(name, range) =>

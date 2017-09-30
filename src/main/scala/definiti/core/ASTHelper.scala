@@ -28,6 +28,8 @@ object ASTHelper {
     expression match {
       case _: LogicalExpression => context.findType("Boolean").map(ClassReference(_, Seq()))
       case _: CalculatorExpression => context.findType("Number").map(ClassReference(_, Seq()))
+      case _: Not => context.findType("Boolean").map(ClassReference(_, Seq()))
+      case _: BooleanValue => context.findType("Boolean").map(ClassReference(_, Seq()))
       case NumberValue(_, _) => context.findType("Number").map(ClassReference(_, Seq()))
       case QuotedStringValue(_, _) => context.findType("String").map(ClassReference(_, Seq()))
       case Reference(name, _) =>

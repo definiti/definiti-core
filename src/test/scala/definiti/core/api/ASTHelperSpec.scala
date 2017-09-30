@@ -46,14 +46,14 @@ class ASTHelperSpec extends FlatSpec with Matchers {
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return a Boolean for a And expression" in {
     implicit val context = baseReferenceContext
-    val input = And(trueExpression, trueExpression, noRange)
+    val input = LogicalExpression(LogicalOperator.And, trueExpression, trueExpression, noRange)
     val expected = Some(ClassReference(booleanDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }
 
   "ASTValidation.getReturnTypeOptOfExpression" should "return a Boolean for a Equal expression" in {
     implicit val context = baseReferenceContext
-    val input = Equal(trueExpression, trueExpression, noRange)
+    val input = LogicalExpression(LogicalOperator.Equal, trueExpression, trueExpression, noRange)
     val expected = Some(ClassReference(booleanDefinition, Seq()))
     ASTHelper.getReturnTypeOptOfExpression(input) should ===(expected)
   }

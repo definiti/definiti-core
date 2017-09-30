@@ -1,7 +1,7 @@
 package definiti.core.ast.typed
 
 import definiti.core.ast.Range
-import definiti.core.ast.pure.{AbstractTypeReference, ParameterDefinition, TypeReference}
+import definiti.core.ast.pure._
 
 sealed trait Expression {
   def range: Range
@@ -9,39 +9,25 @@ sealed trait Expression {
   def returnType: AbstractTypeReference
 }
 
-sealed trait LogicalExpression extends Expression
+case class LogicalExpression(
+  operator: LogicalOperator.Value,
+  left: Expression,
+  right: Expression,
+  returnType: TypeReference,
+  range: Range
+) extends Expression
 
-sealed trait CalculatorExpression extends Expression
+case class CalculatorExpression(
+  operator: CalculatorOperator.Value,
+  left: Expression,
+  right: Expression,
+  returnType: TypeReference,
+  range: Range
+) extends Expression
 
-case class Or(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
+case class Not(inner: Expression, returnType: AbstractTypeReference, range: Range) extends Expression
 
-case class And(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
-
-case class Equal(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
-
-case class NotEqual(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
-
-case class Lower(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
-
-case class Upper(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
-
-case class LowerOrEqual(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
-
-case class UpperOrEqual(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
-
-case class Plus(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends CalculatorExpression
-
-case class Minus(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends CalculatorExpression
-
-case class Modulo(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends CalculatorExpression
-
-case class Time(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends CalculatorExpression
-
-case class Divide(left: Expression, right: Expression, returnType: AbstractTypeReference, range: Range) extends CalculatorExpression
-
-case class Not(inner: Expression, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
-
-case class BooleanValue(value: Boolean, returnType: AbstractTypeReference, range: Range) extends LogicalExpression
+case class BooleanValue(value: Boolean, returnType: AbstractTypeReference, range: Range) extends Expression
 
 case class NumberValue(value: BigDecimal, returnType: AbstractTypeReference, range: Range) extends Expression
 

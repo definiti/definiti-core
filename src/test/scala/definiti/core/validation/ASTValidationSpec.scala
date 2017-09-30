@@ -47,12 +47,12 @@ class ASTValidationSpec extends FlatSpec with Matchers {
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of And expression" in {
     implicit val context = baseReferenceContext
-    astValidation.validateTypeReferenceOfExpression(And(trueExpression, trueExpression, noRange)) should ===(Valid)
+    astValidation.validateTypeReferenceOfExpression(LogicalExpression(LogicalOperator.And, trueExpression, trueExpression, noRange)) should ===(Valid)
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of Equal expression" in {
     implicit val context = baseReferenceContext
-    astValidation.validateTypeReferenceOfExpression(Equal(trueExpression, trueExpression, noRange)) should ===(Valid)
+    astValidation.validateTypeReferenceOfExpression(LogicalExpression(LogicalOperator.Equal, trueExpression, trueExpression, noRange)) should ===(Valid)
   }
 
   "ASTValidation.validateTypeReferenceOfExpression" should "validate the type of Number expression" in {

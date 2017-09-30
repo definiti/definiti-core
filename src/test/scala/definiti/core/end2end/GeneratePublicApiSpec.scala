@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import definiti.core._
 import definiti.core.ast.Range
-import definiti.core.ast.pure.{AttributeDefinition, ParameterDefinition, TypeReference, VerificationReference}
+import definiti.core.ast.pure.{AttributeDefinition, ParameterDefinition, TypeReference, VerificationReference, LogicalOperator}
 import definiti.core.ast.structure.{DefinedType, Package, Root, Verification}
 import definiti.core.ast.typed._
 import org.scalatest.{FlatSpec, Matchers}
@@ -194,7 +194,8 @@ object GeneratePublicApiSpec {
           message = "The string should not have more than 25 characters",
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition("string", TypeReference("String"), Range(12, 3, 12, 11))),
-            body = LowerOrEqual(
+            body = LogicalExpression(
+              operator = LogicalOperator.LowerOrEqual,
               left = AttributeCall(
                 expression = Reference("string", TypeReference("String"), Range(13, 4, 13, 4)),
                 attribute = "length",

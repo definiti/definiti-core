@@ -47,8 +47,6 @@ sealed trait Type extends ClassDefinition {
 }
 
 case class DefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends Type {
-  def methods: Seq[MethodDefinition] = Seq()
-
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 

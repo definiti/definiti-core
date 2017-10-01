@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
 import definiti.core.ast.pure.Root
+import definiti.core.ast.structure.Library
 import definiti.core.linking.ProjectLinking
 import definiti.core.parser.{ProjectParser, ProjectParsingResult}
 import definiti.core.structure.ProjectStructure
@@ -14,23 +15,11 @@ import scala.collection.JavaConverters._
 
 private[core] class Project(configuration: Configuration) {
   private val projectParser: ProjectParser = new ProjectParser(configuration)
-  private val astValidation: ASTValidation = new ASTValidation(configuration)
 
   def process(): Validation = {
-    processInternalParser()
-      .flatMap { projectParsingResult =>
-        processPluginParsers(projectParsingResult.root)
-          .map { updatedRoot => projectParsingResult.copy(root = updatedRoot) }
-      }
-      .map { projectParsingResult =>
-        (projectParsingResult, createProjectContext(projectParsingResult))
-      }
-      .filter { case (projectParsingResult, context) =>
-        processInternalValidation(projectParsingResult.root, context)
-          .and(processExternalValidation(projectParsingResult.root, context))
-      }
-      .foreach { case (projectParsingResult, context) =>
-        processGenerators(projectParsingResult.root, context)
+    generateStructureWithLibrary()
+      .foreach { case (structuredRoot, library) =>
+        processGenerators(structuredRoot, library)
           .foreach { case (path, content) =>
             Files.createDirectories(path.getParent)
             Files.write(path, Seq(content).asJava, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
@@ -40,6 +29,11 @@ private[core] class Project(configuration: Configuration) {
   }
 
   def generatePublicAST(): Validated[ast.structure.Root] = {
+    generateStructureWithLibrary()
+      .map(_._1)
+  }
+
+  private def generateStructureWithLibrary(): Validated[(ast.structure.Root, Library)] = {
     processInternalParser()
       .flatMap { projectParsingResult =>
         processPluginParsers(projectParsingResult.root)
@@ -48,18 +42,34 @@ private[core] class Project(configuration: Configuration) {
       .map { projectParsingResult =>
         (projectParsingResult, createProjectContext(projectParsingResult))
       }
-      .filter { case (projectParsingResult, context) =>
-        processInternalValidation(projectParsingResult.root, context)
-          .and(processExternalValidation(projectParsingResult.root, context))
-      }
       .flatMap { case (projectParsingResult, context) =>
         val typing = new ProjectTyping(context)
-        typing.addTypes(projectParsingResult.root)
+        val typedRoot = typing.addTypes(projectParsingResult.root)
+        typedRoot.map((_, projectParsingResult.core))
       }
-      .map { typedRoot =>
+      .map { case (typedRoot, core) =>
         val projectStructure = new ProjectStructure(typedRoot)
-        projectStructure.generateStructure()
+        val structuredRoot = projectStructure.generateStructure()
+        val library = Library(structuredRoot, pureCoreToStructureCore(core))
+        (structuredRoot, library)
       }
+      .filter { case (structuredRoot, library) =>
+        processInternalValidation(structuredRoot, library)
+          .and(processExternalValidation(structuredRoot, library))
+      }
+  }
+
+  private def pureCoreToStructureCore(pureCore: Seq[ast.pure.ClassDefinition]): Seq[ast.structure.ClassDefinition] = {
+    pureCore.collect {
+      case nativeClassDefinition: ast.pure.NativeClassDefinition =>
+        ast.structure.NativeClassDefinition(
+          name = nativeClassDefinition.name,
+          genericTypes = nativeClassDefinition.genericTypes,
+          attributes = nativeClassDefinition.attributes,
+          methods = nativeClassDefinition.methods,
+          comment = nativeClassDefinition.comment
+        )
+    }
   }
 
   private def processInternalParser(): Validated[ProjectParsingResult] = {
@@ -79,19 +89,20 @@ private[core] class Project(configuration: Configuration) {
     }
   }
 
-  private def processInternalValidation(root: Root, context: ReferenceContext): Validation = {
-    astValidation.validate(root)(context)
+  private def processInternalValidation(root: ast.structure.Root, library: Library): Validation = {
+    val astValidation = new ASTValidation(configuration, library)
+    astValidation.validate(root)
   }
 
-  private def processExternalValidation(root: Root, context: ReferenceContext): Validation = {
-    Validation.join(configuration.validators.map(_.validate(root, context)))
+  private def processExternalValidation(root: ast.structure.Root, library: Library): Validation = {
+    Validation.join(configuration.validators.map(_.validate(root, library)))
   }
 
-  private def processGenerators(root: Root, context: ReferenceContext): Map[Path, String] = {
-    configuration.generators.flatMap(_.generate(root, context)).toMap
+  private def processGenerators(root: ast.structure.Root, library: Library): Map[Path, String] = {
+    configuration.generators.flatMap(_.generate(root, library)).toMap
   }
 
-  private def createProjectContext(projectParsingResult: ProjectParsingResult) = {
+  private def createProjectContext(projectParsingResult: ProjectParsingResult): ReferenceContext = {
     ReferenceContext(
       classes = projectParsingResult.core ++ projectParsingResult.root.files.flatMap(_.classDefinitions),
       verifications = projectParsingResult.root.files.flatMap(_.verifications),

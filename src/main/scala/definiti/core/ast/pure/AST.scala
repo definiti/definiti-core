@@ -16,7 +16,9 @@ case class RootFile(
   contexts: Seq[ExtendedContext[_]]
 )
 
-sealed trait AbstractTypeReference
+sealed trait AbstractTypeReference {
+  def readableString: String
+}
 
 case class TypeReference(
   typeName: String,
@@ -38,6 +40,11 @@ case class LambdaReference(
   def readableString: String = s"(${inputTypes.map(_.readableString).mkString(", ")}) => ${outputType.readableString}"
 }
 
+case class NamedFunctionReference(
+  functionName: String
+) extends AbstractTypeReference {
+  def readableString: String = functionName
+}
 case class AttributeDefinition(
   name: String,
   typeReference: TypeReference,

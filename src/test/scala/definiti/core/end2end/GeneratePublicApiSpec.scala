@@ -11,33 +11,35 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class GeneratePublicApiSpec extends FlatSpec with Matchers {
   import GeneratePublicApiSpec._
+  import ValidationMatchers._
 
   "Project.generatePublicAST" should "generate the public API when the project is valid (sample: blog)" in {
     val project = new Project(configuration("blog"))
     val expected = ValidValue(validBlogExpected)
     val output = project.generatePublicAST()
-    output should ===(expected)
+    output should beValidated(expected)
   }
 
   it should "return an error when the project is invalid (sample: invalid.blog)" in {
     val project = new Project(configuration("invalid.blog"))
     val expected = Invalid(invalidBlogExpected)
     val output = project.generatePublicAST()
-    output should ===(expected)
+    output should beValidated[Root](expected)
   }
 
   it should "return an error when the project is invalid (sample: invalid.blog2)" in {
     val project = new Project(configuration("invalid.blog2"))
     val expected = Invalid(invalidBlog2Expected)
     val output = project.generatePublicAST()
-    output should ===(expected)
+    output should beValidated[Root](expected)
   }
 }
 
 object GeneratePublicApiSpec {
   def configuration(sample: String): Configuration = {
     ConfigurationMock(
-      source = Paths.get(s"src/test/resources/samples/${sample.replaceAll("\\.", "/")}")
+      source = Paths.get(s"src/test/resources/samples/${sample.replaceAll("\\.", "/")}"),
+      apiSource = Paths.get(s"src/test/resources/core")
     )
   }
 
@@ -117,7 +119,7 @@ object GeneratePublicApiSpec {
                   ),
                   onFalse = Some(BooleanValue(value = true, TypeReference("Boolean"), Range(19, 8, 19, 8))),
                   returnType = TypeReference("Boolean"),
-                  range = Range(14, 10, 14, 29)
+                  range = Range(14, 6, 20, 6)
                 ),
                 genericTypes = Seq.empty,
                 range = Range(13, 4, 21, 4)
@@ -219,12 +221,11 @@ object GeneratePublicApiSpec {
   val invalidBlogExpected = Seq(
     ASTError("Expected boolean expression, got: class unit", Range(13, 4, 15, 4)),
     ASTError("Undefined verification: Unexisting", Range(8, 2, 8, 28)),
-    ASTError("Expected boolean expression, got: class any", Range(14, 6, 20, 6)),
+    ASTError("Expected boolean expression, got: class unit", Range(14, 6, 20, 6)),
     ASTError("Undefined type: Something", Range(28, 2, 28, 31))
   )
 
   val invalidBlog2Expected = Seq(
-    ASTError("Unknown method String.noEmpty", Range(6, 4, 6, 26)),
-    ASTError("Invalid number of arguments", Range(15, 8, 15, 25))
+    ASTError("Unknown method String.noEmpty", Range(6, 4, 6, 26))
   )
 }

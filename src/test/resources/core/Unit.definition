@@ -1,0 +1,5 @@
+/**
+ * This type represents nothing.
+ * It exists to define cases where a function or an expression returns anything.
+ */
+type Unit {}

@@ -1,7 +1,8 @@
 package definiti.core
 
 import definiti.core.ast.pure._
-import definiti.core.utils.Core
+
+case class ClassReference(classDefinition: ClassDefinition, genericTypes: Seq[ClassReference])
 
 // TODO: This system need a refactoring, lot of code is duplicated.
 sealed trait Context {
@@ -25,15 +26,7 @@ sealed trait Context {
 
   def findFunction(functionName: String): Option[NamedFunction]
 
-  def isReferencesAvailable(name: String): Boolean = findReference(name).nonEmpty
-
-  def findReference(name: String): Option[ElementReference]
-
   def findTypeReference(name: String): Option[AbstractTypeReference]
-
-  def isRequirementAvailable(name: String): Boolean = {
-    findReference(name).isDefined
-  }
 }
 
 case class ReferenceContext(
@@ -65,16 +58,10 @@ case class ReferenceContext(
     namedFunctions.find(_.canonicalName == functionName)
   }
 
-  override def findReference(name: String): Option[ElementReference] = {
-    namedFunctions
-      .find(_.canonicalName == name)
-      .map(NamedFunctionReference)
-  }
-
   override def findTypeReference(name: String): Option[AbstractTypeReference] = {
     namedFunctions
       .find(_.canonicalName == name)
-      .map(_.returnType)
+      .map(_ => NamedFunctionReference(name))
   }
 }
 
@@ -114,10 +101,6 @@ case class ClassContext(
 
   override def findFunction(functionName: String): Option[NamedFunction] = {
     outerContext.findFunction(functionName)
-  }
-
-  override def findReference(name: String): Option[ElementReference] = {
-    outerContext.findReference(name)
   }
 
   override def findTypeReference(name: String): Option[AbstractTypeReference] = {
@@ -163,19 +146,6 @@ case class MethodContext(
     outerContext.findFunction(functionName)
   }
 
-  override def findReference(name: String): Option[ElementReference] = {
-    currentMethod.parameters
-      .find(_.name == name)
-      .flatMap {
-        _.typeReference match {
-          case typeReference: TypeReference => getClassReference(typeReference)
-          case _ => None // Currently, lambdaReference are not accepted for definiti functions
-        }
-      }
-      .orElse(outerContext.findReference(name))
-  }
-
-
   override def findTypeReference(name: String): Option[AbstractTypeReference] = {
     currentMethod.parameters
       .find(_.name == name)
@@ -186,17 +156,6 @@ case class MethodContext(
         }
       }
       .orElse(outerContext.findTypeReference(name))
-  }
-
-  private def getClassReference(typeReference: TypeReference): Option[ClassReference] = {
-    val classReferenceOpt = findType(typeReference.typeName)
-    val genericClassReferenceOpts = typeReference.genericTypes.map(getClassReference(_).getOrElse(ClassReference(Core.any, Seq())))
-    classReferenceOpt.map { classReference =>
-      ClassReference(
-        classDefinition = classReference,
-        genericTypes = genericClassReferenceOpts
-      )
-    }
   }
 }
 
@@ -228,18 +187,6 @@ case class DefinedFunctionContext(
     outerContext.findFunction(functionName)
   }
 
-  override def findReference(name: String): Option[ElementReference] = {
-    currentFunction.parameters
-      .find(_.name == name)
-      .flatMap {
-        _.typeReference match {
-          case typeReference: TypeReference => getClassReference(typeReference)
-          case _ => None // Currently, lambdaReference are not accepted for definiti functions
-        }
-      }
-      .orElse(outerContext.findReference(name))
-  }
-
   override def findTypeReference(name: String): Option[AbstractTypeReference] = {
     currentFunction.parameters
       .find(_.name == name)
@@ -250,17 +197,6 @@ case class DefinedFunctionContext(
         }
       }
       .orElse(outerContext.findTypeReference(name))
-  }
-
-  private def getClassReference(typeReference: TypeReference): Option[ClassReference] = {
-    val classReferenceOpt = findType(typeReference.typeName)
-    val genericClassReferenceOpts = typeReference.genericTypes.map(getClassReference(_).getOrElse(ClassReference(Core.any, Seq())))
-    classReferenceOpt.map { classReference =>
-      ClassReference(
-        classDefinition = classReference,
-        genericTypes = genericClassReferenceOpts
-      )
-    }
   }
 }
 
@@ -292,18 +228,6 @@ case class NamedFunctionReferenceContext(
     outerContext.findFunction(functionName)
   }
 
-  override def findReference(name: String): Option[ElementReference] = {
-    currentFunction.parameters
-      .find(_.name == name)
-      .flatMap {
-        _.typeReference match {
-          case typeReference: TypeReference => getClassReference(typeReference)
-          case _ => None // Currently, lambdaReference are not accepted for definiti functions
-        }
-      }
-      .orElse(outerContext.findReference(name))
-  }
-
   override def findTypeReference(name: String): Option[AbstractTypeReference] = {
     currentFunction.parameters
       .find(_.name == name)
@@ -314,17 +238,6 @@ case class NamedFunctionReferenceContext(
         }
       }
       .orElse(outerContext.findTypeReference(name))
-  }
-
-  private def getClassReference(typeReference: TypeReference): Option[ClassReference] = {
-    val classReferenceOpt = findType(typeReference.typeName)
-    val genericClassReferenceOpts = typeReference.genericTypes.map(getClassReference(_).getOrElse(ClassReference(Core.any, Seq())))
-    classReferenceOpt.map { classReference =>
-      ClassReference(
-        classDefinition = classReference,
-        genericTypes = genericClassReferenceOpts
-      )
-    }
   }
 }
 
@@ -356,18 +269,6 @@ case class LambdaContext(
     outerContext.findFunction(functionName)
   }
 
-  override def findReference(name: String): Option[ElementReference] = {
-    lambda.parameterList
-      .find(_.name == name)
-      .flatMap {
-        _.typeReference match {
-          case typeReference: TypeReference => getClassReference(typeReference)
-          case _ => None // Currently, lambdaReference are not accepted for definiti functions
-        }
-      }
-      .orElse(outerContext.findReference(name))
-  }
-
   override def findTypeReference(name: String): Option[AbstractTypeReference] = {
     lambda.parameterList
       .find(_.name == name)
@@ -378,16 +279,5 @@ case class LambdaContext(
         }
       }
       .orElse(outerContext.findTypeReference(name))
-  }
-
-  private def getClassReference(typeReference: TypeReference): Option[ClassReference] = {
-    val classReferenceOpt = findType(typeReference.typeName)
-    val genericClassReferenceOpts = typeReference.genericTypes.map(getClassReference(_).getOrElse(ClassReference(Core.any, Seq())))
-    classReferenceOpt.map { classReference =>
-      ClassReference(
-        classDefinition = classReference,
-        genericTypes = genericClassReferenceOpts
-      )
-    }
   }
 }

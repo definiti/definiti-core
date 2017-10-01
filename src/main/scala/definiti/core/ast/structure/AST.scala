@@ -1,5 +1,6 @@
 package definiti.core.ast.structure
 
+import definiti.core.ast.pure.{AttributeDefinition, MethodDefinition}
 import definiti.core.ast.{Range, pure, typed}
 
 case class Root(
@@ -35,9 +36,7 @@ case class DefinedType(
   inherited: Seq[pure.VerificationReference],
   comment: Option[String],
   range: Range
-) extends ClassDefinition {
-  def methods: Seq[pure.MethodDefinition] = Seq()
-}
+) extends ClassDefinition
 
 case class AliasType(
   name: String,
@@ -46,6 +45,14 @@ case class AliasType(
   inherited: Seq[pure.VerificationReference],
   comment: Option[String],
   range: Range
+) extends ClassDefinition
+
+case class NativeClassDefinition(
+  name: String,
+  genericTypes: Seq[String],
+  attributes: Seq[AttributeDefinition],
+  methods: Seq[MethodDefinition],
+  comment: Option[String]
 ) extends ClassDefinition
 
 case class NamedFunction(

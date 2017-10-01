@@ -128,7 +128,7 @@ class ExpressionTyping(context: Context) {
                     returnType = attributeDefinition.typeReference,
                     range = attributeDefinition.range
                   ))
-                case None => Invalid(s"Unknown method ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.range)
+                case None => Invalid(s"Unknown attribute ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.range)
               }
             }
         case _: LambdaReference => Invalid("Expected type, got lambda", expression.range)
@@ -159,18 +159,18 @@ class ExpressionTyping(context: Context) {
     val validatedTypeOnFalse = Validated.reverseOption(condition.onFalse.map(addTypesIntoExpression))
     Validated
       .both(validatedTypedCondition, validatedTypedOnTrue, validatedTypeOnFalse)
-      .map { case (conditon, onTrue, onFalse) =>
+      .map { case (conditionExpression, onTrue, onFalse) =>
         val returnType = if (onFalse.exists(_.returnType == onTrue.returnType)) {
           onTrue.returnType
         } else {
-          TypeReference("Unit", Seq.empty)
+          TypeReference("unit", Seq.empty)
         }
         typed.Condition(
-          condition = conditon,
+          condition = conditionExpression,
           onTrue = onTrue,
           onFalse = onFalse,
           returnType = returnType,
-          range = conditon.range
+          range = condition.range
         )
       }
   }

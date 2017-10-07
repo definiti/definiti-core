@@ -1,20 +1,20 @@
 package definiti.core.structure
 
-import definiti.core.ast.typed.RootFile
-import definiti.core.ast.{pure, structure, typed}
+import definiti.core.ast.typed.TypedRootFile
+import definiti.core.ast._
 
-class ProjectStructure(root: typed.Root) {
-  def generateStructure(): structure.Root = {
+private[core] class ProjectStructure(root: typed.TypedRoot) {
+  def generateStructure(): Root = {
     val filesOfPackage = rootFileWithoutPackage()
     val elementsOfFiles = filesOfPackage.flatMap(packageElementsOfFile)
 
     val topLevelPackageNames = topLevelPackages()
     val subPackages = topLevelPackageNames.map(buildPackage)
 
-    structure.Root(Seq(elementsOfFiles ++ subPackages: _*))
+    Root(Seq(elementsOfFiles ++ subPackages: _*))
   }
 
-  private def rootFileWithoutPackage(): Seq[RootFile] = {
+  private def rootFileWithoutPackage(): Seq[TypedRootFile] = {
     root.files.filter(_.packageName.isEmpty)
   }
 
@@ -30,7 +30,7 @@ class ProjectStructure(root: typed.Root) {
     topLevelPackages.filter(_.nonEmpty).distinct
   }
 
-  private def buildPackage(packageName: String): structure.Package = {
+  private def buildPackage(packageName: String): Namespace = {
     val filesOfPackage = extractFileOfPackage(packageName)
     val elementsOfFiles = filesOfPackage.flatMap(packageElementsOfFile)
 
@@ -38,10 +38,10 @@ class ProjectStructure(root: typed.Root) {
     val subPackages = subPackageNames.map(buildPackage)
 
     val packageElements = Seq(elementsOfFiles ++ subPackages: _*)
-    structure.Package(packageName, packageElements)
+    Namespace(packageName, packageElements)
   }
 
-  private def packageElementsOfFile(rootFile: RootFile): Seq[structure.PackageElement] = {
+  private def packageElementsOfFile(rootFile: TypedRootFile): Seq[NamespaceElement] = {
     val verifications = rootFile.verifications.map(transformVerification)
     val classDefinition = rootFile.classDefinitions.flatMap(transformClassDefinition)
     val namedFunctions = rootFile.namedFunctions.map(transformNamedFunction)
@@ -50,7 +50,7 @@ class ProjectStructure(root: typed.Root) {
     Seq(verifications ++ classDefinition ++ namedFunctions ++ extendedContexts: _*)
   }
 
-  private def extractFileOfPackage(packageName: String): Seq[RootFile] = {
+  private def extractFileOfPackage(packageName: String): Seq[TypedRootFile] = {
     root.files.filter(_.packageName == packageName)
   }
 
@@ -70,8 +70,8 @@ class ProjectStructure(root: typed.Root) {
     directSubPackageNames
   }
 
-  private def transformVerification(verification: typed.Verification): structure.Verification = {
-    structure.Verification(
+  private def transformVerification(verification: typed.TypedVerification): Verification = {
+    Verification(
       name = verification.name,
       message = verification.message,
       function = verification.function,
@@ -80,16 +80,16 @@ class ProjectStructure(root: typed.Root) {
     )
   }
 
-  private def transformClassDefinition(classDefinition: typed.ClassDefinition): Option[structure.ClassDefinition] = {
+  private def transformClassDefinition(classDefinition: typed.TypedClassDefinition): Option[ClassDefinition] = {
     classDefinition match {
-      case _: typed.NativeClassDefinition => None
-      case definedType: typed.DefinedType => Some(transformDefinedType(definedType))
-      case aliasType: typed.AliasType => Some(transformAliasType(aliasType))
+      case _: typed.TypedNativeClassDefinition => None
+      case definedType: typed.TypedDefinedType => Some(transformDefinedType(definedType))
+      case aliasType: typed.TypedAliasType => Some(transformAliasType(aliasType))
     }
   }
 
-  private def transformDefinedType(definedType: typed.DefinedType): structure.DefinedType = {
-    structure.DefinedType(
+  private def transformDefinedType(definedType: typed.TypedDefinedType): DefinedType = {
+    DefinedType(
       name = definedType.name,
       genericTypes = definedType.genericTypes,
       attributes = definedType.attributes,
@@ -100,8 +100,8 @@ class ProjectStructure(root: typed.Root) {
     )
   }
 
-  private def transformAliasType(aliasType: typed.AliasType): structure.AliasType = {
-    structure.AliasType(
+  private def transformAliasType(aliasType: typed.TypedAliasType): AliasType = {
+    AliasType(
       name = aliasType.name,
       genericTypes = aliasType.genericTypes,
       alias = aliasType.alias,
@@ -111,8 +111,8 @@ class ProjectStructure(root: typed.Root) {
     )
   }
 
-  private def transformNamedFunction(namedFunction: typed.NamedFunction): structure.NamedFunction = {
-    structure.NamedFunction(
+  private def transformNamedFunction(namedFunction: typed.TypedNamedFunction): NamedFunction = {
+    NamedFunction(
       name = namedFunction.name,
       genericTypes = namedFunction.genericTypes,
       parameters = namedFunction.parameters,
@@ -122,8 +122,8 @@ class ProjectStructure(root: typed.Root) {
     )
   }
 
-  private def transformExtendedContext[A](extendedContext: pure.ExtendedContext[A]): structure.ExtendedContext[A] = {
-    structure.ExtendedContext(
+  private def transformExtendedContext[A](extendedContext: pure.PureExtendedContext[A]): ExtendedContext[A] = {
+    ExtendedContext(
       name = extendedContext.name,
       content = extendedContext.content,
       range = extendedContext.range

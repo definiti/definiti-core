@@ -2,20 +2,23 @@ package definiti.core
 
 import java.nio.file.Path
 
+import definiti.core.ast.pure.PureRoot
+import definiti.core.ast.{Library, Root}
+
 trait Plugin {
   def name: String
 }
 
 trait ParserPlugin extends Plugin {
-  def transform(root: ast.pure.Root): Validated[ast.pure.Root]
+  def transform(root: PureRoot): Validated[PureRoot]
 }
 
 trait ValidatorPlugin extends Plugin {
-  def validate(root: ast.structure.Root, library: ast.structure.Library): Validation
+  def validate(root: Root, library: Library): Validation
 }
 
 trait GeneratorPlugin extends Plugin {
-  def generate(root: ast.structure.Root, library: ast.structure.Library): Map[Path, String]
+  def generate(root: Root, library: Library): Map[Path, String]
 }
 
 trait ContextPlugin[A] extends Plugin {
@@ -23,5 +26,5 @@ trait ContextPlugin[A] extends Plugin {
 
   def parse(content: String, range: definiti.core.ast.Range): A
 
-  def validate(context: A, library: ast.structure.Library): Validation
+  def validate(context: A, library: Library): Validation
 }

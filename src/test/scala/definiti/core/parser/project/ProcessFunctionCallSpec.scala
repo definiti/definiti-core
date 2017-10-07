@@ -1,6 +1,7 @@
 package definiti.core.parser.project
 
 import definiti.core._
+import definiti.core.ast._
 import definiti.core.ast.pure._
 import definiti.core.generators.antlr.ExpressionContextGenerator
 import definiti.core.mock.antlr._
@@ -32,11 +33,11 @@ class ProcessFunctionCallSpec extends FlatSpec with Matchers with PropertyChecks
         NumberExpressionContextMock(TerminalNodeMock("123"))
       ))
     )
-    val expected = FunctionCall(
+    val expected = PureFunctionCall(
       name = "myName",
       parameters = Seq(
-        BooleanValue(value = true, defaultRange),
-        NumberValue(value = 123, defaultRange)
+        PureBooleanValue(value = true, defaultRange),
+        PureNumberValue(value = 123, defaultRange)
       ),
       generics = Seq(TypeReference("A", Seq.empty)),
       range = defaultRange

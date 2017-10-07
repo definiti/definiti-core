@@ -1,11 +1,9 @@
-package definiti.core.ast.structure
-
-import definiti.core.ast.pure.{AttributeDefinition, MethodDefinition}
+package definiti.core.ast
 
 import scala.collection.mutable.ListBuffer
 
 case class Library(
-  packages: Map[String, Package],
+  packages: Map[String, Namespace],
   verifications: Map[String, Verification],
   types: Map[String, ClassDefinition],
   attributes: Map[String, AttributeDefinition],
@@ -27,26 +25,26 @@ object Library {
     )
   }
 
-  private def extractPackages(root: Root): Map[String, Package] = {
-    val packagesBuffer: ListBuffer[(String, Package)] = ListBuffer()
+  private def extractPackages(root: Root): Map[String, Namespace] = {
+    val packagesBuffer: ListBuffer[(String, Namespace)] = ListBuffer()
 
-    def extractFromPackage(thePackage: Package, packageName: String): Unit = {
+    def extractFromPackage(thePackage: Namespace, packageName: String): Unit = {
       packagesBuffer += (packageName -> thePackage)
       thePackage.elements.foreach {
-        case subPackage: Package => extractFromPackage(subPackage, s"${packageName}.${subPackage.name}")
+        case subPackage: Namespace => extractFromPackage(subPackage, s"${packageName}.${subPackage.name}")
         case _ => // do nothing
       }
     }
 
     root.elements.foreach {
-      case thePackage: Package => extractFromPackage(thePackage, thePackage.name)
+      case thePackage: Namespace => extractFromPackage(thePackage, thePackage.name)
       case _ => // do nothing
     }
 
     packagesBuffer.toMap
   }
 
-  private def extractVerifications(packages: Map[String, Package]): Map[String, Verification] = {
+  private def extractVerifications(packages: Map[String, Namespace]): Map[String, Verification] = {
     packages.flatMap { case (packageName, thePackage) =>
       thePackage.elements.collect {
         case verification: Verification => s"${packageName}.${verification.name}" -> verification
@@ -54,7 +52,7 @@ object Library {
     }
   }
 
-  private def extractTypes(packages: Map[String, Package]): Map[String, ClassDefinition] = {
+  private def extractTypes(packages: Map[String, Namespace]): Map[String, ClassDefinition] = {
     packages.flatMap { case (packageName, thePackage) =>
       thePackage.elements.collect {
         case theType: ClassDefinition => s"${packageName}.${theType.name}" -> theType
@@ -92,7 +90,7 @@ object Library {
     }
   }
 
-  private def extractNamedFunctions(packages: Map[String, Package]): Map[String, NamedFunction] = {
+  private def extractNamedFunctions(packages: Map[String, Namespace]): Map[String, NamedFunction] = {
     packages.flatMap { case (packageName, thePackage) =>
       thePackage.elements.collect {
         case namedFunction: NamedFunction => s"${packageName}.${namedFunction.name}" -> namedFunction

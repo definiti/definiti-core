@@ -1,10 +1,10 @@
 package definiti.core.typing
 
 import definiti.core._
-import definiti.core.ast.pure.{NamedFunction => PureNamedFunction, Root => PureRoot, RootFile => PureRootFile, Verification => PureVerification}
-import definiti.core.ast.typed.{NamedFunction => TypedNamedFunction, Root => TypedRoot, RootFile => TypedRootFile, Verification => TypedVerification}
+import definiti.core.ast.pure.{PureNamedFunction, PureRoot, PureRootFile, PureVerification}
+import definiti.core.ast.typed.{TypedNamedFunction, TypedRoot, TypedRootFile, TypedVerification}
 
-class ProjectTyping(context: Context) {
+private[core] class ProjectTyping(context: Context) {
   val classDefinitionTyping = new ClassDefinitionTyping(context)
   val functionTyping = new FunctionTyping(context)
   val expressionTyping = new ExpressionTyping(context)

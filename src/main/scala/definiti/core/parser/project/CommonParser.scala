@@ -1,7 +1,6 @@
 package definiti.core.parser.project
 
-import definiti.core.ast.pure._
-import definiti.core.ast.{Position, Range}
+import definiti.core.ast.{Position, Range, _}
 import definiti.core.parser.antlr.DefinitiParser.{GenericTypeContext, GenericTypeListContext, ParameterDefinitionContext, ParameterListDefinitionContext}
 import definiti.core.utils.CollectionUtils.scalaSeq
 import org.antlr.v4.runtime.tree.TerminalNode
@@ -9,7 +8,7 @@ import org.antlr.v4.runtime.{ParserRuleContext, Token}
 
 import scala.collection.mutable.ListBuffer
 
-trait CommonParser {
+private[core] trait CommonParser {
   def processParameterListDefinition(context: ParameterListDefinitionContext): Seq[ParameterDefinition] = {
     scalaSeq(context.parameterDefinition()).map(processParameter)
   }

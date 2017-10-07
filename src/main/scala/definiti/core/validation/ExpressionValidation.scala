@@ -1,16 +1,13 @@
 package definiti.core.validation
 
 import definiti.core._
-import definiti.core.ast.Range
-import definiti.core.ast.pure.{AbstractTypeReference, LambdaReference, MethodDefinition, NamedFunctionReference, ParameterDefinition, TypeReference}
-import definiti.core.ast.structure.{ClassDefinition, NamedFunction}
-import definiti.core.ast.typed._
+import definiti.core.ast._
 
 private[core] trait ExpressionValidation {
   self: ASTValidation =>
 
   private[definiti] def validateExpression(expression: Expression): Validation = {
-    import definiti.core.ast.pure.LogicalOperator._
+    import definiti.core.ast.LogicalOperator._
     expression match {
       case _: BooleanValue => Valid
       case _: NumberValue => Valid

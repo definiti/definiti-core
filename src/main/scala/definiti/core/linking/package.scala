@@ -1,6 +1,7 @@
 package definiti.core
 
 package object linking {
-  type TypeMapping = Map[String, String]
-  def emptyTypeMapping = Map.empty[String, String]
+  private[core] type TypeMapping = Map[String, String]
+
+  private[core] def emptyTypeMapping = Map.empty[String, String]
 }

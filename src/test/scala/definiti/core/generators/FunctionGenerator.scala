@@ -1,17 +1,18 @@
 package definiti.core.generators
 
 import definiti.core.ReferenceContext
+import definiti.core.ast._
 import definiti.core.ast.pure._
 import org.scalacheck.Gen
 
 object FunctionGenerator {
-  def anyFunction(implicit context: ReferenceContext): Gen[DefinedFunction] = for {
+  def anyFunction(implicit context: ReferenceContext): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOf(anyParameterDefinition)
     body <- ExpressionGenerator.anyExpression
     genericTypes <- Gen.listOf(ASTGenerator.anyIdentifier)
     range <- ASTGenerator.anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,
@@ -19,13 +20,13 @@ object FunctionGenerator {
     )
   }
 
-  def anyFunctionWithParameters(numberOrParameters: Int)(implicit context: ReferenceContext): Gen[DefinedFunction] = for {
+  def anyFunctionWithParameters(numberOrParameters: Int)(implicit context: ReferenceContext): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOfN(numberOrParameters, anyParameterDefinition)
     body <- ExpressionGenerator.anyExpression
     genericTypes <- Gen.listOf(ASTGenerator.anyIdentifier)
     range <- ASTGenerator.anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,
@@ -33,13 +34,13 @@ object FunctionGenerator {
     )
   }
 
-  def anyFunctionReturningBoolean(implicit context: ReferenceContext): Gen[DefinedFunction] = for {
+  def anyFunctionReturningBoolean(implicit context: ReferenceContext): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOf(anyParameterDefinition)
     body <- ExpressionGenerator.anyBooleanExpression
     genericTypes <- Gen.listOf(ASTGenerator.anyIdentifier)
     range <- ASTGenerator.anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,
@@ -47,13 +48,13 @@ object FunctionGenerator {
     )
   }
 
-  def anyFunctionWithParametersReturningBoolean(numberOrParameters: Int)(implicit context: ReferenceContext): Gen[DefinedFunction] = for {
+  def anyFunctionWithParametersReturningBoolean(numberOrParameters: Int)(implicit context: ReferenceContext): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOfN(numberOrParameters, anyParameterDefinition)
     body <- ExpressionGenerator.anyBooleanExpression
     genericTypes <- Gen.listOf(ASTGenerator.anyIdentifier)
     range <- ASTGenerator.anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,
@@ -61,13 +62,13 @@ object FunctionGenerator {
     )
   }
 
-  def anyReferencedFunction(implicit context: ReferenceContext): Gen[DefinedFunction] = for {
+  def anyReferencedFunction(implicit context: ReferenceContext): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOf(anyReferencedParameterDefinition)
     body <- ExpressionGenerator.anyReferencedExpression
     genericTypes <- Gen.listOf(ASTGenerator.anyIdentifier)
     range <- ASTGenerator.anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,
@@ -75,13 +76,13 @@ object FunctionGenerator {
     )
   }
 
-  def anyReferencedFunctionWithParameters(numberOrParameters: Int)(implicit context: ReferenceContext): Gen[DefinedFunction] = for {
+  def anyReferencedFunctionWithParameters(numberOrParameters: Int)(implicit context: ReferenceContext): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOfN(numberOrParameters, anyReferencedParameterDefinition)
     body <- ExpressionGenerator.anyReferencedExpression
     genericTypes <- Gen.listOf(ASTGenerator.anyIdentifier)
     range <- ASTGenerator.anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,
@@ -89,13 +90,13 @@ object FunctionGenerator {
     )
   }
 
-  def anyReferencedFunctionReturningBoolean(implicit context: ReferenceContext): Gen[DefinedFunction] = for {
+  def anyReferencedFunctionReturningBoolean(implicit context: ReferenceContext): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOf(anyReferencedParameterDefinition)
     body <- ExpressionGenerator.anyBooleanExpression
     genericTypes <- Gen.listOf(ASTGenerator.anyIdentifier)
     range <- ASTGenerator.anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,
@@ -103,13 +104,13 @@ object FunctionGenerator {
     )
   }
 
-  def anyReferencedFunctionWithParametersReturningBoolean(numberOrParameters: Int)(implicit context: ReferenceContext): Gen[DefinedFunction] = for {
+  def anyReferencedFunctionWithParametersReturningBoolean(numberOrParameters: Int)(implicit context: ReferenceContext): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOfN(numberOrParameters, anyReferencedParameterDefinition)
     body <- ExpressionGenerator.anyBooleanExpression
     genericTypes <- ASTGenerator.listOfGenericTypeDefinition
     range <- ASTGenerator.anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,

@@ -1,8 +1,6 @@
 package definiti.core.validation
 
-import definiti.core.ast.Range
-import definiti.core.ast.pure.VerificationReference
-import definiti.core.ast.structure.Verification
+import definiti.core.ast._
 import definiti.core.{Invalid, Valid, Validation}
 
 private[core] trait VerificationValidation {

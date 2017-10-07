@@ -1,9 +1,7 @@
 package definiti.core.validation
 
 import definiti.core._
-import definiti.core.ast.pure.AttributeDefinition
-import definiti.core.ast.structure._
-import definiti.core.ast.typed.TypeVerification
+import definiti.core.ast._
 
 private[core] trait TypeValidation {
   self: ASTValidation =>

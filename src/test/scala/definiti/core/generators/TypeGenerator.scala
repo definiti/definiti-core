@@ -1,13 +1,14 @@
 package definiti.core.generators
 
 import definiti.core._
+import definiti.core.ast._
 import definiti.core.ast.pure._
 import org.scalacheck.Gen
 
 object TypeGenerator {
-  def anyType(implicit context: ReferenceContext): Gen[Type] = Gen.oneOf(anyDefinedType, anyAliasType)
+  def anyType(implicit context: ReferenceContext): Gen[PureType] = Gen.oneOf(anyDefinedType, anyAliasType)
 
-  def anyDefinedType(implicit context: ReferenceContext): Gen[DefinedType] = for {
+  def anyDefinedType(implicit context: ReferenceContext): Gen[PureDefinedType] = for {
     name <- ASTGenerator.anyIdentifier
     packageName <- ASTGenerator.anyPackageName
     genericTypes <- ASTGenerator.listOfGenericTypeDefinition
@@ -17,7 +18,7 @@ object TypeGenerator {
     comment <- Gen.option(ASTGenerator.anyString)
     range <- ASTGenerator.anyRange
   } yield {
-    DefinedType(
+    PureDefinedType(
       name,
       packageName,
       genericTypes,
@@ -29,7 +30,7 @@ object TypeGenerator {
     )
   }
 
-  def anyAliasType(implicit context: ReferenceContext): Gen[AliasType] = for {
+  def anyAliasType(implicit context: ReferenceContext): Gen[PureAliasType] = for {
     name <- ASTGenerator.anyIdentifier
     packageName <- ASTGenerator.anyPackageName
     genericTypes <- ASTGenerator.listOfGenericTypeDefinition
@@ -38,7 +39,7 @@ object TypeGenerator {
     comment <- Gen.option(ASTGenerator.anyString)
     range <- ASTGenerator.anyRange
   } yield {
-    AliasType(
+    PureAliasType(
       name,
       packageName,
       genericTypes,
@@ -65,12 +66,12 @@ object TypeGenerator {
     )
   }
 
-  def anyTypeVerification(implicit context: ReferenceContext): Gen[TypeVerification] = for {
+  def anyTypeVerification(implicit context: ReferenceContext): Gen[PureTypeVerification] = for {
     message <- ASTGenerator.anyString
     function <- FunctionGenerator.anyFunctionWithParametersReturningBoolean(1)
     range <- ASTGenerator.anyRange
   } yield {
-    TypeVerification(
+    PureTypeVerification(
       message,
       function,
       range
@@ -81,7 +82,7 @@ object TypeGenerator {
     Generators.listOfBoundedSize(0, 5, anyAttributeDefinition)
   }
 
-  def listOfTypeVerifications(implicit context: ReferenceContext): Gen[List[TypeVerification]] = {
+  def listOfTypeVerifications(implicit context: ReferenceContext): Gen[List[PureTypeVerification]] = {
     Generators.listOfBoundedSize(0, 3, anyTypeVerification)
   }
 }

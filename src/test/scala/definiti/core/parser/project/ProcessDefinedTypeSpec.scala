@@ -1,7 +1,7 @@
 package definiti.core.parser.project
 
 import definiti.core.ConfigurationMock
-import definiti.core.ast.pure._
+import definiti.core.ast._
 import definiti.core.generators.Generators
 import definiti.core.generators.antlr.TypeContextGenerator
 import definiti.core.mock.antlr._

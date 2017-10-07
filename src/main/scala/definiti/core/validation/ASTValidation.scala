@@ -1,7 +1,7 @@
 package definiti.core.validation
 
-import definiti.core._
-import definiti.core.ast.structure._
+import definiti.core.ast._
+import definiti.core.{ast, _}
 
 private[core] class ASTValidation(
   val configuration: Configuration,
@@ -16,13 +16,13 @@ private[core] class ASTValidation(
     Validation.join(root.elements.map(validatePackageElement))
   }
 
-  def validatePackage(thePackage: Package): Validation = {
+  def validatePackage(thePackage: Namespace): Validation = {
     Validation.join(thePackage.elements.map(validatePackageElement))
   }
 
-  def validatePackageElement(element: PackageElement): Validation = {
+  def validatePackageElement(element: NamespaceElement): Validation = {
     element match {
-      case subPackage: Package => validatePackage(subPackage)
+      case subPackage: Namespace => validatePackage(subPackage)
       case verification: Verification => validateVerification(verification)
       case definedType: DefinedType => validateDefinedType(definedType)
       case aliasType: AliasType => validateAliasType(aliasType)

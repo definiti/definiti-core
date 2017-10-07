@@ -8,13 +8,13 @@ import org.scalacheck.{Arbitrary, Gen}
 import scala.annotation.tailrec
 
 object ASTGenerator {
-  def anyFunction(implicit context: Context): Gen[DefinedFunction] = for {
+  def anyFunction(implicit context: Context): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOf(anyParameterDefinition)
     body <- ExpressionGenerator.anyExpression
     genericTypes <- Gen.listOf(anyIdentifier)
     range <- anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,

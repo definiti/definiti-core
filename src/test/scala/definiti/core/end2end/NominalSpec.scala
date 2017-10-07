@@ -1,10 +1,7 @@
 package definiti.core.end2end
 
-import definiti.core.ast.Range
-import definiti.core.ast.pure.{AttributeDefinition, ParameterDefinition, TypeReference}
-import definiti.core.ast.structure._
-import definiti.core.ast.typed.{BooleanValue, DefinedFunction}
-import definiti.core.{ValidValue, ValidationMatchers}
+import definiti.core.ast._
+import definiti.core._
 
 class NominalSpec extends EndToEndSpec {
   import NominalSpec._
@@ -118,7 +115,7 @@ object NominalSpec {
   )
 
   val packageAliasType: Root = Root(
-    elements = Seq(Package(
+    elements = Seq(Namespace(
       name = "tst",
       elements = Seq(AliasType(
         name = "AliasString",

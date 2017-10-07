@@ -1,10 +1,7 @@
 package definiti.core.end2end
 
 import definiti.core._
-import definiti.core.ast.Range
-import definiti.core.ast.pure.{AttributeDefinition, ParameterDefinition, TypeReference, VerificationReference, LogicalOperator}
-import definiti.core.ast.structure.{DefinedType, Package, Root, Verification}
-import definiti.core.ast.typed._
+import definiti.core.ast._
 
 class GeneratePublicApiSpec extends EndToEndSpec {
   import GeneratePublicApiSpec._
@@ -31,7 +28,7 @@ class GeneratePublicApiSpec extends EndToEndSpec {
 
 object GeneratePublicApiSpec {
   val validBlogExpected = Root(Seq(
-    Package(
+    Namespace(
       name = "blog",
       elements = Seq(
         DefinedType(

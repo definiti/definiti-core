@@ -1,7 +1,4 @@
-package definiti.core.ast.typed
-
-import definiti.core.ast.Range
-import definiti.core.ast.pure._
+package definiti.core.ast
 
 sealed trait Expression {
   def range: Range
@@ -63,3 +60,11 @@ case class FunctionCall(
   returnType: AbstractTypeReference,
   range: Range
 ) extends Expression
+
+object LogicalOperator extends Enumeration {
+  val Or, And, Equal, NotEqual, Lower, Upper, LowerOrEqual, UpperOrEqual = Value
+}
+
+object CalculatorOperator extends Enumeration {
+  val Plus, Minus, Modulo, Time, Divide = Value
+}

@@ -1,10 +1,11 @@
 package definiti.core.typing
 
-import definiti.core.ast.pure.{AliasType => PureAliasType, ClassDefinition => PureClassDefinition, DefinedType => PureDefinedType, NativeClassDefinition => PureNativeClassDefinition, TypeVerification => PureTypeVerification}
-import definiti.core.ast.typed.{AliasType => TypedAliasType, ClassDefinition => TypedClassDefinition, DefinedType => TypedDefinedType, NativeClassDefinition => TypedNativeClassDefinition, TypeVerification => TypedTypeVerification}
+import definiti.core.ast._
+import definiti.core.ast.pure._
+import definiti.core.ast.typed._
 import definiti.core.{Context, ValidValue, Validated}
 
-class ClassDefinitionTyping(context: Context) {
+private[core] class ClassDefinitionTyping(context: Context) {
   val functionTyping = new FunctionTyping(context)
 
   def addTypesIntoClassDefinition(classDefinition: PureClassDefinition): Validated[TypedClassDefinition] = {
@@ -41,10 +42,10 @@ class ClassDefinitionTyping(context: Context) {
     }
   }
 
-  def addTypesIntoTypeVerification(typeVerification: PureTypeVerification): Validated[TypedTypeVerification] = {
+  def addTypesIntoTypeVerification(typeVerification: PureTypeVerification): Validated[TypeVerification] = {
     val validatedFunction = functionTyping.addTypesIntoDefinedFunction(typeVerification.function)
     validatedFunction.map { function =>
-      TypedTypeVerification(
+      TypeVerification(
         message = typeVerification.message,
         function = function,
         range = typeVerification.range

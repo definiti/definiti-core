@@ -1,8 +1,7 @@
 package definiti.core.parser.project
 
-import definiti.core._
+import definiti.core.{_}
 import definiti.core.ast._
-import definiti.core.ast.structure.Library
 import definiti.core.generators.antlr.ContextGenerator
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}

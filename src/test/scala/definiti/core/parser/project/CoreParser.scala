@@ -10,7 +10,7 @@ import definiti.core.utils.CollectionUtils.scalaSeq
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 
 trait CoreParser {
-  lazy val core: Seq[ClassDefinition] = {
+  lazy val core: Seq[PureClassDefinition] = {
     extractCoreDefinitionFiles()
       .map(_.toAbsolutePath.toString)
       .flatMap(parseCoreDefinitionFile)
@@ -29,7 +29,7 @@ trait CoreParser {
     scalaSeq(Files.find(source, 1000, (path, _) => String.valueOf(path).endsWith(".definition")))
   }
 
-  private def parseCoreDefinitionFile(fileName: String): Seq[ClassDefinition] = {
+  private def parseCoreDefinitionFile(fileName: String): Seq[PureClassDefinition] = {
     val in = CharStreams.fromFileName(fileName)
     val lexer = new CoreDefinitionLexer(in)
     val tokens = new CommonTokenStream(lexer)

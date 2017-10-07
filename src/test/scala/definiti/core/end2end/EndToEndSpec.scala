@@ -3,7 +3,7 @@ package definiti.core.end2end
 import java.nio.file.Paths
 
 import definiti.core._
-import definiti.core.ast.structure.Root
+import definiti.core.ast.Root
 import definiti.core.mock.plugins.StringExtendedContext
 import org.scalatest.{FlatSpec, Matchers}
 

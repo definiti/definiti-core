@@ -3,8 +3,8 @@ package definiti.core
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
-import definiti.core.ast.pure.Root
-import definiti.core.ast.structure.Library
+import definiti.core.ast._
+import definiti.core.ast.pure._
 import definiti.core.linking.ProjectLinking
 import definiti.core.parser.{ProjectParser, ProjectParsingResult}
 import definiti.core.structure.ProjectStructure
@@ -28,12 +28,12 @@ private[core] class Project(configuration: Configuration) {
       .toValidation
   }
 
-  def generatePublicAST(): Validated[ast.structure.Root] = {
+  def generatePublicAST(): Validated[Root] = {
     generateStructureWithLibrary()
       .map(_._1)
   }
 
-  private def generateStructureWithLibrary(): Validated[(ast.structure.Root, Library)] = {
+  private def generateStructureWithLibrary(): Validated[(Root, Library)] = {
     processInternalParser()
       .flatMap { projectParsingResult =>
         processPluginParsers(projectParsingResult.root)
@@ -59,10 +59,10 @@ private[core] class Project(configuration: Configuration) {
       }
   }
 
-  private def pureCoreToStructureCore(pureCore: Seq[ast.pure.ClassDefinition]): Seq[ast.structure.ClassDefinition] = {
+  private def pureCoreToStructureCore(pureCore: Seq[PureClassDefinition]): Seq[ClassDefinition] = {
     pureCore.collect {
-      case nativeClassDefinition: ast.pure.NativeClassDefinition =>
-        ast.structure.NativeClassDefinition(
+      case nativeClassDefinition: PureNativeClassDefinition =>
+        NativeClassDefinition(
           name = nativeClassDefinition.name,
           genericTypes = nativeClassDefinition.genericTypes,
           attributes = nativeClassDefinition.attributes,
@@ -77,10 +77,10 @@ private[core] class Project(configuration: Configuration) {
       .map(ProjectLinking.injectLinks)
   }
 
-  private def processPluginParsers(root: Root): Validated[Root] = {
+  private def processPluginParsers(root: PureRoot): Validated[PureRoot] = {
     // Do not accumulate errors because of eventual dependencies between plugins
     // See what is done and validate or update behavior
-    val initialRoot: Validated[Root] = ValidValue(root)
+    val initialRoot: Validated[PureRoot] = ValidValue(root)
     configuration.parsers.foldLeft(initialRoot) { case (acc, parser) =>
       acc match {
         case errors@Invalid(_) => errors
@@ -89,16 +89,16 @@ private[core] class Project(configuration: Configuration) {
     }
   }
 
-  private def processInternalValidation(root: ast.structure.Root, library: Library): Validation = {
+  private def processInternalValidation(root: Root, library: Library): Validation = {
     val astValidation = new ASTValidation(configuration, library)
     astValidation.validate(root)
   }
 
-  private def processExternalValidation(root: ast.structure.Root, library: Library): Validation = {
+  private def processExternalValidation(root: Root, library: Library): Validation = {
     Validation.join(configuration.validators.map(_.validate(root, library)))
   }
 
-  private def processGenerators(root: ast.structure.Root, library: Library): Map[Path, String] = {
+  private def processGenerators(root: Root, library: Library): Map[Path, String] = {
     configuration.generators.flatMap(_.generate(root, library)).toMap
   }
 

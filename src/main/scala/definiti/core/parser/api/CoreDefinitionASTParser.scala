@@ -1,5 +1,6 @@
 package definiti.core.parser.api
 
+import definiti.core.ast._
 import definiti.core.ast.pure._
 import definiti.core.parser.antlr.CoreDefinitionParser._
 import definiti.core.parser.project.CommonParser
@@ -8,8 +9,8 @@ import definiti.core.utils.CollectionUtils._
 import scala.collection.mutable.ListBuffer
 
 private[core] object CoreDefinitionASTParser extends CommonParser {
-  def definitionContextToAST(context: CoreDefinitionContext): Seq[ClassDefinition] = {
-    val classDefinitions = ListBuffer[ClassDefinition]()
+  def definitionContextToAST(context: CoreDefinitionContext): Seq[PureClassDefinition] = {
+    val classDefinitions = ListBuffer[PureClassDefinition]()
 
     scalaSeq(context.toplevel()).foreach { element =>
       if (element.coreType() != null) {
@@ -23,9 +24,9 @@ private[core] object CoreDefinitionASTParser extends CommonParser {
     classDefinitions
   }
 
-  private def processCoreType(context: CoreTypeContext): ClassDefinition = {
+  private def processCoreType(context: CoreTypeContext): PureClassDefinition = {
     val members = scalaSeq(context.member())
-    NativeClassDefinition(
+    PureNativeClassDefinition(
       name = context.typeName.getText,
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))

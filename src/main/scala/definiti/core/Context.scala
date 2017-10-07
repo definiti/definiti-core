@@ -1,14 +1,15 @@
 package definiti.core
 
+import definiti.core.ast._
 import definiti.core.ast.pure._
 
-case class ClassReference(classDefinition: ClassDefinition, genericTypes: Seq[ClassReference])
+private[core] case class ClassReference(classDefinition: PureClassDefinition, genericTypes: Seq[ClassReference])
 
 // TODO: This system need a refactoring, lot of code is duplicated.
-sealed trait Context {
+private[core] sealed trait Context {
   def isTypeAvailable(typeName: String): Boolean
 
-  def findType(typeName: String): Option[ClassDefinition]
+  def findType(typeName: String): Option[PureClassDefinition]
 
   def isVerificationAvailable(verificationName: String): Boolean
 
@@ -16,29 +17,29 @@ sealed trait Context {
     isVerificationAvailable(verificationReference.verificationName)
   }
 
-  def findVerification(verificationName: String): Option[Verification]
+  def findVerification(verificationName: String): Option[PureVerification]
 
-  def findVerification(verificationReference: VerificationReference): Option[Verification] = {
+  def findVerification(verificationReference: VerificationReference): Option[PureVerification] = {
     findVerification(verificationReference.verificationName)
   }
 
   def isFunctionAvailable(functionName: String): Boolean
 
-  def findFunction(functionName: String): Option[NamedFunction]
+  def findFunction(functionName: String): Option[PureNamedFunction]
 
   def findTypeReference(name: String): Option[AbstractTypeReference]
 }
 
-case class ReferenceContext(
-  classes: Seq[ClassDefinition],
-  verifications: Seq[Verification],
-  namedFunctions: Seq[NamedFunction]
+private[core] case class ReferenceContext(
+  classes: Seq[PureClassDefinition],
+  verifications: Seq[PureVerification],
+  namedFunctions: Seq[PureNamedFunction]
 ) extends Context {
   override def isTypeAvailable(typeName: String): Boolean = {
     classes.exists(_.canonicalName == typeName)
   }
 
-  override def findType(typeName: String): Option[ClassDefinition] = {
+  override def findType(typeName: String): Option[PureClassDefinition] = {
     classes.find(_.canonicalName == typeName)
   }
 
@@ -46,7 +47,7 @@ case class ReferenceContext(
     verifications.exists(_.canonicalName == verificationName)
   }
 
-  override def findVerification(verificationName: String): Option[Verification] = {
+  override def findVerification(verificationName: String): Option[PureVerification] = {
     verifications.find(_.canonicalName == verificationName)
   }
 
@@ -54,7 +55,7 @@ case class ReferenceContext(
     namedFunctions.exists(_.canonicalName == functionName)
   }
 
-  override def findFunction(functionName: String): Option[NamedFunction] = {
+  override def findFunction(functionName: String): Option[PureNamedFunction] = {
     namedFunctions.find(_.canonicalName == functionName)
   }
 
@@ -65,16 +66,16 @@ case class ReferenceContext(
   }
 }
 
-case class ClassContext(
+private[core] case class ClassContext(
   outerContext: Context,
-  currentType: ClassDefinition,
+  currentType: PureClassDefinition,
   genericTypes: Seq[ClassReference]
 ) extends Context {
   override def isTypeAvailable(typeName: String): Boolean = {
     currentType.genericTypes.contains(typeName) || outerContext.isTypeAvailable(typeName)
   }
 
-  override def findType(typeName: String): Option[ClassDefinition] = {
+  override def findType(typeName: String): Option[PureClassDefinition] = {
     if (currentType.genericTypes.contains(typeName)) {
       val indexOfGeneric = currentType.genericTypes.indexOf(typeName)
       if (indexOfGeneric < genericTypes.size) {
@@ -91,7 +92,7 @@ case class ClassContext(
     outerContext.isVerificationAvailable(verificationName)
   }
 
-  override def findVerification(verificationName: String): Option[Verification] = {
+  override def findVerification(verificationName: String): Option[PureVerification] = {
     outerContext.findVerification(verificationName)
   }
 
@@ -99,7 +100,7 @@ case class ClassContext(
     outerContext.isFunctionAvailable(functionName)
   }
 
-  override def findFunction(functionName: String): Option[NamedFunction] = {
+  override def findFunction(functionName: String): Option[PureNamedFunction] = {
     outerContext.findFunction(functionName)
   }
 
@@ -108,7 +109,7 @@ case class ClassContext(
   }
 }
 
-case class MethodContext(
+private[core] case class MethodContext(
   outerContext: Context,
   currentMethod: MethodDefinition,
   genericTypes: Seq[ClassReference]
@@ -117,7 +118,7 @@ case class MethodContext(
     currentMethod.genericTypes.contains(typeName) || outerContext.isTypeAvailable(typeName)
   }
 
-  override def findType(typeName: String): Option[ClassDefinition] = {
+  override def findType(typeName: String): Option[PureClassDefinition] = {
     if (currentMethod.genericTypes.contains(typeName)) {
       val indexOfGeneric = currentMethod.genericTypes.indexOf(typeName)
       if (indexOfGeneric < genericTypes.size) {
@@ -134,7 +135,7 @@ case class MethodContext(
     outerContext.isVerificationAvailable(verificationName)
   }
 
-  override def findVerification(verificationName: String): Option[Verification] = {
+  override def findVerification(verificationName: String): Option[PureVerification] = {
     outerContext.findVerification(verificationName)
   }
 
@@ -142,7 +143,7 @@ case class MethodContext(
     outerContext.isFunctionAvailable(functionName)
   }
 
-  override def findFunction(functionName: String): Option[NamedFunction] = {
+  override def findFunction(functionName: String): Option[PureNamedFunction] = {
     outerContext.findFunction(functionName)
   }
 
@@ -159,15 +160,15 @@ case class MethodContext(
   }
 }
 
-case class DefinedFunctionContext(
+private[core] case class DefinedFunctionContext(
   outerContext: Context,
-  currentFunction: DefinedFunction
+  currentFunction: PureDefinedFunction
 ) extends Context {
   override def isTypeAvailable(typeName: String): Boolean = {
     currentFunction.genericTypes.contains(typeName) || outerContext.isTypeAvailable(typeName)
   }
 
-  override def findType(typeName: String): Option[ClassDefinition] = {
+  override def findType(typeName: String): Option[PureClassDefinition] = {
     outerContext.findType(typeName)
   }
 
@@ -175,7 +176,7 @@ case class DefinedFunctionContext(
     outerContext.isVerificationAvailable(verificationName)
   }
 
-  override def findVerification(verificationName: String): Option[Verification] = {
+  override def findVerification(verificationName: String): Option[PureVerification] = {
     outerContext.findVerification(verificationName)
   }
 
@@ -183,7 +184,7 @@ case class DefinedFunctionContext(
     outerContext.isFunctionAvailable(functionName)
   }
 
-  override def findFunction(functionName: String): Option[NamedFunction] = {
+  override def findFunction(functionName: String): Option[PureNamedFunction] = {
     outerContext.findFunction(functionName)
   }
 
@@ -200,15 +201,15 @@ case class DefinedFunctionContext(
   }
 }
 
-case class NamedFunctionReferenceContext(
+private[core] case class NamedFunctionReferenceContext(
   outerContext: Context,
-  currentFunction: NamedFunction
+  currentFunction: PureNamedFunction
 ) extends Context {
   override def isTypeAvailable(typeName: String): Boolean = {
     currentFunction.genericTypes.contains(typeName) || outerContext.isTypeAvailable(typeName)
   }
 
-  override def findType(typeName: String): Option[ClassDefinition] = {
+  override def findType(typeName: String): Option[PureClassDefinition] = {
     outerContext.findType(typeName)
   }
 
@@ -216,7 +217,7 @@ case class NamedFunctionReferenceContext(
     outerContext.isVerificationAvailable(verificationName)
   }
 
-  override def findVerification(verificationName: String): Option[Verification] = {
+  override def findVerification(verificationName: String): Option[PureVerification] = {
     outerContext.findVerification(verificationName)
   }
 
@@ -224,7 +225,7 @@ case class NamedFunctionReferenceContext(
     outerContext.isFunctionAvailable(functionName)
   }
 
-  override def findFunction(functionName: String): Option[NamedFunction] = {
+  override def findFunction(functionName: String): Option[PureNamedFunction] = {
     outerContext.findFunction(functionName)
   }
 
@@ -241,15 +242,15 @@ case class NamedFunctionReferenceContext(
   }
 }
 
-case class LambdaContext(
+private[core] case class LambdaContext(
   outerContext: Context,
-  lambda: LambdaExpression
+  lambda: PureLambdaExpression
 ) extends Context {
   override def isTypeAvailable(typeName: String): Boolean = {
     outerContext.isTypeAvailable(typeName)
   }
 
-  override def findType(typeName: String): Option[ClassDefinition] = {
+  override def findType(typeName: String): Option[PureClassDefinition] = {
     outerContext.findType(typeName)
   }
 
@@ -257,7 +258,7 @@ case class LambdaContext(
     outerContext.isVerificationAvailable(verificationName)
   }
 
-  override def findVerification(verificationName: String): Option[Verification] = {
+  override def findVerification(verificationName: String): Option[PureVerification] = {
     outerContext.findVerification(verificationName)
   }
 
@@ -265,7 +266,7 @@ case class LambdaContext(
     outerContext.isFunctionAvailable(functionName)
   }
 
-  override def findFunction(functionName: String): Option[NamedFunction] = {
+  override def findFunction(functionName: String): Option[PureNamedFunction] = {
     outerContext.findFunction(functionName)
   }
 

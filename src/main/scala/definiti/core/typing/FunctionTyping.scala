@@ -1,11 +1,11 @@
 package definiti.core.typing
 
-import definiti.core.ast.pure.{DefinedFunction => PureDefinedFunction}
-import definiti.core.ast.typed.{DefinedFunction => TypedDefinedFunction}
+import definiti.core.ast.DefinedFunction
+import definiti.core.ast.pure.PureDefinedFunction
 import definiti.core.{Context, DefinedFunctionContext, Validated}
 
-class FunctionTyping(context: Context) {
-  def addTypesIntoDefinedFunction(definedFunction: PureDefinedFunction): Validated[TypedDefinedFunction] = {
+private[core] class FunctionTyping(context: Context) {
+  def addTypesIntoDefinedFunction(definedFunction: PureDefinedFunction): Validated[DefinedFunction] = {
     val functionContext = DefinedFunctionContext(
       outerContext = context,
       currentFunction = definedFunction
@@ -13,7 +13,7 @@ class FunctionTyping(context: Context) {
     val expressionTyping = new ExpressionTyping(functionContext)
     val validatedExpression = expressionTyping.addTypesIntoExpression(definedFunction.body)
     validatedExpression.map { expression =>
-      TypedDefinedFunction(
+      DefinedFunction(
         parameters = definedFunction.parameters,
         body = expression,
         genericTypes = definedFunction.genericTypes,

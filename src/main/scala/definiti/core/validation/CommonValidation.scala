@@ -1,10 +1,7 @@
 package definiti.core.validation
 
 import definiti.core._
-import definiti.core.ast._
-import definiti.core.ast.pure._
-import definiti.core.ast.structure.ClassDefinition
-import definiti.core.ast.typed.Expression
+import definiti.core.ast.{Expression, _}
 
 private[core] trait CommonValidation {
   self: ASTValidation =>

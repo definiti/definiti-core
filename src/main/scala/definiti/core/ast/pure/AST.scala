@@ -1,65 +1,22 @@
 package definiti.core.ast.pure
 
 import definiti.core.ASTHelper
-import definiti.core.ast.{ImportsMap, Range}
+import definiti.core.ast._
 
-case class Root(
-  files: Seq[RootFile]
+private[core] case class PureRoot(
+  files: Seq[PureRootFile]
 )
 
-case class RootFile(
+private[core] case class PureRootFile(
   packageName: String,
   imports: ImportsMap,
-  verifications: Seq[Verification],
-  classDefinitions: Seq[ClassDefinition],
-  namedFunctions: Seq[NamedFunction],
-  contexts: Seq[ExtendedContext[_]]
+  verifications: Seq[PureVerification],
+  classDefinitions: Seq[PureClassDefinition],
+  namedFunctions: Seq[PureNamedFunction],
+  contexts: Seq[PureExtendedContext[_]]
 )
 
-sealed trait AbstractTypeReference {
-  def readableString: String
-}
-
-case class TypeReference(
-  typeName: String,
-  genericTypes: Seq[TypeReference] = Seq.empty
-) extends AbstractTypeReference {
-  def readableString: String = {
-    if (genericTypes.nonEmpty) {
-      s"$typeName[${genericTypes.map(_.readableString).mkString(",")}]"
-    } else {
-      typeName
-    }
-  }
-}
-
-case class LambdaReference(
-  inputTypes: Seq[TypeReference],
-  outputType: TypeReference
-) extends AbstractTypeReference {
-  def readableString: String = s"(${inputTypes.map(_.readableString).mkString(", ")}) => ${outputType.readableString}"
-}
-
-case class NamedFunctionReference(
-  functionName: String
-) extends AbstractTypeReference {
-  def readableString: String = functionName
-}
-case class AttributeDefinition(
-  name: String,
-  typeReference: TypeReference,
-  comment: Option[String],
-  verifications: Seq[VerificationReference],
-  range: Range
-)
-
-case class ParameterDefinition(
-  name: String,
-  typeReference: AbstractTypeReference,
-  range: Range
-)
-
-sealed trait ClassDefinition {
+private[core] sealed trait PureClassDefinition {
   def name: String
 
   def canonicalName: String
@@ -67,60 +24,50 @@ sealed trait ClassDefinition {
   def genericTypes: Seq[String]
 }
 
-case class NativeClassDefinition(
+private[core] case class PureNativeClassDefinition(
   name: String,
   genericTypes: Seq[String],
   attributes: Seq[AttributeDefinition],
   methods: Seq[MethodDefinition],
   comment: Option[String]
-) extends ClassDefinition {
+) extends PureClassDefinition {
   override def canonicalName: String = name
 }
 
-case class MethodDefinition(
-  name: String,
-  genericTypes: Seq[String],
-  parameters: Seq[ParameterDefinition],
-  returnType: TypeReference,
-  comment: Option[String]
-)
+private[core] case class PureDefinedFunction(parameters: Seq[ParameterDefinition], body: PureExpression, genericTypes: Seq[String], range: Range)
 
-case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], range: Range)
+private[core] case class PureParameter(name: String, typeReference: TypeReference, range: Range)
 
-case class Parameter(name: String, typeReference: TypeReference, range: Range)
-
-case class Verification(name: String, packageName: String, message: String, function: DefinedFunction, comment: Option[String], range: Range) {
+private[core] case class PureVerification(name: String, packageName: String, message: String, function: PureDefinedFunction, comment: Option[String], range: Range) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-sealed trait Type extends ClassDefinition {
+private[core] sealed trait PureType extends PureClassDefinition {
   def comment: Option[String]
 }
 
-case class DefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends Type {
+private[core] case class PureDefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[PureTypeVerification], inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends PureType {
   def methods: Seq[MethodDefinition] = Seq()
 
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-case class AliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends Type {
+private[core] case class PureAliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends PureType {
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-case class TypeVerification(message: String, function: DefinedFunction, range: Range)
+private[core] case class PureTypeVerification(message: String, function: PureDefinedFunction, range: Range)
 
-case class VerificationReference(verificationName: String, message: Option[String], range: Range)
-
-case class NamedFunction(
+private[core] case class PureNamedFunction(
   name: String,
   packageName: String,
   genericTypes: Seq[String],
   parameters: Seq[ParameterDefinition],
   returnType: TypeReference,
-  body: Expression,
+  body: PureExpression,
   range: Range
 ) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-case class ExtendedContext[A](name: String, content: A, range: Range)
+private[core] case class PureExtendedContext[A](name: String, content: A, range: Range)

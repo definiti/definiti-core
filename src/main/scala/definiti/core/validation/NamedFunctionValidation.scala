@@ -1,7 +1,7 @@
 package definiti.core.validation
 
 import definiti.core.Validation
-import definiti.core.ast.structure.NamedFunction
+import definiti.core.ast.NamedFunction
 
 private[core] trait NamedFunctionValidation {
   self: ASTValidation =>

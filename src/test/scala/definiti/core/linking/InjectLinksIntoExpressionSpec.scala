@@ -1,6 +1,6 @@
 package definiti.core.linking
 
-import definiti.core.FunctionCall
+import definiti.core.ast.pure._
 import definiti.core.generators.{ExpressionGenerator, TypeMappingGenerator}
 import definiti.core.parser.project.CoreParser
 import org.scalatest.prop.PropertyChecks
@@ -26,8 +26,8 @@ class InjectLinksIntoExpressionSpec extends FlatSpec with Matchers with Property
     } yield (functionCall, typeMapping)
     forAll(cases) { case (functionCall, typeMapping) =>
       val result = ProjectLinking.injectLinksIntoExpression(functionCall, typeMapping)
-      result should be (an[FunctionCall])
-      typeMapping should not contain result.asInstanceOf[FunctionCall].name
+      result should be (an[PureFunctionCall])
+      typeMapping should not contain result.asInstanceOf[PureFunctionCall].name
     }
   }
 }

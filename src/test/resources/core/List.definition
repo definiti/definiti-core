@@ -1,0 +1,213 @@
+/**
+ * A `List` is an ordered collection of elements of the generic type `A`.
+ *
+ * A `List` is immutable by design.
+ * If you want to update the list, you will need to perform operations creating a new `List`.
+ */
+type List[A] {
+  /**
+   * Checks if the `List` contains no element.
+   */
+  isEmpty(): Boolean
+
+  /**
+   * Checks if the `List` contains at least one element.
+   */
+  nonEmpty(): Boolean
+
+  /**
+   * Returns the first element of the `List` wrapped into an `Option`.
+   * If the `List` is empty, returns an empty `Option`
+   */
+  head: Option[A]
+
+  /**
+   * Returns all the elements of the `List` excepted the first one.
+   * If the `List` is empty, returns the `List`.
+   */
+  tail: List[A]
+
+  /**
+   * Returns the last element of the `List` wrapped into an `Option`.
+   * If the `List` is empty, returns an empty `Option`
+   */
+  last: Option[A]
+
+  /**
+   * Transforms all elements of the `List` by applying the `mapping` function to each element.
+   * Returns all transformed elements into a `List`.
+   * This function keep the order of the `List`.
+   */
+  map[B](mapping: A => B): List[B]
+
+  /**
+   * Transforms all elements of the `List` by applying the `mapping` function to each element.
+   * The `mapping` function returning a `List` of elements.
+   * all these elements will be flattened to keep only a `List` and not a `List` of `List`.
+   * This function keep the order of the `List`.
+   */
+  flatMap[B](mapping: A => List[B]): List[B]
+
+  /**
+   * Checks that all elements verify the `predicate`.
+   */
+  forAll(predicate: A => Boolean): Boolean
+
+  /**
+   * Checks that no element verify the `predicate`.
+   *
+   * Thris is an alias of `existsNot`.
+   */
+  forNone(predicate: A => Boolean): Boolean
+
+  /**
+   * Returns a `List` of elements verifying the `predicate`.
+   * This function keep the order of the `List`.
+   */
+  filter(predicate: A => Boolean): List[A]
+
+  /**
+   * Returns a `List` of elements verifying not the `predicate`.
+   * This function keep the order of the `List`.
+   */
+  filterNot(predicate: A => Boolean): List[A]
+
+  /**
+   * Checks there is at least one element verifying the `predicate`.
+   */
+  exists(predicate: A => Boolean): Boolean
+
+  /**
+   * Checks there is no element verifying the `predicate`.
+   *
+   * This is an alias of `forNone`.
+   */
+  existsNot(predicate: A => Boolean): Boolean
+
+  /**
+   * Checks the `List` contains the given `element`.
+   * The element must be equals (ex: `.equals` in java, `==` in scala and javascript) to the given one.
+   */
+  contains(element: A): Boolean
+
+  /**
+   * Checks the `List` contains not the given `element`.
+   * No element must be equals (ex: `.equals` in java, `==` in scala and javascript) to the given one.
+   */
+  containsNot(element: A): Boolean
+
+  /**
+   * Goes through the `List` from the first element to the last.
+   * For each element, it will execute the given `operation`.
+   * This last accept two parameters, the result of the last `operation` and the current element.
+   * For the first element (and `operation`), use the `initialValue`.
+   *
+   * If the `List` is empty, returns `initialValue`.
+   */
+  foldLeft[B](initialValue: B, operation: (B, A) => B): B
+
+  /**
+   * Goes through the `List` from the last element to the first.
+   * For each element, it will execute the given `operation`.
+   * This last accept two parameters, the result of the last `operation` and the current element.
+   * For the first element (and `operation`), use the `initialValue`.
+   *
+   * If the `List` is empty, returns `initialValue`.
+   */
+  foldRight[B](initialValue: B, operation: (A, B) => B): B
+
+  /**
+   * Returns the index of the given `element` wrapped into an `Option`.
+   * The element must be equals (ex: `.equals` in java, `==` in scala and javascript) to the given one.
+   *
+   * If the element does not exist, returns an empty `Option`.
+   */
+  indexOf(element: A): Option[Number]
+
+  /**
+   * Transforms the `List` into a `String`.
+   *
+   * The resulting `String` will start with `prefix`, end with `suffix` and all elements will be separated by `separator`.
+   * All elements will be automatically transformed into `String` (ex: `.toString` in java, scala and javascript).
+   */
+  mkString(prefix: String, separator: String, suffix: String): String
+
+  /**
+   * Returns the number of elements of the `List`.
+   */
+  size: Number
+
+  /**
+   * Returns a new `List` with all values existing only once in the `List`.
+   * Two elements cannot be equals (ex: `.equals` in java, `==` in scala and javascript).
+   */
+  distinct(): List[A]
+
+  /**
+   * Returns a new `List` containing only elements existing in both `List`.
+   * Two elements must be equals (ex: `.equals` in java, `==` in scala and javascript).
+   */
+  intersect(other: List[A]): List[A]
+
+  /**
+   * Returns a new List composed of all elements of both `List`.
+   * Duplicates will be discarded.
+   */
+  union(other: List[A]): List[A]
+
+  /**
+   * Counts the number of elements verifying given `predicate`.
+   */
+  count(predicate: (A) => Boolean): Number
+
+  /**
+   * Transforms into a `List` starting with the last element through the first one.
+   */
+  reverse(): List[A]
+
+  /**
+   * Returns the first element verifying the given `predicate`.
+   *
+   * If no argument is found, returns an empty `Option`.
+   */
+  find(predicate: (A) => Boolean): Option[A]
+
+  /**
+   * Returns the last element verifying the given `predicate`.
+   *
+   * If no argument is found, returns an empty `Option`.
+   */
+  findLast(predicate: (A) => Boolean): Option[A]
+
+  /**
+   * Returns a new `List` without the first `numberOfElementsToDrop` elements.
+   *
+   * If `numberOfElementsToDrop` if greater than the size of the `List`, returns an empty `List`.
+   */
+  drop(numberOfElementsToDrop: Number): List[A]
+
+  /**
+   * Checks if the first element verifies `predicate`.
+   * If verified, returns the `List` starting by this element with all next ones.
+   * If not, drop the element and process again with the next element.
+   *
+   * If no element verifies the `predicate`, returns an empty `List`.
+   */
+  dropWhile(predicate: (A) => Boolean): List[A]
+
+  /**
+   * Returns a new `List` with only the first `numberOfElementsToDrop` elements.
+   *
+   * If `numberOfElementsToDrop` if greater than the size of the `List`, returns the same `List`.
+   */
+  take(numberOfElementsToTake: Number): List[A]
+
+  /**
+   * Checks if the first element verifies `predicate`.
+   * If verified, keep the element and check the next one.
+   * If not, drop this element and next ones and returns previously kept elements.
+   *
+   * If no element verifies the `predicate`, returns an empty `List`.
+   */
+  takeWhile(predicate: (A) => Boolean): List[A]
+}

@@ -1,6 +1,7 @@
 package definiti.core.linking
 
-import definiti.core._
+import definiti.core.ast._
+import definiti.core.ast.pure._
 import definiti.core.parser.ProjectParsingResult
 import definiti.core.utils.StringUtils
 
@@ -12,7 +13,7 @@ private[core] object ProjectLinking {
     )
   }
 
-  def extractTypeMappingFromCore(core: Seq[ClassDefinition]): TypeMapping = {
+  def extractTypeMappingFromCore(core: Seq[PureClassDefinition]): TypeMapping = {
     core
       .view
       .map(_.name)
@@ -20,13 +21,13 @@ private[core] object ProjectLinking {
       .toMap
   }
 
-  def injectLinksIntoRoot(root: Root, coreTypeMapping: TypeMapping): Root = {
+  def injectLinksIntoRoot(root: PureRoot, coreTypeMapping: TypeMapping): PureRoot = {
     root.copy(
       root.files.map(injectLinksIntoRootFile(_, coreTypeMapping))
     )
   }
 
-  def injectLinksIntoRootFile(rootFile: RootFile, coreTypeMapping: TypeMapping): RootFile = {
+  def injectLinksIntoRootFile(rootFile: PureRootFile, coreTypeMapping: TypeMapping): PureRootFile = {
     val fileTypeMapping = extractTypeMappingFromFile(rootFile)
     val imports = rootFile.imports
     val typeMapping = coreTypeMapping ++ fileTypeMapping ++ imports
@@ -37,7 +38,7 @@ private[core] object ProjectLinking {
     )
   }
 
-  def extractTypeMappingFromFile(rootFile: RootFile): TypeMapping = {
+  def extractTypeMappingFromFile(rootFile: PureRootFile): TypeMapping = {
     val packageNamePrefix = if (rootFile.packageName.nonEmpty) {
       rootFile.packageName + "."
     } else {
@@ -57,22 +58,22 @@ private[core] object ProjectLinking {
     verificationTypeMapping ++ classDefinitionTypeMapping
   }
 
-  def injectLinksIntoVerification(verification: Verification, packageName: String, typeMapping: TypeMapping): Verification = {
+  def injectLinksIntoVerification(verification: PureVerification, packageName: String, typeMapping: TypeMapping): PureVerification = {
     verification.copy(
       packageName = packageName,
       function = injectLinksIntoFunction(verification.function, typeMapping)
     )
   }
 
-  def injectLinksIntoClassDefinition(classDefinition: ClassDefinition, packageName: String, typeMapping: TypeMapping): ClassDefinition = {
+  def injectLinksIntoClassDefinition(classDefinition: PureClassDefinition, packageName: String, typeMapping: TypeMapping): PureClassDefinition = {
     classDefinition match {
-      case aliasType: AliasType =>
+      case aliasType: PureAliasType =>
         aliasType.copy(
           packageName = packageName,
           alias = injectLinksIntoTypeReference(aliasType.alias, typeMapping),
           inherited = aliasType.inherited.map(injectLinksIntoVerificationReference(_, typeMapping))
         )
-      case definedType: DefinedType =>
+      case definedType: PureDefinedType =>
         definedType.copy(
           packageName = packageName,
           attributes = definedType.attributes.map(injectLinksIntoAttributes(_, typeMapping)),
@@ -90,13 +91,13 @@ private[core] object ProjectLinking {
     )
   }
 
-  def injectLinksIntoTypeVerification(typeVerification: TypeVerification, typeMapping: TypeMapping): TypeVerification = {
+  def injectLinksIntoTypeVerification(typeVerification: PureTypeVerification, typeMapping: TypeMapping): PureTypeVerification = {
     typeVerification.copy(
       function = injectLinksIntoFunction(typeVerification.function, typeMapping)
     )
   }
 
-  def injectLinksIntoNamedFunction(namedFunction: NamedFunction, packageName: String, typeMapping: TypeMapping): NamedFunction = {
+  def injectLinksIntoNamedFunction(namedFunction: PureNamedFunction, packageName: String, typeMapping: TypeMapping): PureNamedFunction = {
     namedFunction.copy(
       packageName = packageName,
       parameters = namedFunction.parameters.map(injectLinksIntoParameter(_, typeMapping)),
@@ -105,7 +106,7 @@ private[core] object ProjectLinking {
     )
   }
 
-  def injectLinksIntoFunction(function: DefinedFunction, typeMapping: TypeMapping): DefinedFunction = {
+  def injectLinksIntoFunction(function: PureDefinedFunction, typeMapping: TypeMapping): PureDefinedFunction = {
     function.copy(
       parameters = function.parameters.map(injectLinksIntoParameter(_, typeMapping)),
       body = injectLinksIntoExpression(function.body, typeMapping)
@@ -145,42 +146,44 @@ private[core] object ProjectLinking {
     )
   }
 
-  def injectLinksIntoExpression(expression: Expression, typeMapping: TypeMapping): Expression = {
+  def injectLinksIntoExpression(expression: PureExpression, typeMapping: TypeMapping): PureExpression = {
     expression match {
-      case logicalExpression: LogicalExpression => logicalExpression
-      case calculatorExpression: CalculatorExpression => calculatorExpression
-      case numberValue: NumberValue => numberValue
-      case quotedStringValue: QuotedStringValue => quotedStringValue
-      case reference: Reference =>
+      case logicalExpression: PureLogicalExpression => logicalExpression
+      case calculatorExpression: PureCalculatorExpression => calculatorExpression
+      case not: PureNot => not
+      case booleanValue: PureBooleanValue => booleanValue
+      case numberValue: PureNumberValue => numberValue
+      case quotedStringValue: PureQuotedStringValue => quotedStringValue
+      case reference: PureReference =>
         reference.copy(
           name = getLink(reference.name, typeMapping)
         )
-      case methodCall: MethodCall =>
+      case methodCall: PureMethodCall =>
         methodCall.copy(
           expression = injectLinksIntoExpression(methodCall.expression, typeMapping),
           parameters = methodCall.parameters.map(injectLinksIntoExpression(_, typeMapping)),
           generics = methodCall.generics.map(injectLinksIntoTypeReference(_, typeMapping))
         )
-      case attributeCall: AttributeCall =>
+      case attributeCall: PureAttributeCall =>
         attributeCall.copy(
           expression = injectLinksIntoExpression(attributeCall.expression, typeMapping)
         )
-      case combinedExpression: CombinedExpression =>
+      case combinedExpression: PureCombinedExpression =>
         combinedExpression.copy(
           parts = combinedExpression.parts.map(injectLinksIntoExpression(_, typeMapping))
         )
-      case condition: Condition =>
+      case condition: PureCondition =>
         condition.copy(
           condition = injectLinksIntoExpression(condition.condition, typeMapping),
           onTrue = injectLinksIntoExpression(condition.onTrue, typeMapping),
           onFalse = condition.onFalse.map(injectLinksIntoExpression(_, typeMapping))
         )
-      case lambdaExpression: LambdaExpression =>
+      case lambdaExpression: PureLambdaExpression =>
         lambdaExpression.copy(
           expression = injectLinksIntoExpression(lambdaExpression.expression, typeMapping),
           parameterList = lambdaExpression.parameterList.map(injectLinksIntoParameter(_, typeMapping))
         )
-      case functionCallExpression: FunctionCall =>
+      case functionCallExpression: PureFunctionCall =>
         functionCallExpression.copy(
           name = getLink(functionCallExpression.name, typeMapping),
           parameters = functionCallExpression.parameters.map(injectLinksIntoExpression(_, typeMapping)),

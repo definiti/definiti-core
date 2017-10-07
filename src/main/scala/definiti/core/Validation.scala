@@ -1,5 +1,7 @@
 package definiti.core
 
+import definiti.core.ast.Range
+
 // TODO: Remove Valid (and change dependencies) because it can throw exceptions or correct API
 
 sealed trait Validated[+A] {
@@ -18,6 +20,8 @@ sealed trait Validated[+A] {
   def fold[B](onError: Seq[Error] => B, onValid: A => B): B
 
   def toValidation: Validation
+
+  def prettyPrint: String
 }
 
 object Validated {
@@ -48,6 +52,21 @@ object Validated {
       case _ => throw new UnsupportedOperationException("Validated.both with Valid")
     }
   }
+
+  def both[A, B, C](validatedA: Validated[A], validatedB: Validated[B], validatedC: Validated[C]): Validated[(A, B, C)] = {
+    both(both(validatedA, validatedB), validatedC) match {
+      case Invalid(errors) => Invalid(errors)
+      case ValidValue(((valueA, valueB), valueC)) => ValidValue((valueA, valueB, valueC))
+    }
+  }
+
+  def reverseOption[A](option: Option[Validated[A]]): Validated[Option[A]] = {
+    option match {
+      case Some(ValidValue(value)) => ValidValue(Some(value))
+      case Some(Invalid(errors)) => Invalid(errors)
+      case None => ValidValue(None)
+    }
+  }
 }
 
 case class ValidValue[+A](value: A) extends Validated[A] {
@@ -74,6 +93,8 @@ case class ValidValue[+A](value: A) extends Validated[A] {
   override def fold[B](onError: (Seq[Error]) => B, onValid: (A) => B): B = onValid(value)
 
   override def toValidation: Validation = Valid
+
+  override def prettyPrint: String = toString
 }
 
 sealed trait Validation extends Validated[Nothing] {
@@ -112,6 +133,8 @@ case object Valid extends Validation {
   override def foreach(f: (Nothing) => Unit): Validated[Nothing] = throw new UnsupportedOperationException("Valid.foreach")
 
   override def fold[B](onError: (Seq[Error]) => B, onValid: (Nothing) => B): B = throw new UnsupportedOperationException("Valid.fold")
+
+  override def prettyPrint: String = "Valid"
 }
 
 case class Invalid(errors: Seq[Error]) extends Validation {
@@ -135,6 +158,8 @@ case class Invalid(errors: Seq[Error]) extends Validation {
   override def foreach(f: (Nothing) => Unit): Validated[Nothing] = this
 
   override def fold[B](onError: (Seq[Error]) => B, onValid: (Nothing) => B): B = onError(errors)
+
+  override def prettyPrint: String = s"Invalid(${errors.map(_.prettyPrint).mkString("\n  ", "\n  ", "\n")})"
 }
 
 object Invalid {

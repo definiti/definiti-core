@@ -1,18 +1,20 @@
 package definiti.core.generators
 
-import definiti.core.{AttributeDefinition, Context, DefinedFunction, ParameterDefinition, Position, Range, ReferenceContext, TypeReference}
+import definiti.core._
+import definiti.core.ast._
+import definiti.core.ast.pure._
 import org.scalacheck.{Arbitrary, Gen}
 
 import scala.annotation.tailrec
 
 object ASTGenerator {
-  def anyFunction(implicit context: Context): Gen[DefinedFunction] = for {
+  def anyFunction(implicit context: Context): Gen[PureDefinedFunction] = for {
     parameters <- Gen.listOf(anyParameterDefinition)
     body <- ExpressionGenerator.anyExpression
     genericTypes <- Gen.listOf(anyIdentifier)
     range <- anyRange
   } yield {
-    DefinedFunction(
+    PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,

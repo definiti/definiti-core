@@ -1,15 +1,16 @@
 package definiti.core.parser.api
 
-import definiti.core._
+import definiti.core.ast._
+import definiti.core.ast.pure._
 import definiti.core.parser.antlr.CoreDefinitionParser._
+import definiti.core.parser.project.CommonParser
 import definiti.core.utils.CollectionUtils._
-import definiti.core.utils.ParserUtils._
 
 import scala.collection.mutable.ListBuffer
 
-private[core] object CoreDefinitionASTParser {
-  def definitionContextToAST(context: CoreDefinitionContext): Seq[ClassDefinition] = {
-    val classDefinitions = ListBuffer[ClassDefinition]()
+private[core] object CoreDefinitionASTParser extends CommonParser {
+  def definitionContextToAST(context: CoreDefinitionContext): Seq[PureClassDefinition] = {
+    val classDefinitions = ListBuffer[PureClassDefinition]()
 
     scalaSeq(context.toplevel()).foreach { element =>
       if (element.coreType() != null) {
@@ -23,9 +24,9 @@ private[core] object CoreDefinitionASTParser {
     classDefinitions
   }
 
-  private def processCoreType(context: CoreTypeContext): ClassDefinition = {
+  private def processCoreType(context: CoreTypeContext): PureClassDefinition = {
     val members = scalaSeq(context.member())
-    NativeClassDefinition(
+    PureNativeClassDefinition(
       name = context.typeName.getText,
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
@@ -46,8 +47,8 @@ private[core] object CoreDefinitionASTParser {
     )
   }
 
-  private def processMethod(context: MethodDefinitionContext): NativeMethodDefinition = {
-    NativeMethodDefinition(
+  private def processMethod(context: MethodDefinitionContext): MethodDefinition = {
+    MethodDefinition(
       name = context.methodName.getText,
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
@@ -55,7 +56,7 @@ private[core] object CoreDefinitionASTParser {
       parameters = Option(context.parameterListDefinition())
         .map(parameters => scalaSeq(parameters.parameterDefinition()).map(processParameter))
         .getOrElse(Seq.empty),
-      returnTypeReference = processTypeReference(context.methodType),
+      returnType = processTypeReference(context.methodType),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment)
     )
   }
@@ -80,7 +81,7 @@ private[core] object CoreDefinitionASTParser {
     }
   }
 
-  private def processLambdaReference(lambdaReference: => LambdaReferenceContext) = {
+  private def processLambdaReference(lambdaReference: => LambdaReferenceContext): LambdaReference = {
     if (lambdaReference.inputList != null) {
       LambdaReference(
         inputTypes = scalaSeq(lambdaReference.inputList.typeReference()).map(processTypeReference),

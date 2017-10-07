@@ -1,6 +1,6 @@
 package definiti.core.utils
 
-object StringUtils {
+private[core] object StringUtils {
   def lastPart(source: String, separator: Char): String = {
     if (source.last == separator) {
       lastPart(source.substring(0, source.length - 1), separator)

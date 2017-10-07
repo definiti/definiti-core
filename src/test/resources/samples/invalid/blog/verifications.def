@@ -1,0 +1,17 @@
+package blog
+
+verification NonBlank {
+  "The string should not be blank"
+  (string: String) => {
+    string.trim().nonEmpty()
+  }
+}
+
+verification ShortString {
+  "The string should not have more than 25 characters"
+  (string: String) => {
+    if (string.length <= 25) {
+      "should be a boolean here"
+    }
+  }
+}

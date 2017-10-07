@@ -1,0 +1,7 @@
+/**
+ * A `Number` represents any number (integers, doubles, etc.).
+ * It should be considered as `BigDecimals` in applications and use these kind of systems in implementations.
+ */
+type Number {
+  
+}

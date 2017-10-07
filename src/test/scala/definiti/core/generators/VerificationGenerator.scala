@@ -1,10 +1,12 @@
 package definiti.core.generators
 
 import definiti.core._
+import definiti.core.ast._
+import definiti.core.ast.pure._
 import org.scalacheck.Gen
 
 object VerificationGenerator {
-  def anyVerification(implicit context: ReferenceContext): Gen[Verification] = for {
+  def anyVerification(implicit context: ReferenceContext): Gen[PureVerification] = for {
     name <- ASTGenerator.anyIdentifier
     packageName <- ASTGenerator.anyPackageName
     message <- ASTGenerator.anyString
@@ -12,7 +14,7 @@ object VerificationGenerator {
     comment <- Gen.option(ASTGenerator.anyString)
     range <- ASTGenerator.anyRange
   } yield {
-    Verification(
+    PureVerification(
       name = name,
       packageName = packageName,
       message = message,
@@ -22,7 +24,7 @@ object VerificationGenerator {
     )
   }
 
-  def anyReferencedVerification(implicit context: ReferenceContext): Gen[Verification] = for {
+  def anyReferencedVerification(implicit context: ReferenceContext): Gen[PureVerification] = for {
     name <- ASTGenerator.anyIdentifier
     packageName <- ASTGenerator.anyPackageName
     message <- ASTGenerator.anyString
@@ -30,7 +32,7 @@ object VerificationGenerator {
     comment <- Gen.option(ASTGenerator.anyString)
     range <- ASTGenerator.anyRange
   } yield {
-    Verification(
+    PureVerification(
       name = name,
       packageName = packageName,
       message = message,
@@ -40,7 +42,7 @@ object VerificationGenerator {
     )
   }
 
-  def anyValidVerification(implicit context: ReferenceContext): Gen[Verification] = for {
+  def anyValidVerification(implicit context: ReferenceContext): Gen[PureVerification] = for {
     name <- ASTGenerator.anyIdentifier
     packageName <- ASTGenerator.anyPackageName
     message <- ASTGenerator.anyString
@@ -48,7 +50,7 @@ object VerificationGenerator {
     comment <- Gen.option(ASTGenerator.anyString)
     range <- ASTGenerator.anyRange
   } yield {
-    Verification(
+    PureVerification(
       name = name,
       packageName = packageName,
       message = message,
@@ -58,7 +60,7 @@ object VerificationGenerator {
     )
   }
 
-  def anyReferencedValidVerification(implicit context: ReferenceContext): Gen[Verification] = for {
+  def anyReferencedValidVerification(implicit context: ReferenceContext): Gen[PureVerification] = for {
     name <- ASTGenerator.anyIdentifier
     packageName <- ASTGenerator.anyPackageName
     message <- ASTGenerator.anyString
@@ -66,7 +68,7 @@ object VerificationGenerator {
     comment <- Gen.option(ASTGenerator.anyString)
     range <- ASTGenerator.anyRange
   } yield {
-    Verification(
+    PureVerification(
       name = name,
       packageName = packageName,
       message = message,

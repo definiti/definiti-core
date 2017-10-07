@@ -27,7 +27,7 @@ class ProjectStructure(root: typed.Root) {
         packageName
       }
     }
-    topLevelPackages.distinct
+    topLevelPackages.filter(_.nonEmpty).distinct
   }
 
   private def buildPackage(packageName: String): structure.Package = {

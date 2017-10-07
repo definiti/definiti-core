@@ -1,48 +1,35 @@
 package definiti.core.end2end
 
-import java.nio.file.Paths
-
 import definiti.core._
 import definiti.core.ast.Range
 import definiti.core.ast.pure.{AttributeDefinition, ParameterDefinition, TypeReference, VerificationReference, LogicalOperator}
 import definiti.core.ast.structure.{DefinedType, Package, Root, Verification}
 import definiti.core.ast.typed._
-import org.scalatest.{FlatSpec, Matchers}
 
-class GeneratePublicApiSpec extends FlatSpec with Matchers {
+class GeneratePublicApiSpec extends EndToEndSpec {
   import GeneratePublicApiSpec._
   import ValidationMatchers._
 
   "Project.generatePublicAST" should "generate the public API when the project is valid (sample: blog)" in {
-    val project = new Project(configuration("blog"))
     val expected = ValidValue(validBlogExpected)
-    val output = project.generatePublicAST()
+    val output = processDirectory("blog")
     output should beValidated(expected)
   }
 
   it should "return an error when the project is invalid (sample: invalid.blog)" in {
-    val project = new Project(configuration("invalid.blog"))
     val expected = Invalid(invalidBlogExpected)
-    val output = project.generatePublicAST()
+    val output = processDirectory("invalid.blog")
     output should beValidated[Root](expected)
   }
 
   it should "return an error when the project is invalid (sample: invalid.blog2)" in {
-    val project = new Project(configuration("invalid.blog2"))
     val expected = Invalid(invalidBlog2Expected)
-    val output = project.generatePublicAST()
+    val output = processDirectory("invalid.blog2")
     output should beValidated[Root](expected)
   }
 }
 
 object GeneratePublicApiSpec {
-  def configuration(sample: String): Configuration = {
-    ConfigurationMock(
-      source = Paths.get(s"src/test/resources/samples/${sample.replaceAll("\\.", "/")}"),
-      apiSource = Paths.get(s"src/test/resources/core")
-    )
-  }
-
   val validBlogExpected = Root(Seq(
     Package(
       name = "blog",

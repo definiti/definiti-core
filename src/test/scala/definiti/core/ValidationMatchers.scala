@@ -32,7 +32,7 @@ trait ValidationMatchers {
 
     private val success = MatchResult(matches = true, "", "")
 
-    private def failed(expected: Validation, got: Validation) = MatchResult(matches = false, "", s"${expected.prettyPrint} did not equal ${got.prettyPrint}")
+    private def failed(expected: Validation, got: Validation) = MatchResult(matches = false, s"${expected.prettyPrint} did not equal ${got.prettyPrint}", "")
   }
 
   class ValidatedMatcher[A](expected: Validated[A]) extends Matcher[Validated[A]] {
@@ -68,7 +68,7 @@ trait ValidationMatchers {
 
     private val success = MatchResult(matches = true, "", "")
 
-    private def failed(expected: Validated[A], got: Validated[A]) = MatchResult(matches = false, "", s"${expected.prettyPrint} did not equal ${got.prettyPrint}")
+    private def failed(expected: Validated[A], got: Validated[A]) = MatchResult(matches = false, s"${expected.prettyPrint} did not equal ${got.prettyPrint}", "")
   }
 
   def beValidation(expected: Validation) = new ValidationMatcher(expected)

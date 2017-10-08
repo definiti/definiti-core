@@ -9,13 +9,13 @@ private[core] class ExpressionTyping(context: Context) {
 
   def addTypesIntoExpression(expression: PureExpression): Validated[Expression] = {
     expression match {
-      case PureLogicalExpression(operator, left, right, range) => addTypeIntoLogicalExpression(operator, left, right, range)
-      case PureCalculatorExpression(operator, left, right, range) => addTypeIntoCalculatorExpression(operator, left, right, range)
+      case PureLogicalExpression(operator, left, right, location) => addTypeIntoLogicalExpression(operator, left, right, location)
+      case PureCalculatorExpression(operator, left, right, location) => addTypeIntoCalculatorExpression(operator, left, right, location)
       case not: PureNot => addTypesIntoNotExpression(not)
 
-      case booleanValue: PureBooleanValue => ValidValue(BooleanValue(booleanValue.value, boolean, booleanValue.range))
-      case numberValue: PureNumberValue => ValidValue(NumberValue(numberValue.value, number, numberValue.range))
-      case quotedStringValue: PureQuotedStringValue => ValidValue(QuotedStringValue(quotedStringValue.value, string, quotedStringValue.range))
+      case booleanValue: PureBooleanValue => ValidValue(BooleanValue(booleanValue.value, boolean, booleanValue.location))
+      case numberValue: PureNumberValue => ValidValue(NumberValue(numberValue.value, number, numberValue.location))
+      case quotedStringValue: PureQuotedStringValue => ValidValue(QuotedStringValue(quotedStringValue.value, string, quotedStringValue.location))
 
       case reference: PureReference => addTypesIntoReference(reference)
 
@@ -31,23 +31,23 @@ private[core] class ExpressionTyping(context: Context) {
     }
   }
 
-  def addTypeIntoLogicalExpression(operator: LogicalOperator.Value, left: PureExpression, right: PureExpression, range: Range): Validated[Expression] = {
+  def addTypeIntoLogicalExpression(operator: LogicalOperator.Value, left: PureExpression, right: PureExpression, location: Location): Validated[Expression] = {
     Validated.both(addTypesIntoExpression(left), addTypesIntoExpression(right))
       .map { case (typedLeft, typedRight) =>
-        LogicalExpression(operator, typedLeft, typedRight, boolean, range)
+        LogicalExpression(operator, typedLeft, typedRight, boolean, location)
       }
   }
 
-  def addTypeIntoCalculatorExpression(operator: CalculatorOperator.Value, left: PureExpression, right: PureExpression, range: Range): Validated[Expression] = {
+  def addTypeIntoCalculatorExpression(operator: CalculatorOperator.Value, left: PureExpression, right: PureExpression, location: Location): Validated[Expression] = {
     Validated.both(addTypesIntoExpression(left), addTypesIntoExpression(right))
       .map { case (typedLeft, typedRight) =>
-        CalculatorExpression(operator, typedLeft, typedRight, number, range)
+        CalculatorExpression(operator, typedLeft, typedRight, number, location)
       }
   }
 
   def addTypesIntoNotExpression(not: PureNot): Validated[Expression] = {
     addTypesIntoExpression(not.inner).map { expression =>
-      Not(expression, boolean, not.range)
+      Not(expression, boolean, not.location)
     }
   }
 
@@ -57,9 +57,9 @@ private[core] class ExpressionTyping(context: Context) {
         ValidValue(Reference(
           name = reference.name,
           returnType = typeReference,
-          range = reference.range
+          location = reference.location
         ))
-      case None => Invalid("Unknown reference: " + reference.name, reference.range)
+      case None => Invalid("Unknown reference: " + reference.name, reference.location)
     }
   }
 
@@ -71,7 +71,7 @@ private[core] class ExpressionTyping(context: Context) {
       .flatMap { case (expression, parameters) =>
         expression.returnType match {
           case typeReference: TypeReference =>
-            classReferenceFromTypeReference(typeReference, expression.range)
+            classReferenceFromTypeReference(typeReference, expression.location)
               .flatMap { classReference =>
                 getMethodOpt(classReference.classDefinition, methodCall.method)(context) match {
                   case Some(methodDefinition) =>
@@ -81,24 +81,24 @@ private[core] class ExpressionTyping(context: Context) {
                       parameters = parameters,
                       generics = methodCall.generics,
                       returnType = methodDefinition.returnType,
-                      range = methodCall.range
+                      location = methodCall.location
                     ))
-                  case None => Invalid(s"Unknown method ${typeReference.typeName}.${methodCall.method}", methodCall.range)
+                  case None => Invalid(s"Unknown method ${typeReference.typeName}.${methodCall.method}", methodCall.location)
                 }
               }
-          case _: LambdaReference => Invalid("Expected type, got lambda", expression.range)
+          case _: LambdaReference => Invalid("Expected type, got lambda", expression.location)
         }
       }
   }
 
-  def classReferenceFromTypeReference(typeReference: TypeReference, range: Range): Validated[ClassReference] = {
+  def classReferenceFromTypeReference(typeReference: TypeReference, location: Location): Validated[ClassReference] = {
     context.findType(typeReference.typeName) match {
       case Some(classDefinition) =>
         Validated
-          .squash(typeReference.genericTypes.map(classReferenceFromTypeReference(_, range)))
+          .squash(typeReference.genericTypes.map(classReferenceFromTypeReference(_, location)))
           .map(ClassReference(classDefinition, _))
       case None =>
-        Invalid(s"Class ${typeReference.typeName} not found", range)
+        Invalid(s"Class ${typeReference.typeName} not found", location)
     }
   }
 
@@ -118,7 +118,7 @@ private[core] class ExpressionTyping(context: Context) {
     validatedTypedExpression.flatMap { expression =>
       expression.returnType match {
         case typeReference: TypeReference =>
-          classReferenceFromTypeReference(typeReference, expression.range)
+          classReferenceFromTypeReference(typeReference, expression.location)
             .flatMap { classReference =>
               getAttributeOpt(classReference.classDefinition, attributeCall.attribute)(context) match {
                 case Some(attributeDefinition) =>
@@ -126,12 +126,12 @@ private[core] class ExpressionTyping(context: Context) {
                     expression = expression,
                     attribute = attributeCall.attribute,
                     returnType = attributeDefinition.typeReference,
-                    range = attributeDefinition.range
+                    location = attributeCall.location
                   ))
-                case None => Invalid(s"Unknown attribute ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.range)
+                case None => Invalid(s"Unknown attribute ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.location)
               }
             }
-        case _: LambdaReference => Invalid("Expected type, got lambda", expression.range)
+        case _: LambdaReference => Invalid("Expected type, got lambda", expression.location)
       }
     }
   }
@@ -150,7 +150,7 @@ private[core] class ExpressionTyping(context: Context) {
   def addTypeIntoCombinedExpression(combinedExpression: PureCombinedExpression): Validated[CombinedExpression] = {
     Validated
       .squash(combinedExpression.parts.map(addTypesIntoExpression))
-      .map(parts => CombinedExpression(parts, parts.last.returnType, combinedExpression.range))
+      .map(parts => CombinedExpression(parts, parts.last.returnType, combinedExpression.location))
   }
 
   def addTypeIntoCondition(condition: PureCondition): Validated[Condition] = {
@@ -170,7 +170,7 @@ private[core] class ExpressionTyping(context: Context) {
           onTrue = onTrue,
           onFalse = onFalse,
           returnType = returnType,
-          range = condition.range
+          location = condition.location
         )
       }
   }
@@ -184,7 +184,7 @@ private[core] class ExpressionTyping(context: Context) {
           parameterList = lambdaExpression.parameterList,
           expression = expression,
           returnType = expression.returnType,
-          range = lambdaExpression.range
+          location = lambdaExpression.location
         )
       }
   }
@@ -199,11 +199,11 @@ private[core] class ExpressionTyping(context: Context) {
             parameters = parameters,
             generics = functionCall.generics,
             returnType = namedFunction.returnType,
-            range = functionCall.range
+            location = functionCall.location
           )
         }
       case None =>
-        Invalid(s"Unknown function ${functionCall.name}", functionCall.range)
+        Invalid(s"Unknown function ${functionCall.name}", functionCall.location)
     }
   }
 }

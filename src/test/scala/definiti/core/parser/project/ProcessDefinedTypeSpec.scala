@@ -11,7 +11,7 @@ import org.scalatest.{FlatSpec, Inspectors, Matchers}
 
 class ProcessDefinedTypeSpec extends FlatSpec with Matchers with PropertyChecks {
   private val configuration = ConfigurationMock()
-  private val definitiASTParser = new DefinitiASTParser(configuration)
+  private val definitiASTParser = new DefinitiASTParser("test.def", configuration)
 
   "DefinitiASTParser.processDefinedType" should "have only TypeVerification with DefinedTypeName" in {
     forAll(TypeContextGenerator.anyDefinedTypeContext) { definedTypeContext =>

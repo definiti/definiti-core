@@ -7,7 +7,7 @@ import org.scalatest.{FlatSpec, Inspectors, Matchers}
 
 class ProcessVerifyingListSpec extends FlatSpec with Matchers with PropertyChecks {
   private val configuration = ConfigurationMock()
-  private val definitiASTParser = new DefinitiASTParser(configuration)
+  private val definitiASTParser = new DefinitiASTParser("test.def", configuration)
 
   "DefinitiASTParser.processVerifyingList" should "return VerificationReference without message when not set" in {
     forAll(VerificationContextGenerator.verifyingListContextWithoutMessage) { verifyingListContext =>

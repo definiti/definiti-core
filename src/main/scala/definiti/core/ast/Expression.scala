@@ -1,7 +1,7 @@
 package definiti.core.ast
 
 sealed trait Expression {
-  def range: Range
+  def location: Location
 
   def returnType: AbstractTypeReference
 }
@@ -11,7 +11,7 @@ case class LogicalExpression(
   left: Expression,
   right: Expression,
   returnType: TypeReference,
-  range: Range
+  location: Location
 ) extends Expression
 
 case class CalculatorExpression(
@@ -19,38 +19,38 @@ case class CalculatorExpression(
   left: Expression,
   right: Expression,
   returnType: TypeReference,
-  range: Range
+  location: Location
 ) extends Expression
 
-case class Not(inner: Expression, returnType: AbstractTypeReference, range: Range) extends Expression
+case class Not(inner: Expression, returnType: AbstractTypeReference, location: Location) extends Expression
 
-case class BooleanValue(value: Boolean, returnType: AbstractTypeReference, range: Range) extends Expression
+case class BooleanValue(value: Boolean, returnType: AbstractTypeReference, location: Location) extends Expression
 
-case class NumberValue(value: BigDecimal, returnType: AbstractTypeReference, range: Range) extends Expression
+case class NumberValue(value: BigDecimal, returnType: AbstractTypeReference, location: Location) extends Expression
 
-case class QuotedStringValue(value: String, returnType: AbstractTypeReference, range: Range) extends Expression
+case class QuotedStringValue(value: String, returnType: AbstractTypeReference, location: Location) extends Expression
 
-case class Reference(name: String, returnType: AbstractTypeReference, range: Range) extends Expression
+case class Reference(name: String, returnType: AbstractTypeReference, location: Location) extends Expression
 
-case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression], generics: Seq[TypeReference], returnType: AbstractTypeReference, range: Range) extends Expression
+case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression], generics: Seq[TypeReference], returnType: AbstractTypeReference, location: Location) extends Expression
 
-case class AttributeCall(expression: Expression, attribute: String, returnType: AbstractTypeReference, range: Range) extends Expression
+case class AttributeCall(expression: Expression, attribute: String, returnType: AbstractTypeReference, location: Location) extends Expression
 
-case class CombinedExpression(parts: Seq[Expression], returnType: AbstractTypeReference, range: Range) extends Expression
+case class CombinedExpression(parts: Seq[Expression], returnType: AbstractTypeReference, location: Location) extends Expression
 
 case class Condition(
   condition: Expression,
   onTrue: Expression,
   onFalse: Option[Expression],
   returnType: AbstractTypeReference,
-  range: Range
+  location: Location
 ) extends Expression
 
 case class LambdaExpression(
   parameterList: Seq[ParameterDefinition],
   expression: Expression,
   returnType: AbstractTypeReference,
-  range: Range
+  location: Location
 ) extends Expression
 
 case class FunctionCall(
@@ -58,7 +58,7 @@ case class FunctionCall(
   parameters: Seq[Expression],
   generics: Seq[TypeReference],
   returnType: AbstractTypeReference,
-  range: Range
+  location: Location
 ) extends Expression
 
 object LogicalOperator extends Enumeration {

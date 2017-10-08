@@ -7,12 +7,12 @@ private[core] trait CommonValidation {
   self: ASTValidation =>
 
   protected def validateParameterDefinition(parameterDefinition: ParameterDefinition): Validation = {
-    validateAbstractTypeReference(parameterDefinition.typeReference, parameterDefinition.range)
+    validateAbstractTypeReference(parameterDefinition.typeReference, parameterDefinition.location)
   }
 
-  protected def validateAbstractTypeReference(abstractTypeReference: AbstractTypeReference, range: Range): Validation = {
+  protected def validateAbstractTypeReference(abstractTypeReference: AbstractTypeReference, location: Location): Validation = {
     abstractTypeReference match {
-      case typeReference: TypeReference => validateTypeReference(typeReference, range)
+      case typeReference: TypeReference => validateTypeReference(typeReference, location)
       case _ => Valid
     }
   }
@@ -23,10 +23,10 @@ private[core] trait CommonValidation {
         if (library.types.contains(typeReference.typeName)) {
           ValidValue(typeReference.typeName)
         } else {
-          Invalid("Undefined type: " + typeReference.readableString, expression.range)
+          Invalid("Undefined type: " + typeReference.readableString, expression.location)
         }
       case _ =>
-        Invalid("Expected type reference, got lambda", expression.range)
+        Invalid("Expected type reference, got lambda", expression.location)
     }
   }
 
@@ -34,15 +34,15 @@ private[core] trait CommonValidation {
     getReturnTypeName(expression).map(library.types(_))
   }
 
-  protected def validateTypeReference(typeReference: TypeReference, range: Range): Validation = {
+  protected def validateTypeReference(typeReference: TypeReference, location: Location): Validation = {
     val typeValidation =
       if (library.types.contains(typeReference.typeName)) {
         Valid
       } else {
-        Invalid("Undefined type: " + typeReference.readableString, range)
+        Invalid("Undefined type: " + typeReference.readableString, location)
       }
 
-    val genericValidations = typeReference.genericTypes.map(validateTypeReference(_, range))
+    val genericValidations = typeReference.genericTypes.map(validateTypeReference(_, location))
 
     Validation.join(typeValidation +: genericValidations)
   }
@@ -71,7 +71,7 @@ private[core] trait CommonValidation {
   protected def validateBooleanExpression(expression: Expression): Validation = {
     expression.returnType match {
       case TypeReference(BOOLEAN, Seq()) => Valid
-      case _ => Invalid("Expected boolean expression, got: class " + expression.returnType.readableString, expression.range)
+      case _ => Invalid("Expected boolean expression, got: class " + expression.returnType.readableString, expression.location)
     }
   }
 }

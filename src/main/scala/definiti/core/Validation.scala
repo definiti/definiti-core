@@ -1,6 +1,6 @@
 package definiti.core
 
-import definiti.core.ast.Range
+import definiti.core.ast.Location
 
 // TODO: Remove Valid (and change dependencies) because it can throw exceptions or correct API
 
@@ -163,16 +163,16 @@ case class Invalid(errors: Seq[Error]) extends Validation {
 }
 
 object Invalid {
-  def apply(message: String, range: Range): Invalid = new Invalid(Seq(ASTError(message, range)))
+  def apply(message: String, location: Location): Invalid = new Invalid(Seq(ASTError(message, location)))
 }
 
 sealed trait Error {
   def prettyPrint: String
 }
 
-case class ASTError(message: String, range: Range) extends Error {
+case class ASTError(message: String, location: Location) extends Error {
   def prettyPrint: String = {
-    s"""Error at ${range.prettyPrint}: $message"""
+    s"""Error at ${location.prettyPrint}: $message"""
   }
 }
 

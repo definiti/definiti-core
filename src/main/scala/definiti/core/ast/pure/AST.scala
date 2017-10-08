@@ -34,11 +34,11 @@ private[core] case class PureNativeClassDefinition(
   override def canonicalName: String = name
 }
 
-private[core] case class PureDefinedFunction(parameters: Seq[ParameterDefinition], body: PureExpression, genericTypes: Seq[String], range: Range)
+private[core] case class PureDefinedFunction(parameters: Seq[ParameterDefinition], body: PureExpression, genericTypes: Seq[String], location: Location)
 
-private[core] case class PureParameter(name: String, typeReference: TypeReference, range: Range)
+private[core] case class PureParameter(name: String, typeReference: TypeReference, location: Location)
 
-private[core] case class PureVerification(name: String, packageName: String, message: String, function: PureDefinedFunction, comment: Option[String], range: Range) {
+private[core] case class PureVerification(name: String, packageName: String, message: String, function: PureDefinedFunction, comment: Option[String], location: Location) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
@@ -46,17 +46,17 @@ private[core] sealed trait PureType extends PureClassDefinition {
   def comment: Option[String]
 }
 
-private[core] case class PureDefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[PureTypeVerification], inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends PureType {
+private[core] case class PureDefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[PureTypeVerification], inherited: Seq[VerificationReference], comment: Option[String], location: Location) extends PureType {
   def methods: Seq[MethodDefinition] = Seq()
 
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-private[core] case class PureAliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends PureType {
+private[core] case class PureAliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], location: Location) extends PureType {
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-private[core] case class PureTypeVerification(message: String, function: PureDefinedFunction, range: Range)
+private[core] case class PureTypeVerification(message: String, function: PureDefinedFunction, location: Location)
 
 private[core] case class PureNamedFunction(
   name: String,
@@ -65,9 +65,9 @@ private[core] case class PureNamedFunction(
   parameters: Seq[ParameterDefinition],
   returnType: TypeReference,
   body: PureExpression,
-  range: Range
+  location: Location
 ) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-private[core] case class PureExtendedContext[A](name: String, content: A, range: Range)
+private[core] case class PureExtendedContext[A](name: String, content: A, location: Location)

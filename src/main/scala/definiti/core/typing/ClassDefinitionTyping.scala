@@ -37,7 +37,7 @@ private[core] class ClassDefinitionTyping(context: Context) {
         verifications = typeVerifications,
         inherited = definedType.inherited,
         comment = definedType.comment,
-        range = definedType.range
+        location = definedType.location
       )
     }
   }
@@ -48,7 +48,7 @@ private[core] class ClassDefinitionTyping(context: Context) {
       TypeVerification(
         message = typeVerification.message,
         function = function,
-        range = typeVerification.range
+        location = typeVerification.location
       )
     }
   }
@@ -61,7 +61,7 @@ private[core] class ClassDefinitionTyping(context: Context) {
       alias = aliasType.alias,
       inherited = aliasType.inherited,
       comment = aliasType.comment,
-      range = aliasType.range
+      location = aliasType.location
     )
   }
 }

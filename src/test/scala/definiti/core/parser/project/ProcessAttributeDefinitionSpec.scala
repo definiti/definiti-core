@@ -10,7 +10,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ProcessAttributeDefinitionSpec extends FlatSpec with Matchers with PropertyChecks {
   private val configuration = ConfigurationMock()
-  private val definitiASTParser = new DefinitiASTParser(configuration)
+  private val definitiASTParser = new DefinitiASTParser("test.def", configuration)
 
   "DefinitiASTParser.processAttributeDefinition" should "returns an attribute definition with defined list of verifications" in {
     val cases = for {

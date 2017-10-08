@@ -45,6 +45,7 @@ class NominalSpec extends EndToEndSpec {
 }
 
 object NominalSpec {
+  val definedTypeSrc = "src\\test\\resources\\samples\\nominal\\definedType.def"
   val definedType: Root = Root(
     elements = Seq(DefinedType(
       name = "MyType",
@@ -55,16 +56,17 @@ object NominalSpec {
           typeReference = TypeReference("String"),
           comment = None,
           verifications = Seq.empty,
-          range = Range(2, 3, 2, 22)
+          location = Location(definedTypeSrc, 2, 3, 2, 22)
         )
       ),
       verifications = Seq.empty,
       inherited = Seq.empty,
       comment = None,
-      range = Range(1, 1, 3, 2)
+      location = Location(definedTypeSrc, 1, 1, 3, 2)
     ))
   )
 
+  val aliasTypeSrc = "src\\test\\resources\\samples\\nominal\\aliasType.def"
   val aliasType: Root = Root(
     elements = Seq(AliasType(
       name = "AliasString",
@@ -72,10 +74,11 @@ object NominalSpec {
       alias = TypeReference("String"),
       inherited = Seq.empty,
       comment = None,
-      range = Range(1, 1, 1, 26)
+      location = Location(aliasTypeSrc, 1, 1, 1, 26)
     ))
   )
 
+  val verificationSrc = "src\\test\\resources\\samples\\nominal\\verification.def"
   val verification: Root = Root(
     elements = Seq(Verification(
       name = "AlwaysTrue",
@@ -84,36 +87,39 @@ object NominalSpec {
         parameters = Seq(ParameterDefinition(
           name = "x",
           typeReference = TypeReference("String"),
-          range = Range(3, 4, 3, 13)
+          location = Location(verificationSrc, 3, 4, 3, 13)
         )),
-        body = BooleanValue(value = true, TypeReference("Boolean"), Range(4, 5, 4, 9)),
+        body = BooleanValue(value = true, TypeReference("Boolean"), Location(verificationSrc, 4, 5, 4, 9)),
         genericTypes = Seq.empty,
-        range = Range(3, 3, 5, 4)
+        location = Location(verificationSrc, 3, 3, 5, 4)
       ),
       comment = None,
-      range = Range(1, 1, 6, 2)
+      location = Location(verificationSrc, 1, 1, 6, 2)
     ))
   )
 
+  val namedFunctionSrc = "src\\test\\resources\\samples\\nominal\\namedFunction.def"
   val namedFunction: Root = Root(
     elements = Seq(NamedFunction(
       name = "alwaysFalse",
       genericTypes = Seq.empty,
       parameters = Seq.empty,
       returnType = TypeReference("Boolean"),
-      body = BooleanValue(value = false, TypeReference("Boolean"), Range(2, 3, 2, 8)),
-      range = Range(1, 1, 3, 2)
+      body = BooleanValue(value = false, TypeReference("Boolean"), Location(namedFunctionSrc, 2, 3, 2, 8)),
+      location = Location(namedFunctionSrc, 1, 1, 3, 2)
     ))
   )
 
+  val extendedContextSrc = "src\\test\\resources\\samples\\nominal\\extendedContext.def"
   val extendedContext: Root = Root(
     elements = Seq(ExtendedContext(
       name = "stringContext",
       content = "Something here",
-      range = Range(2, 3, 2, 17)
+      location = Location(extendedContextSrc, 2, 3, 2, 17)
     ))
   )
 
+  val packageAliasTypeSrc = "src\\test\\resources\\samples\\nominal\\package.def"
   val packageAliasType: Root = Root(
     elements = Seq(Namespace(
       name = "tst",
@@ -123,7 +129,7 @@ object NominalSpec {
         alias = TypeReference("String"),
         inherited = Seq.empty,
         comment = None,
-        range = Range(3, 1, 3, 26)
+        location = Location(packageAliasTypeSrc, 3, 1, 3, 26)
       ))
     ))
   )

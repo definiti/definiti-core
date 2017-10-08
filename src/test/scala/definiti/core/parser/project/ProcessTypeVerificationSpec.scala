@@ -9,7 +9,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ProcessTypeVerificationSpec extends FlatSpec with Matchers with PropertyChecks {
   private val configuration = ConfigurationMock()
-  private val definitiASTParser = new DefinitiASTParser(configuration)
+  private val definitiASTParser = new DefinitiASTParser("test.def", configuration)
 
   "DefinitiASTParser.processTypeVerification" should "returns a TypeVerification with a function of one parameter of given type" in {
     val cases = for {

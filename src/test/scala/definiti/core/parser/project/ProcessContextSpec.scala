@@ -12,7 +12,7 @@ class ProcessContextSpec extends FlatSpec with Matchers with PropertyChecks {
   private val configuration = ConfigurationMock(
     contexts = Seq(new ContextPluginTest)
   )
-  private val definitiASTParser = new DefinitiASTParser(configuration)
+  private val definitiASTParser = new DefinitiASTParser("test.def", configuration)
 
   "DefinitiASTParser.processContext" should "return the result from plugin context when exists" in {
     forAll(ContextGenerator.anyContextOf(contextPluginName)) { contextContext =>
@@ -28,13 +28,13 @@ class ProcessContextSpec extends FlatSpec with Matchers with PropertyChecks {
 object ProcessContextSpec {
   val contextPluginName: String = "myContext"
 
-  case class ContextPluginTestContent(content: String, range: Range)
+  case class ContextPluginTestContent(content: String, location: Location)
 
   class ContextPluginTest extends ContextPlugin[ContextPluginTestContent] {
     override def contextName: String = contextPluginName
 
-    override def parse(content: String, range: Range): ContextPluginTestContent = {
-      ContextPluginTestContent(content, range)
+    override def parse(content: String, location: Location): ContextPluginTestContent = {
+      ContextPluginTestContent(content, location)
     }
 
     override def validate(context: ContextPluginTestContent, library: Library): Validation = {

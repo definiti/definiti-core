@@ -17,9 +17,8 @@ private[core] case class ProjectParsingResult(
 )
 
 private[core] class ProjectParser(configuration: Configuration) {
-  private val source = configuration.source
-  private val coreSource = configuration.apiSource
-  private val definitiASTParser = new DefinitiASTParser(configuration)
+  private val source: Path = configuration.source
+  private val coreSource: Path = configuration.apiSource
 
   def buildAST(): Validated[ProjectParsingResult] = {
     Validated.both(buildDefinitiAST(), buildCoreDefinitionAST())
@@ -45,7 +44,7 @@ private[core] class ProjectParser(configuration: Configuration) {
     if (errorListener.hasError) {
       Invalid(errorListener.errors.map(_.toError))
     } else {
-      ValidValue(definitiASTParser.definitiContextToAST(result))
+      ValidValue(new DefinitiASTParser(source, configuration).definitiContextToAST(result))
     }
   }
 
@@ -66,7 +65,7 @@ private[core] class ProjectParser(configuration: Configuration) {
     if (errorListener.hasError) {
       Invalid(errorListener.errors.map(_.toError))
     } else {
-      ValidValue(CoreDefinitionASTParser.definitionContextToAST(result))
+      ValidValue(new CoreDefinitionASTParser(source).definitionContextToAST(result))
     }
   }
 

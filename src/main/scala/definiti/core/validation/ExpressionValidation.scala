@@ -29,7 +29,7 @@ private[core] trait ExpressionValidation {
         validateExpressions(left, right)
       case lambdaExpression: LambdaExpression =>
         // Expected only in method call, processed in validateMethodCall or validateFunctionCall
-        Invalid("Unexpected lambda reference", lambdaExpression.range)
+        Invalid("Unexpected lambda reference", lambdaExpression.location)
       case functionCallExpression: FunctionCall =>
         validateFunctionCall(functionCallExpression)
       case not: Not =>
@@ -63,7 +63,7 @@ private[core] trait ExpressionValidation {
                 .map(p => validateParameter(p._1, p._2, classDefinition, methodDefinition))
             )
           } else {
-            Invalid("Invalid number of arguments", methodCall.range)
+            Invalid("Invalid number of arguments", methodCall.location)
           }
         }
       }
@@ -74,7 +74,7 @@ private[core] trait ExpressionValidation {
     getReturnTypeName(methodCall.expression).flatMap { typeName =>
       library.methods.get(s"${typeName}.${methodCall.method}") match {
         case Some(method) => ValidValue(method)
-        case None => Invalid(s"Unknown method ${typeName}.${methodCall.method}", methodCall.range)
+        case None => Invalid(s"Unknown method ${typeName}.${methodCall.method}", methodCall.location)
       }
     }
   }
@@ -88,15 +88,15 @@ private[core] trait ExpressionValidation {
           case NamedFunctionReference(functionName) =>
             library.namedFunctions.get(functionName) match {
               case Some(namedFunction) =>
-                validateNamedFunctionAndReference(namedFunction, lambdaReference, classDefinition, methodDefinition, callParameter.range)
+                validateNamedFunctionAndReference(namedFunction, lambdaReference, classDefinition, methodDefinition, callParameter.location)
               case None =>
-                Invalid(s"Undefined function: ${functionName}", callParameter.range)
+                Invalid(s"Undefined function: ${functionName}", callParameter.location)
             }
           case _ =>
-            Invalid("Expected lambda expression or function reference", callParameter.range)
+            Invalid("Expected lambda expression or function reference", callParameter.location)
         }
       case (_, _: LambdaExpression) =>
-        Invalid("Unexpected lambda expression", callParameter.range)
+        Invalid("Unexpected lambda expression", callParameter.location)
       case (typeReference, expression) =>
         validateReturnTypeExpression(expression, typeReference, classDefinition, methodDefinition)
     }
@@ -111,9 +111,9 @@ private[core] trait ExpressionValidation {
           case typeReference: TypeReference if isGeneric(typeReference.typeName, classDefinition, methodDefinition) =>
             Valid
           case TypeReference(typeName, _) =>
-            Invalid(s"Unexpected return type $typeName, expected ${classDefinition.name}", expression.range)
+            Invalid(s"Unexpected return type $typeName, expected ${classDefinition.name}", expression.location)
           case _ =>
-            Invalid("Unexpected lambda reference", expression.range)
+            Invalid("Unexpected lambda reference", expression.location)
         }
       }
       .toValidation
@@ -130,17 +130,17 @@ private[core] trait ExpressionValidation {
           case _: TypeReference if isGeneric(referenceParameter.typeName, classDefinition, methodDefinition) =>
             Valid
           case TypeReference(typeName, _) =>
-            Invalid(s"Unexpected type $typeName, expected ${referenceParameter.typeName}", expressionParameter.range)
+            Invalid(s"Unexpected type $typeName, expected ${referenceParameter.typeName}", expressionParameter.location)
           case _ =>
-            Invalid("Unexpected lambda reference", expressionParameter.range)
+            Invalid("Unexpected lambda reference", expressionParameter.location)
         }
       })
     } else {
-      Invalid(s"Invalid number of arguments. Expected ${referenceParameters.length}, got ${expressionParameters.length}", lambdaExpression.range)
+      Invalid(s"Invalid number of arguments. Expected ${referenceParameters.length}, got ${expressionParameters.length}", lambdaExpression.location)
     }
   }
 
-  def validateNamedFunctionAndReference(namedFunction: NamedFunction, lambdaReference: LambdaReference, classDefinition: ClassDefinition, methodDefinition: MethodDefinition, range: Range): Validation = {
+  def validateNamedFunctionAndReference(namedFunction: NamedFunction, lambdaReference: LambdaReference, classDefinition: ClassDefinition, methodDefinition: MethodDefinition, location: Location): Validation = {
     val expressionParameters = namedFunction.parameters
     val referenceParameters = lambdaReference.inputTypes
     if (expressionParameters.length == referenceParameters.length) {
@@ -151,18 +151,18 @@ private[core] trait ExpressionValidation {
           case _: TypeReference if isGeneric(referenceParameter.typeName, classDefinition, methodDefinition) =>
             Valid
           case TypeReference(typeName, _) =>
-            Invalid(s"Unexpected type $typeName, expected ${referenceParameter.typeName}", expressionParameter.range)
+            Invalid(s"Unexpected type $typeName, expected ${referenceParameter.typeName}", expressionParameter.location)
           case _ =>
-            Invalid("Unexpected lambda reference", expressionParameter.range)
+            Invalid("Unexpected lambda reference", expressionParameter.location)
         }
       })
     } else {
-      Invalid(s"Invalid number of arguments. Expected ${referenceParameters.length}, got ${expressionParameters.length}", range)
+      Invalid(s"Invalid number of arguments. Expected ${referenceParameters.length}, got ${expressionParameters.length}", location)
     }
   }
 
   def validateFunctionCall(functionCall: FunctionCall): Validation = {
-    getNamedFunction(functionCall.name, functionCall.range)
+    getNamedFunction(functionCall.name, functionCall.location)
       .flatMap { namedFunction =>
         if (namedFunction.parameters.length == functionCall.parameters.length) {
           Validation.join(namedFunction.parameters.zip(functionCall.parameters).map { case (definedParameter, callParameter) =>
@@ -170,24 +170,24 @@ private[core] trait ExpressionValidation {
               case (lambdaReference: LambdaReference, lambdaExpression: LambdaExpression) =>
                 validateLambdaExpressionAndReferenceForFunctionCall(lambdaExpression, lambdaReference, namedFunction)
               case (_: LambdaReference, _) =>
-                Invalid("Expected lambda expression", callParameter.range)
+                Invalid("Expected lambda expression", callParameter.location)
               case (_, _: LambdaExpression) =>
-                Invalid("Unexpected lambda expression", callParameter.range)
+                Invalid("Unexpected lambda expression", callParameter.location)
               case (typeReference, expression) =>
                 validateReturnTypeExpressionForFunctionCall(expression, typeReference, namedFunction)
             }
           })
         } else {
-          Invalid("Invalid number of arguments", functionCall.range)
+          Invalid("Invalid number of arguments", functionCall.location)
         }
       }
       .toValidation
   }
 
-  private def getNamedFunction(functionName: String, range: Range): Validated[NamedFunction] = {
+  private def getNamedFunction(functionName: String, location: Location): Validated[NamedFunction] = {
     library.namedFunctions.get(functionName) match {
       case Some(namedFunction) => ValidValue(namedFunction)
-      case None => Invalid(s"Unknown function ${functionName}", range)
+      case None => Invalid(s"Unknown function ${functionName}", location)
     }
   }
 
@@ -203,9 +203,9 @@ private[core] trait ExpressionValidation {
             case TypeReference(typeName, _) =>
               Invalid(s"Unexpected return type $typeName, expected ${
                 classDefinition.name
-              }", expression.range)
+              }", expression.location)
             case _ =>
-              Invalid("Unexpected lambda reference", expression.range)
+              Invalid("Unexpected lambda reference", expression.location)
           }
       }
       .toValidation
@@ -222,13 +222,13 @@ private[core] trait ExpressionValidation {
           case _: TypeReference if isGeneric(referenceParameter.typeName, namedFunction) =>
             Valid
           case TypeReference(typeName, _) =>
-            Invalid(s"Unexpected type $typeName, expected ${referenceParameter.typeName}", expressionParameter.range)
+            Invalid(s"Unexpected type $typeName, expected ${referenceParameter.typeName}", expressionParameter.location)
           case _ =>
-            Invalid("Unexpected lambda reference", expressionParameter.range)
+            Invalid("Unexpected lambda reference", expressionParameter.location)
         }
       })
     } else {
-      Invalid(s"Invalid number of arguments. Expected ${referenceParameters.length}, got ${expressionParameters.length}", lambdaExpression.range)
+      Invalid(s"Invalid number of arguments. Expected ${referenceParameters.length}, got ${expressionParameters.length}", lambdaExpression.location)
     }
   }
 

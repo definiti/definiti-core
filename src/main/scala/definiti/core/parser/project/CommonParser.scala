@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.{ParserRuleContext, Token}
 import scala.collection.mutable.ListBuffer
 
 private[core] trait CommonParser {
+  def file: String
+
   def processParameterListDefinition(context: ParameterListDefinitionContext): Seq[ParameterDefinition] = {
     scalaSeq(context.parameterDefinition()).map(processParameter)
   }
@@ -17,7 +19,7 @@ private[core] trait CommonParser {
     ParameterDefinition(
       name = context.parameterName.getText,
       typeReference = TypeReference(context.parameterType.getText, processGenericTypeList(context.genericTypeList())),
-      getRangeFromContext(context)
+      location = Location(file, getRangeFromContext(context))
     )
   }
 
@@ -56,6 +58,10 @@ private[core] trait CommonParser {
       temporaryResult = temporaryResult.substring(0, temporaryResult.length - 2)
     }
     temporaryResult
+  }
+
+  def getLocationFromContext(context: ParserRuleContext): Location = {
+    Location(file, getRangeFromContext(context))
   }
 
   def getRangeFromContext(context: ParserRuleContext): Range = {

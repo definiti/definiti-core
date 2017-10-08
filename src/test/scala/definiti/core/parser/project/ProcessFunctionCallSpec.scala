@@ -10,7 +10,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ProcessFunctionCallSpec extends FlatSpec with Matchers with PropertyChecks {
   private val configuration = ConfigurationMock()
-  private val definitiASTParser = new DefinitiASTParser(configuration)
+  private val definitiASTParser = new DefinitiASTParser("test.def", configuration)
 
   "DefinitiASTParser.processFunctionCall" should "return a FunctionCall without exception" in {
     forAll(ExpressionContextGenerator.anyFunctionCallContext) { functionCallContext =>
@@ -35,11 +35,11 @@ class ProcessFunctionCallSpec extends FlatSpec with Matchers with PropertyChecks
     val expected = PureFunctionCall(
       name = "myName",
       parameters = Seq(
-        PureBooleanValue(value = true, Range.default),
-        PureNumberValue(value = 123, Range.default)
+        PureBooleanValue(value = true, Location("test.def", Range.default)),
+        PureNumberValue(value = 123, Location("test.def", Range.default))
       ),
       generics = Seq(TypeReference("A", Seq.empty)),
-      range = Range.default
+      location = Location("test.def", Range.default)
     )
     val output = definitiASTParser.processFunctionCall(input)
     output should equal(expected)

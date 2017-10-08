@@ -11,7 +11,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class ProcessNamedFunctionSpec extends FlatSpec with Matchers with PropertyChecks {
   private val configuration = ConfigurationMock()
-  private val definitiASTParser = new DefinitiASTParser(configuration)
+  private val definitiASTParser = new DefinitiASTParser("test.def", configuration)
 
   "DefinitiASTParser.processNamedFunction" should "return a NamedFunction without exception" in {
     forAll(NamedFunctionContextGenerator.anyNamedFunctionContext) { namedFunctionContext =>
@@ -36,10 +36,10 @@ class ProcessNamedFunctionSpec extends FlatSpec with Matchers with PropertyCheck
       name = "myName",
       packageName = NOT_DEFINED,
       parameters = Seq.empty,
-      body = PureBooleanValue(value = true, Range.default),
+      body = PureBooleanValue(value = true, Location("test.def", Range.default)),
       genericTypes = Seq.empty,
       returnType = TypeReference("Boolean", Seq.empty),
-      range = Range.default
+      location = Location("test.def", Range.default)
     )
     val output = definitiASTParser.processNamedFunction(input)
     output should equal(expected)

@@ -10,11 +10,11 @@ private[core] trait VerificationValidation {
     validateDeepBooleanExpression(verification.function.body)
   }
 
-  protected def validateVerificationReference(verification: VerificationReference, range: Range): Validation = {
+  protected def validateVerificationReference(verification: VerificationReference, location: Location): Validation = {
     if (library.verifications.contains(verification.verificationName)) {
       Valid
     } else {
-      Invalid("Undefined verification: " + verification.verificationName, range)
+      Invalid("Undefined verification: " + verification.verificationName, location)
     }
   }
 }

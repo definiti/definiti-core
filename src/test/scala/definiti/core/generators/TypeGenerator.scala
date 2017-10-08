@@ -16,7 +16,7 @@ object TypeGenerator {
     verifications <- listOfTypeVerifications
     inherited <- Gen.listOf(VerificationGenerator.anyVerificationReference)
     comment <- Gen.option(ASTGenerator.anyString)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     PureDefinedType(
       name,
@@ -26,7 +26,7 @@ object TypeGenerator {
       verifications,
       inherited,
       comment,
-      range
+      location
     )
   }
 
@@ -37,7 +37,7 @@ object TypeGenerator {
     alias <- ASTGenerator.referencedTypeReference
     inherited <- Gen.listOf(VerificationGenerator.anyVerificationReference)
     comment <- Gen.option(ASTGenerator.anyString)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     PureAliasType(
       name,
@@ -46,7 +46,7 @@ object TypeGenerator {
       alias,
       inherited,
       comment,
-      range
+      location
     )
   }
 
@@ -55,26 +55,26 @@ object TypeGenerator {
     typeReference <- ASTGenerator.anyTypeReference
     comment <- Gen.option(ASTGenerator.anyString)
     verifications <- Gen.listOf(VerificationGenerator.anyVerificationReference)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     AttributeDefinition(
       name = name,
       typeReference = typeReference,
       comment = comment,
       verifications = verifications,
-      range = range
+      location = location
     )
   }
 
   def anyTypeVerification(implicit context: ReferenceContext): Gen[PureTypeVerification] = for {
     message <- ASTGenerator.anyString
     function <- FunctionGenerator.anyFunctionWithParametersReturningBoolean(1)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     PureTypeVerification(
       message,
       function,
-      range
+      location
     )
   }
 

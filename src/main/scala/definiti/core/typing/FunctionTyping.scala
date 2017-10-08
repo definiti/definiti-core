@@ -17,7 +17,7 @@ private[core] class FunctionTyping(context: Context) {
         parameters = definedFunction.parameters,
         body = expression,
         genericTypes = definedFunction.genericTypes,
-        range = definedFunction.range
+        location = definedFunction.location
       )
     }
   }

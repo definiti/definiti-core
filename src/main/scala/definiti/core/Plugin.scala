@@ -3,7 +3,7 @@ package definiti.core
 import java.nio.file.Path
 
 import definiti.core.ast.pure.PureRoot
-import definiti.core.ast.{Library, Root}
+import definiti.core.ast.{Library, Location, Root}
 
 trait Plugin {
   def name: String
@@ -24,7 +24,7 @@ trait GeneratorPlugin extends Plugin {
 trait ContextPlugin[A] extends Plugin {
   def contextName: String
 
-  def parse(content: String, range: definiti.core.ast.Range): A
+  def parse(content: String, location: Location): A
 
   def validate(context: A, library: Library): Validation
 }

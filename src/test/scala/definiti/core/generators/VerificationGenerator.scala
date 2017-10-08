@@ -12,7 +12,7 @@ object VerificationGenerator {
     message <- ASTGenerator.anyString
     function <- FunctionGenerator.anyFunction
     comment <- Gen.option(ASTGenerator.anyString)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     PureVerification(
       name = name,
@@ -20,7 +20,7 @@ object VerificationGenerator {
       message = message,
       function = function,
       comment = comment,
-      range = range
+      location = location
     )
   }
 
@@ -30,7 +30,7 @@ object VerificationGenerator {
     message <- ASTGenerator.anyString
     function <- FunctionGenerator.anyReferencedFunction
     comment <- Gen.option(ASTGenerator.anyString)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     PureVerification(
       name = name,
@@ -38,7 +38,7 @@ object VerificationGenerator {
       message = message,
       function = function,
       comment = comment,
-      range = range
+      location = location
     )
   }
 
@@ -48,7 +48,7 @@ object VerificationGenerator {
     message <- ASTGenerator.anyString
     function <- FunctionGenerator.anyFunctionWithParametersReturningBoolean(1)
     comment <- Gen.option(ASTGenerator.anyString)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     PureVerification(
       name = name,
@@ -56,7 +56,7 @@ object VerificationGenerator {
       message = message,
       function = function,
       comment = comment,
-      range = range
+      location = location
     )
   }
 
@@ -66,7 +66,7 @@ object VerificationGenerator {
     message <- ASTGenerator.anyString
     function <- FunctionGenerator.anyReferencedFunctionWithParametersReturningBoolean(1)
     comment <- Gen.option(ASTGenerator.anyString)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     PureVerification(
       name = name,
@@ -74,31 +74,31 @@ object VerificationGenerator {
       message = message,
       function = function,
       comment = comment,
-      range = range
+      location = location
     )
   }
 
   def anyVerificationReference(implicit context: Context): Gen[VerificationReference] = for {
     verificationName <- ASTGenerator.anyIdentifier
     message <- Gen.option(ASTGenerator.anyString)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     VerificationReference(
       verificationName = verificationName,
       message = message,
-      range = range
+      location = location
     )
   }
 
   def anyReferencedVerificationReference(implicit context: ReferenceContext): Gen[VerificationReference] = for {
     verificationName <- Gen.oneOf(context.verifications).map(_.canonicalName)
     message <- Gen.option(ASTGenerator.anyString)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     VerificationReference(
       verificationName = verificationName,
       message = message,
-      range = range
+      location = location
     )
   }
 }

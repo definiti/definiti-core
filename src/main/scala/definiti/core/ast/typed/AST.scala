@@ -34,7 +34,7 @@ private[core] case class TypedNativeClassDefinition(
   override def canonicalName: String = name
 }
 
-private[core] case class TypedVerification(name: String, packageName: String, message: String, function: DefinedFunction, comment: Option[String], range: Range) {
+private[core] case class TypedVerification(name: String, packageName: String, message: String, function: DefinedFunction, comment: Option[String], location: Location) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
@@ -42,11 +42,11 @@ private[core] sealed trait Type extends TypedClassDefinition {
   def comment: Option[String]
 }
 
-private[core] case class TypedDefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends Type {
+private[core] case class TypedDefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[VerificationReference], comment: Option[String], location: Location) extends Type {
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-private[core] case class TypedAliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], range: Range) extends Type {
+private[core] case class TypedAliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], location: Location) extends Type {
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
@@ -57,5 +57,5 @@ private[core] case class TypedNamedFunction(
   parameters: Seq[ParameterDefinition],
   returnType: TypeReference,
   body: ast.Expression,
-  range: Range
+  location: Location
 )

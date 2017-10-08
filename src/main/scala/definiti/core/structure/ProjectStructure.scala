@@ -76,7 +76,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
       message = verification.message,
       function = verification.function,
       comment = verification.comment,
-      range = verification.range
+      location = verification.location
     )
   }
 
@@ -96,7 +96,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
       verifications = definedType.verifications,
       inherited = definedType.inherited,
       comment = definedType.comment,
-      range = definedType.range
+      location = definedType.location
     )
   }
 
@@ -107,7 +107,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
       alias = aliasType.alias,
       inherited = aliasType.inherited,
       comment = aliasType.comment,
-      range = aliasType.range
+      location = aliasType.location
     )
   }
 
@@ -118,7 +118,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
       parameters = namedFunction.parameters,
       returnType = namedFunction.returnType,
       body = namedFunction.body,
-      range = namedFunction.range
+      location = namedFunction.location
     )
   }
 
@@ -126,7 +126,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     ExtendedContext(
       name = extendedContext.name,
       content = extendedContext.content,
-      range = extendedContext.range
+      location = extendedContext.location
     )
   }
 }

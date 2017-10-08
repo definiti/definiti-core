@@ -16,7 +16,7 @@ case class Verification(
   message: String,
   function: DefinedFunction,
   comment: Option[String],
-  range: Range
+  location: Location
 ) extends NamespaceElement
 
 sealed trait ClassDefinition extends NamespaceElement {
@@ -32,7 +32,7 @@ case class DefinedType(
   verifications: Seq[TypeVerification],
   inherited: Seq[VerificationReference],
   comment: Option[String],
-  range: Range
+  location: Location
 ) extends ClassDefinition
 
 case class AliasType(
@@ -41,7 +41,7 @@ case class AliasType(
   alias: TypeReference,
   inherited: Seq[VerificationReference],
   comment: Option[String],
-  range: Range
+  location: Location
 ) extends ClassDefinition
 
 case class NativeClassDefinition(
@@ -58,13 +58,13 @@ case class NamedFunction(
   parameters: Seq[ParameterDefinition],
   returnType: TypeReference,
   body: Expression,
-  range: Range
+  location: Location
 ) extends NamespaceElement
 
 case class ExtendedContext[A](
   name: String,
   content: A,
-  range: Range
+  location: Location
 ) extends NamespaceElement
 
 sealed trait AbstractTypeReference {
@@ -102,13 +102,13 @@ case class AttributeDefinition(
   typeReference: TypeReference,
   comment: Option[String],
   verifications: Seq[VerificationReference],
-  range: Range
+  location: Location
 )
 
 case class ParameterDefinition(
   name: String,
   typeReference: AbstractTypeReference,
-  range: Range
+  location: Location
 )
 
 case class MethodDefinition(
@@ -119,10 +119,10 @@ case class MethodDefinition(
   comment: Option[String]
 )
 
-case class VerificationReference(verificationName: String, message: Option[String], range: Range)
+case class VerificationReference(verificationName: String, message: Option[String], location: Location)
 
-case class TypeVerification(message: String, function: DefinedFunction, range: Range)
+case class TypeVerification(message: String, function: DefinedFunction, location: Location)
 
-case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], range: Range)
+case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], location: Location)
 
-case class Parameter(name: String, typeReference: TypeReference, range: Range)
+case class Parameter(name: String, typeReference: TypeReference, location: Location)

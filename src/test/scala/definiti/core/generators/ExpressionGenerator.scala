@@ -1,6 +1,6 @@
 package definiti.core.generators
 
-import definiti.core.generators.ASTGenerator.anyRange
+import definiti.core.generators.ASTGenerator.anyLocation
 import definiti.core._
 import definiti.core.ast.pure._
 import org.scalacheck.Gen
@@ -8,23 +8,23 @@ import org.scalacheck.Gen
 object ExpressionGenerator {
   // TODO: make it complete when needed
   def anyExpression(implicit context: Context): Gen[PureExpression] = for {
-    range <- anyRange
+    location <- anyLocation
   } yield {
-    PureBooleanValue(value = true, range = range)
+    PureBooleanValue(value = true, location = location)
   }
 
   // TODO: make it complete when needed
   def anyBooleanExpression(implicit context: Context): Gen[PureExpression] = for {
-    range <- anyRange
+    location <- anyLocation
   } yield {
-    PureBooleanValue(value = true, range = range)
+    PureBooleanValue(value = true, location = location)
   }
 
   // TODO: make it complete when needed
   def anyReferencedExpression(implicit context: Context): Gen[PureExpression] = for {
-    range <- anyRange
+    location <- anyLocation
   } yield {
-    PureBooleanValue(value = true, range = range)
+    PureBooleanValue(value = true, location = location)
   }
 
   def anyFunctionCall(implicit context: Context): Gen[PureExpression] = anyFunctionCall(5)
@@ -33,13 +33,13 @@ object ExpressionGenerator {
     name <- Generators.anyIdentifier
     parameters <- Gen.listOf(anyExpression)
     generics <- Gen.listOf(ASTGenerator.anyTypeReference)
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     PureFunctionCall(
       name = name,
       parameters = parameters,
       generics = generics,
-      range = range
+      location = location
     )
   }
 }

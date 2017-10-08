@@ -11,7 +11,7 @@ object NamedFunctionGenerator {
     body <- ExpressionGenerator.anyExpression
     genericTypes <- Gen.listOf(ASTGenerator.anyIdentifier)
     returnType <- ASTGenerator.anyTypeReference
-    range <- ASTGenerator.anyRange
+    location <- ASTGenerator.anyLocation
   } yield {
     PureNamedFunction(
       name = name,
@@ -20,7 +20,7 @@ object NamedFunctionGenerator {
       parameters = parameters,
       returnType = returnType,
       body: PureExpression,
-      range = range
+      location = location
     )
   }
 }

@@ -39,7 +39,7 @@ private[core] class ProjectTyping(context: Context) {
         message = verification.message,
         function = function,
         comment = verification.comment,
-        range = verification.range
+        location = verification.location
       )
     }
   }
@@ -54,7 +54,7 @@ private[core] class ProjectTyping(context: Context) {
         parameters = namedFunction.parameters,
         returnType = namedFunction.returnType,
         body = expression,
-        range = namedFunction.range
+        location = namedFunction.location
       )
     }
   }

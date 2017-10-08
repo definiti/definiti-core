@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.{ParserRuleContext, Token}
 import scala.collection.mutable.ListBuffer
 
 private[core] trait CommonParser {
+  def file: String
+
   def processParameterListDefinition(context: ParameterListDefinitionContext): Seq[ParameterDefinition] = {
     scalaSeq(context.parameterDefinition()).map(processParameter)
   }
@@ -17,7 +19,7 @@ private[core] trait CommonParser {
     ParameterDefinition(
       name = context.parameterName.getText,
       typeReference = TypeReference(context.parameterType.getText, processGenericTypeList(context.genericTypeList())),
-      getRangeFromContext(context)
+      location = Location(file, getRangeFromContext(context))
     )
   }
 
@@ -58,16 +60,20 @@ private[core] trait CommonParser {
     temporaryResult
   }
 
-  def getRangeFromContext(context: ParserRuleContext): Range = {
-    def position(token: Token): Position = {
-      if (token == null) {
-        Position(0, 0)
-      } else {
-        Position(token.getLine, token.getCharPositionInLine)
-      }
-    }
+  def getLocationFromContext(context: ParserRuleContext): Location = {
+    Location(file, getRangeFromContext(context))
+  }
 
-    Range(position(context.getStart), position(context.getStop))
+  def getRangeFromContext(context: ParserRuleContext): Range = {
+    val start = Option(context.getStart)
+      .map(token => Position(token.getLine, token.getCharPositionInLine + 1))
+      .getOrElse(Position.default)
+
+    val end = Option(context.getStop)
+      .map(token => Position(token.getLine, token.getCharPositionInLine + token.getText.length + 1))
+      .getOrElse(Position.default)
+
+    Range(start, end)
   }
 
   def getRangeFromTerminalNode(terminalNode: TerminalNode): Range = {

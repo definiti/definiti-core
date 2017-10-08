@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.mutable.ListBuffer
 
-private[core] class DefinitiASTParser(configuration: Configuration) extends CommonParser {
+private[core] class DefinitiASTParser(val file: String, configuration: Configuration) extends CommonParser {
   def definitiContextToAST(context: DefinitiContext): PureRootFile = {
     val verifications = ListBuffer[PureVerification]()
     val classDefinitions = ListBuffer[PureClassDefinition]()
@@ -47,7 +47,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
       message = extractStringContent(context.verificationMessage.getText),
       function = processFunction(context.function()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
-      getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -58,7 +58,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
         .getOrElse(Seq.empty),
-      getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -72,7 +72,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
       verifications = scalaSeq(context.typeVerification()).map(processTypeVerification(_, typeName)),
       inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -82,7 +82,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
       typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       verifications = processVerifyingList(context.verifyingList()),
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -98,7 +98,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     VerificationReference(
       verificationName = context.verificationName.getText,
       message = Option(context.message).map(message => extractStringContent(message.getText)),
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -106,7 +106,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     PureTypeVerification(
       extractStringContent(context.verificationMessage.getText),
       processTypeVerificationFunction(context.typeVerificationFunction(), typeName),
-      getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -114,13 +114,13 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     val parameters = Seq(ParameterDefinition(
       name = context.IDENTIFIER().getText,
       typeReference = TypeReference(typeName, Seq.empty),
-      range = getRangeFromTerminalNode(context.IDENTIFIER())
+      location = Location(file, getRangeFromTerminalNode(context.IDENTIFIER()))
     ))
     PureDefinedFunction(
       parameters = parameters,
       body = processChainedExpression(context.chainedExpression()),
       genericTypes = Seq.empty,
-      getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -135,7 +135,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
       genericTypes = processGenericTypeListDefinition(context.genericTypes),
       inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -149,7 +149,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
         .getOrElse(Seq.empty),
       returnType = processGenericType(context.genericType()),
       body = processNamedFunctionBody(context.namedFunctionBody()),
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -164,7 +164,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
   def processChainedExpression(context: ChainedExpressionContext): PureExpression = {
     scalaSeq(context.expression()) match {
       case head :: Nil => processExpression(head)
-      case expressions => PureCombinedExpression(expressions.map(processExpression), getRangeFromContext(context))
+      case expressions => PureCombinedExpression(expressions.map(processExpression), getLocationFromContext(context))
     }
   }
 
@@ -212,7 +212,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
         scalaSeq(methodExpressionParameters.expression()).map(processExpression)
       } getOrElse Seq.empty,
       generics = processGenericTypeList(context.genericTypeList()),
-      getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -220,12 +220,12 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     PureAttributeCall(
       expression = processExpression(context.attributeExpression),
       attribute = context.attributeName.getText,
-      getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
   def processNotExpression(context: ExpressionContext): PureExpression = {
-    PureNot(processExpression(context.notExpression), getRangeFromContext(context))
+    PureNot(processExpression(context.notExpression), getLocationFromContext(context))
   }
 
   def processLeftRightExpression(context: ExpressionContext): PureExpression = {
@@ -234,41 +234,41 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     val left = processExpression(context.leftExpression)
     val right = processExpression(context.rightExpression)
     context.operator.getText match {
-      case "*" => PureCalculatorExpression(Time, left, right, getRangeFromContext(context))
-      case "/" => PureCalculatorExpression(Divide, left, right, getRangeFromContext(context))
-      case "%" => PureCalculatorExpression(Modulo, left, right, getRangeFromContext(context))
-      case "+" => PureCalculatorExpression(Plus, left, right, getRangeFromContext(context))
-      case "-" => PureCalculatorExpression(Minus, left, right, getRangeFromContext(context))
-      case "==" => PureLogicalExpression(Equal, left, right, getRangeFromContext(context))
-      case "!=" => PureLogicalExpression(NotEqual, left, right, getRangeFromContext(context))
-      case "<" => PureLogicalExpression(Lower, left, right, getRangeFromContext(context))
-      case "<=" => PureLogicalExpression(LowerOrEqual, left, right, getRangeFromContext(context))
-      case ">" => PureLogicalExpression(Upper, left, right, getRangeFromContext(context))
-      case ">=" => PureLogicalExpression(UpperOrEqual, left, right, getRangeFromContext(context))
-      case "&&" => PureLogicalExpression(And, left, right, getRangeFromContext(context))
-      case "||" => PureLogicalExpression(Or, left, right, getRangeFromContext(context))
+      case "*" => PureCalculatorExpression(Time, left, right, getLocationFromContext(context))
+      case "/" => PureCalculatorExpression(Divide, left, right, getLocationFromContext(context))
+      case "%" => PureCalculatorExpression(Modulo, left, right, getLocationFromContext(context))
+      case "+" => PureCalculatorExpression(Plus, left, right, getLocationFromContext(context))
+      case "-" => PureCalculatorExpression(Minus, left, right, getLocationFromContext(context))
+      case "==" => PureLogicalExpression(Equal, left, right, getLocationFromContext(context))
+      case "!=" => PureLogicalExpression(NotEqual, left, right, getLocationFromContext(context))
+      case "<" => PureLogicalExpression(Lower, left, right, getLocationFromContext(context))
+      case "<=" => PureLogicalExpression(LowerOrEqual, left, right, getLocationFromContext(context))
+      case ">" => PureLogicalExpression(Upper, left, right, getLocationFromContext(context))
+      case ">=" => PureLogicalExpression(UpperOrEqual, left, right, getLocationFromContext(context))
+      case "&&" => PureLogicalExpression(And, left, right, getLocationFromContext(context))
+      case "||" => PureLogicalExpression(Or, left, right, getLocationFromContext(context))
     }
   }
 
   def processBooleanExpression(context: ExpressionContext): PureExpression = {
     context.booleanExpression.getText match {
-      case "true" => PureBooleanValue(value = true, getRangeFromContext(context))
-      case _ => PureBooleanValue(value = false, getRangeFromContext(context))
+      case "true" => PureBooleanValue(value = true, getLocationFromContext(context))
+      case _ => PureBooleanValue(value = false, getLocationFromContext(context))
     }
   }
 
   def processNumberExpression(context: ExpressionContext): PureExpression = {
-    PureNumberValue(BigDecimal(context.numberExpression.getText), getRangeFromContext(context))
+    PureNumberValue(BigDecimal(context.numberExpression.getText), getLocationFromContext(context))
   }
 
   def processStringExpression(context: ExpressionContext): PureExpression = {
-    PureQuotedStringValue(extractStringContent(context.stringExpression.getText), getRangeFromContext(context))
+    PureQuotedStringValue(extractStringContent(context.stringExpression.getText), getLocationFromContext(context))
   }
 
   def processReferenceExpression(context: ExpressionContext): PureExpression = {
     PureReference(
       name = context.referenceExpression.getText,
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -277,7 +277,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
       condition = processExpression(context.conditionExpression),
       onTrue = processChainedExpression(context.conditionIfBody),
       onFalse = Option(context.conditionElseBody).map(processChainedExpression),
-      getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -285,7 +285,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
     PureLambdaExpression(
       parameterList = processParameterListDefinition(context.parameterListDefinition()),
       expression = processExpression(context.lambdaExpression),
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -296,7 +296,7 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
         scalaSeq(functionExpressionParameters.expression()).map(processExpression)
       } getOrElse Seq.empty,
       generics = processGenericTypeList(context.functionGenerics),
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -332,8 +332,8 @@ private[core] class DefinitiASTParser(configuration: Configuration) extends Comm
         val contextContent = context.contextContent()
         val contentInterval = new Interval(contextContent.getStart.getStartIndex, contextContent.getStop.getStopIndex)
         val content = contextContent.getStart.getInputStream.getText(contentInterval)
-        val range = getRangeFromContext(contextContent)
-        PureExtendedContext(contextName, contextPlugin.parse(content, range), range)
+        val location = getLocationFromContext(contextContent)
+        PureExtendedContext(contextName, contextPlugin.parse(content, location), location)
       }
   }
 }

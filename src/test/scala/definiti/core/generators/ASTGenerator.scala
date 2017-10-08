@@ -12,13 +12,13 @@ object ASTGenerator {
     parameters <- Gen.listOf(anyParameterDefinition)
     body <- ExpressionGenerator.anyExpression
     genericTypes <- Gen.listOf(anyIdentifier)
-    range <- anyRange
+    location <- anyLocation
   } yield {
     PureDefinedFunction(
       parameters = parameters,
       body = body,
       genericTypes = genericTypes,
-      range = range
+      location = location
     )
   }
 
@@ -26,12 +26,12 @@ object ASTGenerator {
   lazy val anyParameterDefinition: Gen[ParameterDefinition] = for {
     name <- anyIdentifier
     typeReference <- anyTypeReference
-    range <- anyRange
+    location <- anyLocation
   } yield {
     ParameterDefinition(
       name = name,
       typeReference = typeReference,
-      range = range
+      location = location
     )
   }
 
@@ -75,14 +75,14 @@ object ASTGenerator {
     typeReference <- anyTypeReference
     comment <- Gen.option(anyIdentifier)
     verifications <- Gen.listOf(VerificationGenerator.anyVerificationReference)
-    range <- anyRange
+    location <- anyLocation
   } yield {
     AttributeDefinition(
       name,
       typeReference,
       comment,
       verifications,
-      range
+      location
     )
   }
 
@@ -130,6 +130,13 @@ object ASTGenerator {
   lazy val anyDottedIdentifier: Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
 
   lazy val anyString: Gen[String] = Arbitrary.arbString.arbitrary
+
+  lazy val anyLocation: Gen[Location] = for {
+    file <- anyString
+    range <- anyRange
+  } yield {
+    Location(file, range)
+  }
 
   lazy val anyRange: Gen[Range] = for {
     firstLine <- Gen.choose(0, Int.MaxValue)

@@ -8,7 +8,7 @@ import definiti.core.utils.CollectionUtils._
 
 import scala.collection.mutable.ListBuffer
 
-private[core] object CoreDefinitionASTParser extends CommonParser {
+private[core] class CoreDefinitionASTParser(val file: String) extends CommonParser {
   def definitionContextToAST(context: CoreDefinitionContext): Seq[PureClassDefinition] = {
     val classDefinitions = ListBuffer[PureClassDefinition]()
 
@@ -43,7 +43,7 @@ private[core] object CoreDefinitionASTParser extends CommonParser {
       typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       verifications = Seq.empty,
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 
@@ -65,7 +65,7 @@ private[core] object CoreDefinitionASTParser extends CommonParser {
     ParameterDefinition(
       name = context.parameterName.getText,
       typeReference = processAbstractTypeReference(context.abstractTypeReference()),
-      range = getRangeFromContext(context)
+      location = getLocationFromContext(context)
     )
   }
 

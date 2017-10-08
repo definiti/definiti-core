@@ -35,6 +35,6 @@ trait CoreParser {
     val tokens = new CommonTokenStream(lexer)
     val parser = new CoreDefinitionParser(tokens)
     val coreDefinition = parser.coreDefinition()
-    CoreDefinitionASTParser.definitionContextToAST(coreDefinition)
+    new CoreDefinitionASTParser(fileName).definitionContextToAST(coreDefinition)
   }
 }

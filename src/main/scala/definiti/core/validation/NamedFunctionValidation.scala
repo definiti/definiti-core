@@ -7,6 +7,6 @@ private[core] trait NamedFunctionValidation {
   self: ASTValidation =>
 
   protected def validateNamedFunction(namedFunction: NamedFunction): Validation = {
-    validateTypeReference(namedFunction.returnType, namedFunction.range)
+    validateTypeReference(namedFunction.returnType, namedFunction.location)
   }
 }

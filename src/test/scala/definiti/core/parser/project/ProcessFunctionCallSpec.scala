@@ -5,7 +5,6 @@ import definiti.core.ast._
 import definiti.core.ast.pure._
 import definiti.core.generators.antlr.ExpressionContextGenerator
 import definiti.core.mock.antlr._
-import definiti.core.parser.TestConstants.defaultRange
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -36,11 +35,11 @@ class ProcessFunctionCallSpec extends FlatSpec with Matchers with PropertyChecks
     val expected = PureFunctionCall(
       name = "myName",
       parameters = Seq(
-        PureBooleanValue(value = true, defaultRange),
-        PureNumberValue(value = 123, defaultRange)
+        PureBooleanValue(value = true, Range.default),
+        PureNumberValue(value = 123, Range.default)
       ),
       generics = Seq(TypeReference("A", Seq.empty)),
-      range = defaultRange
+      range = Range.default
     )
     val output = definitiASTParser.processFunctionCall(input)
     output should equal(expected)

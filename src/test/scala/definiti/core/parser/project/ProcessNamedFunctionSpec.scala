@@ -6,7 +6,6 @@ import definiti.core.ast._
 import definiti.core.ast.pure._
 import definiti.core.generators.antlr.NamedFunctionContextGenerator
 import definiti.core.mock.antlr._
-import definiti.core.parser.TestConstants._
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -37,10 +36,10 @@ class ProcessNamedFunctionSpec extends FlatSpec with Matchers with PropertyCheck
       name = "myName",
       packageName = NOT_DEFINED,
       parameters = Seq.empty,
-      body = PureBooleanValue(value = true, defaultRange),
+      body = PureBooleanValue(value = true, Range.default),
       genericTypes = Seq.empty,
       returnType = TypeReference("Boolean", Seq.empty),
-      range = defaultRange
+      range = Range.default
     )
     val output = definitiASTParser.processNamedFunction(input)
     output should equal(expected)

@@ -59,15 +59,15 @@ private[core] trait CommonParser {
   }
 
   def getRangeFromContext(context: ParserRuleContext): Range = {
-    def position(token: Token): Position = {
-      if (token == null) {
-        Position(0, 0)
-      } else {
-        Position(token.getLine, token.getCharPositionInLine)
-      }
-    }
+    val start = Option(context.getStart)
+      .map(token => Position(token.getLine, token.getCharPositionInLine + 1))
+      .getOrElse(Position.default)
 
-    Range(position(context.getStart), position(context.getStop))
+    val end = Option(context.getStop)
+      .map(token => Position(token.getLine, token.getCharPositionInLine + token.getText.length + 1))
+      .getOrElse(Position.default)
+
+    Range(start, end)
   }
 
   def getRangeFromTerminalNode(terminalNode: TerminalNode): Range = {

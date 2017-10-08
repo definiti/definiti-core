@@ -39,22 +39,22 @@ object GeneratePublicApiSpec {
               name = "title",
               typeReference = TypeReference("String"),
               comment = None,
-              verifications = Seq(VerificationReference("blog.NonBlank", Some("Please provide a title"), Range(7, 16, 7, 59))),
-              range = Range(7, 2, 7, 59)
+              verifications = Seq(VerificationReference("blog.NonBlank", Some("Please provide a title"), Range(7, 17, 7, 61))),
+              range = Range(7, 3, 7, 61)
             ),
             AttributeDefinition(
               name = "content",
               typeReference = TypeReference("String"),
               comment = None,
-              verifications = Seq(VerificationReference("blog.NonBlank", None, Range(8, 18, 8, 28))),
-              range = Range(8, 2, 8, 28)
+              verifications = Seq(VerificationReference("blog.NonBlank", None, Range(8, 19, 8, 37))),
+              range = Range(8, 3, 8, 37)
             ),
             AttributeDefinition(
               name = "tags",
               typeReference = TypeReference("List", Seq(TypeReference("String"))),
               comment = None,
               verifications = Seq.empty,
-              range = Range(9, 2, 9, 19)
+              range = Range(9, 3, 9, 21)
             )
           ),
           verifications = Seq(
@@ -65,55 +65,55 @@ object GeneratePublicApiSpec {
                 body = Condition(
                   condition = MethodCall(
                     expression = AttributeCall(
-                      expression = Reference("blog", TypeReference("blog.Blog"), Range(14, 10, 14, 10)),
+                      expression = Reference("blog", TypeReference("blog.Blog"), Range(14, 11, 14, 15)),
                       attribute = "tags",
                       returnType = TypeReference("List", Seq(TypeReference("String"))),
-                      range = Range(9, 2, 9, 19)
+                      range = Range(9, 3, 9, 21)
                     ),
                     method = "nonEmpty",
                     parameters = Seq.empty,
                     generics = Seq.empty,
                     returnType = TypeReference("Boolean"),
-                    range = Range(14, 10, 14, 29)
+                    range = Range(14, 11, 14, 31)
                   ),
                   onTrue = MethodCall(
                     expression = AttributeCall(
-                      expression = Reference("blog", TypeReference("blog.Blog"), Range(15, 8, 15, 8)),
+                      expression = Reference("blog", TypeReference("blog.Blog"), Range(15, 9, 15, 13)),
                       attribute = "tags",
                       returnType = TypeReference("List", Seq(TypeReference("String"))),
-                      range = Range(9, 2, 9, 19)
+                      range = Range(9, 3, 9, 21)
                     ),
                     method = "forAll",
                     parameters = Seq(LambdaExpression(
-                      parameterList = Seq(ParameterDefinition("tag", TypeReference("String"), Range(15, 26, 15, 31))),
+                      parameterList = Seq(ParameterDefinition("tag", TypeReference("String"), Range(15, 27, 15, 38))),
                       expression = MethodCall(
-                        expression = Reference("tag", TypeReference("String"), Range(16, 10, 16, 10)),
+                        expression = Reference("tag", TypeReference("String"), Range(16, 11, 16, 14)),
                         method = "nonEmpty",
                         parameters = Seq.empty,
                         generics = Seq.empty,
                         returnType = TypeReference("Boolean"),
-                        range = Range(16, 10, 16, 23)
+                        range = Range(16, 11, 16, 25)
                       ),
                       returnType = TypeReference("Boolean"),
-                      range = Range(15, 25, 17, 8)
+                      range = Range(15, 26, 17, 10)
                     )),
                     generics = Seq.empty,
                     returnType = TypeReference("Boolean"),
-                    range = Range(15, 8, 17, 9)
+                    range = Range(15, 9, 17, 11)
                   ),
-                  onFalse = Some(BooleanValue(value = true, TypeReference("Boolean"), Range(19, 8, 19, 8))),
+                  onFalse = Some(BooleanValue(value = true, TypeReference("Boolean"), Range(19, 9, 19, 13))),
                   returnType = TypeReference("Boolean"),
-                  range = Range(14, 6, 20, 6)
+                  range = Range(14, 7, 20, 8)
                 ),
                 genericTypes = Seq.empty,
-                range = Range(13, 4, 21, 4)
+                range = Range(13, 5, 21, 6)
               ),
-              range = Range(11, 2, 22, 2)
+              range = Range(11, 3, 22, 4)
             )
           ),
           inherited = Seq.empty,
           comment = None,
-          range = Range(6, 0, 23, 0)
+          range = Range(6, 1, 23, 2)
         ),
         DefinedType(
           name = "Comment",
@@ -124,92 +124,92 @@ object GeneratePublicApiSpec {
               typeReference = TypeReference("String"),
               comment = None,
               verifications = Seq(
-                VerificationReference("blog.NonBlank", None, Range(26, 15, 26, 25)),
-                VerificationReference("blog.ShortString", None, Range(26, 34, 26, 44))
+                VerificationReference("blog.NonBlank", None, Range(26, 16, 26, 34)),
+                VerificationReference("blog.ShortString", None, Range(26, 35, 26, 56))
               ),
-              range = Range(26, 2, 26, 44)
+              range = Range(26, 3, 26, 56)
             ),
             AttributeDefinition(
               name = "title",
               typeReference = TypeReference("Option", Seq(TypeReference("String"))),
               comment = None,
               verifications = Seq.empty,
-              range = Range(27, 2, 27, 22)
+              range = Range(27, 3, 27, 24)
             ),
             AttributeDefinition(
               name = "content",
               typeReference = TypeReference("String"),
               comment = None,
-              verifications = Seq(VerificationReference("blog.NonBlank", None, Range(28, 18, 28, 28))),
-              range = Range(28, 2, 28, 28)
+              verifications = Seq(VerificationReference("blog.NonBlank", None, Range(28, 19, 28, 37))),
+              range = Range(28, 3, 28, 37)
             )
           ),
           verifications = Seq.empty,
           inherited = Seq.empty,
           comment = None,
-          range = Range(25, 0, 29, 0)
+          range = Range(25, 1, 29, 2)
         ),
         Verification(
           name = "NonBlank",
           message = "The string should not be blank",
           function = DefinedFunction(
-            parameters = Seq(ParameterDefinition("string", TypeReference("String"), Range(5, 3, 5, 11))),
+            parameters = Seq(ParameterDefinition("string", TypeReference("String"), Range(5, 4, 5, 18))),
             body = MethodCall(
               expression = MethodCall(
-                expression = Reference("string", TypeReference("String"), Range(6, 4, 6, 4)),
+                expression = Reference("string", TypeReference("String"), Range(6, 5, 6, 11)),
                 method = "trim",
                 parameters = Seq.empty,
                 generics = Seq.empty,
                 returnType = TypeReference("String"),
-                range = Range(6, 4, 6, 16)
+                range = Range(6, 5, 6, 18)
               ),
               method = "nonEmpty",
               parameters = Seq.empty,
               generics = Seq.empty,
               returnType = TypeReference("Boolean"),
-              range = Range(6, 4, 6, 27)
+              range = Range(6, 5, 6, 29)
             ),
             genericTypes = Seq.empty,
-            range = Range(5, 2, 7, 2)
+            range = Range(5, 3, 7, 4)
           ),
           comment = None,
-          range = Range(3, 0, 8, 0)
+          range = Range(3, 1, 8, 2)
         ),
         Verification(
           name = "ShortString",
           message = "The string should not have more than 25 characters",
           function = DefinedFunction(
-            parameters = Seq(ParameterDefinition("string", TypeReference("String"), Range(12, 3, 12, 11))),
+            parameters = Seq(ParameterDefinition("string", TypeReference("String"), Range(12, 4, 12, 18))),
             body = LogicalExpression(
               operator = LogicalOperator.LowerOrEqual,
               left = AttributeCall(
-                expression = Reference("string", TypeReference("String"), Range(13, 4, 13, 4)),
+                expression = Reference("string", TypeReference("String"), Range(13, 5, 13, 11)),
                 attribute = "length",
                 returnType = TypeReference("Number"),
-                range = Range(34, 2, 37, 10)
+                range = Range(34, 3, 37, 17)
               ),
-              right = NumberValue(25, TypeReference("Number"), Range(13, 21, 13, 21)),
+              right = NumberValue(25, TypeReference("Number"), Range(13, 22, 13, 24)),
               returnType = TypeReference("Boolean"),
-              range = Range(13, 4, 13, 21)
+              range = Range(13, 5, 13, 24)
             ),
             genericTypes = Seq.empty,
-            range = Range(12, 2, 14, 2)
+            range = Range(12, 3, 14, 4)
           ),
           comment = None,
-          range = Range(10, 0, 15, 0)
+          range = Range(10, 1, 15, 2)
         )
       )
     )
   ))
 
   val invalidBlogExpected = Seq(
-    ASTError("Expected boolean expression, got: class unit", Range(13, 4, 15, 4)),
-    ASTError("Undefined verification: Unexisting", Range(8, 2, 8, 28)),
-    ASTError("Expected boolean expression, got: class unit", Range(14, 6, 20, 6)),
-    ASTError("Undefined type: Something", Range(28, 2, 28, 31))
+    ASTError("Expected boolean expression, got: class unit", Range(13, 5, 15, 6)),
+    ASTError("Undefined verification: Unexisting", Range(8, 3, 8, 39)),
+    ASTError("Expected boolean expression, got: class unit", Range(14, 7, 20, 8)),
+    ASTError("Undefined type: Something", Range(28, 3, 28, 40))
   )
 
   val invalidBlog2Expected = Seq(
-    ASTError("Unknown method String.noEmpty", Range(6, 4, 6, 26))
+    ASTError("Unknown method String.noEmpty", Range(6, 5, 6, 28))
   )
 }

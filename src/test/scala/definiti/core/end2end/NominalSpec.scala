@@ -13,31 +13,31 @@ class NominalSpec extends EndToEndSpec {
     output should beValidated[Root](expected)
   }
 
-  "Project.generatePublicAST" should "generate a valid AST for a valid alias type" in {
+  it should "generate a valid AST for a valid alias type" in {
     val expected = ValidValue(aliasType)
     val output = processFile("nominal.aliasType")
     output should beValidated[Root](expected)
   }
 
-  "Project.generatePublicAST" should "generate a valid AST for a valid verification" in {
+  it should "generate a valid AST for a valid verification" in {
     val expected = ValidValue(verification)
     val output = processFile("nominal.verification")
     output should beValidated[Root](expected)
   }
 
-  "Project.generatePublicAST" should "generate a valid AST for a valid named function" in {
+  it should "generate a valid AST for a valid named function" in {
     val expected = ValidValue(namedFunction)
     val output = processFile("nominal.namedFunction")
     output should beValidated[Root](expected)
   }
 
-  "Project.generatePublicAST" should "generate a valid AST for a valid extended context" in {
+  it should "generate a valid AST for a valid extended context" in {
     val expected = ValidValue(extendedContext)
     val output = processFile("nominal.extendedContext")
     output should beValidated[Root](expected)
   }
 
-  "Project.generatePublicAST" should "generate a valid AST for a valid alias type in a package" in {
+  it should "generate a valid AST for a valid alias type in a package" in {
     val expected = ValidValue(packageAliasType)
     val output = processFile("nominal.package")
     output should beValidated[Root](expected)
@@ -55,13 +55,13 @@ object NominalSpec {
           typeReference = TypeReference("String"),
           comment = None,
           verifications = Seq.empty,
-          range = Range(2, 2, 2, 15)
+          range = Range(2, 3, 2, 22)
         )
       ),
       verifications = Seq.empty,
       inherited = Seq.empty,
       comment = None,
-      range = Range(1, 0, 3, 0)
+      range = Range(1, 1, 3, 2)
     ))
   )
 
@@ -72,7 +72,7 @@ object NominalSpec {
       alias = TypeReference("String"),
       inherited = Seq.empty,
       comment = None,
-      range = Range(1, 0, 1, 19)
+      range = Range(1, 1, 1, 26)
     ))
   )
 
@@ -84,14 +84,14 @@ object NominalSpec {
         parameters = Seq(ParameterDefinition(
           name = "x",
           typeReference = TypeReference("String"),
-          range = Range(3, 3, 3, 6)
+          range = Range(3, 4, 3, 13)
         )),
-        body = BooleanValue(value = true, TypeReference("Boolean"), Range(4, 4, 4, 4)),
+        body = BooleanValue(value = true, TypeReference("Boolean"), Range(4, 5, 4, 9)),
         genericTypes = Seq.empty,
-        range = Range(3, 2, 5, 2)
+        range = Range(3, 3, 5, 4)
       ),
       comment = None,
-      range = Range(1, 0, 6, 0)
+      range = Range(1, 1, 6, 2)
     ))
   )
 
@@ -101,8 +101,8 @@ object NominalSpec {
       genericTypes = Seq.empty,
       parameters = Seq.empty,
       returnType = TypeReference("Boolean"),
-      body = BooleanValue(value = false, TypeReference("Boolean"), Range(2, 2, 2, 2)),
-      range = Range(1, 0, 3, 0)
+      body = BooleanValue(value = false, TypeReference("Boolean"), Range(2, 3, 2, 8)),
+      range = Range(1, 1, 3, 2)
     ))
   )
 
@@ -110,7 +110,7 @@ object NominalSpec {
     elements = Seq(ExtendedContext(
       name = "stringContext",
       content = "Something here",
-      range = Range(2, 2, 2, 12)
+      range = Range(2, 3, 2, 17)
     ))
   )
 
@@ -123,7 +123,7 @@ object NominalSpec {
         alias = TypeReference("String"),
         inherited = Seq.empty,
         comment = None,
-        range = Range(3, 0, 3, 19)
+        range = Range(3, 1, 3, 26)
       ))
     ))
   )

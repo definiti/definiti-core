@@ -22,6 +22,8 @@ object Range {
   def apply(startLine: Int, startColumn: Int, endLine: Int, endColumn: Int): Range = {
     new Range(Position(startLine, startColumn), Position(endLine, endColumn))
   }
+
+  val default = Range(Position.default, Position.default)
 }
 
 case class Position(
@@ -31,4 +33,8 @@ case class Position(
   def prettyPrint: String = {
     s"$line-$column"
   }
+}
+
+object Position {
+  val default = Position(0, 0)
 }

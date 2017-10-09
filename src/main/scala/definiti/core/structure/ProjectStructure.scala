@@ -2,6 +2,7 @@ package definiti.core.structure
 
 import definiti.core.ast.typed.TypedRootFile
 import definiti.core.ast._
+import definiti.core.utils.StringUtils
 
 private[core] class ProjectStructure(root: typed.TypedRoot) {
   def generateStructure(): Root = {
@@ -35,10 +36,10 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     val elementsOfFiles = filesOfPackage.flatMap(packageElementsOfFile)
 
     val subPackageNames = extractSubPackageNames(packageName)
-    val subPackages = subPackageNames.map(buildPackage)
+    val subPackages = subPackageNames.map(subPackageName => buildPackage(s"${packageName}.${subPackageName}"))
 
     val packageElements = Seq(elementsOfFiles ++ subPackages: _*)
-    Namespace(packageName, packageElements)
+    Namespace(StringUtils.lastPart(packageName, '.'), packageElements)
   }
 
   private def packageElementsOfFile(rootFile: TypedRootFile): Seq[NamespaceElement] = {

@@ -32,6 +32,7 @@ object GeneratePublicApiSpec {
   val validBlogExpected = Root(Seq(
     Namespace(
       name = "blog",
+      fullName = "blog",
       elements = Seq(
         DefinedType(
           name = "Blog",

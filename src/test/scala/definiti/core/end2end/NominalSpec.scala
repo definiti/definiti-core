@@ -123,6 +123,7 @@ object NominalSpec {
   val packageAliasType: Root = Root(
     elements = Seq(Namespace(
       name = "tst",
+      fullName = "tst",
       elements = Seq(AliasType(
         name = "AliasString",
         genericTypes = Seq.empty,

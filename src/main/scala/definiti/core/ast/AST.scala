@@ -8,6 +8,7 @@ sealed trait NamespaceElement
 
 case class Namespace(
   name: String,
+  fullName: String,
   elements: Seq[NamespaceElement]
 ) extends NamespaceElement
 

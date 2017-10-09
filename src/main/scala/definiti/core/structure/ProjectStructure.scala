@@ -39,7 +39,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     val subPackages = subPackageNames.map(subPackageName => buildPackage(s"${packageName}.${subPackageName}"))
 
     val packageElements = Seq(elementsOfFiles ++ subPackages: _*)
-    Namespace(StringUtils.lastPart(packageName, '.'), packageElements)
+    Namespace(StringUtils.lastPart(packageName, '.'), packageName, packageElements)
   }
 
   private def packageElementsOfFile(rootFile: TypedRootFile): Seq[NamespaceElement] = {

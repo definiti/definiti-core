@@ -25,9 +25,11 @@ object NamespaceSpec {
   val validSubnamespace = Root(Seq(
     Namespace(
       name = "my",
+      fullName = "my",
       elements = Seq(
         Namespace(
           name = "ns",
+          fullName = "my.ns",
           elements = Seq(AliasType(
             name = "AliasString",
             genericTypes = Seq.empty,
@@ -45,12 +47,15 @@ object NamespaceSpec {
   val validSub2namespace = Root(Seq(
     Namespace(
       name = "my",
+      fullName = "my",
       elements = Seq(
         Namespace(
           name = "sub",
+          fullName = "my.sub",
           elements = Seq(
             Namespace(
               name = "ns",
+              fullName = "my.sub.ns",
               elements = Seq(AliasType(
                 name = "AliasString",
                 genericTypes = Seq.empty,

@@ -71,8 +71,10 @@ private[core] class ExpressionTyping(context: Context) {
       .flatMap { case (expression, parameters) =>
         expression.returnType match {
           case typeReference: TypeReference =>
-            classReferenceFromTypeReference(typeReference, expression.location)
-              .flatMap { classReference =>
+            classReferenceFromTypeReference(
+              typeReference, expression.location,
+              typeReference => s"Class ${typeReference.typeName} not found when trying to determine the type of the expression"
+            ).flatMap { classReference =>
                 getMethodOpt(classReference.classDefinition, methodCall.method)(context) match {
                   case Some(methodDefinition) =>
                     ValidValue(MethodCall(
@@ -91,14 +93,21 @@ private[core] class ExpressionTyping(context: Context) {
       }
   }
 
-  def classReferenceFromTypeReference(typeReference: TypeReference, location: Location): Validated[ClassReference] = {
+  def classReferenceFromTypeReference(reference: TypeReference, location: Location, messageBuilder: TypeReference => String): Validated[ClassReference] = {
+    classReferenceFromTypeReference(reference, location, Some(messageBuilder))
+  }
+
+  def classReferenceFromTypeReference(typeReference: TypeReference, location: Location, messageBuilder: Option[TypeReference => String] = None): Validated[ClassReference] = {
     context.findType(typeReference.typeName) match {
       case Some(classDefinition) =>
         Validated
-          .squash(typeReference.genericTypes.map(classReferenceFromTypeReference(_, location)))
+          .squash(typeReference.genericTypes.map(classReferenceFromTypeReference(_, location, messageBuilder)))
           .map(ClassReference(classDefinition, _))
       case None =>
-        Invalid(s"Class ${typeReference.typeName} not found", location)
+        val message = messageBuilder
+          .map(f => f(typeReference))
+          .getOrElse(s"Class ${typeReference.typeName} not found")
+        Invalid(message, location)
     }
   }
 
@@ -118,8 +127,10 @@ private[core] class ExpressionTyping(context: Context) {
     validatedTypedExpression.flatMap { expression =>
       expression.returnType match {
         case typeReference: TypeReference =>
-          classReferenceFromTypeReference(typeReference, expression.location)
-            .flatMap { classReference =>
+          classReferenceFromTypeReference(
+            typeReference, expression.location,
+            typeReference => s"Class ${typeReference.typeName} not found when trying to determine the type of the expression"
+          ).flatMap { classReference =>
               getAttributeOpt(classReference.classDefinition, attributeCall.attribute)(context) match {
                 case Some(attributeDefinition) =>
                   ValidValue(AttributeCall(

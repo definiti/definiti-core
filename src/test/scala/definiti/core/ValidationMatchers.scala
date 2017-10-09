@@ -45,8 +45,8 @@ trait ValidationMatchers {
           } else {
             failed(expected, left)
           }
-        case (Valid, Invalid(_)) => failed(expected, left)
-        case (Invalid(_), Valid) => failed(expected, left)
+        case (ValidValue(_), Invalid(_)) => failed(expected, left)
+        case (Invalid(_), ValidValue(_)) => failed(expected, left)
         case (Invalid(expectedErrors), Invalid(gotErrors)) =>
           val missingErrors = missingExpectedErrors(expectedErrors, gotErrors)
           val additionalErrors = additionalGotErrors(expectedErrors, gotErrors)

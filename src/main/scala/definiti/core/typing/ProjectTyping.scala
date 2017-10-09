@@ -7,7 +7,6 @@ import definiti.core.ast.typed.{TypedNamedFunction, TypedRoot, TypedRootFile, Ty
 private[core] class ProjectTyping(context: Context) {
   val classDefinitionTyping = new ClassDefinitionTyping(context)
   val functionTyping = new FunctionTyping(context)
-  val expressionTyping = new ExpressionTyping(context)
 
   def addTypes(root: PureRoot): Validated[TypedRoot] = {
     Validated.squash(root.files.map(addTypesIntoRootFile))
@@ -45,7 +44,11 @@ private[core] class ProjectTyping(context: Context) {
   }
 
   def addTypesIntoNamedFunction(namedFunction: PureNamedFunction): Validated[TypedNamedFunction] = {
-    val validatedExpression = expressionTyping.addTypesIntoExpression(namedFunction.body)
+    val namedFunctionContext = NamedFunctionReferenceContext(
+      outerContext = context,
+      currentFunction = namedFunction
+    )
+    val validatedExpression = new ExpressionTyping(namedFunctionContext).addTypesIntoExpression(namedFunction.body)
     validatedExpression.map { expression =>
       TypedNamedFunction(
         name = namedFunction.name,

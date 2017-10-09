@@ -210,7 +210,18 @@ private[core] case class NamedFunctionReferenceContext(
   }
 
   override def findType(typeName: String): Option[PureClassDefinition] = {
-    outerContext.findType(typeName)
+    if (currentFunction.genericTypes.contains(typeName)) {
+      // There is neither covariance nor contravariance in the language, so the generic type is any type.
+      Some(PureNativeClassDefinition(
+        name = "A",
+        genericTypes = Seq.empty,
+        attributes = Seq.empty,
+        methods = Seq.empty,
+        comment = None
+      ))
+    } else {
+      outerContext.findType(typeName)
+    }
   }
 
   override def isVerificationAvailable(verificationName: String): Boolean = {

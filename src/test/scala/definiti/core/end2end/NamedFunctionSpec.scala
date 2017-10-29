@@ -21,7 +21,7 @@ class NamedFunctionSpec extends EndToEndSpec {
 }
 
 object NamedFunctionSpec {
-  val validContainsSrc = "src\\test\\resources\\samples\\namedFunction\\contains.def"
+  val validContainsSrc = "src/test/resources/samples/namedFunction/contains.def"
   val validContains = Root(Seq(
     NamedFunction(
       name = "contains",
@@ -80,7 +80,7 @@ object NamedFunctionSpec {
     )
   ))
 
-  val invalidContainsGenericsSrc = "src\\test\\resources\\samples\\namedFunction\\invalid-contains-generics.def"
+  val invalidContainsGenericsSrc = "src/test/resources/samples/namedFunction/invalid-contains-generics.def"
   val invalidContainsGenerics = Seq(ASTError(
     message = "Class B not found when trying to determine the type of the expression",
     location = Location(invalidContainsGenericsSrc, 2, 3, 2, 7)

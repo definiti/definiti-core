@@ -79,15 +79,15 @@ private[core] trait CommonParser {
   def getRangeFromTerminalNode(terminalNode: TerminalNode): Range = {
     val symbol = terminalNode.getSymbol
     Range(
-      Position(symbol.getLine, symbol.getStartIndex),
-      Position(symbol.getLine, symbol.getStopIndex)
+      Position(symbol.getLine, symbol.getCharPositionInLine + 1),
+      Position(symbol.getLine, symbol.getCharPositionInLine + symbol.getText.length + 1)
     )
   }
 
   def getRangeFromToken(token: Token): Range = {
     Range(
-      Position(token.getLine, token.getStartIndex),
-      Position(token.getLine, token.getStopIndex)
+      Position(token.getLine, token.getCharPositionInLine + 1),
+      Position(token.getLine, token.getCharPositionInLine + token.getText.length + 1)
     )
   }
 

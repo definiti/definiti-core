@@ -45,7 +45,7 @@ class NominalSpec extends EndToEndSpec {
 }
 
 object NominalSpec {
-  val definedTypeSrc = "src\\test\\resources\\samples\\nominal\\definedType.def"
+  val definedTypeSrc = "src/test/resources/samples/nominal/definedType.def"
   val definedType: Root = Root(
     elements = Seq(DefinedType(
       name = "MyType",
@@ -66,7 +66,7 @@ object NominalSpec {
     ))
   )
 
-  val aliasTypeSrc = "src\\test\\resources\\samples\\nominal\\aliasType.def"
+  val aliasTypeSrc = "src/test/resources/samples/nominal/aliasType.def"
   val aliasType: Root = Root(
     elements = Seq(AliasType(
       name = "AliasString",
@@ -78,7 +78,7 @@ object NominalSpec {
     ))
   )
 
-  val verificationSrc = "src\\test\\resources\\samples\\nominal\\verification.def"
+  val verificationSrc = "src/test/resources/samples/nominal/verification.def"
   val verification: Root = Root(
     elements = Seq(Verification(
       name = "AlwaysTrue",
@@ -98,7 +98,7 @@ object NominalSpec {
     ))
   )
 
-  val namedFunctionSrc = "src\\test\\resources\\samples\\nominal\\namedFunction.def"
+  val namedFunctionSrc = "src/test/resources/samples/nominal/namedFunction.def"
   val namedFunction: Root = Root(
     elements = Seq(NamedFunction(
       name = "alwaysFalse",
@@ -110,7 +110,7 @@ object NominalSpec {
     ))
   )
 
-  val extendedContextSrc = "src\\test\\resources\\samples\\nominal\\extendedContext.def"
+  val extendedContextSrc = "src/test/resources/samples/nominal/extendedContext.def"
   val extendedContext: Root = Root(
     elements = Seq(ExtendedContext(
       name = "stringContext",
@@ -119,7 +119,7 @@ object NominalSpec {
     ))
   )
 
-  val packageAliasTypeSrc = "src\\test\\resources\\samples\\nominal\\package.def"
+  val packageAliasTypeSrc = "src/test/resources/samples/nominal/package.def"
   val packageAliasType: Root = Root(
     elements = Seq(Namespace(
       name = "tst",

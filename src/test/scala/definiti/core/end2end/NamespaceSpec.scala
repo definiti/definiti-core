@@ -21,7 +21,7 @@ class NamespaceSpec extends EndToEndSpec {
 }
 
 object NamespaceSpec {
-  val validSubnamespaceSrc = "src\\test\\resources\\samples\\namespace\\subnamespace.def"
+  val validSubnamespaceSrc = "src/test/resources/samples/namespace/subnamespace.def"
   val validSubnamespace = Root(Seq(
     Namespace(
       name = "my",
@@ -43,7 +43,7 @@ object NamespaceSpec {
     )
   ))
 
-  val validSub2namespaceSrc = "src\\test\\resources\\samples\\namespace\\sub2namespace.def"
+  val validSub2namespaceSrc = "src/test/resources/samples/namespace/sub2namespace.def"
   val validSub2namespace = Root(Seq(
     Namespace(
       name = "my",

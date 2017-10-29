@@ -8,7 +8,9 @@ import definiti.core.utils.CollectionUtils._
 
 import scala.collection.mutable.ListBuffer
 
-private[core] class CoreDefinitionASTParser(val file: String) extends CommonParser {
+private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonParser {
+  val file: String = sourceFile.replaceAllLiterally("\\", "/")
+
   def definitionContextToAST(context: CoreDefinitionContext): Seq[PureClassDefinition] = {
     val classDefinitions = ListBuffer[PureClassDefinition]()
 

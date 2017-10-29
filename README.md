@@ -2,6 +2,10 @@
 
 > Definitively your model Definition
 
+## Status
+
+[![Build Status](https://travis-ci.org/definiti/definiti-core.svg?branch=master)](https://travis-ci.org/definiti/definiti-core)
+
 ## About this project
 
 This project is about creating a simple language to describes rule of your domain model.

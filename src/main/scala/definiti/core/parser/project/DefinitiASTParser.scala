@@ -10,7 +10,9 @@ import org.antlr.v4.runtime.misc.Interval
 
 import scala.collection.mutable.ListBuffer
 
-private[core] class DefinitiASTParser(val file: String, configuration: Configuration) extends CommonParser {
+private[core] class DefinitiASTParser(sourceFile: String, configuration: Configuration) extends CommonParser {
+  val file: String = sourceFile.replaceAllLiterally("\\", "/")
+
   def definitiContextToAST(context: DefinitiContext): PureRootFile = {
     val verifications = ListBuffer[PureVerification]()
     val classDefinitions = ListBuffer[PureClassDefinition]()

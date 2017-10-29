@@ -27,8 +27,8 @@ class GeneratePublicApiSpec extends EndToEndSpec {
 }
 
 object GeneratePublicApiSpec {
-  val validBlogSrcTypes = "src\\test\\resources\\samples\\blog\\types.def"
-  val validBlogSrcVerifications = "src\\test\\resources\\samples\\blog\\verifications.def"
+  val validBlogSrcTypes = "src/test/resources/samples/blog/types.def"
+  val validBlogSrcVerifications = "src/test/resources/samples/blog/verifications.def"
   val validBlogExpected = Root(Seq(
     Namespace(
       name = "blog",
@@ -64,7 +64,7 @@ object GeneratePublicApiSpec {
             TypeVerification(
               message = "No tag can be empty",
               function = DefinedFunction(
-                parameters = Seq(ParameterDefinition("blog", TypeReference("blog.Blog"), Location(validBlogSrcTypes, 13, 246, 13, 249))),
+                parameters = Seq(ParameterDefinition("blog", TypeReference("blog.Blog"), Location(validBlogSrcTypes, 13, 6, 13, 10))),
                 body = Condition(
                   condition = MethodCall(
                     expression = AttributeCall(
@@ -205,8 +205,8 @@ object GeneratePublicApiSpec {
     )
   ))
 
-  val invalidBlogSrcTypes = "src\\test\\resources\\samples\\invalid\\blog\\types.def"
-  val invalidBlogSrcVerifications = "src\\test\\resources\\samples\\invalid\\blog\\verifications.def"
+  val invalidBlogSrcTypes = "src/test/resources/samples/invalid/blog/types.def"
+  val invalidBlogSrcVerifications = "src/test/resources/samples/invalid/blog/verifications.def"
   val invalidBlogExpected = Seq(
     ASTError("Expected boolean expression, got: class unit", Location(invalidBlogSrcVerifications, 13, 5, 15, 6)),
     ASTError("Undefined verification: Unexisting", Location(invalidBlogSrcTypes, 8, 3, 8, 39)),
@@ -214,8 +214,8 @@ object GeneratePublicApiSpec {
     ASTError("Undefined type: Something", Location(invalidBlogSrcTypes, 28, 3, 28, 40))
   )
 
-  val invalidBlog2SrcTypes = "src\\test\\resources\\samples\\invalid\\blog2\\types.def"
-  val invalidBlog2SrcVerifications = "src\\test\\resources\\samples\\invalid\\blog2\\verifications.def"
+  val invalidBlog2SrcTypes = "src/test/resources/samples/invalid/blog2/types.def"
+  val invalidBlog2SrcVerifications = "src/test/resources/samples/invalid/blog2/verifications.def"
   val invalidBlog2Expected = Seq(
     ASTError("Unknown method String.noEmpty", Location(invalidBlog2SrcVerifications, 6, 5, 6, 28))
   )

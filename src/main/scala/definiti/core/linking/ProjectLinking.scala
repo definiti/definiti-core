@@ -54,8 +54,13 @@ private[core] object ProjectLinking {
       .map(_.name)
       .map(name => name -> (packageNamePrefix + name))
       .toMap
+    val namedFunctionTypeMapping = rootFile.namedFunctions
+      .view
+      .map(_.name)
+      .map(name => name -> (packageNamePrefix + name))
+      .toMap
 
-    verificationTypeMapping ++ classDefinitionTypeMapping
+    verificationTypeMapping ++ classDefinitionTypeMapping ++ namedFunctionTypeMapping
   }
 
   def injectLinksIntoVerification(verification: PureVerification, packageName: String, typeMapping: TypeMapping): PureVerification = {
@@ -148,9 +153,18 @@ private[core] object ProjectLinking {
 
   def injectLinksIntoExpression(expression: PureExpression, typeMapping: TypeMapping): PureExpression = {
     expression match {
-      case logicalExpression: PureLogicalExpression => logicalExpression
-      case calculatorExpression: PureCalculatorExpression => calculatorExpression
-      case not: PureNot => not
+      case logicalExpression: PureLogicalExpression =>
+        logicalExpression.copy(
+          left = injectLinksIntoExpression(logicalExpression.left, typeMapping),
+          right = injectLinksIntoExpression(logicalExpression.right, typeMapping)
+        )
+      case calculatorExpression: PureCalculatorExpression =>
+        calculatorExpression.copy(
+          left = injectLinksIntoExpression(calculatorExpression.left, typeMapping),
+          right = injectLinksIntoExpression(calculatorExpression.right, typeMapping)
+        )
+      case not: PureNot =>
+        not.copy(inner = injectLinksIntoExpression(not.inner, typeMapping))
       case booleanValue: PureBooleanValue => booleanValue
       case numberValue: PureNumberValue => numberValue
       case quotedStringValue: PureQuotedStringValue => quotedStringValue

@@ -1,0 +1,1 @@
+type ListAlias[A] = List[A]

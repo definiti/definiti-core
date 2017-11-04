@@ -3,11 +3,9 @@ package definiti.core.typing
 import definiti.core.ast._
 import definiti.core.ast.pure._
 import definiti.core.ast.typed._
-import definiti.core.{Context, ValidValue, Validated}
+import definiti.core.{Context, DefinedFunctionContext, ValidValue, Validated}
 
 private[core] class ClassDefinitionTyping(context: Context) {
-  val functionTyping = new FunctionTyping(context)
-
   def addTypesIntoClassDefinition(classDefinition: PureClassDefinition): Validated[TypedClassDefinition] = {
     classDefinition match {
       case native: PureNativeClassDefinition => ValidValue(transformNativeClassDefinition(native))
@@ -43,7 +41,8 @@ private[core] class ClassDefinitionTyping(context: Context) {
   }
 
   def addTypesIntoTypeVerification(typeVerification: PureTypeVerification): Validated[TypeVerification] = {
-    val validatedFunction = functionTyping.addTypesIntoDefinedFunction(typeVerification.function)
+    val functionContext = DefinedFunctionContext(context, typeVerification.function)
+    val validatedFunction = new FunctionTyping(functionContext).addTypesIntoDefinedFunction(typeVerification.function)
     validatedFunction.map { function =>
       TypeVerification(
         message = typeVerification.message,

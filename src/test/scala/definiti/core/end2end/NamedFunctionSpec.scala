@@ -1,7 +1,7 @@
 package definiti.core.end2end
 
 import definiti.core.{ASTError, Invalid, ValidValue}
-import definiti.core.ValidationMatchers.beValidated
+import definiti.core.ValidationMatchers._
 import definiti.core.ast._
 
 class NamedFunctionSpec extends EndToEndSpec {
@@ -17,6 +17,11 @@ class NamedFunctionSpec extends EndToEndSpec {
     val expected = Invalid(invalidContainsGenerics)
     val output = processFile("namedFunction.invalid-contains-generics")
     output should beValidated[Root](expected)
+  }
+
+  "Project.generatePublicAST" should "accept generics in named functions" in {
+    val output = processFile("namedFunction.nonEmptyList")
+    output shouldBe valid[Root]
   }
 }
 

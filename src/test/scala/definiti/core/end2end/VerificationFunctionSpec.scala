@@ -15,7 +15,10 @@ class VerificationFunctionSpec extends EndToEndSpec {
 }
 
 object VerificationFunctionSpec {
+  import EndToEndSpec._
+
   val verificationFunctionSrc = "src/test/resources/samples/verificationFunction/verificationFunction.def"
+  val verificationFunctionLocation = LocationPath(verificationFunctionSrc)
   val validVerificationFunction = Root(Seq(
     Namespace(
       name = "verificationFunction",
@@ -102,12 +105,4 @@ object VerificationFunctionSpec {
       )
     )
   ))
-
-  def verificationFunctionLocation(startLine: Int, startColumn: Int, endLine: Int, endColumn: Int) = {
-    Location(verificationFunctionSrc, startLine, startColumn, endLine, endColumn)
-  }
-
-  def verificationFunctionLocation(line: Int, startColumn: Int, endColumn: Int) = {
-    Location(verificationFunctionSrc, line, startColumn, line, endColumn)
-  }
 }

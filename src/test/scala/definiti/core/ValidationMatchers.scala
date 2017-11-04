@@ -3,6 +3,7 @@ package definiti.core
 import org.scalatest.matchers.{MatchResult, Matcher}
 
 trait ValidationMatchers {
+  import org.scalatest.Matchers._
 
   class ValidationMatcher(expected: Validation) extends Matcher[Validation] {
 
@@ -74,6 +75,10 @@ trait ValidationMatchers {
   def beValidation(expected: Validation) = new ValidationMatcher(expected)
 
   def beValidated[A](expected: Validated[A]) = new ValidatedMatcher[A](expected)
+
+  def valid[A] = a[ValidValue[A]]
+
+  def invalid = an[Invalid]
 }
 
 object ValidationMatchers extends ValidationMatchers

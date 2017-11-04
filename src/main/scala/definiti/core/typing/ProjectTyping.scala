@@ -1,13 +1,10 @@
 package definiti.core.typing
 
 import definiti.core._
-import definiti.core.ast.pure.{PureNamedFunction, PureRoot, PureRootFile, PureVerification}
-import definiti.core.ast.typed.{TypedNamedFunction, TypedRoot, TypedRootFile, TypedVerification}
+import definiti.core.ast.pure._
+import definiti.core.ast.typed._
 
 private[core] class ProjectTyping(context: Context) {
-  val classDefinitionTyping = new ClassDefinitionTyping(context)
-  val functionTyping = new FunctionTyping(context)
-
   def addTypes(root: PureRoot): Validated[TypedRoot] = {
     Validated.squash(root.files.map(addTypesIntoRootFile))
       .map(files => TypedRoot(files))
@@ -15,7 +12,7 @@ private[core] class ProjectTyping(context: Context) {
 
   def addTypesIntoRootFile(rootFile: PureRootFile): Validated[TypedRootFile] = {
     val validatedTypedVerifications = Validated.squash(rootFile.verifications.map(addTypesIntoVerification))
-    val validatedTypedClassDefinition = Validated.squash(rootFile.classDefinitions.map(classDefinitionTyping.addTypesIntoClassDefinition))
+    val validatedTypedClassDefinition = Validated.squash(rootFile.classDefinitions.map(addTypeIntoClassDefinition))
     val validatedTypedNamedFunction = Validated.squash(rootFile.namedFunctions.map(addTypesIntoNamedFunction))
     Validated.both(validatedTypedVerifications, validatedTypedClassDefinition, validatedTypedNamedFunction)
       .map { case (verifications, classDefinitions, namedFunctions) =>
@@ -30,7 +27,8 @@ private[core] class ProjectTyping(context: Context) {
   }
 
   def addTypesIntoVerification(verification: PureVerification): Validated[TypedVerification] = {
-    val validatedFunction = functionTyping.addTypesIntoDefinedFunction(verification.function)
+    val definedFunctionContext = DefinedFunctionContext(context, verification.function)
+    val validatedFunction = new FunctionTyping(definedFunctionContext).addTypesIntoDefinedFunction(verification.function)
     validatedFunction.map { function =>
       TypedVerification(
         name = verification.name,
@@ -41,6 +39,11 @@ private[core] class ProjectTyping(context: Context) {
         location = verification.location
       )
     }
+  }
+
+  def addTypeIntoClassDefinition(classDefinition: PureClassDefinition): Validated[TypedClassDefinition] = {
+    val classDefinitionContext = ClassContext(context, classDefinition)
+    new ClassDefinitionTyping(classDefinitionContext).addTypesIntoClassDefinition(classDefinition)
   }
 
   def addTypesIntoNamedFunction(namedFunction: PureNamedFunction): Validated[TypedNamedFunction] = {

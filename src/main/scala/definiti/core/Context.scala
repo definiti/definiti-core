@@ -68,8 +68,7 @@ private[core] case class ReferenceContext(
 
 private[core] case class ClassContext(
   outerContext: Context,
-  currentType: PureClassDefinition,
-  genericTypes: Seq[ClassReference]
+  currentType: PureClassDefinition
 ) extends Context {
   override def isTypeAvailable(typeName: String): Boolean = {
     currentType.genericTypes.contains(typeName) || outerContext.isTypeAvailable(typeName)
@@ -77,12 +76,14 @@ private[core] case class ClassContext(
 
   override def findType(typeName: String): Option[PureClassDefinition] = {
     if (currentType.genericTypes.contains(typeName)) {
-      val indexOfGeneric = currentType.genericTypes.indexOf(typeName)
-      if (indexOfGeneric < genericTypes.size) {
-        outerContext.findType(genericTypes(indexOfGeneric).classDefinition.name)
-      } else {
-        None
-      }
+      // There is neither covariance nor contravariance in the language, so the generic type is any type.
+      Some(PureNativeClassDefinition(
+        name = "A",
+        genericTypes = Seq.empty,
+        attributes = Seq.empty,
+        methods = Seq.empty,
+        comment = None
+      ))
     } else {
       outerContext.findType(typeName)
     }
@@ -120,12 +121,14 @@ private[core] case class MethodContext(
 
   override def findType(typeName: String): Option[PureClassDefinition] = {
     if (currentMethod.genericTypes.contains(typeName)) {
-      val indexOfGeneric = currentMethod.genericTypes.indexOf(typeName)
-      if (indexOfGeneric < genericTypes.size) {
-        outerContext.findType(genericTypes(indexOfGeneric).classDefinition.name)
-      } else {
-        None
-      }
+      // There is neither covariance nor contravariance in the language, so the generic type is any type.
+      Some(PureNativeClassDefinition(
+        name = "A",
+        genericTypes = Seq.empty,
+        attributes = Seq.empty,
+        methods = Seq.empty,
+        comment = None
+      ))
     } else {
       outerContext.findType(typeName)
     }
@@ -169,7 +172,18 @@ private[core] case class DefinedFunctionContext(
   }
 
   override def findType(typeName: String): Option[PureClassDefinition] = {
-    outerContext.findType(typeName)
+    if (currentFunction.genericTypes.contains(typeName)) {
+      // There is neither covariance nor contravariance in the language, so the generic type is any type.
+      Some(PureNativeClassDefinition(
+        name = "A",
+        genericTypes = Seq.empty,
+        attributes = Seq.empty,
+        methods = Seq.empty,
+        comment = None
+      ))
+    } else {
+      outerContext.findType(typeName)
+    }
   }
 
   override def isVerificationAvailable(verificationName: String): Boolean = {

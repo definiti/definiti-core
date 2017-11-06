@@ -29,6 +29,8 @@ lazy val classpathSeparator =
   else ":"
 
 antlrDefiniti := {
+  import scala.sys.process._
+
   val log = streams.value.log
   val classpath = (dependencyClasspath in Compile).value.files.mkString(classpathSeparator)
   val mainClass = "org.antlr.v4.Tool"
@@ -43,6 +45,7 @@ antlrDefiniti := {
 }
 
 antlrCore := {
+  import scala.sys.process._
   val log = streams.value.log
   val classpath = (dependencyClasspath in Compile).value.files.mkString(classpathSeparator)
   val mainClass = "org.antlr.v4.Tool"
@@ -58,6 +61,6 @@ antlrCore := {
 
 antlr := {}
 
-antlr <<= antlr.dependsOn(antlrDefiniti, antlrCore)
+antlr := antlr.dependsOn(antlrDefiniti, antlrCore).value
 
-compile in Compile <<= (compile in Compile).dependsOn(antlr)
+compile in Compile := (compile in Compile).dependsOn(antlr).value

@@ -22,11 +22,12 @@ private[core] trait Configuration {
   def contexts: Seq[ContextPlugin[_]]
 }
 
-private[core] class FileConfiguration(config: Config) extends Configuration{
+private[core] class FileConfiguration(externalConfig: Config) extends Configuration{
   private val logger = Logger(getClass)
+  private val config: Config = externalConfig.getConfig("definiti.core")
 
   def this() {
-    this(ConfigFactory.load().getConfig("definiti.core"))
+    this(ConfigFactory.load())
   }
 
   lazy val source: Path = getPathOrElse("source", Paths.get("src"))

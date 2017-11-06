@@ -6,17 +6,6 @@ import definiti.core.ast.{Expression, _}
 private[core] trait CommonValidation {
   self: ASTValidation =>
 
-  protected def validateParameterDefinition(parameterDefinition: ParameterDefinition): Validation = {
-    validateAbstractTypeReference(parameterDefinition.typeReference, parameterDefinition.location)
-  }
-
-  protected def validateAbstractTypeReference(abstractTypeReference: AbstractTypeReference, location: Location): Validation = {
-    abstractTypeReference match {
-      case typeReference: TypeReference => validateTypeReference(typeReference, location)
-      case _ => Valid
-    }
-  }
-
   protected def getReturnTypeName(expression: Expression): Validated[String] = {
     expression.returnType match {
       case typeReference: TypeReference =>
@@ -34,15 +23,17 @@ private[core] trait CommonValidation {
     getReturnTypeName(expression).map(library.types(_))
   }
 
-  protected def validateTypeReference(typeReference: TypeReference, location: Location): Validation = {
+  protected def validateTypeReference(typeReference: TypeReference, genericTypes: Seq[String], location: Location): Validation = {
     val typeValidation =
-      if (library.types.contains(typeReference.typeName)) {
+      if (genericTypes.contains(typeReference.typeName)) {
+        Valid
+      } else if (library.types.contains(typeReference.typeName)) {
         Valid
       } else {
         Invalid("Undefined type: " + typeReference.readableString, location)
       }
 
-    val genericValidations = typeReference.genericTypes.map(validateTypeReference(_, location))
+    val genericValidations = typeReference.genericTypes.map(validateTypeReference(_, genericTypes, location))
 
     Validation.join(typeValidation +: genericValidations)
   }

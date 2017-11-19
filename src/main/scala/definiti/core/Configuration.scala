@@ -8,7 +8,7 @@ import definiti.core.utils.CollectionUtils._
 
 import scala.util.{Failure, Success, Try}
 
-private[core] trait Configuration {
+trait Configuration {
   def source: Path
 
   def apiSource: Path

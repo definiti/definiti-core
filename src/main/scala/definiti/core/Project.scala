@@ -13,7 +13,7 @@ import definiti.core.validation._
 
 import scala.collection.JavaConverters._
 
-private[core] class Project(configuration: Configuration) {
+class Project(configuration: Configuration) {
   private val projectParser: ProjectParser = new ProjectParser(configuration)
 
   def process(): Validation = {
@@ -33,7 +33,7 @@ private[core] class Project(configuration: Configuration) {
       .map(_._1)
   }
 
-  private def generateStructureWithLibrary(): Validated[(Root, Library)] = {
+  def generateStructureWithLibrary(): Validated[(Root, Library)] = {
     processInternalParser()
       .flatMap { projectParsingResult =>
         processPluginParsers(projectParsingResult.root)

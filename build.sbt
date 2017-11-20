@@ -1,4 +1,4 @@
-organization := "definiti"
+organization := "io.github.definiti"
 
 name := "core"
 

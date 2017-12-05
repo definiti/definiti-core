@@ -1,3 +1,5 @@
+import sbt.url
+
 organization := "io.github.definiti"
 
 name := "core"
@@ -64,3 +66,35 @@ antlr := {}
 antlr := antlr.dependsOn(antlrDefiniti, antlrCore).value
 
 compile in Compile := (compile in Compile).dependsOn(antlr).value
+
+useGpg := true
+
+pomIncludeRepository := { _ => false }
+
+licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
+
+homepage := Some(url("https://definiti.github.io"))
+
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/definiti/definiti-scala-model"),
+    "scm:git@github.com:definiti/definiti-scala-model.git"
+  )
+)
+
+developers := List(
+  Developer(
+    id = "kneelnrise",
+    name = "Gaëtan Rizio",
+    email = "gaetan@rizio.fr",
+    url = url("https://github.com/kneelnrise")
+  )
+)
+
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}

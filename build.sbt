@@ -4,9 +4,11 @@ organization := "io.github.definiti"
 
 name := "core"
 
-version := "0.2.0-snapshot"
+version := "0.2.0-SNAPSHOT"
 
 scalaVersion := "2.12.1"
+
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.3"
 libraryDependencies += "org.antlr" % "antlr4" % "4.7"

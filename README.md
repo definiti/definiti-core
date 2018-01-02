@@ -1,62 +1,34 @@
-# Definiti
+# Definiti - core compiler
 
-> Definitively your model Definition
+This project is the core compiler of the Definiti language.
+Its objective is to read Definiti source code, validate it and send to code generators (plugins).
 
 ## Status
 
 [![Build Status](https://travis-ci.org/definiti/definiti-core.svg?branch=master)](https://travis-ci.org/definiti/definiti-core)
 
-## About this project
+## Getting start
 
-This project is about creating a simple language to describes rule of your domain model.
-Then Definiti compiler will transform it into your favorite language and framework.
-
-The objective is to write all the rules at one place and compile it into every languages of your project.
-
-💡 There is no willing to replace existing languages (yet).
-The objective is to describe domain models and compile it into more technical languages.
-Then these last will be used for every other things (side-effect operations, thread management, etc.).
-
-## Get started
-
-⚠ This project is the subject of active research.
-It is not ready for production use yet.
-
-This part describes how to test the compiler.
-For more advanced usage, please come back later.
+> If you want to use the language, please go to: https://definiti.github.io/
+> This project is the implementation of the core compiler, not the whole system.
 
 Clone the repository:
 
 ```sh
-$ git clone git@github.com:definiti/definiti.git
+$ git clone git@github.com:definiti/definiti-core.git
 ```
 
 Go into the project and launch sbt:
 
 ```
 $ cd definiti
-$ sbt run
+$ sbt test
 ```
 
-It will read the file `src/main/resources/samples/first.def`
-and save the results into `target/samples` directory.
+It will compile the project and run tests.
 
-Feel free to change the `first.def` file to test it.
+# Roadmap and contribution
 
-## Roadmap (not ordered)
-
-* [x] Create a first alpha alpha MVP
-* [ ] Improve unit testing
-* [ ] Create documentation
-* [ ] Define a first complete-enough version of the core
-* [ ] Compile to Scala with the defined core
-* [ ] Compile to Typescript with the defined core
-* [ ] Create Play JSON readers and writers
-* [ ] Create Spray JSON readers and writers
-* [ ] Create model error report in typescript (for form validation)
-* [ ] Create PUML diagrams
-* [ ] Redesign compiler to have independent executions without reload
-* [ ] Improve error handling in compiler
-* [ ] Module system
-* [ ] Generic types (at least an Array system…)
-* [ ] So many other things…
+If you want to know the roadmap or contribute to the project,
+please see [Issues](https://github.com/definiti/definiti-core/issues)
+and [Projects](https://github.com/definiti/definiti-core/projects).

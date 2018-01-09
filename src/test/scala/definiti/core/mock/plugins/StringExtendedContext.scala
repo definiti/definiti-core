@@ -11,4 +11,8 @@ class StringExtendedContext extends ContextPlugin[String] {
   override def validate(context: String, library: Library): Valid.type = Valid
 
   override def name = "stringContext"
+
+  override def contextToJson(context: String) = context
+
+  override def contextFromJson(json: String) = json
 }

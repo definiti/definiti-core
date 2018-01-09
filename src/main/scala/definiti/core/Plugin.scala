@@ -27,4 +27,8 @@ trait ContextPlugin[A] extends Plugin {
   def parse(content: String, location: Location): A
 
   def validate(context: A, library: Library): Validation
+
+  def contextToJson(context: A): String
+
+  def contextFromJson(json: String): A
 }

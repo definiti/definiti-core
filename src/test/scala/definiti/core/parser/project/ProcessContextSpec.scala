@@ -42,6 +42,10 @@ object ProcessContextSpec {
     }
 
     override def name: String = "MyContextPlugin"
+
+    override def contextToJson(context: ContextPluginTestContent) = "{}"
+
+    override def contextFromJson(json: String) = ContextPluginTestContent(json, Location("", 0, 0, 0, 0))
   }
 
 }

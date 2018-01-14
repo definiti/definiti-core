@@ -53,6 +53,21 @@ case class NativeClassDefinition(
   comment: Option[String]
 ) extends ClassDefinition
 
+case class Enum(
+  name: String,
+  cases: Seq[EnumCase],
+  comment: Option[String],
+  location: Location
+) extends ClassDefinition {
+  override def genericTypes: Seq[String] = Seq.empty
+}
+
+case class EnumCase(
+  name: String,
+  comment: Option[String],
+  location: Location
+)
+
 case class NamedFunction(
   name: String,
   genericTypes: Seq[String],

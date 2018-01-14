@@ -56,6 +56,24 @@ private[core] case class PureAliasType(name: String, packageName: String, generi
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
+private[core] case class PureEnum(
+  name: String,
+  packageName: String,
+  cases: Seq[PureEnumCase],
+  comment: Option[String],
+  location: Location
+) extends PureClassDefinition {
+  override def canonicalName: String = ASTHelper.canonical(packageName, name)
+
+  override def genericTypes: Seq[String] = Seq.empty
+}
+
+private[core] case class PureEnumCase(
+  name: String,
+  comment: Option[String],
+  location: Location
+)
+
 private[core] case class PureTypeVerification(message: String, function: PureDefinedFunction, location: Location)
 
 private[core] case class PureNamedFunction(

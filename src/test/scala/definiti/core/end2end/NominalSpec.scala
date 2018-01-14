@@ -19,6 +19,12 @@ class NominalSpec extends EndToEndSpec {
     output should beValidated[Root](expected)
   }
 
+  it should "generate a valid AST for a valid enum" in {
+    val expected = ValidValue(enum)
+    val output = processFile("nominal.enum")
+    output should beValidated[Root](expected)
+  }
+
   it should "generate a valid AST for a valid verification" in {
     val expected = ValidValue(verification)
     val output = processFile("nominal.verification")
@@ -75,6 +81,19 @@ object NominalSpec {
       inherited = Seq.empty,
       comment = None,
       location = Location(aliasTypeSrc, 1, 1, 1, 26)
+    ))
+  )
+
+  val enumSrc = "src/test/resources/samples/nominal/enum.def"
+  val enum: Root = Root(
+    elements = Seq(Enum(
+      name = "MyEnum",
+      cases = Seq(
+        EnumCase("First", None, Location(enumSrc, 2, 3, 2, 8)),
+        EnumCase("Second", None, Location(enumSrc, 3, 3, 3, 9))
+      ),
+      comment = None,
+      location = Location(enumSrc, 1, 1, 4, 2)
     ))
   )
 

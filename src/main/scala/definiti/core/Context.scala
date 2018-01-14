@@ -60,6 +60,16 @@ private[core] case class ReferenceContext(
   }
 
   override def findTypeReference(name: String): Option[AbstractTypeReference] = {
+    findClassReference(name).orElse(findNamedFunctionReference(name))
+  }
+
+  private def findClassReference(name: String): Option[AbstractTypeReference] = {
+    classes
+      .find(_.canonicalName == name)
+      .map(_ => TypeReference(name))
+  }
+
+  private def findNamedFunctionReference(name: String): Option[AbstractTypeReference] = {
     namedFunctions
       .find(_.canonicalName == name)
       .map(_ => NamedFunctionReference(name))

@@ -155,6 +155,18 @@ private[core] class ExpressionTyping(context: Context) {
         context.findType(aliasType.alias.typeName).flatMap(getAttributeOpt(_, attribute))
       case definedType: PureDefinedType =>
         definedType.attributes.find(_.name == attribute)
+      case enum: PureEnum =>
+        enum.cases
+          .find(_.name == attribute)
+          .map { enumCase =>
+            AttributeDefinition(
+              name = enumCase.name,
+              typeReference = TypeReference(enum.canonicalName),
+              comment = enumCase.comment,
+              verifications = Seq.empty,
+              location = enumCase.location
+            )
+          }
     }
   }
 

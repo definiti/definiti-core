@@ -11,6 +11,7 @@ private[core] class ClassDefinitionTyping(context: Context) {
       case native: PureNativeClassDefinition => ValidValue(transformNativeClassDefinition(native))
       case definedType: PureDefinedType => addTypesIntoDefinedType(definedType)
       case aliasType: PureAliasType => ValidValue(transformAliasType(aliasType))
+      case enum: PureEnum => ValidValue(transformEnum(enum))
     }
   }
 
@@ -61,6 +62,22 @@ private[core] class ClassDefinitionTyping(context: Context) {
       inherited = aliasType.inherited,
       comment = aliasType.comment,
       location = aliasType.location
+    )
+  }
+
+  def transformEnum(enum: PureEnum): TypedEnum = {
+    TypedEnum(
+      name = enum.name,
+      packageName = enum.packageName,
+      cases = enum.cases.map { enumCase =>
+        TypedEnumCase(
+          name = enumCase.name,
+          comment = enumCase.comment,
+          location = enumCase.location
+        )
+      },
+      comment = enum.comment,
+      location = enum.location
     )
   }
 }

@@ -23,6 +23,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
       appendIfDefined(element.verification(), verifications, processVerification)
       appendIfDefined(element.definedType(), classDefinitions, processDefinedType)
       appendIfDefined(element.aliasType(), classDefinitions, processAliasType)
+      appendIfDefined(element.enumType(), classDefinitions, processEnum)
       appendIfDefined(element.namedFunction(), namedFunctions, processNamedFunction)
       Option(element.context()).foreach { internalContext =>
         processContext(internalContext) match {
@@ -136,6 +137,24 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
       ),
       genericTypes = processGenericTypeListDefinition(context.genericTypes),
       inherited = processVerifyingList(context.verifyingList()),
+      comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
+      location = getLocationFromContext(context)
+    )
+  }
+
+  def processEnum(context: EnumTypeContext): PureEnum = {
+    PureEnum(
+      name = context.typeName.getText,
+      packageName = NOT_DEFINED,
+      cases = scalaSeq(context.enumCase()).map(processEnumCase),
+      comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
+      location = getLocationFromContext(context)
+    )
+  }
+
+  def processEnumCase(context: EnumCaseContext): PureEnumCase = {
+    PureEnumCase(
+      name = context.IDENTIFIER().getText,
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       location = getLocationFromContext(context)
     )

@@ -26,22 +26,23 @@ object Library {
   }
 
   private def extractPackages(root: Root): Map[String, Namespace] = {
-    val packagesBuffer: ListBuffer[(String, Namespace)] = ListBuffer()
+    val namespacesBuffer: ListBuffer[(String, Namespace)] = ListBuffer()
 
-    def extractFromPackage(thePackage: Namespace, packageName: String): Unit = {
-      packagesBuffer += (packageName -> thePackage)
-      thePackage.elements.foreach {
-        case subPackage: Namespace => extractFromPackage(subPackage, s"${packageName}.${subPackage.name}")
+    def extractFromPackage(namespace: Namespace, namespaceName: String): Unit = {
+      namespacesBuffer += (namespaceName -> namespace)
+      namespace.elements.foreach {
+        case subPackage: Namespace => extractFromPackage(subPackage, s"${namespaceName}.${subPackage.name}")
         case _ => // do nothing
       }
     }
 
+    namespacesBuffer += ("" -> Namespace("", "", root.elements))
     root.elements.foreach {
       case thePackage: Namespace => extractFromPackage(thePackage, thePackage.name)
       case _ => // do nothing
     }
 
-    packagesBuffer.toMap
+    namespacesBuffer.toMap
   }
 
   private def extractVerifications(packages: Map[String, Namespace]): Map[String, Verification] = {
@@ -55,7 +56,12 @@ object Library {
   private def extractTypes(packages: Map[String, Namespace]): Map[String, ClassDefinition] = {
     packages.flatMap { case (packageName, thePackage) =>
       thePackage.elements.collect {
-        case theType: ClassDefinition => s"${packageName}.${theType.name}" -> theType
+        case classDefinition: ClassDefinition =>
+          if (packageName.nonEmpty) {
+            s"${packageName}.${classDefinition.name}" -> classDefinition
+          } else {
+            classDefinition.name -> classDefinition
+          }
       }
     }
   }
@@ -66,6 +72,16 @@ object Library {
         case nativeClassDefinition: NativeClassDefinition => nativeClassDefinition.attributes
         case definedType: DefinedType => definedType.attributes
         case aliasType: AliasType => extractAttributesFromClass(types(aliasType.alias.typeName))
+        case enum: Enum =>
+          enum.cases.map { enumCase =>
+            AttributeDefinition(
+              name = enumCase.name,
+              typeReference = TypeReference(enum.name),
+              comment = enumCase.comment,
+              verifications = Seq.empty,
+              location = enum.location
+            )
+          }
       }
     }
 
@@ -81,6 +97,7 @@ object Library {
         case nativeClassDefinition: NativeClassDefinition => nativeClassDefinition.methods
         case _: DefinedType => Seq.empty
         case aliasType: AliasType => extractMethodsFromClass(types(aliasType.alias.typeName))
+        case _: Enum => Seq.empty
       }
     }
 

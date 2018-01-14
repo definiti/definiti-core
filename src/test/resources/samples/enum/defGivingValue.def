@@ -1,0 +1,8 @@
+enum MyEnum {
+  first
+  second
+}
+
+def lastMyEnum(): MyEnum => {
+  MyEnum.second
+}

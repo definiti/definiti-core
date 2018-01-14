@@ -1,0 +1,8 @@
+enum MyEnum {
+  first
+  second
+}
+
+def identity(value: MyEnum): MyEnum => {
+  value
+}

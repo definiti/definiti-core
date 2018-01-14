@@ -85,6 +85,8 @@ private[core] object ProjectLinking {
           verifications = definedType.verifications.map(injectLinksIntoTypeVerification(_, typeMapping)),
           inherited = definedType.inherited.map(injectLinksIntoVerificationReference(_, typeMapping))
         )
+      case enum: PureEnum =>
+        enum.copy(packageName = packageName)
       case other => other
     }
   }

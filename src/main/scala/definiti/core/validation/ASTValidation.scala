@@ -1,7 +1,7 @@
 package definiti.core.validation
 
 import definiti.core.ast._
-import definiti.core.{ast, _}
+import definiti.core._
 
 private[core] class ASTValidation(
   val configuration: Configuration,
@@ -26,6 +26,7 @@ private[core] class ASTValidation(
       case verification: Verification => validateVerification(verification)
       case definedType: DefinedType => validateDefinedType(definedType)
       case aliasType: AliasType => validateAliasType(aliasType)
+      case enum: Enum => validateEnum(enum)
       case namedFunction: NamedFunction => validateNamedFunction(namedFunction)
       case extendedContext: ExtendedContext[_] => validateExtendedContext(extendedContext, library)
     }

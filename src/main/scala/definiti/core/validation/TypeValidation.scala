@@ -28,4 +28,16 @@ private[core] trait TypeValidation {
   private def validateTypeVerification(verification: TypeVerification): Validation = {
     validateDeepBooleanExpression(verification.function.body)
   }
+
+  protected def validateEnum(enum: Enum): Validation = {
+    Validation.join {
+      enum.cases.zipWithIndex.map { case (enumCase, index) =>
+        if (enum.cases.indexWhere(_.name == enumCase.name) == index) {
+          Valid
+        } else {
+          Invalid(s"The case ${enumCase.name} is already defined in enum ${enum.name}", enumCase.location)
+        }
+      }
+    }
+  }
 }

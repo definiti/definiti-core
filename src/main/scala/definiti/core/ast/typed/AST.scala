@@ -50,6 +50,24 @@ private[core] case class TypedAliasType(name: String, packageName: String, gener
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
+private[core] case class TypedEnum(
+  name: String,
+  packageName: String,
+  cases: Seq[TypedEnumCase],
+  comment: Option[String],
+  location: Location
+) extends Type {
+  override def canonicalName: String = ASTHelper.canonical(packageName, name)
+
+  override def genericTypes: Seq[String] = Seq.empty
+}
+
+private[core] case class TypedEnumCase(
+  name: String,
+  comment: Option[String],
+  location: Location
+)
+
 private[core] case class TypedNamedFunction(
   name: String,
   packageName: String,

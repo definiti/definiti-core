@@ -1,0 +1,26 @@
+package my.alarm
+
+enum Day {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
+}
+
+type Alarm {
+  name: String
+  hour: Number
+  minute: Number
+  days: List[Day]
+}
+
+def isWeekend(day: Day): Boolean => {
+  day == Day.saturday || day == Day.sunday
+}
+
+def dayIdentity(day: Day): Day => {
+  day
+}

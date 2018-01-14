@@ -86,6 +86,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
       case _: typed.TypedNativeClassDefinition => None
       case definedType: typed.TypedDefinedType => Some(transformDefinedType(definedType))
       case aliasType: typed.TypedAliasType => Some(transformAliasType(aliasType))
+      case enum: typed.TypedEnum => Some(transformEnum(enum))
     }
   }
 
@@ -109,6 +110,21 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
       inherited = aliasType.inherited,
       comment = aliasType.comment,
       location = aliasType.location
+    )
+  }
+
+  private def transformEnum(enum: typed.TypedEnum): Enum = {
+    Enum(
+      name = enum.name,
+      cases = enum.cases.map { enumCase =>
+        EnumCase(
+          name = enumCase.name,
+          comment = enumCase.comment,
+          location = enumCase.location
+        )
+      },
+      comment = enum.comment,
+      location = enum.location
     )
   }
 

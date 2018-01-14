@@ -10,13 +10,7 @@ VERIFY       : 'verify';
 VERIFYING    : 'verifying';
 DEF          : 'def';
 CONTEXT      : 'context';
-
-REQUIREMENT : 'requirement';
-REQUEST     : 'request';
-WITH        : 'with';
-REQUIRING   : 'requiring';
-ABORT       : 'abort';
-RETURNING   : 'returning';
+ENUM         : 'enum';
 
 BOOLEAN                      : 'true' | 'false';
 NUMBER                       : [0-9]+('.'[0-9]+)?;
@@ -44,6 +38,7 @@ toplevel
   : verification
   | definedType
   | aliasType
+  | enumType
   | namedFunction
   | context
   ;
@@ -99,9 +94,15 @@ typeVerification:
 
 typeVerificationFunction: '(' IDENTIFIER ')' '=>' '{' chainedExpression '}';
 
-aliasType :
+aliasType:
   DOC_COMMENT?
   TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList;
+
+enumType:
+  DOC_COMMENT?
+  ENUM typeName=IDENTIFIER '{' enumCase* '}';
+
+enumCase: DOC_COMMENT? IDENTIFIER;
 
 function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
 
@@ -150,12 +151,6 @@ contextContentSymbol
   | VERIFYING
   | DEF
   | CONTEXT
-  | REQUIREMENT
-  | REQUEST
-  | WITH
-  | REQUIRING
-  | ABORT
-  | RETURNING
   | '.'
   | ':'
   | '(' | ')'

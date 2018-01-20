@@ -7,9 +7,10 @@ private[core] trait TypeValidation {
   self: ASTValidation =>
 
   protected def validateAliasType(aliasType: AliasType): Validation = {
-    validateTypeReference(aliasType.alias, aliasType.genericTypes, aliasType.location).verifyingAlso {
-      Validation.join(aliasType.inherited.map(validateVerificationReference(_, aliasType.location)))
-    }
+    val aliasValidation = validateTypeReference(aliasType.alias, aliasType.genericTypes, aliasType.location)
+    val inheritedValidations = aliasType.inherited.map(validateVerificationReference(_, aliasType.location))
+    val verificationValidations = aliasType.verifications.map(validateTypeVerification)
+    Validation.join((aliasValidation +: inheritedValidations) ++ verificationValidations)
   }
 
   protected def validateDefinedType(definedType: DefinedType): Validation = {

@@ -78,6 +78,7 @@ object NominalSpec {
       name = "AliasString",
       genericTypes = Seq.empty,
       alias = TypeReference("String"),
+      verifications = Seq.empty,
       inherited = Seq.empty,
       comment = None,
       location = Location(aliasTypeSrc, 1, 1, 1, 26)
@@ -147,6 +148,7 @@ object NominalSpec {
         name = "AliasString",
         genericTypes = Seq.empty,
         alias = TypeReference("String"),
+        verifications = Seq.empty,
         inherited = Seq.empty,
         comment = None,
         location = Location(packageAliasTypeSrc, 3, 1, 3, 26)

@@ -34,6 +34,7 @@ object NamespaceSpec {
             name = "AliasString",
             genericTypes = Seq.empty,
             alias = TypeReference("String"),
+            verifications = Seq.empty,
             inherited = Seq.empty,
             comment = None,
             location = Location(validSubnamespaceSrc, 3, 1, 3, 26)
@@ -60,6 +61,7 @@ object NamespaceSpec {
                 name = "AliasString",
                 genericTypes = Seq.empty,
                 alias = TypeReference("String"),
+                verifications = Seq.empty,
                 inherited = Seq.empty,
                 comment = None,
                 location = Location(validSub2namespaceSrc, 3, 1, 3, 26)

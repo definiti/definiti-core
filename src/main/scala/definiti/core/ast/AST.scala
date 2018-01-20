@@ -41,6 +41,7 @@ case class AliasType(
   genericTypes: Seq[String],
   alias: TypeReference,
   inherited: Seq[VerificationReference],
+  verifications: Seq[TypeVerification],
   comment: Option[String],
   location: Location
 ) extends ClassDefinition

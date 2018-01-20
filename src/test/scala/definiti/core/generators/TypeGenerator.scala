@@ -35,6 +35,7 @@ object TypeGenerator {
     packageName <- ASTGenerator.anyPackageName
     genericTypes <- ASTGenerator.listOfGenericTypeDefinition
     alias <- ASTGenerator.referencedTypeReference
+    verifications <- Gen.listOf(anyTypeVerification)
     inherited <- Gen.listOf(VerificationGenerator.anyVerificationReference)
     comment <- Gen.option(ASTGenerator.anyString)
     location <- ASTGenerator.anyLocation
@@ -44,6 +45,7 @@ object TypeGenerator {
       packageName,
       genericTypes,
       alias,
+      verifications,
       inherited,
       comment,
       location

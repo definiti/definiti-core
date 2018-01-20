@@ -18,7 +18,7 @@ class ProcessTypeVerificationSpec extends FlatSpec with Matchers with PropertyCh
     } yield (typeVerificationContext, typeName)
 
     forAll(cases) { case (typeVerificationContext, typeName) =>
-      val result = definitiASTParser.processTypeVerification(typeVerificationContext, typeName)
+      val result = definitiASTParser.processTypeVerification(typeVerificationContext, typeName, Seq.empty)
       result.function.parameters should have length 1
       result.function.parameters.head.typeReference should be (a[TypeReference])
       result.function.parameters.head.typeReference.asInstanceOf[TypeReference].typeName should be (typeName)

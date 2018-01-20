@@ -67,12 +67,13 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
 
   def processDefinedType(context: DefinedTypeContext): PureDefinedType = {
     val typeName = context.typeName.getText
+    val generics = processGenericTypeListDefinition(context.genericTypeList())
     PureDefinedType(
       name = typeName,
       packageName = NOT_DEFINED,
-      genericTypes = processGenericTypeListDefinition(context.genericTypeList()),
+      genericTypes = generics,
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
-      verifications = scalaSeq(context.typeVerification()).map(processTypeVerification(_, typeName)),
+      verifications = scalaSeq(context.typeVerification()).map(processTypeVerification(_, typeName, generics)),
       inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       location = getLocationFromContext(context)
@@ -105,18 +106,18 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     )
   }
 
-  def processTypeVerification(context: TypeVerificationContext, typeName: String): PureTypeVerification = {
+  def processTypeVerification(context: TypeVerificationContext, typeName: String, generics: Seq[String]): PureTypeVerification = {
     PureTypeVerification(
       extractStringContent(context.verificationMessage.getText),
-      processTypeVerificationFunction(context.typeVerificationFunction(), typeName),
+      processTypeVerificationFunction(context.typeVerificationFunction(), typeName, generics),
       location = getLocationFromContext(context)
     )
   }
 
-  def processTypeVerificationFunction(context: TypeVerificationFunctionContext, typeName: String): PureDefinedFunction = {
+  def processTypeVerificationFunction(context: TypeVerificationFunctionContext, typeName: String, generics: Seq[String]): PureDefinedFunction = {
     val parameters = Seq(ParameterDefinition(
       name = context.IDENTIFIER().getText,
-      typeReference = TypeReference(typeName, Seq.empty),
+      typeReference = TypeReference(typeName, generics.map(TypeReference(_, Seq.empty))),
       location = Location(file, getRangeFromTerminalNode(context.IDENTIFIER()))
     ))
     PureDefinedFunction(
@@ -128,6 +129,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
   }
 
   def processAliasType(context: AliasTypeContext): PureAliasType = {
+    val generics = processGenericTypeListDefinition(context.genericTypes)
     PureAliasType(
       name = context.typeName.getText,
       packageName = NOT_DEFINED,
@@ -135,11 +137,20 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
         typeName = context.referenceTypeName.getText,
         genericTypes = processGenericTypeList(context.aliasGenericTypes)
       ),
-      genericTypes = processGenericTypeListDefinition(context.genericTypes),
+      genericTypes = generics,
+      verifications = extractAliasTypeVerifications(context.aliasTypeBody(), context.typeName.getText, generics),
       inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       location = getLocationFromContext(context)
     )
+  }
+
+  def extractAliasTypeVerifications(context: AliasTypeBodyContext, typeName: String, generics: Seq[String]): Seq[PureTypeVerification] = {
+    if (context == null) {
+      Seq.empty
+    } else {
+      scalaSeq(context.typeVerification()).map(processTypeVerification(_, typeName, generics))
+    }
   }
 
   def processEnum(context: EnumTypeContext): PureEnum = {

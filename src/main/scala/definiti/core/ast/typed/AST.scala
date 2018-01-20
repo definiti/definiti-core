@@ -42,11 +42,29 @@ private[core] sealed trait Type extends TypedClassDefinition {
   def comment: Option[String]
 }
 
-private[core] case class TypedDefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[TypeVerification], inherited: Seq[VerificationReference], comment: Option[String], location: Location) extends Type {
+private[core] case class TypedDefinedType(
+  name: String,
+  packageName: String,
+  genericTypes: Seq[String],
+  attributes: Seq[AttributeDefinition],
+  verifications: Seq[TypeVerification],
+  inherited: Seq[VerificationReference],
+  comment: Option[String],
+  location: Location
+) extends Type {
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-private[core] case class TypedAliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], location: Location) extends Type {
+private[core] case class TypedAliasType(
+  name: String,
+  packageName: String,
+  genericTypes: Seq[String],
+  alias: TypeReference,
+  verifications: Seq[TypeVerification],
+  inherited: Seq[VerificationReference],
+  comment: Option[String],
+  location: Location
+) extends Type {
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 

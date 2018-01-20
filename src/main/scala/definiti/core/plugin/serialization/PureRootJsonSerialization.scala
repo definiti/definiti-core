@@ -30,7 +30,7 @@ trait PureRootJsonSerialization {
     Format("definedType", classOf[PureDefinedType])
   ))
   implicit lazy val pureDefinedTypeFormat: JsonFormat[PureDefinedType] = lazyFormat(jsonFormat8(PureDefinedType.apply))
-  implicit lazy val pureAliasTypeFormat: JsonFormat[PureAliasType] = lazyFormat(jsonFormat7(PureAliasType.apply))
+  implicit lazy val pureAliasTypeFormat: JsonFormat[PureAliasType] = lazyFormat(jsonFormat8(PureAliasType.apply))
   implicit lazy val pureTypeVerificationFormat: JsonFormat[PureTypeVerification] = lazyFormat(jsonFormat3(PureTypeVerification.apply))
   implicit lazy val pureEnumFormat: JsonFormat[PureEnum] = lazyFormat(jsonFormat5(PureEnum.apply))
   implicit lazy val pureEnumCaseFormat: JsonFormat[PureEnumCase] = lazyFormat(jsonFormat3(PureEnumCase.apply))

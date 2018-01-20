@@ -10,7 +10,7 @@ private[core] class ClassDefinitionTyping(context: Context) {
     classDefinition match {
       case native: PureNativeClassDefinition => ValidValue(transformNativeClassDefinition(native))
       case definedType: PureDefinedType => addTypesIntoDefinedType(definedType)
-      case aliasType: PureAliasType => ValidValue(transformAliasType(aliasType))
+      case aliasType: PureAliasType => addTypesIntoAliasType(aliasType)
       case enum: PureEnum => ValidValue(transformEnum(enum))
     }
   }
@@ -53,16 +53,19 @@ private[core] class ClassDefinitionTyping(context: Context) {
     }
   }
 
-  def transformAliasType(aliasType: PureAliasType): TypedAliasType = {
-    TypedAliasType(
-      name = aliasType.name,
-      packageName = aliasType.packageName,
-      genericTypes = aliasType.genericTypes,
-      alias = aliasType.alias,
-      inherited = aliasType.inherited,
-      comment = aliasType.comment,
-      location = aliasType.location
-    )
+  def addTypesIntoAliasType(aliasType: PureAliasType): Validated[TypedAliasType] = {
+    Validated.squash(aliasType.verifications.map(addTypesIntoTypeVerification)).map { typeVerifications =>
+      TypedAliasType(
+        name = aliasType.name,
+        packageName = aliasType.packageName,
+        genericTypes = aliasType.genericTypes,
+        verifications = typeVerifications,
+        alias = aliasType.alias,
+        inherited = aliasType.inherited,
+        comment = aliasType.comment,
+        location = aliasType.location
+      )
+    }
   }
 
   def transformEnum(enum: PureEnum): TypedEnum = {

@@ -1,0 +1,66 @@
+type Test {
+  list1: ListOfSize(3)
+  list2: ListOfSize(1)
+  positive: PositiveNumber("The number is not positive")
+  higherThanTen: HigherThan(10, "Please give a number higher than 10")
+  name: RequiredString("Please give a name")
+  username: RequiredNonBlankString("Please give a non blank username")
+  phone: String verifying LengthOf(10, "Please provide a phone number of 10 characters")
+}
+
+type Contact(owner: String, numberOfPhones: Number) {
+  address: RequiredString("Please define the address of ${owner}")
+  phones: List[RequiredString("Please define the phone number of ${owner}")]
+
+  verify {
+    "${owner} should have ${numberOfPhones} phones"
+    (contact) => {
+      contact.phones.length == numberOfPhones
+    }
+  }
+}
+
+type ListOfSize[A](size: Number) = List[A] {
+  verify {
+    "The list should have the size ${size}"
+    (list) => {
+      list.size == size
+    }
+  }
+}
+
+type PositiveNumber(message: String = "Please give a positive number") = HigherThan(0, message)
+
+type HigherThan(reference: Number, message: String) = Number {
+  verify {
+    "${message}"
+    (number) => {
+      number > reference
+    }
+  }
+}
+
+type RequiredString(message: String) = String {
+  verify {
+    "${message}"
+    (string) => {
+      string.nonEmpty()
+    }
+  }
+}
+
+type RequiredNonBlankString(message: String) = String verifying NonBlank(message)
+
+verification NonBlank {
+  "Please provide a string with non blank characters"
+  (string) => {
+    string.trim().nonEmpty()
+  }
+}
+
+verification LengthOf(length: Number) {
+  "Please provide a string of size ${size}"
+  (string: String) => {
+    string.length == length
+  }
+}

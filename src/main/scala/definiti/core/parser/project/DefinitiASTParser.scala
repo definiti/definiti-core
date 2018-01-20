@@ -101,7 +101,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
   def processVerifying(context: VerifyingContext): VerificationReference = {
     VerificationReference(
       verificationName = context.verificationName.getText,
-      message = Option(context.message).map(message => extractStringContent(message.getText)),
+      message = None,//Option(context.message).map(message => extractStringContent(message.getText)),
       location = getLocationFromContext(context)
     )
   }
@@ -211,14 +211,8 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
       processNotExpression(context)
     } else if (context.leftExpression != null) {
       processLeftRightExpression(context)
-    } else if (context.booleanExpression != null) {
-      processBooleanExpression(context)
-    } else if (context.numberExpression != null) {
-      processNumberExpression(context)
-    } else if (context.stringExpression != null) {
-      processStringExpression(context)
-    } else if (context.referenceExpression != null) {
-      processReferenceExpression(context)
+    } else if (context.atomicExpression != null) {
+      processAtomicExpression(context.atomicExpression())
     } else if (context.conditionExpression != null) {
       processConditionExpression(context)
     } else if (context.lambdaExpression != null) {
@@ -282,22 +276,38 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     }
   }
 
-  def processBooleanExpression(context: ExpressionContext): PureExpression = {
+  def processAtomicExpression(context: AtomicExpressionContext): PureExpression = {
+    if (context.booleanExpression != null) {
+      processBooleanExpression(context)
+    } else if (context.numberExpression != null) {
+      processNumberExpression(context)
+    } else if (context.stringExpression != null) {
+      processStringExpression(context)
+    } else if (context.referenceExpression != null) {
+      processReferenceExpression(context)
+    } else {
+      // This exception exists to remind us to implement expression processing when we add one
+      // This should never happen in production code.
+      throw new RuntimeException(s"Expression ${context.getText} was not processed")
+    }
+  }
+
+  def processBooleanExpression(context: AtomicExpressionContext): PureExpression = {
     context.booleanExpression.getText match {
       case "true" => PureBooleanValue(value = true, getLocationFromContext(context))
       case _ => PureBooleanValue(value = false, getLocationFromContext(context))
     }
   }
 
-  def processNumberExpression(context: ExpressionContext): PureExpression = {
+  def processNumberExpression(context: AtomicExpressionContext): PureExpression = {
     PureNumberValue(BigDecimal(context.numberExpression.getText), getLocationFromContext(context))
   }
 
-  def processStringExpression(context: ExpressionContext): PureExpression = {
+  def processStringExpression(context: AtomicExpressionContext): PureExpression = {
     PureQuotedStringValue(extractStringContent(context.stringExpression.getText), getLocationFromContext(context))
   }
 
-  def processReferenceExpression(context: ExpressionContext): PureExpression = {
+  def processReferenceExpression(context: AtomicExpressionContext): PureExpression = {
     PureReference(
       name = context.referenceExpression.getText,
       location = getLocationFromContext(context)

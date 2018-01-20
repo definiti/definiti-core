@@ -15,6 +15,7 @@ case class Namespace(
 case class Verification(
   name: String,
   message: String,
+  parameters: Seq[ParameterDefinition],
   function: DefinedFunction,
   comment: Option[String],
   location: Location
@@ -136,7 +137,7 @@ case class MethodDefinition(
   comment: Option[String]
 )
 
-case class VerificationReference(verificationName: String, message: Option[String], location: Location)
+case class VerificationReference(verificationName: String, parameters: Seq[AtomicExpression], location: Location)
 
 case class TypeVerification(message: String, function: DefinedFunction, location: Location)
 

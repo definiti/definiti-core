@@ -58,18 +58,22 @@ expression
   | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_2  rightExpression=expression
   | leftExpression=expression operator=LOGICAL_OPERATOR             rightExpression=expression
   | leftExpression=expression operator=LOGICAL_COMBINATION_OPERATOR rightExpression=expression
-  | booleanExpression=BOOLEAN
+  | atomicExpression
+  | IF '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' (ELSE '{' conditionElseBody=chainedExpression '}')?
+  ;
+
+atomicExpression
+  : booleanExpression=BOOLEAN
   | numberExpression=NUMBER
   | stringExpression=STRING
   | referenceExpression=IDENTIFIER
-  | IF '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' (ELSE '{' conditionElseBody=chainedExpression '}')?
   ;
 
 expressionList : expression (',' expression)*;
 
 verification :
   DOC_COMMENT?
-  VERIFICATION verificationName=IDENTIFIER '{'
+  VERIFICATION verificationName=IDENTIFIER ('(' parameterListDefinition ')')? '{'
     verificationMessage=STRING
     function
   '}';
@@ -110,8 +114,9 @@ enumCase: DOC_COMMENT? IDENTIFIER;
 
 function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
 
-verifyingList : verifying*;
-verifying : VERIFYING verificationName=IDENTIFIER ('(' message=STRING ')')?;
+verifyingList: verifying*;
+verifying: VERIFYING verificationName=IDENTIFIER verifyingParameters?;
+verifyingParameters: '(' (atomicExpression ',')* atomicExpression ')';
 
 parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );

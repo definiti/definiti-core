@@ -1,0 +1,21 @@
+type Test {
+  n: Number verifying IsHigherThan(0)
+  m: Number verifying IsHigherThan(1, "Increase m please")
+  s: String verifying IsRequired("Test.s")
+  // Unfortunately, this parameter "" is not useful but required if we want to override the message
+  t: String verifying IsRequired("", "t not defined")
+}
+
+verification IsHigherThan(reference: Number) {
+  "The number should be higher than ${reference}"
+  (number: Number) => {
+    number > reference
+  }
+}
+
+verification IsRequired(fieldName: String) {
+  "Please provide ${fieldName}"
+  (string: String) => {
+    string.nonEmpty()
+  }
+}

@@ -46,13 +46,31 @@ private[core] sealed trait PureType extends PureClassDefinition {
   def comment: Option[String]
 }
 
-private[core] case class PureDefinedType(name: String, packageName: String, genericTypes: Seq[String], attributes: Seq[AttributeDefinition], verifications: Seq[PureTypeVerification], inherited: Seq[VerificationReference], comment: Option[String], location: Location) extends PureType {
+private[core] case class PureDefinedType(
+  name: String,
+  packageName: String,
+  genericTypes: Seq[String],
+  attributes: Seq[AttributeDefinition],
+  verifications: Seq[PureTypeVerification],
+  inherited: Seq[VerificationReference],
+  comment: Option[String],
+  location: Location
+) extends PureType {
   def methods: Seq[MethodDefinition] = Seq()
 
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
-private[core] case class PureAliasType(name: String, packageName: String, genericTypes: Seq[String], alias: TypeReference, inherited: Seq[VerificationReference], comment: Option[String], location: Location) extends PureType {
+private[core] case class PureAliasType(
+  name: String,
+  packageName: String,
+  genericTypes: Seq[String],
+  alias: TypeReference,
+  verifications: Seq[PureTypeVerification],
+  inherited: Seq[VerificationReference],
+  comment: Option[String],
+  location: Location
+) extends PureType {
   override def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 

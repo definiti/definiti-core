@@ -76,6 +76,7 @@ private[core] object ProjectLinking {
         aliasType.copy(
           packageName = packageName,
           alias = injectLinksIntoTypeReference(aliasType.alias, typeMapping),
+          verifications = aliasType.verifications.map(injectLinksIntoTypeVerification(_, typeMapping)),
           inherited = aliasType.inherited.map(injectLinksIntoVerificationReference(_, typeMapping))
         )
       case definedType: PureDefinedType =>

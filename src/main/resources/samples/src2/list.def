@@ -1,0 +1,10 @@
+package my.list
+
+type NonEmptyList[A] = List[A] {
+  verify {
+    "The list should not be empty"
+    (list) => {
+      list.nonEmpty()
+    }
+  }
+}

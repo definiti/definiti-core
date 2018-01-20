@@ -96,7 +96,11 @@ typeVerificationFunction: '(' IDENTIFIER ')' '=>' '{' chainedExpression '}';
 
 aliasType:
   DOC_COMMENT?
-  TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList;
+  TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList aliasTypeBody?;
+
+aliasTypeBody: '{'
+  typeVerification*
+'}';
 
 enumType:
   DOC_COMMENT?

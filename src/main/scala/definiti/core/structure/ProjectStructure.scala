@@ -107,6 +107,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
       name = aliasType.name,
       genericTypes = aliasType.genericTypes,
       alias = aliasType.alias,
+      verifications = aliasType.verifications,
       inherited = aliasType.inherited,
       comment = aliasType.comment,
       location = aliasType.location

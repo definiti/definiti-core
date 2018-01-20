@@ -1,0 +1,9 @@
+type RequiredString = String {
+  verify {
+    "The string should not be empty"
+    (string) => {
+      // missing parenthesis
+      string.nonEmpty
+    }
+  }
+}

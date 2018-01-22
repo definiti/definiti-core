@@ -9,7 +9,7 @@ private[core] trait CommonValidation {
   protected def getReturnTypeName(expression: Expression): Validated[String] = {
     expression.returnType match {
       case typeReference: TypeReference =>
-        if (library.types.contains(typeReference.typeName)) {
+        if (library.typesMap.contains(typeReference.typeName)) {
           ValidValue(typeReference.typeName)
         } else {
           Invalid("Undefined type: " + typeReference.readableString, expression.location)
@@ -20,14 +20,14 @@ private[core] trait CommonValidation {
   }
 
   protected def getReturnType(expression: Expression): Validated[ClassDefinition] = {
-    getReturnTypeName(expression).map(library.types(_))
+    getReturnTypeName(expression).map(library.typesMap(_))
   }
 
   protected def validateTypeReference(typeReference: TypeReference, genericTypes: Seq[String], location: Location): Validation = {
     val typeValidation =
       if (genericTypes.contains(typeReference.typeName)) {
         Valid
-      } else if (library.types.contains(typeReference.typeName)) {
+      } else if (library.typesMap.contains(typeReference.typeName)) {
         Valid
       } else {
         Invalid("Undefined type: " + typeReference.readableString, location)

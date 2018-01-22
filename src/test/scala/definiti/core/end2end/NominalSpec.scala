@@ -55,6 +55,7 @@ object NominalSpec {
   val definedType: Root = Root(
     elements = Seq(DefinedType(
       name = "MyType",
+      fullName = "MyType",
       genericTypes = Seq.empty,
       attributes = Seq(
         AttributeDefinition(
@@ -76,6 +77,7 @@ object NominalSpec {
   val aliasType: Root = Root(
     elements = Seq(AliasType(
       name = "AliasString",
+      fullName = "AliasString",
       genericTypes = Seq.empty,
       alias = TypeReference("String"),
       verifications = Seq.empty,
@@ -89,6 +91,7 @@ object NominalSpec {
   val enum: Root = Root(
     elements = Seq(Enum(
       name = "MyEnum",
+      fullName = "MyEnum",
       cases = Seq(
         EnumCase("First", None, Location(enumSrc, 2, 3, 2, 8)),
         EnumCase("Second", None, Location(enumSrc, 3, 3, 3, 9))
@@ -102,6 +105,7 @@ object NominalSpec {
   val verification: Root = Root(
     elements = Seq(Verification(
       name = "AlwaysTrue",
+      fullName = "AlwaysTrue",
       message = "Never fail",
       function = DefinedFunction(
         parameters = Seq(ParameterDefinition(
@@ -122,6 +126,7 @@ object NominalSpec {
   val namedFunction: Root = Root(
     elements = Seq(NamedFunction(
       name = "alwaysFalse",
+      fullName = "alwaysFalse",
       genericTypes = Seq.empty,
       parameters = Seq.empty,
       returnType = TypeReference("Boolean"),
@@ -146,6 +151,7 @@ object NominalSpec {
       fullName = "tst",
       elements = Seq(AliasType(
         name = "AliasString",
+        fullName = "tst.AliasString",
         genericTypes = Seq.empty,
         alias = TypeReference("String"),
         verifications = Seq.empty,

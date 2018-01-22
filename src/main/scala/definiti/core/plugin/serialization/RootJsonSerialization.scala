@@ -26,16 +26,16 @@ trait RootJsonSerialization {
     Format("verification", classOf[Verification])
   ))
   implicit lazy val namespaceFormat: JsonFormat[Namespace] = lazyFormat(jsonFormat3(Namespace.apply))
-  implicit lazy val verificationFormat: JsonFormat[Verification] = lazyFormat(jsonFormat5(Verification.apply))
+  implicit lazy val verificationFormat: JsonFormat[Verification] = lazyFormat(jsonFormat6(Verification.apply))
   implicit lazy val classDefinitionFormat: JsonFormat[ClassDefinition] = lazyFormat(sealedTraitFormat[ClassDefinition](
     Format("aliasType", classOf[AliasType]),
     Format("definedType", classOf[DefinedType]),
     Format("nativeClassDefinition", classOf[NativeClassDefinition])
   ))
-  implicit lazy val definedTypeFormat: JsonFormat[DefinedType] = lazyFormat(jsonFormat7(DefinedType.apply))
-  implicit lazy val aliasTypeFormat: JsonFormat[AliasType] = lazyFormat(jsonFormat7(AliasType.apply))
-  implicit lazy val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = lazyFormat(jsonFormat5(NativeClassDefinition.apply))
-  implicit lazy val namedFunctionFormat: JsonFormat[NamedFunction] = lazyFormat(jsonFormat6(NamedFunction.apply))
+  implicit lazy val definedTypeFormat: JsonFormat[DefinedType] = lazyFormat(jsonFormat8(DefinedType.apply))
+  implicit lazy val aliasTypeFormat: JsonFormat[AliasType] = lazyFormat(jsonFormat8(AliasType.apply))
+  implicit lazy val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = lazyFormat(jsonFormat6(NativeClassDefinition.apply))
+  implicit lazy val namedFunctionFormat: JsonFormat[NamedFunction] = lazyFormat(jsonFormat7(NamedFunction.apply))
 
   implicit lazy val abstractTypeReferenceFormat: JsonFormat[AbstractTypeReference] = lazyFormat(sealedTraitFormat[AbstractTypeReference](
     Format("typeReference", classOf[TypeReference]),

@@ -72,7 +72,7 @@ private[core] trait ExpressionValidation {
 
   def getMethodDefinition(methodCall: MethodCall): Validated[MethodDefinition] = {
     getReturnTypeName(methodCall.expression).flatMap { typeName =>
-      library.methods.get(s"${typeName}.${methodCall.method}") match {
+      library.methodsMap.get(s"${typeName}.${methodCall.method}") match {
         case Some(method) => ValidValue(method)
         case None => Invalid(s"Unknown method ${typeName}.${methodCall.method}", methodCall.location)
       }
@@ -86,7 +86,7 @@ private[core] trait ExpressionValidation {
       case (lambdaReference: LambdaReference, expression) =>
         expression.returnType match {
           case NamedFunctionReference(functionName) =>
-            library.namedFunctions.get(functionName) match {
+            library.namedFunctionsMap.get(functionName) match {
               case Some(namedFunction) =>
                 validateNamedFunctionAndReference(namedFunction, lambdaReference, classDefinition, methodDefinition, callParameter.location)
               case None =>
@@ -185,7 +185,7 @@ private[core] trait ExpressionValidation {
   }
 
   private def getNamedFunction(functionName: String, location: Location): Validated[NamedFunction] = {
-    library.namedFunctions.get(functionName) match {
+    library.namedFunctionsMap.get(functionName) match {
       case Some(namedFunction) => ValidValue(namedFunction)
       case None => Invalid(s"Unknown function ${functionName}", location)
     }

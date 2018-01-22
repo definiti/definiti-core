@@ -14,6 +14,7 @@ case class Namespace(
 
 case class Verification(
   name: String,
+  fullName: String,
   message: String,
   function: DefinedFunction,
   comment: Option[String],
@@ -23,31 +24,42 @@ case class Verification(
 sealed trait ClassDefinition extends NamespaceElement {
   def name: String
 
+  def fullName: String
+
   def genericTypes: Seq[String]
+}
+
+sealed trait ProjectClassDefinition extends ClassDefinition {
+  def comment: Option[String]
+
+  def location: Location
 }
 
 case class DefinedType(
   name: String,
+  fullName: String,
   genericTypes: Seq[String],
   attributes: Seq[AttributeDefinition],
   verifications: Seq[TypeVerification],
   inherited: Seq[VerificationReference],
   comment: Option[String],
   location: Location
-) extends ClassDefinition
+) extends ProjectClassDefinition
 
 case class AliasType(
   name: String,
+  fullName: String,
   genericTypes: Seq[String],
   alias: TypeReference,
   inherited: Seq[VerificationReference],
   verifications: Seq[TypeVerification],
   comment: Option[String],
   location: Location
-) extends ClassDefinition
+) extends ProjectClassDefinition
 
 case class NativeClassDefinition(
   name: String,
+  fullName: String,
   genericTypes: Seq[String],
   attributes: Seq[AttributeDefinition],
   methods: Seq[MethodDefinition],
@@ -56,10 +68,11 @@ case class NativeClassDefinition(
 
 case class Enum(
   name: String,
+  fullName: String,
   cases: Seq[EnumCase],
   comment: Option[String],
   location: Location
-) extends ClassDefinition {
+) extends ProjectClassDefinition {
   override def genericTypes: Seq[String] = Seq.empty
 }
 
@@ -71,6 +84,7 @@ case class EnumCase(
 
 case class NamedFunction(
   name: String,
+  fullName: String,
   genericTypes: Seq[String],
   parameters: Seq[ParameterDefinition],
   returnType: TypeReference,

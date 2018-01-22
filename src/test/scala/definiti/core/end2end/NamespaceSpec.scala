@@ -32,6 +32,7 @@ object NamespaceSpec {
           fullName = "my.ns",
           elements = Seq(AliasType(
             name = "AliasString",
+            fullName = "my.ns.AliasString",
             genericTypes = Seq.empty,
             alias = TypeReference("String"),
             verifications = Seq.empty,
@@ -59,6 +60,7 @@ object NamespaceSpec {
               fullName = "my.sub.ns",
               elements = Seq(AliasType(
                 name = "AliasString",
+                fullName = "my.sub.ns.AliasString",
                 genericTypes = Seq.empty,
                 alias = TypeReference("String"),
                 verifications = Seq.empty,

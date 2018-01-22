@@ -11,7 +11,7 @@ private[core] trait VerificationValidation {
   }
 
   protected def validateVerificationReference(verification: VerificationReference, location: Location): Validation = {
-    if (library.verifications.contains(verification.verificationName)) {
+    if (library.verificationsMap.contains(verification.verificationName)) {
       Valid
     } else {
       Invalid("Undefined verification: " + verification.verificationName, location)

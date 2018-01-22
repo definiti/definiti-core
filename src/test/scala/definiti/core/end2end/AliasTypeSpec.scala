@@ -29,6 +29,7 @@ object AliasTypeSpec {
   val inlineVerification = Root(Seq(
     AliasType(
       name = "ListAlias",
+      fullName = "ListAlias",
       genericTypes = Seq("A"),
       alias = TypeReference("List", Seq(TypeReference("A"))),
       inherited = Seq.empty,

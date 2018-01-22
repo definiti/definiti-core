@@ -22,6 +22,7 @@ object VerificationSpec {
   val validNonEmptyList = Root(Seq(
     Verification(
       name = "NonEmptyList",
+      fullName = "NonEmptyList",
       message = "The list should not be empty",
       function = DefinedFunction(
         parameters = Seq(ParameterDefinition("list", TypeReference("List", Seq(TypeReference("A"))), nonEmptyListLocation(3, 7, 20))),

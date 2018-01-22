@@ -64,6 +64,7 @@ class Project(configuration: Configuration) {
       case nativeClassDefinition: PureNativeClassDefinition =>
         NativeClassDefinition(
           name = nativeClassDefinition.name,
+          fullName = nativeClassDefinition.name,
           genericTypes = nativeClassDefinition.genericTypes,
           attributes = nativeClassDefinition.attributes,
           methods = nativeClassDefinition.methods,

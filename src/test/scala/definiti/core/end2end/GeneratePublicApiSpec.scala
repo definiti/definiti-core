@@ -36,6 +36,7 @@ object GeneratePublicApiSpec {
       elements = Seq(
         DefinedType(
           name = "Blog",
+          fullName = "blog.Blog",
           genericTypes = Seq.empty,
           attributes = Seq(
             AttributeDefinition(
@@ -120,6 +121,7 @@ object GeneratePublicApiSpec {
         ),
         DefinedType(
           name = "Comment",
+          fullName = "blog.Comment",
           genericTypes = Seq.empty,
           attributes = Seq(
             AttributeDefinition(
@@ -154,6 +156,7 @@ object GeneratePublicApiSpec {
         ),
         Verification(
           name = "NonBlank",
+          fullName = "blog.NonBlank",
           message = "The string should not be blank",
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition("string", TypeReference("String"), Location(validBlogSrcVerifications, 5, 4, 5, 18))),
@@ -180,6 +183,7 @@ object GeneratePublicApiSpec {
         ),
         Verification(
           name = "ShortString",
+          fullName = "blog.ShortString",
           message = "The string should not have more than 25 characters",
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition("string", TypeReference("String"), Location(validBlogSrcVerifications, 12, 4, 12, 18))),

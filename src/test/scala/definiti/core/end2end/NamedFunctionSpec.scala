@@ -30,6 +30,7 @@ object NamedFunctionSpec {
   val validContains = Root(Seq(
     NamedFunction(
       name = "contains",
+      fullName = "contains",
       genericTypes = Seq("A"),
       parameters = Seq(
         ParameterDefinition(

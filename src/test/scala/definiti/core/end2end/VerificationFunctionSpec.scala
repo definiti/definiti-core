@@ -26,6 +26,7 @@ object VerificationFunctionSpec {
       elements = Seq(
         Verification(
           name = "IsStrongPassword",
+          fullName = "verificationFunction.IsStrongPassword",
           message = "The password is too simple",
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition(
@@ -58,6 +59,7 @@ object VerificationFunctionSpec {
         ),
         NamedFunction(
           name = "passwordScore",
+          fullName = "verificationFunction.passwordScore",
           genericTypes = Seq.empty,
           parameters = Seq(ParameterDefinition("string", TypeReference("String"), verificationFunctionLocation(10, 19, 33))),
           returnType = TypeReference("Number"),
@@ -83,6 +85,7 @@ object VerificationFunctionSpec {
         ),
         NamedFunction(
           name = "scoreSpecialCharacter",
+          fullName = "verificationFunction.scoreSpecialCharacter",
           genericTypes = Seq.empty,
           parameters = Seq(ParameterDefinition("string", TypeReference("String"), verificationFunctionLocation(14, 27, 41))),
           returnType = TypeReference("Number"),

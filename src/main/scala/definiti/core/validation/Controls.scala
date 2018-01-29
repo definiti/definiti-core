@@ -29,6 +29,7 @@ object Controls {
   lazy val all: Seq[Control] = Seq(
     EnumerationUniquenessControl,
     TypeNameFormatControl,
+    VerificationIsBooleanControl,
     VerificationNameUniquenessControl
   )
 }

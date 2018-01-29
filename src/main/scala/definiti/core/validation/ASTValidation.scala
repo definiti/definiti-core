@@ -29,7 +29,7 @@ private[core] class ASTValidation(
   def validatePackageElement(element: NamespaceElement): Validation = {
     element match {
       case subPackage: Namespace => validatePackage(subPackage)
-      case verification: Verification => validateVerification(verification)
+      case _: Verification => Valid
       case definedType: DefinedType => validateDefinedType(definedType)
       case aliasType: AliasType => validateAliasType(aliasType)
       case enum: Enum => validateEnum(enum)

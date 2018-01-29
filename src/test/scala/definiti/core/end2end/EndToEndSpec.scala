@@ -8,9 +8,10 @@ import definiti.core.mock.plugins.StringExtendedContext
 import org.scalatest.{FlatSpec, Matchers}
 
 trait EndToEndSpec extends FlatSpec with Matchers {
-  def processDirectory(sample: String): Validated[Root] = {
-    val project = new Project(configurationDirectory(sample))
-    project.generatePublicAST()
+  def processDirectory(sample: String): ProgramResult[Root] = {
+    val configuration = configurationDirectory(sample)
+    val project = new Project(configuration)
+    project.generatePublicAST().run(configuration)
   }
 
   def configurationDirectory(sample: String): Configuration = {
@@ -21,9 +22,10 @@ trait EndToEndSpec extends FlatSpec with Matchers {
     )
   }
 
-  def processFile(sample: String): Validated[Root] = {
-    val project = new Project(configurationFile(sample))
-    project.generatePublicAST()
+  def processFile(sample: String): ProgramResult[Root] = {
+    val configuration = configurationFile(sample)
+    val project = new Project(configuration)
+    project.generatePublicAST().run(configuration)
   }
 
   def configurationFile(sample: String): Configuration = {

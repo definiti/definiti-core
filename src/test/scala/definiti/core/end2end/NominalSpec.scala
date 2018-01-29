@@ -2,51 +2,51 @@ package definiti.core.end2end
 
 import definiti.core.ast._
 import definiti.core._
+import ProgramResultMatchers._
 
 class NominalSpec extends EndToEndSpec {
   import NominalSpec._
-  import ValidationMatchers._
 
   "Project.generatePublicAST" should "generate a valid AST for a valid defined type" in {
-    val expected = ValidValue(definedType)
+    val expected = Ok(definedType)
     val output = processFile("nominal.definedType")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   it should "generate a valid AST for a valid alias type" in {
-    val expected = ValidValue(aliasType)
+    val expected = Ok(aliasType)
     val output = processFile("nominal.aliasType")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   it should "generate a valid AST for a valid enum" in {
-    val expected = ValidValue(enum)
+    val expected = Ok(enum)
     val output = processFile("nominal.enum")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   it should "generate a valid AST for a valid verification" in {
-    val expected = ValidValue(verification)
+    val expected = Ok(verification)
     val output = processFile("nominal.verification")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   it should "generate a valid AST for a valid named function" in {
-    val expected = ValidValue(namedFunction)
+    val expected = Ok(namedFunction)
     val output = processFile("nominal.namedFunction")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   it should "generate a valid AST for a valid extended context" in {
-    val expected = ValidValue(extendedContext)
+    val expected = Ok(extendedContext)
     val output = processFile("nominal.extendedContext")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   it should "generate a valid AST for a valid alias type in a package" in {
-    val expected = ValidValue(packageAliasType)
+    val expected = Ok(packageAliasType)
     val output = processFile("nominal.package")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 }
 

@@ -1,22 +1,22 @@
 package definiti.core.end2end
 
-import definiti.core.ValidValue
-import definiti.core.ValidationMatchers.beValidated
+import definiti.core.Ok
+import definiti.core.ProgramResultMatchers._
 import definiti.core.ast._
 
 class NamespaceSpec extends EndToEndSpec {
   import NamespaceSpec._
 
   "Project.generatePublicAST" should "generate the AST with a namespace 'my' containing namespace 'ns'" in {
-    val expected = ValidValue(validSubnamespace)
+    val expected = Ok(validSubnamespace)
     val output = processFile("namespace.subnamespace")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   "Project.generatePublicAST" should "generate the AST with a namespace 'my' containing namespaces 'sub' then 'ns'" in {
-    val expected = ValidValue(validSub2namespace)
+    val expected = Ok(validSub2namespace)
     val output = processFile("namespace.sub2namespace")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 }
 

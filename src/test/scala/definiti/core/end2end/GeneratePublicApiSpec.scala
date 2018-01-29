@@ -2,27 +2,27 @@ package definiti.core.end2end
 
 import definiti.core._
 import definiti.core.ast._
+import ProgramResultMatchers._
 
 class GeneratePublicApiSpec extends EndToEndSpec {
   import GeneratePublicApiSpec._
-  import ValidationMatchers._
 
   "Project.generatePublicAST" should "generate the public API when the project is valid (sample: blog)" in {
-    val expected = ValidValue(validBlogExpected)
+    val expected = Ok(validBlogExpected)
     val output = processDirectory("blog")
-    output should beValidated(expected)
+    output should beResult(expected)
   }
 
   it should "return an error when the project is invalid (sample: invalid.blog)" in {
-    val expected = Invalid(invalidBlogExpected)
+    val expected = Ko[Root](invalidBlogExpected)
     val output = processDirectory("invalid.blog")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   it should "return an error when the project is invalid (sample: invalid.blog2)" in {
-    val expected = Invalid(invalidBlog2Expected)
+    val expected = Ko[Root](invalidBlog2Expected)
     val output = processDirectory("invalid.blog2")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 }
 
@@ -212,15 +212,15 @@ object GeneratePublicApiSpec {
   val invalidBlogSrcTypes = "src/test/resources/samples/invalid/blog/types.def"
   val invalidBlogSrcVerifications = "src/test/resources/samples/invalid/blog/verifications.def"
   val invalidBlogExpected = Seq(
-    ASTError("Expected boolean expression, got: class unit", Location(invalidBlogSrcVerifications, 13, 5, 15, 6)),
-    ASTError("Undefined verification: Unexisting", Location(invalidBlogSrcTypes, 8, 3, 8, 39)),
-    ASTError("Expected boolean expression, got: class unit", Location(invalidBlogSrcTypes, 14, 7, 20, 8)),
-    ASTError("Undefined type: Something", Location(invalidBlogSrcTypes, 28, 3, 28, 40))
+    AlertLocation("Expected boolean expression, got: class unit", Location(invalidBlogSrcVerifications, 13, 5, 15, 6)),
+    AlertLocation("Undefined verification: Unexisting", Location(invalidBlogSrcTypes, 8, 3, 8, 39)),
+    AlertLocation("Expected boolean expression, got: class unit", Location(invalidBlogSrcTypes, 14, 7, 20, 8)),
+    AlertLocation("Undefined type: Something", Location(invalidBlogSrcTypes, 28, 3, 28, 40))
   )
 
   val invalidBlog2SrcTypes = "src/test/resources/samples/invalid/blog2/types.def"
   val invalidBlog2SrcVerifications = "src/test/resources/samples/invalid/blog2/verifications.def"
   val invalidBlog2Expected = Seq(
-    ASTError("Unknown method String.noEmpty", Location(invalidBlog2SrcVerifications, 6, 5, 6, 28))
+    AlertLocation("Unknown method String.noEmpty", Location(invalidBlog2SrcVerifications, 6, 5, 6, 28))
   )
 }

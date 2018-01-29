@@ -1,16 +1,16 @@
 package definiti.core.end2end
 
-import definiti.core.ValidValue
-import definiti.core.ValidationMatchers.beValidated
+import definiti.core.Ok
+import definiti.core.ProgramResultMatchers._
 import definiti.core.ast._
 
 class VerificationFunctionSpec extends EndToEndSpec {
   import VerificationFunctionSpec._
 
   "Project.generatePublicAST" should "generate the AST with verification calling functions in same file" in {
-    val expected = ValidValue(validVerificationFunction)
+    val expected = Ok(validVerificationFunction)
     val output = processFile("verificationFunction.verificationFunction")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 }
 

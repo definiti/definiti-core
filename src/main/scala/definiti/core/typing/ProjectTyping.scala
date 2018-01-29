@@ -5,7 +5,7 @@ import definiti.core.ast.pure._
 import definiti.core.ast.typed._
 
 private[core] class ProjectTyping(context: Context) {
-  def addTypes(root: PureRoot): Validated[TypedRoot] = {
+  def addTypes(root: PureRoot): Program[TypedRoot] = Program.validated {
     Validated.squash(root.files.map(addTypesIntoRootFile))
       .map(files => TypedRoot(files))
   }

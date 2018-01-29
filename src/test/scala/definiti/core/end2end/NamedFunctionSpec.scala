@@ -1,27 +1,27 @@
 package definiti.core.end2end
 
-import definiti.core.{ASTError, Invalid, ValidValue}
-import definiti.core.ValidationMatchers._
+import definiti.core._
+import definiti.core.ProgramResultMatchers._
 import definiti.core.ast._
 
 class NamedFunctionSpec extends EndToEndSpec {
   import NamedFunctionSpec._
 
   "Project.generatePublicAST" should "generate the AST for the valid named function 'contains'" in {
-    val expected = ValidValue(validContains)
+    val expected = Ok(validContains)
     val output = processFile("namedFunction.contains")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   "Project.generatePublicAST" should "give error for the invalid named function 'contains' when generics are invalid" in {
-    val expected = Invalid(invalidContainsGenerics)
+    val expected = Ko[Root](invalidContainsGenerics)
     val output = processFile("namedFunction.invalid-contains-generics")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   "Project.generatePublicAST" should "accept generics in named functions" in {
     val output = processFile("namedFunction.nonEmptyList")
-    output shouldBe valid[Root]
+    output shouldBe ok[Root]
   }
 }
 
@@ -87,7 +87,7 @@ object NamedFunctionSpec {
   ))
 
   val invalidContainsGenericsSrc = "src/test/resources/samples/namedFunction/invalid-contains-generics.def"
-  val invalidContainsGenerics = Seq(ASTError(
+  val invalidContainsGenerics = Seq(AlertLocation(
     message = "Class B not found when trying to determine the type of the expression",
     location = Location(invalidContainsGenericsSrc, 2, 3, 2, 7)
   ))

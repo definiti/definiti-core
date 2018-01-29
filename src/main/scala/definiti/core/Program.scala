@@ -1,6 +1,8 @@
 package definiti.core
 
 import definiti.core.ProgramResult.NoResult
+import definiti.core.validation.Controls
+import definiti.core.validation.controls.{ControlLevel, ControlResult}
 
 sealed trait Program[A] {
   def map[B](op: A => B): Program[B] = MapProgram(this, op)
@@ -20,6 +22,8 @@ object Program {
 
   def validation(validation: Validation): Program[NoResult] = ValidationProgram(validation)
 
+  def apply(result: ControlResult): Program[NoResult] = ControlResultProgram(result)
+
   def apply[A](result: ProgramResult[A]): Program[A] = ResultProgram(result)
 
   private[core] def runWithControl[A](program: Program[A], configuration: Configuration): ProgramResult[A] = {
@@ -28,8 +32,24 @@ object Program {
 
   private[core] def control[A](programResult: ProgramResult[A], configuration: Configuration): ProgramResult[A] = {
     programResult match {
-      case Ok(value, alerts) => Ok(value, alerts)
+      case Ok(value, alerts) =>
+        if (hasBlockingAlert(alerts, configuration)) {
+          Ko(alerts)
+        } else {
+          Ok(value, alerts)
+        }
       case Ko(alerts) => Ko(alerts)
+    }
+  }
+
+  private[core] def hasBlockingAlert(alerts: Seq[Alert], configuration: Configuration): Boolean = {
+    alerts.exists {
+      case AlertControl(control, _, _) =>
+        val controlLevel = configuration.userFlags.get(control)
+          .orElse(Controls.all.find(_.name == control).map(_.defaultLevel))
+          .getOrElse(ControlLevel.ignored)
+        controlLevel >= configuration.fatalLevel
+      case _ => false
     }
   }
 }
@@ -79,6 +99,16 @@ private[core] case class ValidationProgram(validation: Validation) extends Progr
   override def run(configuration: Configuration): ProgramResult[NoResult] = validation match {
     case Invalid(errors) => Ko(errors.map(Alert(_)))
     case Valid => Ok(NoResult)
+  }
+}
+
+private[core] case class ControlResultProgram(result: ControlResult) extends Program[NoResult] {
+  override def run(configuration: Configuration): ProgramResult[NoResult] = {
+    if (Program.hasBlockingAlert(result.alerts, configuration)) {
+      Ko(result.alerts)
+    } else {
+      Ok(NoResult, result.alerts)
+    }
   }
 }
 

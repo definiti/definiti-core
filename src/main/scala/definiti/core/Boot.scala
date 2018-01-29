@@ -6,6 +6,7 @@ object Boot {
     val project = new Project(configuration)
     project.program().run(configuration) match {
       case Ko(alerts) =>
+        System.err.println("Aborted with errors")
         alerts.foreach { alert =>
           System.err.println(alert.prettyPrint)
         }

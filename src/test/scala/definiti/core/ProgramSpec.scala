@@ -1,6 +1,7 @@
 package definiti.core
 
 import definiti.core.ast.Location
+import definiti.core.validation.controls.{ControlLevel, ControlResult}
 import org.scalatest.{FlatSpec, Matchers}
 
 class ProgramSpec extends FlatSpec with Matchers {
@@ -58,6 +59,22 @@ class ProgramSpec extends FlatSpec with Matchers {
     program.run(configuration) should ===(Ko(Seq(AlertLocation("This is an error", anyLocation))))
   }
 
+  it should "pass through valid result" in {
+    val program = for {
+      value <- Program(1)
+      _ <- Program(ControlResult(Seq.empty))
+    } yield value
+    program.run(configuration) should ===(Ok(1))
+  }
+
+  it should "be blocked by invalid result" in {
+    val program = for {
+      value <- Program(1)
+      _ <- Program(ControlResult(Seq(alertError)))
+    } yield value
+    program.run(configuration) should ===(Ko(Seq(alertError)))
+  }
+
   it should "accept alerts when success" in {
     val program = for {
       start <- Program(1)
@@ -84,12 +101,42 @@ class ProgramSpec extends FlatSpec with Matchers {
     } yield end
     program.run(configuration) should ===(Ko(Seq(alertInfo1, alertInfo2)))
   }
+
+  it should "be invalid in terms of the configuration - stop on error" in {
+    val program = for {
+      start <- Program(1)
+      middle1 <- Program(Ok(start + 2, Seq(alertInfo1)))
+      middle2 <- Program(Ok(middle1 + 3, Seq(alertError)))
+      end <- Program(Ok(middle2 + 4, Seq(alertInfo3)))
+    } yield end
+    program.run(configuration) should ===(Ko(Seq(alertInfo1, alertError)))
+  }
+
+  it should "be invalid in terms of the configuration - stop on info" in {
+    val program = for {
+      start <- Program(1)
+      middle1 <- Program(Ok(start + 2, Seq(alertInfo1)))
+      middle2 <- Program(Ok(middle1 + 3, Seq(alertError)))
+      end <- Program(Ok(middle2 + 4, Seq(alertInfo3)))
+    } yield end
+    val conf = configuration.copy(
+      fatalLevel = ControlLevel.info
+    )
+    program.run(conf) should ===(Ko(Seq(alertInfo1)))
+  }
 }
 
 object ProgramSpec {
   val anyLocation = Location("", 0, 0, 0, 0)
 
-  val configuration = ConfigurationMock()
+  val configuration = ConfigurationMock(
+    userFlags = Map(
+      "error" -> ControlLevel.error,
+      "warning" -> ControlLevel.warning,
+      "info" -> ControlLevel.info,
+      "ignored" -> ControlLevel.ignored
+    )
+  )
 
   val alertInfo1 = AlertControl("info", "an alert", anyLocation)
   val alertInfo2 = AlertControl("info", "a second alert", anyLocation)

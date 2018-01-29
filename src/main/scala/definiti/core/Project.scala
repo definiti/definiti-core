@@ -77,7 +77,7 @@ class Project(configuration: Configuration) {
     }
   }
 
-  private def processInternalValidation(root: Root, library: Library): Program[NoResult] = Program.validation {
+  private def processInternalValidation(root: Root, library: Library): Program[NoResult] = {
     new ASTValidation(configuration, library).validate(root)
   }
 

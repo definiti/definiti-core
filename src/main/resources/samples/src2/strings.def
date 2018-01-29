@@ -7,3 +7,10 @@ def nonBlank(string: String): Boolean => string.trim().nonEmpty()
 def isEmail(string: String): Boolean => {
   string.matches("(.+)@(.+)")
 }
+
+verification NonEmptyString {
+  "tst"
+  (a: String) => {
+    a.nonEmpty()
+  }
+}

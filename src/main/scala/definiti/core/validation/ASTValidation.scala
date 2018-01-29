@@ -1,5 +1,6 @@
 package definiti.core.validation
 
+import definiti.core.ProgramResult.NoResult
 import definiti.core.ast._
 import definiti.core._
 
@@ -12,8 +13,13 @@ private[core] class ASTValidation(
   with TypeValidation
   with VerificationValidation {
 
-  def validate(root: Root): Validation = {
-    Validation.join(root.elements.map(validatePackageElement))
+  val controls = new Controls(configuration)
+
+  def validate(root: Root): Program[NoResult] = {
+    for {
+      _ <- Program.validation(Validation.join(root.elements.map(validatePackageElement)))
+      _ <- controls.validate(root, library)
+    } yield NoResult
   }
 
   def validatePackage(thePackage: Namespace): Validation = {

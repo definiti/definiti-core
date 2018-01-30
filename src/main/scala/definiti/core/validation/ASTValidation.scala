@@ -10,8 +10,7 @@ private[core] class ASTValidation(
 ) extends CommonValidation
   with ExpressionValidation
   with NamedFunctionValidation
-  with TypeValidation
-  with VerificationValidation {
+  with TypeValidation {
 
   val controls = new Controls(configuration)
 

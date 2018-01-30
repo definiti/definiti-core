@@ -30,6 +30,8 @@ object Controls {
     EnumerationUniquenessControl,
     TypeNameFormatControl,
     VerificationIsBooleanControl,
-    VerificationNameUniquenessControl
+    VerificationNameUniquenessControl,
+    VerificationReferenceControl,
+    VerificationTypeControl
   )
 }

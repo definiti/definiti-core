@@ -1,0 +1,10 @@
+type MyType verifying MyTypeVerification {
+  name: String
+}
+
+verification MyTypeVerification {
+  "Some message"
+  (myType: MyType) => {
+    true
+  }
+}

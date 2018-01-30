@@ -1,5 +1,6 @@
 package definiti.core
 
+import definiti.core.ast.Root
 import org.scalatest.matchers.{MatchResult, Matcher}
 
 trait ProgramResultMatchers {
@@ -27,6 +28,8 @@ trait ProgramResultMatchers {
   def ok[A] = a[Ok[A]]
 
   def ko[A] = a[Ko[A]]
+
+  def beKo(alerts: Alert*) = beResult[Root](Ko[Root](alerts))
 }
 
 object ProgramResultMatchers extends ProgramResultMatchers

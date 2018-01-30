@@ -1,0 +1,10 @@
+type MyType {
+  name: String
+}
+
+verification MyTypeVerification {
+  "MyType should have a non empty name"
+  (myType: MyType) => {
+    myType.name.nonEmpty()
+  }
+}

@@ -212,7 +212,6 @@ object GeneratePublicApiSpec {
   val invalidBlogSrcTypes = "src/test/resources/samples/invalid/blog/types.def"
   val invalidBlogSrcVerifications = "src/test/resources/samples/invalid/blog/verifications.def"
   val invalidBlogExpected = Seq(
-    AlertLocation("Undefined verification: Unexisting", Location(invalidBlogSrcTypes, 8, 3, 8, 39)),
     AlertLocation("Expected boolean expression, got: class unit", Location(invalidBlogSrcTypes, 14, 7, 20, 8)),
     AlertLocation("Undefined type: Something", Location(invalidBlogSrcTypes, 28, 3, 28, 40))
   )

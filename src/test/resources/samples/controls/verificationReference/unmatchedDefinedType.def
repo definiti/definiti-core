@@ -1,0 +1,10 @@
+type MyType verifying Unmatched {
+  name: String
+}
+
+verification Unmatched {
+  "This verification does not match"
+  (value: Number) => {
+    true
+  }
+}

@@ -32,6 +32,7 @@ object Controls {
     EnumerationUniquenessControl,
     LogicalOperandsAreBooleanControl,
     NamedFunctionTypeControl,
+    OrderOperandsAreNumberControl,
     TypeNameFormatControl,
     TypeVerificationIsBooleanControl,
     VerificationIsBooleanControl,

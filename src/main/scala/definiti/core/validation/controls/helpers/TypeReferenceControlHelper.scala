@@ -46,4 +46,16 @@ trait TypeReferenceControlHelper {
       case _ => false
     }
   }
+
+  def isNumber(typeReference: AbstractTypeReference, library: Library): Boolean = {
+    typeReference match {
+      case typeReference: TypeReference =>
+        library.typesMap.get(typeReference.typeName) match {
+          case Some(native: NativeClassDefinition) => native.name == "Number"
+          case Some(alias: AliasType) => isNumber(alias.alias, library)
+          case _ => false
+        }
+      case _ => false
+    }
+  }
 }

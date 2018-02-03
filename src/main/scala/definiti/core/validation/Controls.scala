@@ -32,6 +32,7 @@ object Controls {
     EnumerationUniquenessControl,
     NamedFunctionTypeControl,
     TypeNameFormatControl,
+    TypeVerificationIsBooleanControl,
     VerificationIsBooleanControl,
     VerificationNameUniquenessControl,
     VerificationReferenceControl,

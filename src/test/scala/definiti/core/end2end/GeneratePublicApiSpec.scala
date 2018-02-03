@@ -14,15 +14,13 @@ class GeneratePublicApiSpec extends EndToEndSpec {
   }
 
   it should "return an error when the project is invalid (sample: invalid.blog)" in {
-    val expected = Ko[Root](invalidBlogExpected)
     val output = processDirectory("invalid.blog")
-    output should beResult[Root](expected)
+    output shouldBe ko
   }
 
   it should "return an error when the project is invalid (sample: invalid.blog2)" in {
-    val expected = Ko[Root](invalidBlog2Expected)
     val output = processDirectory("invalid.blog2")
-    output should beResult[Root](expected)
+    output shouldBe ko
   }
 }
 
@@ -208,16 +206,4 @@ object GeneratePublicApiSpec {
       )
     )
   ))
-
-  val invalidBlogSrcTypes = "src/test/resources/samples/invalid/blog/types.def"
-  val invalidBlogSrcVerifications = "src/test/resources/samples/invalid/blog/verifications.def"
-  val invalidBlogExpected = Seq(
-    AlertLocation("Expected boolean expression, got: class unit", Location(invalidBlogSrcTypes, 14, 7, 20, 8))
-  )
-
-  val invalidBlog2SrcTypes = "src/test/resources/samples/invalid/blog2/types.def"
-  val invalidBlog2SrcVerifications = "src/test/resources/samples/invalid/blog2/verifications.def"
-  val invalidBlog2Expected = Seq(
-    AlertLocation("Unknown method String.noEmpty", Location(invalidBlog2SrcVerifications, 6, 5, 6, 28))
-  )
 }

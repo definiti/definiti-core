@@ -28,8 +28,8 @@ private[core] class ASTValidation(
     element match {
       case subPackage: Namespace => validatePackage(subPackage)
       case _: Verification => Valid
-      case definedType: DefinedType => validateDefinedType(definedType)
-      case aliasType: AliasType => validateAliasType(aliasType)
+      case _: DefinedType => Valid
+      case _: AliasType => Valid
       case enum: Enum => validateEnum(enum)
       case _: NamedFunction => Valid
       case extendedContext: ExtendedContext[_] => validateExtendedContext(extendedContext, library)

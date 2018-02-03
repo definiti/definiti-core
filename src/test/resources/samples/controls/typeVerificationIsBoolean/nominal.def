@@ -1,0 +1,19 @@
+type MyDefinedType {
+  name: String
+
+  verify {
+    "This type is valid"
+    (value) => {
+      value.name.nonEmpty()
+    }
+  }
+}
+
+type MyAliasType = String {
+  verify {
+    "This type is valid"
+    (value) => {
+      value.nonEmpty()
+    }
+  }
+}

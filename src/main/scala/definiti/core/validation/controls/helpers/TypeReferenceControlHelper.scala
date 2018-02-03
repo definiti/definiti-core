@@ -1,6 +1,6 @@
 package definiti.core.validation.controls.helpers
 
-import definiti.core.ast.{Library, Location, TypeReference}
+import definiti.core.ast._
 import definiti.core.validation.controls.{Control, ControlResult}
 import definiti.core.{Alert, AlertControl}
 
@@ -33,5 +33,17 @@ trait TypeReferenceControlHelper {
       s"Unknown type ${typeName} found in ${elementName}",
       location
     )
+  }
+
+  def isBoolean(typeReference: AbstractTypeReference, library: Library): Boolean = {
+    typeReference match {
+      case typeReference: TypeReference =>
+        library.typesMap.get(typeReference.typeName) match {
+          case Some(native: NativeClassDefinition) => native.name == "Boolean"
+          case Some(alias: AliasType) => isBoolean(alias.alias, library)
+          case _ => false
+        }
+      case _ => false
+    }
   }
 }

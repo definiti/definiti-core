@@ -30,6 +30,7 @@ object Controls {
     AliasTypeTypeControl,
     AttributeTypeControl,
     EnumerationUniquenessControl,
+    LogicalOperandsAreBooleanControl,
     NamedFunctionTypeControl,
     TypeNameFormatControl,
     TypeVerificationIsBooleanControl,

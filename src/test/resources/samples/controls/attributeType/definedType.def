@@ -1,0 +1,7 @@
+type NestedType {
+  name: String
+}
+
+type MyType {
+  nested: NestedType
+}

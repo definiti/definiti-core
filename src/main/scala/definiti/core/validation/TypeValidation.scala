@@ -11,13 +11,7 @@ private[core] trait TypeValidation {
   }
 
   protected def validateDefinedType(definedType: DefinedType): Validation = {
-    val attributeValidations = definedType.attributes.map(validateAttributeDefinition(_, definedType.genericTypes))
-    val verificationValidations = definedType.verifications.map(validateTypeVerification)
-    Validation.join(attributeValidations ++ verificationValidations)
-  }
-
-  private def validateAttributeDefinition(attribute: AttributeDefinition, genericTypes: Seq[String]): Validation = {
-    validateTypeReference(attribute.typeReference, genericTypes, attribute.location)
+    Validation.join(definedType.verifications.map(validateTypeVerification))
   }
 
   private def validateTypeVerification(verification: TypeVerification): Validation = {

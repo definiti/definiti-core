@@ -1,0 +1,5 @@
+type AliasString = String
+
+type MyType {
+  myAttribute: AliasString
+}

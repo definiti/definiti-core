@@ -9,7 +9,6 @@ private[core] class ASTValidation(
   val library: Library
 ) extends CommonValidation
   with ExpressionValidation
-  with NamedFunctionValidation
   with TypeValidation {
 
   val controls = new Controls(configuration)
@@ -32,7 +31,7 @@ private[core] class ASTValidation(
       case definedType: DefinedType => validateDefinedType(definedType)
       case aliasType: AliasType => validateAliasType(aliasType)
       case enum: Enum => validateEnum(enum)
-      case namedFunction: NamedFunction => validateNamedFunction(namedFunction)
+      case _: NamedFunction => Valid
       case extendedContext: ExtendedContext[_] => validateExtendedContext(extendedContext, library)
     }
   }

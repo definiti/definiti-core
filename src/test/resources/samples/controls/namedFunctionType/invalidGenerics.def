@@ -1,0 +1,3 @@
+def myFunction[A](input: List[A]): List[B] => {
+  input.reverse()
+}

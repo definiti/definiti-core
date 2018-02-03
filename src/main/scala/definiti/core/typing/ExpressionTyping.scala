@@ -77,12 +77,13 @@ private[core] class ExpressionTyping(context: Context) {
             ).flatMap { classReference =>
                 getMethodOpt(classReference.classDefinition, methodCall.method)(context) match {
                   case Some(methodDefinition) =>
+                    val typedMethodDefinition = considerTypeIntoMethodDefinition(methodDefinition, classReference)
                     ValidValue(MethodCall(
                       expression = expression,
                       method = methodCall.method,
                       parameters = parameters,
                       generics = methodCall.generics,
-                      returnType = methodDefinition.returnType,
+                      returnType = returnTypeOfMethod(typedMethodDefinition, parameters),
                       location = methodCall.location
                     ))
                   case None => Invalid(s"Unknown method ${typeReference.typeName}.${methodCall.method}", methodCall.location)
@@ -91,6 +92,66 @@ private[core] class ExpressionTyping(context: Context) {
           case _: LambdaReference => Invalid("Expected type, got lambda", expression.location)
         }
       }
+  }
+
+  private def considerTypeIntoMethodDefinition(methodDefinition: MethodDefinition, classReference: ClassReference): MethodDefinition = {
+    def adaptTypeReference(typeReference: TypeReference): TypeReference = {
+      if (classReference.classDefinition.genericTypes.contains(typeReference.typeName)) {
+        classReferenceToTypeReference(classReference.genericTypes(classReference.classDefinition.genericTypes.indexOf(typeReference.typeName)))
+      } else {
+        TypeReference(
+          typeName = typeReference.typeName,
+          genericTypes = typeReference.genericTypes.map(adaptTypeReference)
+        )
+      }
+    }
+
+    methodDefinition.copy(
+      parameters = methodDefinition.parameters.map { parameter =>
+        parameter.copy(
+          typeReference = parameter.typeReference match {
+            case typeReference: TypeReference => adaptTypeReference(typeReference)
+            case LambdaReference(inputTypes, outputType) => LambdaReference(inputTypes.map(adaptTypeReference), adaptTypeReference(outputType))
+            case namedFunctionReference: NamedFunctionReference => namedFunctionReference
+          }
+        )
+      },
+      returnType = adaptTypeReference(methodDefinition.returnType)
+    )
+  }
+
+  private def classReferenceToTypeReference(classReference: ClassReference): TypeReference = {
+    TypeReference(
+      typeName = classReference.classDefinition.canonicalName,
+      genericTypes = classReference.genericTypes.map(classReferenceToTypeReference)
+    )
+  }
+
+  private def returnTypeOfMethod(methodDefinition: MethodDefinition, parameters: Seq[Expression]): TypeReference = {
+    def process(typeReference: TypeReference): TypeReference = {
+      if (methodDefinition.genericTypes.contains(typeReference.typeName)) {
+        methodDefinition.parameters.zip(parameters)
+          .flatMap { case (parameterDefinition, parameterCall) =>
+            (parameterDefinition.typeReference, parameterCall, parameterCall.returnType) match {
+              case (TypeReference(typeName, _), _: Expression, returnType: TypeReference) if typeName == typeReference.typeName =>
+                Some(returnType)
+              case (LambdaReference(_, outputType), _: LambdaExpression, returnType: TypeReference) if outputType.typeName == typeReference.typeName =>
+                Some(returnType)
+              case _ =>
+                None
+            }
+          }
+          .headOption
+          .getOrElse(typeReference)
+      } else {
+        TypeReference(
+          typeName = typeReference.typeName,
+          genericTypes = typeReference.genericTypes.map(process)
+        )
+      }
+    }
+
+    process(methodDefinition.returnType)
   }
 
   def classReferenceFromTypeReference(reference: TypeReference, location: Location, messageBuilder: TypeReference => String): Validated[ClassReference] = {

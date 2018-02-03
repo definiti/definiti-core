@@ -1,9 +1,10 @@
 package definiti.core.validation.controls
 
 import definiti.core.ast._
+import definiti.core.validation.controls.helpers.TypeReferenceControlHelper
 import definiti.core.{Alert, AlertControl}
 
-object VerificationTypeControl extends Control {
+object VerificationTypeControl extends Control with TypeReferenceControlHelper{
   override def name: String = "verificationType"
 
   override def description: String = "Check if the type of the verification is valid"
@@ -31,23 +32,13 @@ object VerificationTypeControl extends Control {
   }
 
   private def controlTypeReference(typeReference: TypeReference, verification: Verification, location: Location, library: Library): ControlResult = {
-    def process(typeReference: TypeReference): Seq[Alert] = {
-      val typeNameAlerts = controlTypeName(typeReference.typeName)
-      val genericAlerts = typeReference.genericTypes.flatMap(process)
-      typeNameAlerts ++ genericAlerts
-    }
-
-    def controlTypeName(typeName: String): Seq[Alert] = {
-      if (library.typesMap.contains(typeName)) {
-        Seq.empty
-      } else if (verification.function.genericTypes.contains(typeName)) {
-        Seq.empty
-      } else {
-        Seq(errorUnknownType(typeName, verification.fullName, location))
-      }
-    }
-
-    ControlResult(process(typeReference))
+    controlTypeReference(
+      typeReference = typeReference,
+      elementName = verification.fullName,
+      availableGenerics = verification.function.genericTypes,
+      location = location,
+      library = library
+    )
   }
 
   def errorNoParameter(verification: Verification): Alert = {
@@ -62,14 +53,6 @@ object VerificationTypeControl extends Control {
     AlertControl(
       name,
       s"Unexpected type on verification ${verificationName}: ${typeReference.readableString}. Verifications must target classes.",
-      location
-    )
-  }
-
-  def errorUnknownType(typeName: String, verificationName: String, location: Location): Alert = {
-    AlertControl(
-      name,
-      s"Unknown type ${typeName} found in verification ${verificationName}",
       location
     )
   }

@@ -1,0 +1,31 @@
+def anyFunction(string: String): Boolean => {
+  string.length % ""
+}
+
+type MyType {
+  min: Date
+  max: Number
+
+  verify {
+    "Some test"
+    (value) => {
+      value.min * value.max + 1
+    }
+  }
+}
+
+type MyAlias = Number {
+  verify {
+    "Some test"
+    (value) => {
+      "" + value - value / ""
+    }
+  }
+}
+
+verification MyVerification {
+  "Some test"
+  (value: Number) => {
+    value - ""
+  }
+}

@@ -1,0 +1,3 @@
+type MyType = String
+
+type AliasMyType = MyType

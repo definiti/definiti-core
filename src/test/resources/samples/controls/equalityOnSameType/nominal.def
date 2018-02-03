@@ -1,0 +1,30 @@
+def anyFunction(string: String): Boolean => {
+  string == string.trim()
+}
+
+type MyType {
+  name: String
+
+  verify {
+    "Some test"
+    (value) => {
+      value.name.trim().nonEmpty() != (value.name.length >= 5)
+    }
+  }
+}
+
+type MyAlias = String {
+  verify {
+    "Some test"
+    (value) => {
+      value.length == 5
+    }
+  }
+}
+
+verification MyVerification {
+  "Some test"
+  (value: String) => {
+    value.length + 5 != 5
+  }
+}

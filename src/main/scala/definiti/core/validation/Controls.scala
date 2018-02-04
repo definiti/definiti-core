@@ -34,6 +34,7 @@ object Controls {
     EqualityOnSameTypeControl,
     LogicalOperandsAreBooleanControl,
     NamedFunctionTypeControl,
+    NotExpressionIsBooleanControl,
     OrderOperandsAreNumberControl,
     TypeNameFormatControl,
     TypeVerificationIsBooleanControl,

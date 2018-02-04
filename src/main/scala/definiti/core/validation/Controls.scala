@@ -32,6 +32,7 @@ object Controls {
     CalculatorOperandsAreNumberControl,
     EnumerationUniquenessControl,
     EqualityOnSameTypeControl,
+    FunctionParametersControl,
     LogicalOperandsAreBooleanControl,
     MethodParametersControl,
     NamedFunctionTypeControl,

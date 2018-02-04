@@ -58,4 +58,24 @@ trait TypeReferenceControlHelper {
       case _ => false
     }
   }
+
+  def areTypeEqual(expectedType: AbstractTypeReference, gotType: AbstractTypeReference): Boolean = {
+    expectedType == gotType
+  }
+
+  def controlTypeEquality(expectedType: AbstractTypeReference, gotType: AbstractTypeReference, location: Location): ControlResult = {
+    if (areTypeEqual(expectedType, gotType)) {
+      OK
+    } else {
+      errorTypeEquality(expectedType, gotType, location)
+    }
+  }
+
+  def errorTypeEquality(expected: AbstractTypeReference, got: AbstractTypeReference, location: Location): Alert = {
+    AlertControl(
+      name,
+      s"Expected type ${expected.readableString}, got ${got.readableString}",
+      location
+    )
+  }
 }

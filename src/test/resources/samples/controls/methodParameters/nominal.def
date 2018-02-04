@@ -1,0 +1,11 @@
+def anyFunction(string: String): Boolean => {
+  string.startsWith("prefix")
+}
+
+def anyFunctionLambda(list: List[String]): Boolean => {
+  list.forAll((string: String) => { string.startsWith("prefix") })
+}
+
+def anyFunctionReference(list: List[String]): Boolean => {
+  list.forAll(anyFunction)
+}

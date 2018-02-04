@@ -33,6 +33,7 @@ object Controls {
     EnumerationUniquenessControl,
     EqualityOnSameTypeControl,
     LogicalOperandsAreBooleanControl,
+    MethodParametersControl,
     NamedFunctionTypeControl,
     NotExpressionIsBooleanControl,
     OrderOperandsAreNumberControl,

@@ -1,7 +1,6 @@
 package definiti.core.validation.controls
 
-import definiti.core.Program
-import definiti.core.ProgramResult.NoResult
+import definiti.core.Alert
 import definiti.core.ast.{Library, Location, Root}
 
 trait Control {
@@ -19,6 +18,8 @@ trait Control {
   val ignored: ControlResult = ControlResult.OK
 
   def alert(message: String, location: Location): ControlResult = ControlResult.alert(name, message, location)
+
+  protected implicit def alertToControlResult(alert: Alert): ControlResult = ControlResult(alert)
 }
 
 object ControlLevel extends Enumeration {

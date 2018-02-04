@@ -9,12 +9,10 @@ trait LibrarySerialization {
 
   def libraryToJson(library: Library): String = {
     JsObject(
-      field("packages", library.packages),
-      field("verifications", library.verifications),
-      field("types", library.types),
-      field("attributes", library.attributes),
-      field("methods", library.methods),
-      field("namedFunctions", library.namedFunctions)
+      field("packages", library.namespacesMap),
+      field("verifications", library.verificationsMap),
+      field("types", library.typesMap),
+      field("namedFunctions", library.namedFunctionsMap)
     ).compactPrint
   }
 

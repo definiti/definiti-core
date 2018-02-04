@@ -27,7 +27,7 @@ object Generators {
   }
 
   def listDecreasingFrequencySize[A](min: Int, max: Int, gen: Gen[A]): Gen[List[A]] = {
-   decreasingFrequency(min, max).flatMap(numberOfElements => Gen.listOfN(numberOfElements, gen))
+    decreasingFrequency(min, max).flatMap(numberOfElements => Gen.listOfN(numberOfElements, gen))
   }
 
   lazy val anyBooleanText: Gen[String] = Gen.oneOf("true", "false")

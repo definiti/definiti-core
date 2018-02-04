@@ -1,0 +1,30 @@
+def anyFunction(string: String): Boolean => {
+  !string
+}
+
+type MyType {
+  name: String
+
+  verify {
+    "Some test"
+    (value) => {
+      !value.name.nonEmpty()
+    }
+  }
+}
+
+type MyAlias = String {
+  verify {
+    "Some test"
+    (value) => {
+      !5
+    }
+  }
+}
+
+verification MyVerification {
+  "Some test"
+  (value: String) => {
+    !value.length
+  }
+}

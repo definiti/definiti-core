@@ -2,6 +2,7 @@ package definiti.core
 
 import java.nio.file.Path
 
+import definiti.core.ProgramResult.NoResult
 import definiti.core.ast.pure.PureRoot
 import definiti.core.ast.{Library, Location, Root}
 
@@ -14,7 +15,7 @@ trait ParserPlugin extends Plugin {
 }
 
 trait ValidatorPlugin extends Plugin {
-  def validate(root: Root, library: Library): Validation
+  def validate(root: Root, library: Library): Validated[NoResult]
 }
 
 trait GeneratorPlugin extends Plugin {
@@ -26,7 +27,7 @@ trait ContextPlugin[A] extends Plugin {
 
   def parse(content: String, location: Location): A
 
-  def validate(context: A, library: Library): Validation
+  def validate(context: A, library: Library): Validated[NoResult]
 
   def contextToJson(context: A): String
 

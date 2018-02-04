@@ -1,7 +1,7 @@
 package definiti.core.end2end
 
-import definiti.core.ValidValue
-import definiti.core.ValidationMatchers._
+import definiti.core.Ok
+import definiti.core.ProgramResultMatchers._
 import definiti.core.ast._
 
 class AliasTypeSpec extends EndToEndSpec {
@@ -9,18 +9,18 @@ class AliasTypeSpec extends EndToEndSpec {
 
   "Project.generatePublicAST" should "generate the AST with an alias containing generics" in {
     val output = processFile("aliasTypes.ListAlias")
-    output shouldBe valid[Root]
+    output shouldBe ok[Root]
   }
 
   it should "generate the AST with an inline verification" in {
-    val expected = ValidValue(inlineVerification)
+    val expected = Ok(inlineVerification)
     val output = processFile("aliasTypes.inline-verification")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 
   it should "invalid the AST when the inline verification is invalid" in {
     val output = processFile("aliasTypes.invalid-inline-verification")
-    output shouldBe invalid
+    output shouldBe ko[Root]
   }
 }
 
@@ -29,6 +29,7 @@ object AliasTypeSpec {
   val inlineVerification = Root(Seq(
     AliasType(
       name = "ListAlias",
+      fullName = "ListAlias",
       genericTypes = Seq("A"),
       alias = TypeReference("List", Seq(TypeReference("A"))),
       inherited = Seq.empty,

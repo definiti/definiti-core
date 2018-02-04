@@ -28,18 +28,18 @@ object ExpressionContextGenerator {
         )
       case n =>
         Gen.frequency(
-        100 -> anyStringExpressionContext,
-        100 -> anyNumberExpressionContext,
-        100 -> anyBooleanExpressionContext,
-        // For now, refuse variable expression because directly dependant of context
-        //100 -> anyVariableExpressionContext,
-        50 -> anyNotExpressionContext(n - 1),
-        20 -> anyParenthesisExpressionContext(n - 1),
-        12 -> anyAttributeCallExpressionContext(n - 1),
-        10 -> anyBinaryOperatorExpressionContext(n - 1),
-        10 -> anyMethodCallExpressionContext(n - 1),
-        5 -> anyConditionExpressionContext(n - 1)
-      )
+          100 -> anyStringExpressionContext,
+          100 -> anyNumberExpressionContext,
+          100 -> anyBooleanExpressionContext,
+          // For now, refuse variable expression because directly dependant of context
+          //100 -> anyVariableExpressionContext,
+          50 -> anyNotExpressionContext(n - 1),
+          20 -> anyParenthesisExpressionContext(n - 1),
+          12 -> anyAttributeCallExpressionContext(n - 1),
+          10 -> anyBinaryOperatorExpressionContext(n - 1),
+          10 -> anyMethodCallExpressionContext(n - 1),
+          5 -> anyConditionExpressionContext(n - 1)
+        )
     }
   }
 

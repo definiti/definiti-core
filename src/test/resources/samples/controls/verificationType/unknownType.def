@@ -1,0 +1,6 @@
+verification UnknownVerification {
+  "This verification does not target a known type"
+  (unknown: Unknown) => {
+    true
+  }
+}

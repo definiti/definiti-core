@@ -2,6 +2,7 @@ package definiti.core.plugin
 
 import java.nio.file.Path
 
+import definiti.core.ProgramResult.NoResult
 import definiti.core._
 import definiti.core.ast.pure.PureRoot
 import definiti.core.ast.{Library, Root}
@@ -17,7 +18,7 @@ class ParserCommandPlugin(command: String, jsonSerialization: JsonSerialization)
 
   override def transform(root: PureRoot): Validated[PureRoot] = {
     Command.execute(commandPath, "transform", jsonSerialization.pureRootToJson(root)) match {
-      case CommandResult(0, out, _) => ValidValue(jsonSerialization.pureRootFromJson(out))
+      case CommandResult(0, out, _) => Valid(jsonSerialization.pureRootFromJson(out))
       case CommandResult(_, out, _) => jsonSerialization.invalidFromJson(out)
     }
   }
@@ -28,9 +29,9 @@ class ValidatorCommandPlugin(command: String, jsonSerialization: JsonSerializati
 
   private val commandPath: String = if (command.startsWith("./")) command else s"./${command}"
 
-  override def validate(root: Root, library: Library): Validation = {
+  override def validate(root: Root, library: Library): Validated[NoResult] = {
     Command.execute(commandPath, "validate", jsonSerialization.rootToJson(root), jsonSerialization.libraryToJson(library)) match {
-      case CommandResult(0, _, _) => Valid
+      case CommandResult(0, _, _) => Valid(NoResult)
       case CommandResult(_, out, _) => jsonSerialization.invalidFromJson(out)
     }
   }

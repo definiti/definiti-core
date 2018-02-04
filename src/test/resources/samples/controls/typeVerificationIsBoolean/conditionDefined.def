@@ -1,0 +1,14 @@
+type InvalidCondition {
+  name: String
+
+  verify {
+    "This verification is invalid because does not return the same type on if and else so not a boolean"
+    (value) => {
+      if (value.name.trim().nonEmpty()) {
+        value.name.length
+      } else {
+        value.name.nonEmpty()
+      }
+    }
+  }
+}

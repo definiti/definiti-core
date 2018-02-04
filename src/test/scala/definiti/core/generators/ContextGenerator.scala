@@ -37,7 +37,9 @@ object ContextGenerator {
   @tailrec
   def makeUnique(name: String, context: ReferenceContext): String = {
     def existsClassWithName = context.classes.exists(_.canonicalName == name)
+
     def existsVerificationWithName = context.verifications.exists(_.canonicalName == name)
+
     if (existsClassWithName || existsVerificationWithName) {
       val char = Gen.alphaNumChar.sample.getOrElse('a')
       makeUnique(name + char, context)

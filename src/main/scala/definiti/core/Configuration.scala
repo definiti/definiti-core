@@ -7,6 +7,7 @@ import com.typesafe.scalalogging.Logger
 import definiti.core.plugin.serialization.JsonSerialization
 import definiti.core.plugin.{GeneratorCommandPlugin, ParserCommandPlugin, ValidatorCommandPlugin}
 import definiti.core.utils.CollectionUtils._
+import definiti.core.validation.{ControlLevel, Controls}
 
 import scala.util.{Failure, Success, Try}
 
@@ -22,6 +23,18 @@ trait Configuration {
   def generators: Seq[GeneratorPlugin]
 
   def contexts: Seq[ContextPlugin[_]]
+
+  def controlLevel: ControlLevel.Value
+
+  def fatalLevel: ControlLevel.Value
+
+  def userFlags: Map[String, ControlLevel.Value]
+
+  lazy val controlLevels: Map[String, ControlLevel.Value] = {
+    Controls.all
+      .map { control => control.name -> userFlags.getOrElse(control.name, control.defaultLevel) }
+      .toMap
+  }
 }
 
 private[core] class FileConfiguration(externalConfig: Config) extends Configuration {
@@ -45,6 +58,20 @@ private[core] class FileConfiguration(externalConfig: Config) extends Configurat
   lazy val generators: Seq[GeneratorPlugin] = generateInstancesOf(classOf[GeneratorPlugin], "generators")
 
   lazy val contexts: Seq[ContextPlugin[_]] = generateInstancesOf(classOf[ContextPlugin[_]], "contexts")
+
+  lazy val controlLevel: ControlLevel.Value = getEnumeration("controlLevel", ControlLevel, ControlLevel.warning)
+
+  lazy val fatalLevel: ControlLevel.Value = getEnumeration("fatalLevel", ControlLevel, ControlLevel.error)
+
+  lazy val userFlags: Map[String, ControlLevel.Value] = extractMap("flags").flatMap { case (key, value) =>
+    ControlLevel.fromString(value) match {
+      case Some(level) =>
+        Some(key -> level)
+      case _ =>
+        logger.warn(s"Unknown level ${value} for control ${key}, ignored")
+        None
+    }
+  }
 
   private def getPathOrElse(configurationPath: String, defaultValue: => Path): Path = {
     if (config.hasPath(configurationPath)) {
@@ -123,6 +150,24 @@ private[core] class FileConfiguration(externalConfig: Config) extends Configurat
       scalaSeq(config.getStringList(configurationKey))
     } else {
       Seq.empty
+    }
+  }
+
+  private def extractMap(configurationKey: String): Map[String, String] = {
+    val configurationMap = config.getConfig(configurationKey)
+    scalaSeq(configurationMap.entrySet())
+      .map(_.getKey)
+      .map(key => key -> configurationMap.getString(key))
+      .toMap
+  }
+
+  private def getEnumeration[A <: Enumeration](path: String, enumeration: A, defaultValue: A#Value): A#Value = {
+    val stringValue = getStringOrElse(path, defaultValue.toString)
+    enumeration.values.find(_.toString == stringValue) match {
+      case Some(value) => value
+      case None =>
+        logger.warn(s"Unknown value ${stringValue} for ${path}, ignored")
+        defaultValue
     }
   }
 }

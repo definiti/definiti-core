@@ -1,7 +1,7 @@
 package definiti.core.structure
 
-import definiti.core.ast.typed.TypedRootFile
 import definiti.core.ast._
+import definiti.core.ast.typed.TypedRootFile
 import definiti.core.utils.StringUtils
 
 private[core] class ProjectStructure(root: typed.TypedRoot) {
@@ -39,13 +39,13 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     val subPackages = subPackageNames.map(subPackageName => buildPackage(s"${packageName}.${subPackageName}"))
 
     val packageElements = Seq(elementsOfFiles ++ subPackages: _*)
-    Namespace(StringUtils.lastPart(packageName, '.'), packageName, packageElements)
+    Namespace(StringUtils.lastPart(packageName), packageName, packageElements)
   }
 
   private def packageElementsOfFile(rootFile: TypedRootFile): Seq[NamespaceElement] = {
-    val verifications = rootFile.verifications.map(transformVerification)
-    val classDefinition = rootFile.classDefinitions.flatMap(transformClassDefinition)
-    val namedFunctions = rootFile.namedFunctions.map(transformNamedFunction)
+    val verifications = rootFile.verifications.map(transformVerification(_, rootFile.packageName))
+    val classDefinition = rootFile.classDefinitions.flatMap(transformClassDefinition(_, rootFile.packageName))
+    val namedFunctions = rootFile.namedFunctions.map(transformNamedFunction(_, rootFile.packageName))
     val extendedContexts = rootFile.contexts.map(transformExtendedContext(_))
 
     Seq(verifications ++ classDefinition ++ namedFunctions ++ extendedContexts: _*)
@@ -71,9 +71,10 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     directSubPackageNames
   }
 
-  private def transformVerification(verification: typed.TypedVerification): Verification = {
+  private def transformVerification(verification: typed.TypedVerification, namespace: String): Verification = {
     Verification(
       name = verification.name,
+      fullName = if (namespace.nonEmpty) namespace + "." + verification.name else verification.name,
       message = verification.message,
       function = verification.function,
       comment = verification.comment,
@@ -81,18 +82,19 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     )
   }
 
-  private def transformClassDefinition(classDefinition: typed.TypedClassDefinition): Option[ClassDefinition] = {
+  private def transformClassDefinition(classDefinition: typed.TypedClassDefinition, namespace: String): Option[ClassDefinition] = {
     classDefinition match {
       case _: typed.TypedNativeClassDefinition => None
-      case definedType: typed.TypedDefinedType => Some(transformDefinedType(definedType))
-      case aliasType: typed.TypedAliasType => Some(transformAliasType(aliasType))
-      case enum: typed.TypedEnum => Some(transformEnum(enum))
+      case definedType: typed.TypedDefinedType => Some(transformDefinedType(definedType, namespace))
+      case aliasType: typed.TypedAliasType => Some(transformAliasType(aliasType, namespace))
+      case enum: typed.TypedEnum => Some(transformEnum(enum, namespace))
     }
   }
 
-  private def transformDefinedType(definedType: typed.TypedDefinedType): DefinedType = {
+  private def transformDefinedType(definedType: typed.TypedDefinedType, namespace: String): DefinedType = {
     DefinedType(
       name = definedType.name,
+      fullName = if (namespace.nonEmpty) s"${namespace}.${definedType.name}" else definedType.name,
       genericTypes = definedType.genericTypes,
       attributes = definedType.attributes,
       verifications = definedType.verifications,
@@ -102,9 +104,10 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     )
   }
 
-  private def transformAliasType(aliasType: typed.TypedAliasType): AliasType = {
+  private def transformAliasType(aliasType: typed.TypedAliasType, namespace: String): AliasType = {
     AliasType(
       name = aliasType.name,
+      fullName = if (namespace.nonEmpty) s"${namespace}.${aliasType.name}" else aliasType.name,
       genericTypes = aliasType.genericTypes,
       alias = aliasType.alias,
       verifications = aliasType.verifications,
@@ -114,9 +117,10 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     )
   }
 
-  private def transformEnum(enum: typed.TypedEnum): Enum = {
+  private def transformEnum(enum: typed.TypedEnum, namespace: String): Enum = {
     Enum(
       name = enum.name,
+      fullName = if (namespace.nonEmpty) s"${namespace}.${enum.name}" else enum.name,
       cases = enum.cases.map { enumCase =>
         EnumCase(
           name = enumCase.name,
@@ -129,9 +133,10 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     )
   }
 
-  private def transformNamedFunction(namedFunction: typed.TypedNamedFunction): NamedFunction = {
+  private def transformNamedFunction(namedFunction: typed.TypedNamedFunction, namespace: String): NamedFunction = {
     NamedFunction(
       name = namedFunction.name,
+      fullName = if (namespace.nonEmpty) s"${namespace}.${namedFunction.name}" else namedFunction.name,
       genericTypes = namedFunction.genericTypes,
       parameters = namedFunction.parameters,
       returnType = namedFunction.returnType,

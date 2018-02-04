@@ -2,15 +2,12 @@ package definiti.core.linking
 
 import definiti.core.ast._
 import definiti.core.ast.pure._
-import definiti.core.parser.ProjectParsingResult
 import definiti.core.utils.StringUtils
 
 private[core] object ProjectLinking {
-  def injectLinks(projectParsingResult: ProjectParsingResult): ProjectParsingResult = {
-    val coreTypeMapping = extractTypeMappingFromCore(projectParsingResult.core)
-    projectParsingResult.copy(
-      root = injectLinksIntoRoot(projectParsingResult.root, coreTypeMapping)
-    )
+  def injectLinks(root: PureRoot, core: Seq[PureClassDefinition]): PureRoot = {
+    val coreTypeMapping = extractTypeMappingFromCore(core)
+    injectLinksIntoRoot(root, coreTypeMapping)
   }
 
   def extractTypeMappingFromCore(core: Seq[PureClassDefinition]): TypeMapping = {

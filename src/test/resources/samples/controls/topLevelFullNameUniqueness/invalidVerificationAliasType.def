@@ -1,0 +1,8 @@
+verification Duplicated {
+  "Duplicated"
+  (string: String) => {
+    string.nonEmpty()
+  }
+}
+
+type Duplicated = String

@@ -1,0 +1,3 @@
+def myFunction(): String => {
+  "A simple string"
+}

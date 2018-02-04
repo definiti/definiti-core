@@ -12,6 +12,14 @@ private[core] object CollectionUtils {
     }
   }
 
+  def scalaSeq[A](set: java.util.Set[A]): Seq[A] = {
+    if (set != null) {
+      set.asScala.toList
+    } else {
+      Seq.empty
+    }
+  }
+
   def scalaSeq[A](stream: java.util.stream.Stream[A]): Seq[A] = {
     if (stream != null) {
       val buffer = ListBuffer[A]()

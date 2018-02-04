@@ -1,0 +1,3 @@
+def anyFunction(list: List[String]): Boolean => {
+  list.forAll((number: Number) => { number == 0 })
+}

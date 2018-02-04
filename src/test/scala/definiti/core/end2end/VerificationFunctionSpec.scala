@@ -1,16 +1,16 @@
 package definiti.core.end2end
 
-import definiti.core.ValidValue
-import definiti.core.ValidationMatchers.beValidated
+import definiti.core.Ok
+import definiti.core.ProgramResultMatchers._
 import definiti.core.ast._
 
 class VerificationFunctionSpec extends EndToEndSpec {
   import VerificationFunctionSpec._
 
   "Project.generatePublicAST" should "generate the AST with verification calling functions in same file" in {
-    val expected = ValidValue(validVerificationFunction)
+    val expected = Ok(validVerificationFunction)
     val output = processFile("verificationFunction.verificationFunction")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 }
 
@@ -26,6 +26,7 @@ object VerificationFunctionSpec {
       elements = Seq(
         Verification(
           name = "IsStrongPassword",
+          fullName = "verificationFunction.IsStrongPassword",
           message = "The password is too simple",
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition(
@@ -58,6 +59,7 @@ object VerificationFunctionSpec {
         ),
         NamedFunction(
           name = "passwordScore",
+          fullName = "verificationFunction.passwordScore",
           genericTypes = Seq.empty,
           parameters = Seq(ParameterDefinition("string", TypeReference("String"), verificationFunctionLocation(10, 19, 33))),
           returnType = TypeReference("Number"),
@@ -83,6 +85,7 @@ object VerificationFunctionSpec {
         ),
         NamedFunction(
           name = "scoreSpecialCharacter",
+          fullName = "verificationFunction.scoreSpecialCharacter",
           genericTypes = Seq.empty,
           parameters = Seq(ParameterDefinition("string", TypeReference("String"), verificationFunctionLocation(14, 27, 41))),
           returnType = TypeReference("Number"),

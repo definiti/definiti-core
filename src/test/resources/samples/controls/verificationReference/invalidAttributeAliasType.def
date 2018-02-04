@@ -1,0 +1,5 @@
+type Name = String
+
+type MyType {
+  name: Name verifying Unknown
+}

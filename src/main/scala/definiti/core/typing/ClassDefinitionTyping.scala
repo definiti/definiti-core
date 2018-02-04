@@ -3,15 +3,15 @@ package definiti.core.typing
 import definiti.core.ast._
 import definiti.core.ast.pure._
 import definiti.core.ast.typed._
-import definiti.core.{Context, DefinedFunctionContext, ValidValue, Validated}
+import definiti.core.{Context, DefinedFunctionContext, Valid, Validated}
 
 private[core] class ClassDefinitionTyping(context: Context) {
   def addTypesIntoClassDefinition(classDefinition: PureClassDefinition): Validated[TypedClassDefinition] = {
     classDefinition match {
-      case native: PureNativeClassDefinition => ValidValue(transformNativeClassDefinition(native))
+      case native: PureNativeClassDefinition => Valid(transformNativeClassDefinition(native))
       case definedType: PureDefinedType => addTypesIntoDefinedType(definedType)
       case aliasType: PureAliasType => addTypesIntoAliasType(aliasType)
-      case enum: PureEnum => ValidValue(transformEnum(enum))
+      case enum: PureEnum => Valid(transformEnum(enum))
     }
   }
 

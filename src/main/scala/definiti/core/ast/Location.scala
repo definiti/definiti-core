@@ -5,7 +5,7 @@ case class Location(
   range: Range
 ) {
   def prettyPrint: String = {
-    s"$file:$range"
+    s"$file:${range.prettyPrint}"
   }
 }
 
@@ -20,7 +20,7 @@ case class Range(
   end: Position
 ) {
   def prettyPrint: String = {
-    s"[${start.prettyPrint}, ${end.prettyPrint}]"
+    s"${start.prettyPrint}-${end.prettyPrint}"
   }
 }
 
@@ -37,7 +37,7 @@ case class Position(
   column: Int
 ) {
   def prettyPrint: String = {
-    s"$line-$column"
+    s"$line:$column"
   }
 }
 

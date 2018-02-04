@@ -1,16 +1,16 @@
 package definiti.core.end2end
 
-import definiti.core.ValidValue
-import definiti.core.ValidationMatchers.beValidated
+import definiti.core.Ok
+import definiti.core.ProgramResultMatchers._
 import definiti.core.ast._
 
 class VerificationSpec extends EndToEndSpec {
   import VerificationSpec._
 
   "Project.generatePublicAST" should "generate the AST for a valid verification with a generic" in {
-    val expected = ValidValue(validNonEmptyList)
+    val expected = Ok(validNonEmptyList)
     val output = processFile("verification.NonEmptyList")
-    output should beValidated[Root](expected)
+    output should beResult[Root](expected)
   }
 }
 
@@ -22,6 +22,7 @@ object VerificationSpec {
   val validNonEmptyList = Root(Seq(
     Verification(
       name = "NonEmptyList",
+      fullName = "NonEmptyList",
       message = "The list should not be empty",
       function = DefinedFunction(
         parameters = Seq(ParameterDefinition("list", TypeReference("List", Seq(TypeReference("A"))), nonEmptyListLocation(3, 7, 20))),

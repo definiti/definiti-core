@@ -1,0 +1,6 @@
+verification NonEmptyString {
+  "The string should not be empty"
+  (string: String) => {
+    string.nonEmpty()
+  }
+}

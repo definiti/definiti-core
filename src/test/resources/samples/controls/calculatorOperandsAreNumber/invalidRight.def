@@ -1,0 +1,3 @@
+def anyFunction(string: String): Boolean => {
+  string.length % string.trim()
+}

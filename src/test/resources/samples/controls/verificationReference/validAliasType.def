@@ -1,0 +1,8 @@
+type MyType = String verifying MyTypeVerification
+
+verification MyTypeVerification {
+  "Some message"
+  (myType: MyType) => {
+    true
+  }
+}

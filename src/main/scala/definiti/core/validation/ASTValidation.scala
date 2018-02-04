@@ -1,38 +1,28 @@
 package definiti.core.validation
 
-import definiti.core.ast._
+import definiti.core.ProgramResult.NoResult
 import definiti.core._
+import definiti.core.ast._
 
-private[core] class ASTValidation(
-  val configuration: Configuration,
-  val library: Library
-) extends CommonValidation
-  with ExpressionValidation
-  with NamedFunctionValidation
-  with TypeValidation
-  with VerificationValidation {
+private[core] class ASTValidation(configuration: Configuration, library: Library) {
+  val controls = new Controls(configuration)
 
-  def validate(root: Root): Validation = {
-    Validation.join(root.elements.map(validatePackageElement))
+  def validate(root: Root): Program[NoResult] = {
+    for {
+      _ <- controls.validate(root, library)
+      _ <- Program.validated(validateExtendedContexts())
+    } yield NoResult
   }
 
-  def validatePackage(thePackage: Namespace): Validation = {
-    Validation.join(thePackage.elements.map(validatePackageElement))
+  private def validateExtendedContexts(): Validated[NoResult] = {
+    Validated.squash {
+      library.namespaces.flatMap(_.elements).collect {
+        case extendedContext: ExtendedContext[_] => validateExtendedContext(extendedContext, library)
+      }
+    }.map(_ => NoResult)
   }
 
-  def validatePackageElement(element: NamespaceElement): Validation = {
-    element match {
-      case subPackage: Namespace => validatePackage(subPackage)
-      case verification: Verification => validateVerification(verification)
-      case definedType: DefinedType => validateDefinedType(definedType)
-      case aliasType: AliasType => validateAliasType(aliasType)
-      case enum: Enum => validateEnum(enum)
-      case namedFunction: NamedFunction => validateNamedFunction(namedFunction)
-      case extendedContext: ExtendedContext[_] => validateExtendedContext(extendedContext, library)
-    }
-  }
-
-  def validateExtendedContext[A](context: ExtendedContext[A], library: Library): Validation = {
+  def validateExtendedContext[A](context: ExtendedContext[A], library: Library): Validated[NoResult] = {
     configuration.contexts
       .find(_.contextName == context.name)
       .map { contextPlugin =>
@@ -40,6 +30,6 @@ private[core] class ASTValidation(
         contextPlugin.asInstanceOf[ContextPlugin[A]]
           .validate(context.content, library)
       }
-      .getOrElse(Valid)
+      .getOrElse(Valid(NoResult))
   }
 }

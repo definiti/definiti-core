@@ -1,0 +1,6 @@
+verification Valid {
+  "This verification is valid"
+  (value: String) => {
+    value.nonEmpty()
+  }
+}

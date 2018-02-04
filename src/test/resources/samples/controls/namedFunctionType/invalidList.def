@@ -1,0 +1,3 @@
+def myFunction(input: List[String]): List[String] => {
+  input.map((value: String) => {value.length})
+}

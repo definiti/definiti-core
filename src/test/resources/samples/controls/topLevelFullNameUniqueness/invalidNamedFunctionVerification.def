@@ -1,0 +1,10 @@
+def Duplicated(): Boolean => {
+  true
+}
+
+verification Duplicated {
+  "Duplicated"
+  (string: String) => {
+    string.nonEmpty()
+  }
+}

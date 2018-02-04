@@ -1,0 +1,7 @@
+def anyFunction(string: String): Number => {
+  if (string.nonEmpty() - string.trim()) {
+    1
+  } else {
+    2
+  }
+}

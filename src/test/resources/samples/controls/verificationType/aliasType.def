@@ -1,0 +1,8 @@
+type MyType = String
+
+verification MyTypeVerification {
+  "MyType should not be empty"
+  (myType: MyType) => {
+    myType.nonEmpty()
+  }
+}

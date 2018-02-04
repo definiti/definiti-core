@@ -20,6 +20,7 @@ object AntlrGenerator {
   lazy val anyIdentifierToken: Gen[Token] = genToken(Generators.anyIdentifier)
 
   def anyIdentifierNodeWithText(text: String): Gen[TerminalNode] = genNode(anyIdentifierTokenWithText(text))
+
   def anyIdentifierTokenWithText(text: String): Gen[Token] = genToken(Gen.const(text))
 
   lazy val anyBinaryOperatorNode: Gen[TerminalNode] = genNode(anyBinaryOperatorToken)

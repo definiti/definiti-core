@@ -1,0 +1,8 @@
+type Name {
+  first: String
+  last: String
+}
+
+type MyType {
+  name: Name verifying Unknown
+}

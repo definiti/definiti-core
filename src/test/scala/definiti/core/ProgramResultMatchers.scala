@@ -29,7 +29,9 @@ trait ProgramResultMatchers {
 
   def ko[A] = a[Ko[A]]
 
-  def beKo(alerts: Alert*) = beResult[Root](Ko[Root](alerts))
+  def beKo(alerts: Seq[Alert]): ProgramResultMatcher[Root] = beResult[Root](Ko[Root](alerts))
+
+  def beKo(alerts: Alert*)(implicit dummyImplicit: DummyImplicit): ProgramResultMatcher[Root] = beKo(alerts)
 }
 
 object ProgramResultMatchers extends ProgramResultMatchers

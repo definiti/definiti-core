@@ -1,0 +1,7 @@
+type Duplicated {
+  name: String
+}
+
+def Duplicated(): Boolean => {
+  true
+}

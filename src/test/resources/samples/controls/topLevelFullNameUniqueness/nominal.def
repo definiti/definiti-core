@@ -1,0 +1,16 @@
+type MyType {
+  name: String
+}
+
+type MyAlias = String
+
+def myFunction(): Boolean => {
+  true
+}
+
+verification MyVerification {
+  "Some verification"
+  (string: String) => {
+    string.nonEmpty()
+  }
+}

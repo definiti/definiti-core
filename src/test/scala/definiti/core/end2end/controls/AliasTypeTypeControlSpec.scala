@@ -37,6 +37,5 @@ object AliasTypeTypeControlSpec {
 
   val configuration = configurationForceControls(AliasTypeTypeControl.name)
 
-  val unknownTypeSrc = "src/test/resources/samples/controls/aliasTypeType/unknownType.def"
-  val unknownTypeLocation = LocationPath(unknownTypeSrc)
+  val unknownTypeLocation = LocationPath.control(AliasTypeTypeControl.name, "unknownType")
 }

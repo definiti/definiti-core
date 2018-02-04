@@ -1,7 +1,8 @@
 package definiti.core
 
+import definiti.core.ProgramResult.NoResult
 import definiti.core.ast.Location
-import definiti.core.validation.controls.{ControlLevel, ControlResult}
+import definiti.core.validation.{ControlLevel, ControlResult}
 import org.scalatest.{FlatSpec, Matchers}
 
 class ProgramSpec extends FlatSpec with Matchers {
@@ -46,7 +47,7 @@ class ProgramSpec extends FlatSpec with Matchers {
   it should "pass through valid validations" in {
     val program = for {
       start <- Program(1)
-      validation <- Program.validated(ValidValue(start + 2))
+      validation <- Program.validated(Valid(start + 2))
     } yield validation
     program.run(configuration) should ===(Ok(3))
   }
@@ -54,7 +55,7 @@ class ProgramSpec extends FlatSpec with Matchers {
   it should "be blocked by invalid validations" in {
     val program = for {
       _ <- Program(1)
-      validation <- Program.validation(Invalid("This is an error", anyLocation))
+      validation <- Program.validated[NoResult](Invalid("This is an error", anyLocation))
     } yield validation
     program.run(configuration) should ===(Ko(Seq(AlertLocation("This is an error", anyLocation))))
   }

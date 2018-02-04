@@ -125,7 +125,7 @@ object ASTGenerator {
 
   lazy val anyIdentifier: Gen[String] = Gen.alphaNumStr
 
-  lazy val  anyPackageName: Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
+  lazy val anyPackageName: Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
 
   lazy val anyDottedIdentifier: Gen[String] = Gen.listOf(Gen.frequency((1, '.'), (10, Gen.alphaNumChar))).map(_.mkString)
 
@@ -164,6 +164,7 @@ object ASTGenerator {
 
   def makeNonReferenced(name: String)(implicit context: ReferenceContext): String = {
     val forbiddenNames = context.verifications.map(_.canonicalName) ++ context.classes.map(_.canonicalName)
+
     @tailrec def process(currentName: String): String = {
       if (forbiddenNames.contains(currentName)) {
         process(currentName + Gen.alphaNumChar.sample.getOrElse('a'))
@@ -171,6 +172,7 @@ object ASTGenerator {
         currentName
       }
     }
+
     process(name)
   }
 

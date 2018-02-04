@@ -12,7 +12,6 @@ trait LibrarySerialization {
       field("packages", library.namespacesMap),
       field("verifications", library.verificationsMap),
       field("types", library.typesMap),
-      field("methods", library.methodsMap),
       field("namedFunctions", library.namedFunctionsMap)
     ).compactPrint
   }

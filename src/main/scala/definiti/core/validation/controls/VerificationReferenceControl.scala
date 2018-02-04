@@ -1,14 +1,12 @@
 package definiti.core.validation.controls
 
+import definiti.core.Alert
 import definiti.core.ast._
-import definiti.core.{Alert, AlertControl}
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
 
 object VerificationReferenceControl extends Control {
-  override def name: String = "verificationReference"
-
-  override def description: String = "Check if all verification references are valid (name and type)"
-
-  override def defaultLevel: ControlLevel.Value = ControlLevel.error
+  override val description: String = "Check if all verification references are valid (name and type)"
+  override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     ControlResult.squash {
@@ -68,16 +66,11 @@ object VerificationReferenceControl extends Control {
   }
 
   def errorUndefined(verificationName: String, location: Location): Alert = {
-    AlertControl(
-      name,
-      s"Undefined verification: ${verificationName}",
-      location
-    )
+    alert(s"Undefined verification: ${verificationName}", location)
   }
 
   def errorInvalidType(typeName: String, verificationName: String, targetType: TypeReference, location: Location): Alert = {
-    AlertControl(
-      name,
+    alert(
       s"Type ${typeName} inherit verification ${verificationName} which accept another type: ${targetType.readableString}",
       location
     )

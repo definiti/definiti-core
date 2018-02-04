@@ -1,7 +1,7 @@
 package definiti.core.end2end
 
-import definiti.core._
 import definiti.core.ProgramResultMatchers._
+import definiti.core._
 import definiti.core.ast._
 
 class NamedFunctionSpec extends EndToEndSpec {

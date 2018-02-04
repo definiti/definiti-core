@@ -1,8 +1,8 @@
 package definiti.core.end2end
 
-import definiti.core.ast._
+import definiti.core.ProgramResultMatchers._
 import definiti.core._
-import ProgramResultMatchers._
+import definiti.core.ast._
 
 class NominalSpec extends EndToEndSpec {
   import NominalSpec._

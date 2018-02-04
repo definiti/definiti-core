@@ -1,7 +1,6 @@
 package definiti.core.parser.project
 
-import definiti.core.ConfigurationMock
-import definiti.core._
+import definiti.core.{ConfigurationMock, _}
 import definiti.core.ast._
 import definiti.core.ast.pure._
 import definiti.core.generators.antlr.NamedFunctionContextGenerator

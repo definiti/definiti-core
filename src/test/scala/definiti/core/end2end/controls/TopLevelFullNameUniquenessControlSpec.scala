@@ -63,8 +63,8 @@ object TopLevelFullNameUniquenessControlSpec {
 
   val configuration = configurationForceControls(TopLevelFullNameUniquenessControl.name)
 
-  val invalidTwoDefinedTypesLocation = LocationPath("src/test/resources/samples/controls/topLevelFullNameUniqueness/invalidTwoDefinedTypes.def")
-  val invalidDefinedTypeNamedFunctionLocation = LocationPath("src/test/resources/samples/controls/topLevelFullNameUniqueness/invalidDefinedTypeNamedFunction.def")
-  val invalidNamedFunctionVerificationLocation = LocationPath("src/test/resources/samples/controls/topLevelFullNameUniqueness/invalidNamedFunctionVerification.def")
-  val invalidVerificationAliasTypeLocation = LocationPath("src/test/resources/samples/controls/topLevelFullNameUniqueness/invalidVerificationAliasType.def")
+  val invalidTwoDefinedTypesLocation = LocationPath.control(TopLevelFullNameUniquenessControl.name, "invalidTwoDefinedTypes")
+  val invalidDefinedTypeNamedFunctionLocation = LocationPath.control(TopLevelFullNameUniquenessControl.name, "invalidDefinedTypeNamedFunction")
+  val invalidNamedFunctionVerificationLocation = LocationPath.control(TopLevelFullNameUniquenessControl.name, "invalidNamedFunctionVerification")
+  val invalidVerificationAliasTypeLocation = LocationPath.control(TopLevelFullNameUniquenessControl.name, "invalidVerificationAliasType")
 }

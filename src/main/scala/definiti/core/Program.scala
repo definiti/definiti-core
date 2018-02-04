@@ -1,8 +1,7 @@
 package definiti.core
 
 import definiti.core.ProgramResult.NoResult
-import definiti.core.validation.Controls
-import definiti.core.validation.controls.{ControlLevel, ControlResult}
+import definiti.core.validation.{ControlLevel, ControlResult, Controls}
 
 sealed trait Program[A] {
   def map[B](op: A => B): Program[B] = MapProgram(this, op)
@@ -17,10 +16,8 @@ sealed trait Program[A] {
 object Program {
   def apply[A](value: A): Program[A] = new PureProgram[A](value)
 
-  // TODO: Should remove validated and validation to keep only one thing
+  // TODO: Should remove validated to keep only one thing
   def validated[A](validated: Validated[A]): Program[A] = new ValidatedProgram[A](validated)
-
-  def validation(validation: Validation): Program[NoResult] = ValidationProgram(validation)
 
   def apply(result: ControlResult): Program[NoResult] = ControlResultProgram(result)
 
@@ -90,15 +87,7 @@ private[core] case class WithFilterProgram[A](program: Program[A], predicate: A 
 private[core] case class ValidatedProgram[A](validated: Validated[A]) extends Program[A] {
   override def run(configuration: Configuration): ProgramResult[A] = validated match {
     case Invalid(errors) => Ko(errors.map(Alert(_)))
-    case ValidValue(value) => Ok(value)
-    case Valid => Ok(NoResult).asInstanceOf[ProgramResult[A]]
-  }
-}
-
-private[core] case class ValidationProgram(validation: Validation) extends Program[NoResult] {
-  override def run(configuration: Configuration): ProgramResult[NoResult] = validation match {
-    case Invalid(errors) => Ko(errors.map(Alert(_)))
-    case Valid => Ok(NoResult)
+    case Valid(value) => Ok(value)
   }
 }
 

@@ -32,5 +32,5 @@ object NotExpressionIsBooleanControlSpec {
 
   val configuration = configurationForceControls(NotExpressionIsBooleanControl.name)
 
-  val invalidConditionLocation = LocationPath("src/test/resources/samples/controls/notExpressionIsBoolean/invalidCondition.def")
+  val invalidConditionLocation = LocationPath.control(NotExpressionIsBooleanControl.name, "invalidCondition")
 }

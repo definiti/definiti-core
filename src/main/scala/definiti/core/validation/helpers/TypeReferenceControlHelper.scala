@@ -1,8 +1,8 @@
-package definiti.core.validation.controls.helpers
+package definiti.core.validation.helpers
 
+import definiti.core.Alert
 import definiti.core.ast._
-import definiti.core.validation.controls.{Control, ControlResult}
-import definiti.core.{Alert, AlertControl}
+import definiti.core.validation.{Control, ControlResult}
 
 trait TypeReferenceControlHelper {
   self: Control =>
@@ -28,8 +28,7 @@ trait TypeReferenceControlHelper {
   }
 
   def errorUnknownType(typeName: String, elementName: String, location: Location): Alert = {
-    AlertControl(
-      name,
+    alert(
       s"Unknown type ${typeName} found in ${elementName}",
       location
     )
@@ -72,8 +71,7 @@ trait TypeReferenceControlHelper {
   }
 
   def errorTypeEquality(expected: AbstractTypeReference, got: AbstractTypeReference, location: Location): Alert = {
-    AlertControl(
-      name,
+    alert(
       s"Expected type ${expected.readableString}, got ${got.readableString}",
       location
     )

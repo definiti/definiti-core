@@ -7,7 +7,7 @@ import com.typesafe.scalalogging.Logger
 import definiti.core.plugin.serialization.JsonSerialization
 import definiti.core.plugin.{GeneratorCommandPlugin, ParserCommandPlugin, ValidatorCommandPlugin}
 import definiti.core.utils.CollectionUtils._
-import definiti.core.validation.controls.ControlLevel
+import definiti.core.validation.{ControlLevel, Controls}
 
 import scala.util.{Failure, Success, Try}
 
@@ -29,6 +29,12 @@ trait Configuration {
   def fatalLevel: ControlLevel.Value
 
   def userFlags: Map[String, ControlLevel.Value]
+
+  lazy val controlLevels: Map[String, ControlLevel.Value] = {
+    Controls.all
+      .map { control => control.name -> userFlags.getOrElse(control.name, control.defaultLevel) }
+      .toMap
+  }
 }
 
 private[core] class FileConfiguration(externalConfig: Config) extends Configuration {

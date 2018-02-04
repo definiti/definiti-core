@@ -31,7 +31,7 @@ private[core] class ProjectParser(configuration: Configuration) {
     if (errorListener.hasError) {
       Invalid(errorListener.errors.map(_.toError))
     } else {
-      ValidValue(new DefinitiASTParser(source, configuration).definitiContextToAST(result))
+      Valid(new DefinitiASTParser(source, configuration).definitiContextToAST(result))
     }
   }
 }

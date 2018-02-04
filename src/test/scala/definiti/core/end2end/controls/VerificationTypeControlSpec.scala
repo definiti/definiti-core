@@ -38,6 +38,5 @@ object VerificationTypeControlSpec {
 
   val configuration = configurationForceControls(VerificationTypeControl.name)
 
-  val unknownTypeSrc = "src/test/resources/samples/controls/verificationType/unknownType.def"
-  val unknownTypeLocation = LocationPath(unknownTypeSrc)
+  val unknownTypeLocation = LocationPath.control(VerificationTypeControl.name, "unknownType")
 }

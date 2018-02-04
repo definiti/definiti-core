@@ -1,15 +1,13 @@
 package definiti.core.validation.controls
 
+import definiti.core.Alert
 import definiti.core.ast._
-import definiti.core.validation.controls.helpers.{ExpressionControlHelper, TypeReferenceControlHelper}
-import definiti.core.{Alert, AlertControl}
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.core.validation.helpers.{ExpressionControlHelper, TypeReferenceControlHelper}
 
 object CalculatorOperandsAreNumberControl extends Control with ExpressionControlHelper with TypeReferenceControlHelper {
-  override def name: String = "calculatorOperandsAreNumber"
-
-  override def description: String = "Check if all operands of calculator expression are number expressions"
-
-  override def defaultLevel: ControlLevel.Value = ControlLevel.error
+  override val description: String = "Check if all operands of calculator expression are number expressions"
+  override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     testAllExpressions(library) { expression =>
@@ -37,10 +35,6 @@ object CalculatorOperandsAreNumberControl extends Control with ExpressionControl
   }
 
   def errorNotNumber(returnType: AbstractTypeReference, location: Location): Alert = {
-    AlertControl(
-      name,
-      s"Number expected, got: ${returnType.readableString}",
-      location
-    )
+    alert(s"Number expected, got: ${returnType.readableString}", location)
   }
 }

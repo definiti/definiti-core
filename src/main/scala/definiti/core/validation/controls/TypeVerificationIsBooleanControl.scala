@@ -2,14 +2,11 @@ package definiti.core.validation.controls
 
 import definiti.core._
 import definiti.core.ast._
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
 
 object TypeVerificationIsBooleanControl extends Control {
-
-  override def name: String = "typeVerificationIsBoolean"
-
-  override def description: String = "Checks if the expression inside type verification is Boolean"
-
-  override def defaultLevel: ControlLevel.Value = ControlLevel.error
+  override val description: String = "Checks if the expression inside type verification is Boolean"
+  override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     ControlResult.squash {
@@ -46,8 +43,7 @@ object TypeVerificationIsBooleanControl extends Control {
   }
 
   def errorNotBoolean(typeName: String, message: String, returnType: AbstractTypeReference, location: Location): Alert = {
-    AlertControl(
-      name,
+    alert(
       s"""The expression inside type verification ${typeName}("${message}") is not a boolean expression, but a ${returnType.readableString}""",
       location
     )

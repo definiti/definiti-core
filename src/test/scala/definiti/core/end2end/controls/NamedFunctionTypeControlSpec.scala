@@ -59,15 +59,8 @@ object NamedFunctionTypeControlSpec {
 
   val configuration = configurationForceControls(NamedFunctionTypeControl.name)
 
-  val invalidTypeSrc = "src/test/resources/samples/controls/namedFunctionType/invalidType.def"
-  val invalidTypeLocation = LocationPath(invalidTypeSrc)
-
-  val invalidListSrc = "src/test/resources/samples/controls/namedFunctionType/invalidList.def"
-  val invalidListLocation = LocationPath(invalidListSrc)
-
-  val invalidGenericsSrc = "src/test/resources/samples/controls/namedFunctionType/invalidGenerics.def"
-  val invalidGenericsLocation = LocationPath(invalidGenericsSrc)
-
-  val invalidUnknownSrc = "src/test/resources/samples/controls/namedFunctionType/unknownType.def"
-  val invalidUnknownLocation = LocationPath(invalidUnknownSrc)
+  val invalidTypeLocation = LocationPath.control(NamedFunctionTypeControl.name, "invalidType")
+  val invalidListLocation = LocationPath.control(NamedFunctionTypeControl.name, "invalidList")
+  val invalidGenericsLocation = LocationPath.control(NamedFunctionTypeControl.name, "invalidGenerics")
+  val invalidUnknownLocation = LocationPath.control(NamedFunctionTypeControl.name, "unknownType")
 }

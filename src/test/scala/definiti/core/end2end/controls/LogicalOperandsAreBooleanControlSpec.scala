@@ -55,8 +55,8 @@ object LogicalOperandsAreBooleanControlSpec {
 
   val configuration = configurationForceControls(LogicalOperandsAreBooleanControl.name)
 
-  val invalidLeftLocation = LocationPath("src/test/resources/samples/controls/logicalOperandsAreBoolean/invalidLeft.def")
-  val invalidRightLocation = LocationPath("src/test/resources/samples/controls/logicalOperandsAreBoolean/invalidRight.def")
-  val invalidBothLocation = LocationPath("src/test/resources/samples/controls/logicalOperandsAreBoolean/invalidBoth.def")
-  val invalidConditionLocation = LocationPath("src/test/resources/samples/controls/logicalOperandsAreBoolean/invalidCondition.def")
+  val invalidLeftLocation = LocationPath.control(LogicalOperandsAreBooleanControl.name, "invalidLeft")
+  val invalidRightLocation = LocationPath.control(LogicalOperandsAreBooleanControl.name, "invalidRight")
+  val invalidBothLocation = LocationPath.control(LogicalOperandsAreBooleanControl.name, "invalidBoth")
+  val invalidConditionLocation = LocationPath.control(LogicalOperandsAreBooleanControl.name, "invalidCondition")
 }

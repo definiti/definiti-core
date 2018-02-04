@@ -4,7 +4,7 @@ import definiti.core.ProgramResultMatchers._
 import definiti.core._
 import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
-import definiti.core.validation.controls.{TypeVerificationIsBooleanControl, VerificationIsBooleanControl}
+import definiti.core.validation.controls.TypeVerificationIsBooleanControl
 
 class TypeVerificationIsBooleanControlSpec extends EndToEndSpec {
   import TypeVerificationIsBooleanControlSpec._
@@ -72,15 +72,8 @@ object TypeVerificationIsBooleanControlSpec {
 
   val configuration = configurationForceControls(TypeVerificationIsBooleanControl.name)
 
-  val numberAliasSrc = "src/test/resources/samples/controls/typeVerificationIsBoolean/numberAlias.def"
-  val numberAliasLocation = LocationPath(numberAliasSrc)
-
-  val numberDefinedSrc = "src/test/resources/samples/controls/typeVerificationIsBoolean/numberDefined.def"
-  val numberDefinedLocation = LocationPath(numberDefinedSrc)
-
-  val conditionAliasSrc = "src/test/resources/samples/controls/typeVerificationIsBoolean/conditionAlias.def"
-  val conditionAliasLocation = LocationPath(conditionAliasSrc)
-
-  val conditionDefinedSrc = "src/test/resources/samples/controls/typeVerificationIsBoolean/conditionDefined.def"
-  val conditionDefinedLocation = LocationPath(conditionDefinedSrc)
+  val numberAliasLocation = LocationPath.control(TypeVerificationIsBooleanControl.name, "numberAlias")
+  val numberDefinedLocation = LocationPath.control(TypeVerificationIsBooleanControl.name, "numberDefined")
+  val conditionAliasLocation = LocationPath.control(TypeVerificationIsBooleanControl.name, "conditionAlias")
+  val conditionDefinedLocation = LocationPath.control(TypeVerificationIsBooleanControl.name, "conditionDefined")
 }

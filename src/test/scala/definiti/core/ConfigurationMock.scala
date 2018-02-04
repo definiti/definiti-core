@@ -2,7 +2,7 @@ package definiti.core
 
 import java.nio.file.{Path, Paths}
 
-import definiti.core.validation.controls.ControlLevel
+import definiti.core.validation.ControlLevel
 
 case class ConfigurationMock(
   source: Path = Paths.get(""),

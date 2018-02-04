@@ -1,15 +1,13 @@
 package definiti.core.validation.controls
 
+import definiti.core.Alert
 import definiti.core.ast._
-import definiti.core.validation.controls.helpers.{ExpressionControlHelper, TypeReferenceControlHelper}
-import definiti.core.{Alert, AlertControl}
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.core.validation.helpers.{ExpressionControlHelper, TypeReferenceControlHelper}
 
 object NotExpressionIsBooleanControl extends Control with TypeReferenceControlHelper with ExpressionControlHelper {
-  override def name: String = "notExpressionIsBoolean"
-
-  override def description: String = "Check if not expression is a boolean expression"
-
-  override def defaultLevel: ControlLevel.Value = ControlLevel.error
+  override val description: String = "Check if not expression is a boolean expression"
+  override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     testAllExpressions(library) { expression =>
@@ -29,10 +27,6 @@ object NotExpressionIsBooleanControl extends Control with TypeReferenceControlHe
   }
 
   def errorNotBoolean(returnType: AbstractTypeReference, location: Location): Alert = {
-    AlertControl(
-      name,
-      s"Boolean expected, got: ${returnType.readableString}",
-      location
-    )
+    alert(s"Boolean expected, got: ${returnType.readableString}", location)
   }
 }

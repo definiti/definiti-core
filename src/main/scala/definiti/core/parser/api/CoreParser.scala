@@ -29,7 +29,7 @@ private[core] class CoreParser(configuration: Configuration) {
     if (errorListener.hasError) {
       Invalid(errorListener.errors.map(_.toError))
     } else {
-      ValidValue(new CoreDefinitionASTParser(source).definitionContextToAST(result))
+      Valid(new CoreDefinitionASTParser(source).definitionContextToAST(result))
     }
   }
 }

@@ -1,7 +1,7 @@
 package definiti.core.structure
 
-import definiti.core.ast.typed.TypedRootFile
 import definiti.core.ast._
+import definiti.core.ast.typed.TypedRootFile
 import definiti.core.utils.StringUtils
 
 private[core] class ProjectStructure(root: typed.TypedRoot) {

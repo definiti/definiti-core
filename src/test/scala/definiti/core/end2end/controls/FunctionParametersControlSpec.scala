@@ -34,6 +34,6 @@ object FunctionParametersControlSpec {
 
   val configuration = configurationForceControls(FunctionParametersControl.name)
 
-  val invalidNumberOfParametersLocation = LocationPath("src/test/resources/samples/controls/functionParameters/invalidNumberOfParameters.def")
-  val invalidTypeReferenceLocation = LocationPath("src/test/resources/samples/controls/functionParameters/invalidTypeReference.def")
+  val invalidNumberOfParametersLocation = LocationPath.control(FunctionParametersControl.name, "invalidNumberOfParameters")
+  val invalidTypeReferenceLocation = LocationPath.control(FunctionParametersControl.name, "invalidTypeReference")
 }

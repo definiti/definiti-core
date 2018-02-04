@@ -1,14 +1,12 @@
 package definiti.core.validation.controls
 
 import definiti.core.ast._
-import definiti.core.validation.controls.helpers.TypeReferenceControlHelper
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.core.validation.helpers.TypeReferenceControlHelper
 
 object AttributeTypeControl extends Control with TypeReferenceControlHelper {
-  override def name: String = "attributeType"
-
-  override def description: String = "Check if types of defined type is valid"
-
-  override def defaultLevel: ControlLevel.Value = ControlLevel.error
+  override val description: String = "Check if types of defined type is valid"
+  override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     ControlResult.squash {

@@ -1,8 +1,8 @@
 package definiti.core.end2end
 
+import definiti.core.ProgramResultMatchers._
 import definiti.core._
 import definiti.core.ast._
-import ProgramResultMatchers._
 
 class GeneratePublicApiSpec extends EndToEndSpec {
   import GeneratePublicApiSpec._

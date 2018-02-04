@@ -1,7 +1,7 @@
-package definiti.core.validation.controls.helpers
+package definiti.core.validation.helpers
 
 import definiti.core.ast._
-import definiti.core.validation.controls.{Control, ControlResult}
+import definiti.core.validation.{Control, ControlResult}
 
 trait ExpressionControlHelper {
   self: Control =>

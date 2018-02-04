@@ -55,9 +55,9 @@ object OrderOperandsAreNumberControlSpec {
 
   val configuration = configurationForceControls(OrderOperandsAreNumberControl.name)
 
-  val invalidLeftLocation = LocationPath("src/test/resources/samples/controls/orderOperandsAreNumber/invalidLeft.def")
-  val invalidRightLocation = LocationPath("src/test/resources/samples/controls/orderOperandsAreNumber/invalidRight.def")
-  val invalidBothLocation = LocationPath("src/test/resources/samples/controls/orderOperandsAreNumber/invalidBoth.def")
-  val invalidConditionLocation = LocationPath("src/test/resources/samples/controls/orderOperandsAreNumber/invalidCondition.def")
+  val invalidLeftLocation = LocationPath.control(OrderOperandsAreNumberControl.name, "invalidLeft")
+  val invalidRightLocation = LocationPath.control(OrderOperandsAreNumberControl.name, "invalidRight")
+  val invalidBothLocation = LocationPath.control(OrderOperandsAreNumberControl.name, "invalidBoth")
+  val invalidConditionLocation = LocationPath.control(OrderOperandsAreNumberControl.name, "invalidCondition")
 }
 

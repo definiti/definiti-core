@@ -36,9 +36,6 @@ object VerificationIsBooleanControlSpec {
 
   val configuration = configurationForceControls(VerificationIsBooleanControl.name)
 
-  val numberSrc = "src/test/resources/samples/controls/verificationIsBoolean/number.def"
-  val numberLocation = LocationPath(numberSrc)
-
-  val conditionSrc = "src/test/resources/samples/controls/verificationIsBoolean/condition.def"
-  val conditionLocation = LocationPath(conditionSrc)
+  val numberLocation = LocationPath.control(VerificationIsBooleanControl.name, "number")
+  val conditionLocation = LocationPath.control(VerificationIsBooleanControl.name, "condition")
 }

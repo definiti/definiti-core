@@ -1,9 +1,10 @@
 package definiti.core.validation.controls
 
+import definiti.core.Alert
 import definiti.core.ast._
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
 
 object TypeNameFormatControl extends Control {
-  override val name: String = "typeNameFormat"
   override val description: String = "Check the format of name of every type (UpperCamelCase)"
   override val defaultLevel: ControlLevel.Value = ControlLevel.warning
 
@@ -15,11 +16,19 @@ object TypeNameFormatControl extends Control {
 
   private def controlTypeName(clazz: ProjectClassDefinition): ControlResult = {
     if (clazz.name.isEmpty) {
-      alert("The type has an empty name", clazz.location)
+      errorEmptyName(clazz.location)
     } else if (clazz.name.head.isUpper) {
       OK
     } else {
-      alert(s"The type ${clazz.name} does not start with an upper case letter", clazz.location)
+      invalidNameFormat(clazz.name, clazz.location)
     }
+  }
+
+  def errorEmptyName(location: Location): Alert = {
+    alert(s"The type has an empty name", location)
+  }
+
+  def invalidNameFormat(name: String, location: Location): Alert = {
+    alert(s"The type ${name} does not start with an upper case letter", location)
   }
 }

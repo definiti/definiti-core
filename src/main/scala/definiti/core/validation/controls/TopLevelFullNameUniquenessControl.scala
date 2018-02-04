@@ -1,14 +1,12 @@
 package definiti.core.validation.controls
 
-import definiti.core.{Alert, AlertControl}
+import definiti.core.Alert
 import definiti.core.ast.{Library, Location, Root}
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
 
 object TopLevelFullNameUniquenessControl extends Control {
-  override def name: String = "topLevelFullNameUniqueness"
-
-  override def description: String = "Check if there is two top-level statements with the same full name (package + name)"
-
-  override def defaultLevel: ControlLevel.Value = ControlLevel.error
+  override val description: String = "Check if there is two top-level statements with the same full name (package + name)"
+  override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     val elements = extractElements(library)
@@ -39,13 +37,10 @@ object TopLevelFullNameUniquenessControl extends Control {
 
   def errorSameName(conflictName: String, location1: Location, location2: Location): Seq[Alert] = {
     Seq(location1, location2).map { location =>
-      AlertControl(
-        name,
-        s"The name ${conflictName} is used at least twice in this project",
-        location
-      )
+      alert(s"The name ${conflictName} is used at least twice in this project", location)
     }
   }
 
   case class ElementInformation(fullName: String, location: Location)
+
 }

@@ -1,15 +1,13 @@
 package definiti.core.validation.controls
 
+import definiti.core.Alert
 import definiti.core.ast._
-import definiti.core.validation.controls.helpers.TypeReferenceControlHelper
-import definiti.core.{Alert, AlertControl}
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.core.validation.helpers.TypeReferenceControlHelper
 
 object NamedFunctionTypeControl extends Control with TypeReferenceControlHelper {
-  override def name: String = "namedFunctionType"
-
-  override def description: String = "Check if the type of the body of the named function match the defined one"
-
-  override def defaultLevel: ControlLevel.Value = ControlLevel.error
+  override val description: String = "Check if the type of the body of the named function match the defined one"
+  override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     ControlResult.squash {
@@ -42,8 +40,7 @@ object NamedFunctionTypeControl extends Control with TypeReferenceControlHelper 
   }
 
   def errorDifferentType(functionName: String, declaredType: String, realType: String, location: Location): Alert = {
-    AlertControl(
-      name,
+    alert(
       s"The declared type of the function ${functionName} and its body are different (${realType} instead of ${declaredType})",
       location
     )

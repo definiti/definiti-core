@@ -52,8 +52,8 @@ object MethodParametersControlSpec {
 
   val configuration = configurationForceControls(MethodParametersControl.name)
 
-  val invalidLambdaReferenceLocation = LocationPath("src/test/resources/samples/controls/methodParameters/invalidLambdaReference.def")
-  val invalidNamedFunctionReferenceLocation = LocationPath("src/test/resources/samples/controls/methodParameters/invalidNamedFunctionReference.def")
-  val invalidNumberOfParametersLocation = LocationPath("src/test/resources/samples/controls/methodParameters/invalidNumberOfParameters.def")
-  val invalidTypeReferenceLocation = LocationPath("src/test/resources/samples/controls/methodParameters/invalidTypeReference.def")
+  val invalidLambdaReferenceLocation = LocationPath.control(MethodParametersControl.name, "invalidLambdaReference")
+  val invalidNamedFunctionReferenceLocation = LocationPath.control(MethodParametersControl.name, "invalidNamedFunctionReference")
+  val invalidNumberOfParametersLocation = LocationPath.control(MethodParametersControl.name, "invalidNumberOfParameters")
+  val invalidTypeReferenceLocation = LocationPath.control(MethodParametersControl.name, "invalidTypeReference")
 }

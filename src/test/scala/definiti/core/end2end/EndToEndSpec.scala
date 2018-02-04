@@ -5,8 +5,7 @@ import java.nio.file.Paths
 import definiti.core._
 import definiti.core.ast.{Location, Root}
 import definiti.core.mock.plugins.StringExtendedContext
-import definiti.core.validation.Controls
-import definiti.core.validation.controls.ControlLevel
+import definiti.core.validation.{ControlLevel, Controls}
 import org.scalatest.{FlatSpec, Matchers}
 
 trait EndToEndSpec extends FlatSpec with Matchers {
@@ -40,12 +39,20 @@ trait EndToEndSpec extends FlatSpec with Matchers {
 }
 
 object EndToEndSpec {
+
   case class LocationPath(path: String) {
     def apply(startLine: Int, startColumn: Int, endLine: Int, endColumn: Int): Location = {
       Location(path, startLine, startColumn, endLine, endColumn)
     }
+
     def apply(line: Int, startColumn: Int, endColumn: Int): Location = {
       Location(path, line, startColumn, line, endColumn)
+    }
+  }
+
+  object LocationPath {
+    def control(name: String, file: String): LocationPath = {
+      LocationPath(s"src/test/resources/samples/controls/${name}/${file}.def")
     }
   }
 

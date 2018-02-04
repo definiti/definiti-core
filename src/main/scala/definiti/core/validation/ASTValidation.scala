@@ -1,41 +1,28 @@
 package definiti.core.validation
 
 import definiti.core.ProgramResult.NoResult
-import definiti.core.ast._
 import definiti.core._
+import definiti.core.ast._
 
-private[core] class ASTValidation(
-  val configuration: Configuration,
-  val library: Library
-) extends CommonValidation
-  with ExpressionValidation {
-
+private[core] class ASTValidation(configuration: Configuration, library: Library) {
   val controls = new Controls(configuration)
 
   def validate(root: Root): Program[NoResult] = {
     for {
-      _ <- Program.validation(Validation.join(root.elements.map(validatePackageElement)))
       _ <- controls.validate(root, library)
+      _ <- Program.validated(validateExtendedContexts())
     } yield NoResult
   }
 
-  def validatePackage(thePackage: Namespace): Validation = {
-    Validation.join(thePackage.elements.map(validatePackageElement))
+  private def validateExtendedContexts(): Validated[NoResult] = {
+    Validated.squash {
+      library.namespaces.flatMap(_.elements).collect {
+        case extendedContext: ExtendedContext[_] => validateExtendedContext(extendedContext, library)
+      }
+    }.map(_ => NoResult)
   }
 
-  def validatePackageElement(element: NamespaceElement): Validation = {
-    element match {
-      case subPackage: Namespace => validatePackage(subPackage)
-      case _: Verification => Valid
-      case _: DefinedType => Valid
-      case _: AliasType => Valid
-      case _: Enum => Valid
-      case _: NamedFunction => Valid
-      case extendedContext: ExtendedContext[_] => validateExtendedContext(extendedContext, library)
-    }
-  }
-
-  def validateExtendedContext[A](context: ExtendedContext[A], library: Library): Validation = {
+  def validateExtendedContext[A](context: ExtendedContext[A], library: Library): Validated[NoResult] = {
     configuration.contexts
       .find(_.contextName == context.name)
       .map { contextPlugin =>
@@ -43,6 +30,6 @@ private[core] class ASTValidation(
         contextPlugin.asInstanceOf[ContextPlugin[A]]
           .validate(context.content, library)
       }
-      .getOrElse(Valid)
+      .getOrElse(Valid(NoResult))
   }
 }

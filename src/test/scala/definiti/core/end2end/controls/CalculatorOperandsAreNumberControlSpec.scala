@@ -55,9 +55,9 @@ object CalculatorOperandsAreNumberControlSpec {
 
   val configuration = configurationForceControls(CalculatorOperandsAreNumberControl.name)
 
-  val invalidLeftLocation = LocationPath("src/test/resources/samples/controls/calculatorOperandsAreNumber/invalidLeft.def")
-  val invalidRightLocation = LocationPath("src/test/resources/samples/controls/calculatorOperandsAreNumber/invalidRight.def")
-  val invalidBothLocation = LocationPath("src/test/resources/samples/controls/calculatorOperandsAreNumber/invalidBoth.def")
-  val invalidConditionLocation = LocationPath("src/test/resources/samples/controls/calculatorOperandsAreNumber/invalidCondition.def")
+  val invalidLeftLocation = LocationPath.control(CalculatorOperandsAreNumberControl.name, "invalidLeft")
+  val invalidRightLocation = LocationPath.control(CalculatorOperandsAreNumberControl.name, "invalidRight")
+  val invalidBothLocation = LocationPath.control(CalculatorOperandsAreNumberControl.name, "invalidBoth")
+  val invalidConditionLocation = LocationPath.control(CalculatorOperandsAreNumberControl.name, "invalidCondition")
 }
 

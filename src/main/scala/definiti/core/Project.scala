@@ -46,7 +46,7 @@ class Project(configuration: Configuration) {
       typedRoot <- new ProjectTyping(context).addTypes(finalPureRoot)
       structuredRoot = new ProjectStructure(typedRoot).generateStructure()
       library = Library(structuredRoot, pureCoreToStructureCore(core))
-      _ <-  processInternalValidation(structuredRoot, library)
+      _ <- processInternalValidation(structuredRoot, library)
       _ <- processExternalValidation(structuredRoot, library)
     } yield (structuredRoot, library)
   }
@@ -68,11 +68,11 @@ class Project(configuration: Configuration) {
   private def processPluginParsers(root: PureRoot): Program[PureRoot] = Program.validated {
     // Do not accumulate errors because of eventual dependencies between plugins
     // See what is done and validate or update behavior
-    val initialRoot: Validated[PureRoot] = ValidValue(root)
+    val initialRoot: Validated[PureRoot] = Valid(root)
     configuration.parsers.foldLeft(initialRoot) { case (acc, parser) =>
       acc match {
         case errors@Invalid(_) => errors
-        case ValidValue(updatedRoot) => parser.transform(updatedRoot)
+        case Valid(updatedRoot) => parser.transform(updatedRoot)
       }
     }
   }
@@ -81,8 +81,8 @@ class Project(configuration: Configuration) {
     new ASTValidation(configuration, library).validate(root)
   }
 
-  private def processExternalValidation(root: Root, library: Library): Program[NoResult] = Program.validation {
-    Validation.join(configuration.validators.map(_.validate(root, library)))
+  private def processExternalValidation(root: Root, library: Library): Program[NoResult] = Program.validated {
+    Validated.squash(configuration.validators.map(_.validate(root, library))).map(_ => NoResult)
   }
 
   private def processGenerators(root: Root, library: Library): Map[Path, String] = {

@@ -4,7 +4,7 @@ import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
 import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
-import definiti.core.validation.controls.{EqualityOnSameTypeControl, LogicalOperandsAreBooleanControl}
+import definiti.core.validation.controls.EqualityOnSameTypeControl
 
 class EqualityOnSameTypeControlSpec extends EndToEndSpec {
   import EqualityOnSameTypeControlSpec._
@@ -32,5 +32,5 @@ object EqualityOnSameTypeControlSpec {
 
   val configuration = configurationForceControls(EqualityOnSameTypeControl.name)
 
-  val invalidConditionLocation = LocationPath("src/test/resources/samples/controls/equalityOnSameType/invalidCondition.def")
+  val invalidConditionLocation = LocationPath.control(EqualityOnSameTypeControl.name, "invalidCondition")
 }

@@ -1,8 +1,8 @@
 package definiti.core.generators
 
-import definiti.core.generators.ASTGenerator.anyLocation
 import definiti.core._
 import definiti.core.ast.pure._
+import definiti.core.generators.ASTGenerator.anyLocation
 import org.scalacheck.Gen
 
 object ExpressionGenerator {

@@ -1,7 +1,7 @@
-package definiti.core.validation.controls
+package definiti.core.validation
 
-import definiti.core.{Alert, AlertControl}
 import definiti.core.ast.Location
+import definiti.core.{Alert, AlertControl}
 
 case class ControlResult(alerts: Seq[Alert]) {
   def +(control: ControlResult): ControlResult = ControlResult(alerts ++ control.alerts)

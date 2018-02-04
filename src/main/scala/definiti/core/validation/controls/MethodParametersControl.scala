@@ -2,14 +2,12 @@ package definiti.core.validation.controls
 
 import definiti.core._
 import definiti.core.ast._
-import definiti.core.validation.controls.helpers.{ExpressionControlHelper, ParameterControlHelper, TypeReferenceControlHelper}
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.core.validation.helpers.{ExpressionControlHelper, ParameterControlHelper, TypeReferenceControlHelper}
 
 object MethodParametersControl extends Control with ExpressionControlHelper with TypeReferenceControlHelper with ParameterControlHelper {
-  override def name: String = "methodParameters"
-
-  override def description: String = "Check if parameters and arguments on a method are the same"
-
-  override def defaultLevel: ControlLevel.Value = ControlLevel.error
+  override val description: String = "Check if parameters and arguments on a method are the same"
+  override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     testAllExpressions(library) { expression =>
@@ -92,26 +90,14 @@ object MethodParametersControl extends Control with ExpressionControlHelper with
   }
 
   def unexpectedTypeError(typeReference: AbstractTypeReference, location: Location): Alert = {
-    AlertControl(
-      name,
-      s"Unexpected type: ${typeReference.readableString}",
-      location
-    )
+    alert(s"Unexpected type: ${typeReference.readableString}", location)
   }
 
   def unknownTypeError(typeReference: AbstractTypeReference, location: Location): Alert = {
-    AlertControl(
-      name,
-      s"Unknown type: ${typeReference.readableString}",
-      location
-    )
+    alert(s"Unknown type: ${typeReference.readableString}", location)
   }
 
   def unknownMethodError(typeName: String, method: String, location: Location): Alert = {
-    AlertControl(
-      name,
-      s"Unknown method: ${typeName}.${method}",
-      location
-    )
+    alert(s"Unknown method: ${typeName}.${method}", location)
   }
 }

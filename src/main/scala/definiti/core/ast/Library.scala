@@ -8,9 +8,6 @@ case class Library(root: Root, core: Seq[ClassDefinition]) {
   lazy val typesMap: Map[String, ClassDefinition] = types.map(t => t.fullName -> t).toMap
   lazy val namedFunctionsMap: Map[String, NamedFunction] = namedFunctions.map(n => n.fullName -> n).toMap
 
-  @deprecated("Should be extracted on the fly from return type")
-  lazy val methodsMap: Map[String, MethodDefinition] = Library.extractMethods(typesMap)
-
   lazy val namespaces: Seq[Namespace] = Library.extractPackages(root)
   lazy val verifications: Seq[Verification] = fromNamespaces { case verification: Verification => verification }
   lazy val types: Seq[ClassDefinition] = projectTypes ++ core
@@ -43,21 +40,5 @@ object Library {
     }
 
     namespacesBuffer.toList
-  }
-
-  private def extractMethods(types: Map[String, ClassDefinition]): Map[String, MethodDefinition] = {
-    def extractMethodsFromClass(classDefinition: ClassDefinition): Seq[MethodDefinition] = {
-      classDefinition match {
-        case nativeClassDefinition: NativeClassDefinition => nativeClassDefinition.methods
-        case _: DefinedType => Seq.empty
-        case aliasType: AliasType => extractMethodsFromClass(types(aliasType.alias.typeName))
-        case _: Enum => Seq.empty
-      }
-    }
-
-    types.flatMap { case (typeName, theType) =>
-      extractMethodsFromClass(theType)
-        .map(method => s"${typeName}.${method.name}" -> method)
-    }
   }
 }

@@ -13,9 +13,9 @@ private[core] class ExpressionTyping(context: Context) {
       case PureCalculatorExpression(operator, left, right, location) => addTypeIntoCalculatorExpression(operator, left, right, location)
       case not: PureNot => addTypesIntoNotExpression(not)
 
-      case booleanValue: PureBooleanValue => ValidValue(BooleanValue(booleanValue.value, boolean, booleanValue.location))
-      case numberValue: PureNumberValue => ValidValue(NumberValue(numberValue.value, number, numberValue.location))
-      case quotedStringValue: PureQuotedStringValue => ValidValue(QuotedStringValue(quotedStringValue.value, string, quotedStringValue.location))
+      case booleanValue: PureBooleanValue => Valid(BooleanValue(booleanValue.value, boolean, booleanValue.location))
+      case numberValue: PureNumberValue => Valid(NumberValue(numberValue.value, number, numberValue.location))
+      case quotedStringValue: PureQuotedStringValue => Valid(QuotedStringValue(quotedStringValue.value, string, quotedStringValue.location))
 
       case reference: PureReference => addTypesIntoReference(reference)
 
@@ -54,7 +54,7 @@ private[core] class ExpressionTyping(context: Context) {
   def addTypesIntoReference(reference: PureReference): Validated[Expression] = {
     context.findTypeReference(reference.name) match {
       case Some(typeReference) =>
-        ValidValue(Reference(
+        Valid(Reference(
           name = reference.name,
           returnType = typeReference,
           location = reference.location
@@ -75,20 +75,20 @@ private[core] class ExpressionTyping(context: Context) {
               typeReference, expression.location,
               typeReference => s"Class ${typeReference.typeName} not found when trying to determine the type of the expression"
             ).flatMap { classReference =>
-                getMethodOpt(classReference.classDefinition, methodCall.method)(context) match {
-                  case Some(methodDefinition) =>
-                    val typedMethodDefinition = considerTypeIntoMethodDefinition(methodDefinition, classReference)
-                    ValidValue(MethodCall(
-                      expression = expression,
-                      method = methodCall.method,
-                      parameters = parameters,
-                      generics = methodCall.generics,
-                      returnType = returnTypeOfMethod(typedMethodDefinition, parameters),
-                      location = methodCall.location
-                    ))
-                  case None => Invalid(s"Unknown method ${typeReference.typeName}.${methodCall.method}", methodCall.location)
-                }
+              getMethodOpt(classReference.classDefinition, methodCall.method)(context) match {
+                case Some(methodDefinition) =>
+                  val typedMethodDefinition = considerTypeIntoMethodDefinition(methodDefinition, classReference)
+                  Valid(MethodCall(
+                    expression = expression,
+                    method = methodCall.method,
+                    parameters = parameters,
+                    generics = methodCall.generics,
+                    returnType = returnTypeOfMethod(typedMethodDefinition, parameters),
+                    location = methodCall.location
+                  ))
+                case None => Invalid(s"Unknown method ${typeReference.typeName}.${methodCall.method}", methodCall.location)
               }
+            }
           case _: LambdaReference => Invalid("Expected type, got lambda", expression.location)
         }
       }
@@ -192,17 +192,17 @@ private[core] class ExpressionTyping(context: Context) {
             typeReference, expression.location,
             typeReference => s"Class ${typeReference.typeName} not found when trying to determine the type of the expression"
           ).flatMap { classReference =>
-              getAttributeOpt(classReference.classDefinition, attributeCall.attribute)(context) match {
-                case Some(attributeDefinition) =>
-                  ValidValue(AttributeCall(
-                    expression = expression,
-                    attribute = attributeCall.attribute,
-                    returnType = attributeDefinition.typeReference,
-                    location = attributeCall.location
-                  ))
-                case None => Invalid(s"Unknown attribute ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.location)
-              }
+            getAttributeOpt(classReference.classDefinition, attributeCall.attribute)(context) match {
+              case Some(attributeDefinition) =>
+                Valid(AttributeCall(
+                  expression = expression,
+                  attribute = attributeCall.attribute,
+                  returnType = attributeDefinition.typeReference,
+                  location = attributeCall.location
+                ))
+              case None => Invalid(s"Unknown attribute ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.location)
             }
+          }
         case _: LambdaReference => Invalid("Expected type, got lambda", expression.location)
       }
     }

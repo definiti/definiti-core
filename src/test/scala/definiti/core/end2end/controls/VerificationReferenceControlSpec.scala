@@ -110,33 +110,14 @@ object VerificationReferenceControlSpec {
 
   val configuration = configurationForceControls(VerificationReferenceControl.name)
 
-  val invalidDefinedTypeSrc = "src/test/resources/samples/controls/verificationReference/invalidDefinedType.def"
-  val invalidDefinedTypeLocation = LocationPath(invalidDefinedTypeSrc)
-
-  val invalidAliasTypeSrc = "src/test/resources/samples/controls/verificationReference/invalidAliasType.def"
-  val invalidAliasTypeLocation = LocationPath(invalidAliasTypeSrc)
-
-  val invalidAttributeNativeSrc = "src/test/resources/samples/controls/verificationReference/invalidAttributeNative.def"
-  val invalidAttributeNativeLocation = LocationPath(invalidAttributeNativeSrc)
-
-  val invalidAttributeDefinedTypeSrc = "src/test/resources/samples/controls/verificationReference/invalidAttributeDefinedType.def"
-  val invalidAttributeDefinedTypeLocation = LocationPath(invalidAttributeDefinedTypeSrc)
-
-  val invalidAttributeAliasTypeSrc = "src/test/resources/samples/controls/verificationReference/invalidAttributeAliasType.def"
-  val invalidAttributeAliasTypeLocation = LocationPath(invalidAttributeAliasTypeSrc)
-
-  val unmatchedDefinedTypeSrc = "src/test/resources/samples/controls/verificationReference/unmatchedDefinedType.def"
-  val unmatchedDefinedTypeLocation = LocationPath(unmatchedDefinedTypeSrc)
-
-  val unmatchedAliasTypeSrc = "src/test/resources/samples/controls/verificationReference/unmatchedAliasType.def"
-  val unmatchedAliasTypeLocation = LocationPath(unmatchedAliasTypeSrc)
-
-  val unmatchedAttributeNativeSrc = "src/test/resources/samples/controls/verificationReference/unmatchedAttributeNative.def"
-  val unmatchedAttributeNativeLocation = LocationPath(unmatchedAttributeNativeSrc)
-
-  val unmatchedAttributeDefinedTypeSrc = "src/test/resources/samples/controls/verificationReference/unmatchedAttributeDefinedType.def"
-  val unmatchedAttributeDefinedTypeLocation = LocationPath(unmatchedAttributeDefinedTypeSrc)
-
-  val unmatchedAttributeAliasTypeSrc = "src/test/resources/samples/controls/verificationReference/unmatchedAttributeAliasType.def"
-  val unmatchedAttributeAliasTypeLocation = LocationPath(unmatchedAttributeAliasTypeSrc)
+  val invalidDefinedTypeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidDefinedType")
+  val invalidAliasTypeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidAliasType")
+  val invalidAttributeNativeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidAttributeNative")
+  val invalidAttributeDefinedTypeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidAttributeDefinedType")
+  val invalidAttributeAliasTypeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidAttributeAliasType")
+  val unmatchedDefinedTypeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedDefinedType")
+  val unmatchedAliasTypeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedAliasType")
+  val unmatchedAttributeNativeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedAttributeNative")
+  val unmatchedAttributeDefinedTypeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedAttributeDefinedType")
+  val unmatchedAttributeAliasTypeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedAttributeAliasType")
 }

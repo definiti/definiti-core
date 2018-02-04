@@ -1,6 +1,7 @@
 package definiti.core.parser.project
 
-import definiti.core.{_}
+import definiti.core.ProgramResult.NoResult
+import definiti.core._
 import definiti.core.ast._
 import definiti.core.generators.antlr.ContextGenerator
 import org.scalatest.prop.PropertyChecks
@@ -37,8 +38,8 @@ object ProcessContextSpec {
       ContextPluginTestContent(content, location)
     }
 
-    override def validate(context: ContextPluginTestContent, library: Library): Validation = {
-      Valid
+    override def validate(context: ContextPluginTestContent, library: Library): Validated[NoResult] = {
+      Valid(NoResult)
     }
 
     override def name: String = "MyContextPlugin"

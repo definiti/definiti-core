@@ -1,15 +1,13 @@
 package definiti.core.validation.controls
 
+import definiti.core.Alert
 import definiti.core.ast._
-import definiti.core.validation.controls.helpers.{ExpressionControlHelper, TypeReferenceControlHelper}
-import definiti.core.{Alert, AlertControl}
+import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.core.validation.helpers.{ExpressionControlHelper, TypeReferenceControlHelper}
 
 object EqualityOnSameTypeControl extends Control with ExpressionControlHelper with TypeReferenceControlHelper {
-  override def name: String = "equalityOnSameType"
-
-  override def description: String = "Check if both expressions on equality comparison have the same type"
-
-  override def defaultLevel: ControlLevel.Value = ControlLevel.error
+  override val description: String = "Check if both expressions on equality comparison have the same type"
+  override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     testAllExpressions(library) { expression =>
@@ -35,8 +33,7 @@ object EqualityOnSameTypeControl extends Control with ExpressionControlHelper wi
   }
 
   def errorDifferentTypes(left: AbstractTypeReference, right: AbstractTypeReference, location: Location): Alert = {
-    AlertControl(
-      name,
+    alert(
       s"Both left and right expressions must be the same type (left: ${left.readableString}, right: ${right.readableString})",
       location
     )

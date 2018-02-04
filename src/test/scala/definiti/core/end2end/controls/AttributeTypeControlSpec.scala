@@ -37,6 +37,5 @@ object AttributeTypeControlSpec {
 
   val configuration = configurationForceControls(AttributeTypeControl.name)
 
-  val unknownTypeSrc = "src/test/resources/samples/controls/attributeType/unknownType.def"
-  val unknownTypeLocation = LocationPath(unknownTypeSrc)
+  val unknownTypeLocation = LocationPath.control(AttributeTypeControl.name, "unknownType")
 }

@@ -19,6 +19,11 @@ class VerificationReferenceControlSpec extends EndToEndSpec {
     output shouldBe ok[Root]
   }
 
+  it should "validate an alias type inheriting a valid validation targeting its alias type" in {
+    val output = processFile("controls.verificationReference.validAliasTypeAlias", configuration)
+    output shouldBe ok[Root]
+  }
+
   it should "validate an attribute inheriting a valid validation for its native type" in {
     val output = processFile("controls.verificationReference.validAttributeNative", configuration)
     output shouldBe ok[Root]

@@ -2,9 +2,10 @@ package definiti.core.validation.controls
 
 import definiti.core.Alert
 import definiti.core.ast._
+import definiti.core.validation.helpers.TypeReferenceControlHelper
 import definiti.core.validation.{Control, ControlLevel, ControlResult}
 
-object VerificationReferenceControl extends Control {
+object VerificationReferenceControl extends Control with TypeReferenceControlHelper {
   override val description: String = "Check if all verification references are valid (name and type)"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
@@ -44,7 +45,13 @@ object VerificationReferenceControl extends Control {
   }
 
   private def controlTypeReference(typeReference: TypeReference, expectedType: ClassDefinition, verificationName: String, location: Location): ControlResult = {
-    if (typeReference.typeName == expectedType.fullName) {
+    val typesAreEqual = expectedType match {
+      case aliasType: AliasType if typeReference.typeName != expectedType.fullName =>
+        areTypeEqual(typeReference, aliasType.alias)
+      case _ =>
+        typeReference.typeName == expectedType.fullName
+    }
+    if (typesAreEqual) {
       OK
     } else {
       ControlResult(errorInvalidType(expectedType.fullName, verificationName, typeReference, location))

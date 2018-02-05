@@ -47,11 +47,26 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     PureVerification(
       name = context.verificationName.getText,
       packageName = NOT_DEFINED,
-      message = extractStringContent(context.verificationMessage.getText),
+      message = processVerificationMessage(context.verificationMessage()),
       function = processFunction(context.function()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       location = getLocationFromContext(context)
     )
+  }
+
+  def processVerificationMessage(context: VerificationMessageContext): VerificationMessage = {
+    if (context.literal != null) {
+      LiteralMessage(
+        message = extractStringContent(context.literal.getText),
+        location = getLocationFromContext(context)
+      )
+    } else {
+      TypedMessage(
+        message = extractStringContent(context.message.getText),
+        types = scalaSeq(context.typeReference()).map(processTypeReference),
+        location = getLocationFromContext(context)
+      )
+    }
   }
 
   def processFunction(context: FunctionContext): PureDefinedFunction = {

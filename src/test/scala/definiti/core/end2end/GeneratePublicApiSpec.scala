@@ -155,7 +155,7 @@ object GeneratePublicApiSpec {
         Verification(
           name = "NonBlank",
           fullName = "blog.NonBlank",
-          message = "The string should not be blank",
+          message = LiteralMessage("The string should not be blank", Location(validBlogSrcVerifications, 4, 3, 4, 35)),
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition("string", TypeReference("String"), Location(validBlogSrcVerifications, 5, 4, 5, 18))),
             body = MethodCall(
@@ -182,7 +182,7 @@ object GeneratePublicApiSpec {
         Verification(
           name = "ShortString",
           fullName = "blog.ShortString",
-          message = "The string should not have more than 25 characters",
+          message = LiteralMessage("The string should not have more than 25 characters", Location(validBlogSrcVerifications, 11, 3, 11, 55)),
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition("string", TypeReference("String"), Location(validBlogSrcVerifications, 12, 4, 12, 18))),
             body = LogicalExpression(

@@ -106,7 +106,7 @@ object NominalSpec {
     elements = Seq(Verification(
       name = "AlwaysTrue",
       fullName = "AlwaysTrue",
-      message = "Never fail",
+      message = LiteralMessage("Never fail", Location(verificationSrc, 2, 3, 2, 15)),
       function = DefinedFunction(
         parameters = Seq(ParameterDefinition(
           name = "x",

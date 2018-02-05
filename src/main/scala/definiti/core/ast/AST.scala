@@ -15,11 +15,17 @@ case class Namespace(
 case class Verification(
   name: String,
   fullName: String,
-  message: String,
+  message: VerificationMessage,
   function: DefinedFunction,
   comment: Option[String],
   location: Location
 ) extends NamespaceElement
+
+sealed trait VerificationMessage
+
+case class LiteralMessage(message: String, location: Location) extends VerificationMessage
+
+case class TypedMessage(message: String, types: Seq[TypeReference], location: Location) extends VerificationMessage
 
 sealed trait ClassDefinition extends NamespaceElement {
   def name: String

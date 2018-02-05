@@ -11,6 +11,7 @@ VERIFYING    : 'verifying';
 DEF          : 'def';
 CONTEXT      : 'context';
 ENUM         : 'enum';
+MESSAGE      : 'message';
 
 BOOLEAN                      : 'true' | 'false';
 NUMBER                       : [0-9]+('.'[0-9]+)?;
@@ -70,9 +71,16 @@ expressionList : expression (',' expression)*;
 verification :
   DOC_COMMENT?
   VERIFICATION verificationName=IDENTIFIER '{'
-    verificationMessage=STRING
+    verificationMessage
     function
   '}';
+
+verificationMessage
+  : literal=STRING
+  | MESSAGE '(' message=STRING (',' typeReference)* ')'
+  ;
+
+typeReference: name=IDENTIFIER ('[' genericTypeList ']')?;
 
 definedType :
   DOC_COMMENT?
@@ -88,7 +96,7 @@ attributeDefinition:
 
 typeVerification:
   VERIFY '{'
-    verificationMessage=STRING
+    verificationMessage
     typeVerificationFunction
   '}';
 
@@ -113,7 +121,7 @@ function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' c
 verifyingList : verifying*;
 verifying : VERIFYING verificationName=IDENTIFIER ('(' message=STRING ')')?;
 
-parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
+parameterDefinition: parameterName=IDENTIFIER ':' typeReference;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
 
 namedFunction: DEF name=IDENTIFIER ('[' genericTypeList ']')? '(' parameterListDefinition ')' ':' genericType '=>' namedFunctionBody;

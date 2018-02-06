@@ -1,0 +1,9 @@
+type MyString = String {
+  verify {
+    // Will be translated into something like "String 'abcdefghijkl' is too long"
+    message("error.short", String)
+    (value) => {
+      2
+    }
+  }
+}

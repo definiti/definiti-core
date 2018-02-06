@@ -92,7 +92,7 @@ private[core] case class PureEnumCase(
   location: Location
 )
 
-private[core] case class PureTypeVerification(message: String, function: PureDefinedFunction, location: Location)
+private[core] case class PureTypeVerification(message: VerificationMessage, function: PureDefinedFunction, location: Location)
 
 private[core] case class PureNamedFunction(
   name: String,

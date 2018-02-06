@@ -37,17 +37,17 @@ object VerificationReferenceControl extends Control with TypeReferenceControlHel
     verification.function.parameters.headOption match {
       case Some(parameter) =>
         parameter.typeReference match {
-          case typeReference: TypeReference => controlTypeReference(typeReference, expectedType, verification.fullName, location)
+          case typeReference: TypeReference => controlTypeReference(typeReference, expectedType, verification.fullName, location, library)
           case _ => ignored
         }
       case None => ignored
     }
   }
 
-  private def controlTypeReference(typeReference: TypeReference, expectedType: ClassDefinition, verificationName: String, location: Location): ControlResult = {
+  private def controlTypeReference(typeReference: TypeReference, expectedType: ClassDefinition, verificationName: String, location: Location, library: Library): ControlResult = {
     val typesAreEqual = expectedType match {
       case aliasType: AliasType if typeReference.typeName != expectedType.fullName =>
-        areTypeEqual(typeReference, aliasType.alias)
+        areTypeEqual(typeReference, aliasType.alias, library)
       case _ =>
         typeReference.typeName == expectedType.fullName
     }

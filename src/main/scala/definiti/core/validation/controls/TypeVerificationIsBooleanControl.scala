@@ -17,13 +17,15 @@ object TypeVerificationIsBooleanControl extends Control {
 
   private def extractTypeVerificationInfo(library: Library): Seq[TypeVerificationInfo] = {
     val aliasTypeVerifications = library.aliasTypes.flatMap { aliasType =>
-      aliasType.verifications.map { verification =>
-        TypeVerificationInfo(aliasType.fullName, verification)
+      aliasType.verifications.collect {
+        case verification if verification.message.isInstanceOf[LiteralMessage] =>
+          TypeVerificationInfo(aliasType.fullName, verification)
       }
     }
     val definedTypeVerifications = library.definedTypes.flatMap { aliasType =>
-      aliasType.verifications.map { verification =>
-        TypeVerificationInfo(aliasType.fullName, verification)
+      aliasType.verifications.collect {
+        case verification if verification.message.isInstanceOf[LiteralMessage] =>
+          TypeVerificationInfo(aliasType.fullName, verification)
       }
     }
     aliasTypeVerifications ++ definedTypeVerifications
@@ -42,9 +44,9 @@ object TypeVerificationIsBooleanControl extends Control {
     }
   }
 
-  def errorNotBoolean(typeName: String, message: String, returnType: AbstractTypeReference, location: Location): Alert = {
+  def errorNotBoolean(typeName: String, message: VerificationMessage, returnType: AbstractTypeReference, location: Location): Alert = {
     alert(
-      s"""The expression inside type verification ${typeName}("${message}") is not a boolean expression, but a ${returnType.readableString}""",
+      s"""The expression inside type verification ${typeName}("${message.prettyPrint}") is not a boolean expression, but a ${returnType.readableString}""",
       location
     )
   }

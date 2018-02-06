@@ -58,12 +58,38 @@ trait TypeReferenceControlHelper {
     }
   }
 
-  def areTypeEqual(expectedType: AbstractTypeReference, gotType: AbstractTypeReference): Boolean = {
-    expectedType == gotType
+  def areTypeEqual(expectedType: AbstractTypeReference, gotType: AbstractTypeReference, library: Library): Boolean = {
+    normalizeType(expectedType, library) == normalizeType(gotType, library)
   }
 
-  def controlTypeEquality(expectedType: AbstractTypeReference, gotType: AbstractTypeReference, location: Location): ControlResult = {
-    if (areTypeEqual(expectedType, gotType)) {
+  private def normalizeType(abstractTypeReference: AbstractTypeReference, library: Library): AbstractTypeReference = {
+    abstractTypeReference match {
+      case typeReference: TypeReference =>
+        getRealType(typeReference, library)
+      case lambdaReference: LambdaReference =>
+        LambdaReference(
+          inputTypes = lambdaReference.inputTypes.map(getRealType(_, library)),
+          outputType = getRealType(lambdaReference.outputType, library)
+        )
+      case _ => abstractTypeReference
+    }
+  }
+
+  def getRealType(typeReference: TypeReference, library: Library): TypeReference = {
+    def process(typeReference: TypeReference): TypeReference = {
+      library.typesMap.get(typeReference.typeName) match {
+        case Some(aliasType: AliasType) => process(aliasType.alias)
+        case _ => TypeReference(
+          typeName = typeReference.typeName,
+          genericTypes = typeReference.genericTypes.map(process)
+        )
+      }
+    }
+    process(typeReference)
+  }
+
+  def controlTypeEquality(expectedType: AbstractTypeReference, gotType: AbstractTypeReference, location: Location, library: Library): ControlResult = {
+    if (areTypeEqual(expectedType, gotType, library)) {
       OK
     } else {
       errorTypeEquality(expectedType, gotType, location)

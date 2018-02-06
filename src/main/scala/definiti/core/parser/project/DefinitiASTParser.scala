@@ -123,7 +123,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
 
   def processTypeVerification(context: TypeVerificationContext, typeName: String, generics: Seq[String]): PureTypeVerification = {
     PureTypeVerification(
-      extractStringContent(context.verificationMessage.getText),
+      processVerificationMessage(context.verificationMessage),
       processTypeVerificationFunction(context.typeVerificationFunction(), typeName, generics),
       location = getLocationFromContext(context)
     )

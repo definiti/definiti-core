@@ -203,6 +203,11 @@ private[core] object ProjectLinking {
           parameters = functionCallExpression.parameters.map(injectLinksIntoExpression(_, typeMapping)),
           generics = functionCallExpression.generics.map(injectLinksIntoTypeReference(_, typeMapping))
         )
+      case pureOkValue: PureOkValue => pureOkValue
+      case pureKoValue: PureKoValue =>
+        pureKoValue.copy(
+          parameters = pureKoValue.parameters.map(injectLinksIntoExpression(_, typeMapping))
+        )
     }
   }
 

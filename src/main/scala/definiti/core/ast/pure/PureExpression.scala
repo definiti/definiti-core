@@ -55,3 +55,7 @@ private[core] case class PureFunctionCall(
   generics: Seq[TypeReference],
   location: Location
 ) extends PureExpression
+
+private[core] case class PureOkValue(location: Location) extends PureExpression
+
+private[core] case class PureKoValue(parameters: Seq[PureExpression], location: Location) extends PureExpression

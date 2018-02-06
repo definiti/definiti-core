@@ -5,12 +5,14 @@ import definiti.core.validation.{Control, ControlLevel, ControlResult}
 import definiti.core.{Alert, BOOLEAN}
 
 object VerificationIsBooleanControl extends Control {
-  override val description: String = "Checks if the expression inside verification is Boolan"
+  override val description: String = "Checks if the expression inside verification is Boolean is case of literal messages"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
   override def control(root: Root, library: Library): ControlResult = {
     ControlResult.squash {
-      library.verifications.map(controlVerification)
+      library.verifications
+        .filter(_.message.isInstanceOf[LiteralMessage])
+        .map(controlVerification)
     }
   }
 

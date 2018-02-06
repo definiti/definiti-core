@@ -36,6 +36,7 @@ object Controls {
     TypeNameFormatControl,
     TypeVerificationIsBooleanControl,
     VerificationIsBooleanControl,
+    VerificationIsOkKoControl,
     VerificationNameUniquenessControl,
     VerificationReferenceControl,
     VerificationTypeControl

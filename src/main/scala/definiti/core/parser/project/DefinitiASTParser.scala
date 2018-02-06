@@ -218,6 +218,10 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
   def processExpression(context: ExpressionContext): PureExpression = {
     if (context.parenthesis != null) {
       processParenthesisExpression(context)
+    } else if (context.OK() != null) {
+      processOkExpression(context)
+    } else if (context.KO() != null) {
+      processKoExpression(context)
     } else if (context.methodName != null) {
       processMethodCallExpression(context)
     } else if (context.attributeName != null) {
@@ -249,6 +253,19 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
 
   def processParenthesisExpression(context: ExpressionContext): PureExpression = {
     processExpression(context.parenthesis)
+  }
+
+  def processOkExpression(context: ExpressionContext): PureExpression = {
+    PureOkValue(getLocationFromContext(context))
+  }
+
+  def processKoExpression(context: ExpressionContext): PureExpression = {
+    PureKoValue(
+      parameters = Option(context.koExpressionParameters) map { koExpressionParameters =>
+        scalaSeq(koExpressionParameters.expression()).map(processExpression)
+      } getOrElse Seq.empty,
+      location = getLocationFromContext(context)
+    )
   }
 
   def processMethodCallExpression(context: ExpressionContext): PureExpression = {
@@ -363,7 +380,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     scalaSeq(context.imports())
       .view
       .map(importContext => dottedIdentifierToIdentifier(importContext.dottedIdentifier()))
-      .map(fullName => StringUtils.lastPart(fullName, '.') -> fullName)
+      .map(fullName => StringUtils.lastPart(fullName) -> fullName)
       .toMap
   }
 

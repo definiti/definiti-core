@@ -12,6 +12,8 @@ DEF          : 'def';
 CONTEXT      : 'context';
 ENUM         : 'enum';
 MESSAGE      : 'message';
+OK           : 'ok';
+KO           : 'ko';
 
 BOOLEAN                      : 'true' | 'false';
 NUMBER                       : [0-9]+('.'[0-9]+)?;
@@ -51,6 +53,8 @@ chainedExpression : expression+;
 expression
   : '(' parameterListDefinition ')' '=>' '{' lambdaExpression=expression '}'
   | '(' parenthesis=expression ')'
+  | OK
+  | KO ('(' koExpressionParameters=expressionList? ')')?
   | methodExpression=expression '.' methodName=IDENTIFIER ('[' genericTypeList ']')? '(' methodExpressionParameters=expressionList? ')'
   | attributeExpression=expression '.' attributeName=IDENTIFIER
   | functionName=IDENTIFIER ('[' functionGenerics=genericTypeList ']')? '(' functionExpressionParameters=expressionList? ')'

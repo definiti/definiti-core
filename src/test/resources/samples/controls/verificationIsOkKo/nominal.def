@@ -1,0 +1,11 @@
+verification ShortString {
+  // Will be translated into something like "String 'abcdefghijkl' is too long"
+  message("error.short", String)
+  (value: String) => {
+    if (value.length < 10) {
+      ok
+    } else {
+      ko(value)
+    }
+  }
+}

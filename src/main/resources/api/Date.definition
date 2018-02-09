@@ -1,7 +1,148 @@
+/**
+ * This type represents a date.
+ *
+ * The `Date` is immutable by design.
+ * If you want to update it, you must create a new `Date` instance with given methods.
+ *
+ * To be usable, an better analysis must be done to respect the most use cases of Dates.
+ * Currently, all attributes and methods will be based on the Gregorian calendar.
+ * See https://en.wikipedia.org/wiki/Gregorian_calendar
+ *
+ * All Hours are based on UTC timezone.
+ */
 type Date {
+  /**
+   * The number of milliseconds since 01/01/1970 00:00:00 UTC
+   */
   timestamp: Number
 
+  /**
+   * The year (4 digits)
+   */
+  year: Number
+
+  /**
+   * The month number (1: January, 12: December)
+   */
+  month: Number
+
+  /**
+   * The day in the month (1 to 31)
+   */
   day: Number
 
-  month: Number
+  /**
+   * The number of hours in the day (0 to 23)
+   */
+  hour: Number
+
+  /**
+   * The number of minutes in the hour (0 to 59)
+   */
+  minute: Number
+
+  /**
+   * The number of seconds in the minute (0 to 59)
+   */
+  second: Number
+
+  /**
+   * The number of milliseconds in the second (0 to 999)
+   */
+  millisecond: Number
+
+  /**
+   * Creates a new `Date` with `quantity` years.
+   */
+  plusYears(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with `quantity` months.
+   */
+  plusMonths(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with `quantity` days.
+   */
+  plusDays(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with `quantity` hours.
+   */
+  plusHours(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with `quantity` minutes.
+   */
+  plusMinutes(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with `quantity` seconds.
+   */
+  plusSeconds(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with `quantity` milliseconds.
+   */
+  plusMilliseconds(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with minus `quantity` years.
+   */
+  minusYear(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with minus `quantity` months.
+   */
+  minusMonths(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with minus `quantity` days.
+   */
+  minusDays(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with minus `quantity` hours.
+   */
+  minusHours(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with minus `quantity` minutes.
+   */
+  minusMinutes(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with minus `quantity` seconds.
+   */
+  minusSeconds(quantity: Number): Date
+
+  /**
+   * Creates a new `Date` with minus `quantity` milliseconds.
+   */
+  minusMilliseconds(quantity: Number): Date
+
+  /**
+   * Checks if the current date is before the given date.
+   */
+  isBefore(date: Date): Boolean
+
+  /**
+   * Checks if the current date is after the given date.
+   */
+  isAfter(date: Date): Boolean
+
+  /**
+   * Checks if the current date is the same as the given date.
+   */
+  isEqual(date: Date): Boolean
+
+  /**
+   * Checks if the current date is before the given date or the same.
+   */
+  isBeforeOrEqual(date: Date): Boolean
+
+  /**
+   * Checks if the current date is before the given date or the same.
+   */
+  isAfterOrEqual(date: Date): Boolean
 }

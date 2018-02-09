@@ -1,0 +1,78 @@
+/**
+ * An `Option` defines a value that can contains either a value or no value.
+ * It replaces the well-known `null` value in many language.
+ * It avoids `NullPointerException` and similar errors due to undefined value.
+ * Many functions are provided to perform operations in both cases.
+ */
+type Option[A] {
+  /**
+   * Checks if the `Option` contains no element.
+   */
+  isEmpty: Boolean
+
+  /**
+   * Checks if the `Option` contains an element.
+   */
+  nonEmpty: Boolean
+
+  /**
+   * Returns the internal element if defined, otherwise returns the given one.
+   */
+  getOrElse(other: A): A
+
+  /**
+   * Returns the current `Option` if non empty, otherwise the one given.
+   */
+  orElse(other: Option[A]): Option[A]
+
+  /**
+   * Transforms the current element if defined by applying `mapping` and wrapping it into a new `Option`.
+   * Otherwise returns an empty `Option`.
+   */
+  map[B](mapping: A => B): Option[B]
+
+  /**
+   * Transforms the current element if defined by applying `mapping`.
+   * Otherwise returns an empty `Option`.
+   */
+  flatMap[B](mapping: A => Option[B]): Option[B]
+
+  /**
+   * Checks if there is an element in this `Option` and that it verifies the `predicate`.
+   * In this case, returns the `Option`, otherwise an empty `Option`.
+   */
+  filter(predicate: A => Boolean): Option[A]
+
+  /**
+   * Checks if there is an element in this `Option` and that it does not verify the `predicate`.
+   * In this case, returns the `Option`, otherwise an empty `Option`.
+   */
+  filterNot(predicate: A => Boolean): Option[A]
+
+  /**
+   * Checks if there is an element in this `Option` and that it verifies the `predicate`.
+   */
+  exists(predicate: A => Boolean): Boolean
+
+  /**
+   * Checks if there is an element in this `Option` and that it does not verify the `predicate`.
+   */
+  existsNot(predicate: A => Boolean): Boolean
+
+  /**
+   * Checks the `Option` contains the given `element`.
+   * The element must be equals (ex: `.equals` in java, `==` in scala and javascript) to the given one.
+   */
+  contains(element: A): Boolean
+
+  /**
+   * Checks the `Option` contains not the given `element`.
+   * No element must be equals (ex: `.equals` in java, `==` in scala and javascript) to the given one.
+   */
+  containsNot(element: A): Boolean
+
+  /**
+   * Checks if the given option is empty or if this option contains the given element
+   */
+  containsIfDefined(elementOption: Option[A]): Boolean
+}

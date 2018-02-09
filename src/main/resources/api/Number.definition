@@ -1,3 +1,50 @@
+/**
+ * A `Number` represents any number (integers, doubles, etc.).
+ * It should be considered as `BigDecimals` in applications and use these kind of systems in implementations.
+ */
 type Number {
-  
+  /**
+   * Returns the absolute value of this `Number`
+   */
+  abs(): Number
+
+  /**
+   * Returns the maximum number between this `Number` and the `other`.
+   */
+  max(other: Number): Number
+
+  /**
+   * Returns the minimum number between this `Number` and the `other`.
+   */
+  min(other: Number): Number
+
+  /**
+   * Returns the nearest integer.
+   */
+  round(): Number
+
+  /**
+   * Returns the largest integer less than this one.
+   */
+  floor(): Number
+
+  /**
+   * Returns the smaller integer greater than this one.
+   */
+  ceil(): Number
+
+  /**
+   * Returns the nearest decimal with the given number of `decimals`.
+   */
+  roundWith(decimals: Number): Number
+
+  /**
+   * Returns the largest decimal with the given number of `decimals` less than this one.
+   */
+  floorWith(decimals: Number): Number
+
+  /**
+   * Returns the smaller decimal with the given number of `decimals` greater than this one.
+   */
+  ceilWith(decimals: Number): Number
 }

@@ -11,6 +11,9 @@ VERIFYING    : 'verifying';
 DEF          : 'def';
 CONTEXT      : 'context';
 ENUM         : 'enum';
+MESSAGE      : 'message';
+OK           : 'ok';
+KO           : 'ko';
 
 BOOLEAN                      : 'true' | 'false';
 NUMBER                       : [0-9]+('.'[0-9]+)?;
@@ -50,6 +53,8 @@ chainedExpression : expression+;
 expression
   : '(' parameterListDefinition ')' '=>' '{' lambdaExpression=expression '}'
   | '(' parenthesis=expression ')'
+  | OK
+  | KO ('(' koExpressionParameters=expressionList? ')')?
   | methodExpression=expression '.' methodName=IDENTIFIER ('[' genericTypeList ']')? '(' methodExpressionParameters=expressionList? ')'
   | attributeExpression=expression '.' attributeName=IDENTIFIER
   | functionName=IDENTIFIER ('[' functionGenerics=genericTypeList ']')? '(' functionExpressionParameters=expressionList? ')'
@@ -70,9 +75,16 @@ expressionList : expression (',' expression)*;
 verification :
   DOC_COMMENT?
   VERIFICATION verificationName=IDENTIFIER '{'
-    verificationMessage=STRING
+    verificationMessage
     function
   '}';
+
+verificationMessage
+  : literal=STRING
+  | MESSAGE '(' message=STRING (',' typeReference)* ')'
+  ;
+
+typeReference: name=IDENTIFIER ('[' genericTypeList ']')?;
 
 definedType :
   DOC_COMMENT?
@@ -88,7 +100,7 @@ attributeDefinition:
 
 typeVerification:
   VERIFY '{'
-    verificationMessage=STRING
+    verificationMessage
     typeVerificationFunction
   '}';
 
@@ -113,7 +125,7 @@ function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' c
 verifyingList : verifying*;
 verifying : VERIFYING verificationName=IDENTIFIER ('(' message=STRING ')')?;
 
-parameterDefinition: parameterName=IDENTIFIER ':' parameterType=IDENTIFIER ('[' genericTypeList ']')?;
+parameterDefinition: parameterName=IDENTIFIER ':' typeReference;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
 
 namedFunction: DEF name=IDENTIFIER ('[' genericTypeList ']')? '(' parameterListDefinition ')' ':' genericType '=>' namedFunctionBody;

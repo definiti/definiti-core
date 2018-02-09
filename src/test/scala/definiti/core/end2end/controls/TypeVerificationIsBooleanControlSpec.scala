@@ -2,7 +2,7 @@ package definiti.core.end2end.controls
 
 import definiti.core.ProgramResultMatchers._
 import definiti.core._
-import definiti.core.ast.Root
+import definiti.core.ast.{LiteralMessage, Root}
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.TypeVerificationIsBooleanControl
 
@@ -18,7 +18,7 @@ class TypeVerificationIsBooleanControlSpec extends EndToEndSpec {
     val expected = Ko[Root](
       TypeVerificationIsBooleanControl.errorNotBoolean(
         typeName = "InvalidNumber",
-        message = "This verification is invalid because returns a number",
+        message = LiteralMessage("This verification is invalid because returns a number", numberAliasLocation(3, 5, 60)),
         returnType = Constants.number,
         location = numberAliasLocation(4, 5, 6, 6)
       )
@@ -31,7 +31,7 @@ class TypeVerificationIsBooleanControlSpec extends EndToEndSpec {
     val expected = Ko[Root](
       TypeVerificationIsBooleanControl.errorNotBoolean(
         typeName = "InvalidNumber",
-        message = "This verification is invalid because returns a number",
+        message = LiteralMessage("This verification is invalid because returns a number", numberDefinedLocation(5, 5, 60)),
         returnType = Constants.number,
         location = numberDefinedLocation(6, 5, 8, 6)
       )
@@ -44,7 +44,7 @@ class TypeVerificationIsBooleanControlSpec extends EndToEndSpec {
     val expected = Ko[Root](
       TypeVerificationIsBooleanControl.errorNotBoolean(
         typeName = "InvalidCondition",
-        message = "This verification is invalid because does not return the same type on if and else so not a boolean",
+        message = LiteralMessage("This verification is invalid because does not return the same type on if and else so not a boolean", conditionAliasLocation(3, 5, 105)),
         returnType = Constants.unit,
         location = conditionAliasLocation(4, 5, 10, 6)
       )
@@ -57,7 +57,7 @@ class TypeVerificationIsBooleanControlSpec extends EndToEndSpec {
     val expected = Ko[Root](
       TypeVerificationIsBooleanControl.errorNotBoolean(
         typeName = "InvalidCondition",
-        message = "This verification is invalid because does not return the same type on if and else so not a boolean",
+        message = LiteralMessage("This verification is invalid because does not return the same type on if and else so not a boolean", conditionDefinedLocation(5, 5, 105)),
         returnType = Constants.unit,
         location = conditionDefinedLocation(6, 5, 12, 6)
       )

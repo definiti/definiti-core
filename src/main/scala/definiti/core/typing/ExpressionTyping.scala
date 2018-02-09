@@ -28,6 +28,9 @@ private[core] class ExpressionTyping(context: Context) {
 
       case lambdaExpression: PureLambdaExpression => addTypeIntoLambdaExpression(lambdaExpression)
       case functionCall: PureFunctionCall => addTypeIntoFunctionCall(functionCall)
+
+      case okValue: PureOkValue => addTypesIntoOkValue(okValue)
+      case koValue: PureKoValue => addTypesIntoKoValue(koValue)
     }
   }
 
@@ -290,6 +293,26 @@ private[core] class ExpressionTyping(context: Context) {
         Invalid(s"Unknown function ${functionCall.name}", functionCall.location)
     }
   }
+
+  private def addTypesIntoOkValue(okValue: PureOkValue): Validated[OkValue] = {
+    Valid {
+      OkValue(
+        returnType = okko,
+        location = okValue.location
+      )
+    }
+  }
+
+  private def addTypesIntoKoValue(koValue: PureKoValue): Validated[KoValue] = {
+    val validatedTypedParameters = Validated.squash(koValue.parameters.map(addTypesIntoExpression))
+    validatedTypedParameters.map { parameters =>
+      KoValue(
+        parameters = parameters,
+        returnType = okko,
+        location = koValue.location
+      )
+    }
+  }
 }
 
 object ExpressionTyping {
@@ -298,4 +321,5 @@ object ExpressionTyping {
   val boolean = TypeReference("Boolean", Seq.empty)
   val number = TypeReference("Number", Seq.empty)
   val string = TypeReference("String", Seq.empty)
+  val okko = TypeReference("OkKo", Seq.empty)
 }

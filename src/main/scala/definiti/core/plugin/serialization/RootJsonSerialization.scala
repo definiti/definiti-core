@@ -27,6 +27,12 @@ trait RootJsonSerialization {
   ))
   implicit lazy val namespaceFormat: JsonFormat[Namespace] = lazyFormat(jsonFormat3(Namespace.apply))
   implicit lazy val verificationFormat: JsonFormat[Verification] = lazyFormat(jsonFormat6(Verification.apply))
+  implicit lazy val verificationMessageFormat: JsonFormat[VerificationMessage] = lazyFormat(sealedTraitFormat[VerificationMessage](
+    Format("literal", classOf[LiteralMessage]),
+    Format("typed", classOf[TypedMessage])
+  ))
+  implicit lazy val literalMessage: JsonFormat[LiteralMessage] = lazyFormat(jsonFormat2(LiteralMessage.apply))
+  implicit lazy val typedMessage: JsonFormat[TypedMessage] = lazyFormat(jsonFormat3(TypedMessage.apply))
   implicit lazy val classDefinitionFormat: JsonFormat[ClassDefinition] = lazyFormat(sealedTraitFormat[ClassDefinition](
     Format("aliasType", classOf[AliasType]),
     Format("definedType", classOf[DefinedType]),

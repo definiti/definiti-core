@@ -38,7 +38,7 @@ private[core] case class PureDefinedFunction(parameters: Seq[ParameterDefinition
 
 private[core] case class PureParameter(name: String, typeReference: TypeReference, location: Location)
 
-private[core] case class PureVerification(name: String, packageName: String, message: String, function: PureDefinedFunction, comment: Option[String], location: Location) {
+private[core] case class PureVerification(name: String, packageName: String, message: VerificationMessage, function: PureDefinedFunction, comment: Option[String], location: Location) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
@@ -92,7 +92,7 @@ private[core] case class PureEnumCase(
   location: Location
 )
 
-private[core] case class PureTypeVerification(message: String, function: PureDefinedFunction, location: Location)
+private[core] case class PureTypeVerification(message: VerificationMessage, function: PureDefinedFunction, location: Location)
 
 private[core] case class PureNamedFunction(
   name: String,

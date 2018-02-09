@@ -61,6 +61,10 @@ case class FunctionCall(
   location: Location
 ) extends Expression
 
+case class OkValue(returnType: AbstractTypeReference, location: Location) extends Expression
+
+case class KoValue(parameters: Seq[Expression], returnType: AbstractTypeReference, location: Location) extends Expression
+
 object LogicalOperator extends Enumeration {
   val Or, And, Equal, NotEqual, Lower, Upper, LowerOrEqual, UpperOrEqual = Value
 }

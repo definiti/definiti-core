@@ -34,7 +34,7 @@ object AliasTypeSpec {
       alias = TypeReference("List", Seq(TypeReference("A"))),
       inherited = Seq.empty,
       verifications = Seq(TypeVerification(
-        message = "The list should not be empty",
+        message = LiteralMessage("The list should not be empty", Location(inlineVerificationFile, 3, 5, 3, 35)),
         function = DefinedFunction(
           parameters = Seq(ParameterDefinition(
             name = "list",

@@ -23,7 +23,7 @@ object VerificationSpec {
     Verification(
       name = "NonEmptyList",
       fullName = "NonEmptyList",
-      message = "The list should not be empty",
+      message = LiteralMessage("The list should not be empty", nonEmptyListLocation(2, 3, 33)),
       function = DefinedFunction(
         parameters = Seq(ParameterDefinition("list", TypeReference("List", Seq(TypeReference("A"))), nonEmptyListLocation(3, 7, 20))),
         body = MethodCall(

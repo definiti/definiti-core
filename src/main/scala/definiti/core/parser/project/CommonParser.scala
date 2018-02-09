@@ -1,7 +1,7 @@
 package definiti.core.parser.project
 
 import definiti.core.ast.{Position, Range, _}
-import definiti.core.parser.antlr.DefinitiParser.{GenericTypeContext, GenericTypeListContext, ParameterDefinitionContext, ParameterListDefinitionContext}
+import definiti.core.parser.antlr.DefinitiParser._
 import definiti.core.utils.CollectionUtils.scalaSeq
 import org.antlr.v4.runtime.tree.TerminalNode
 import org.antlr.v4.runtime.{ParserRuleContext, Token}
@@ -18,9 +18,13 @@ private[core] trait CommonParser {
   def processParameter(context: ParameterDefinitionContext): ParameterDefinition = {
     ParameterDefinition(
       name = context.parameterName.getText,
-      typeReference = TypeReference(context.parameterType.getText, processGenericTypeList(context.genericTypeList())),
+      typeReference = processTypeReference(context.typeReference()),
       location = Location(file, getRangeFromContext(context))
     )
+  }
+
+  def processTypeReference(context: TypeReferenceContext): TypeReference = {
+    TypeReference(context.name.getText, processGenericTypeList(context.genericTypeList()))
   }
 
   def processGenericTypeList(context: GenericTypeListContext): Seq[TypeReference] = {

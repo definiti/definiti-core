@@ -21,7 +21,7 @@ trait ParameterControlHelper {
   def controlParameter(expectedParameter: ParameterDefinition, callExpression: Expression, library: Library): ControlResult = {
     (expectedParameter.typeReference, callExpression) match {
       case (expectedLambda: LambdaReference, gotLambda: LambdaExpression) =>
-        validateLambda(expectedLambda, gotLambda)
+        validateLambda(expectedLambda, gotLambda, library)
       case (expectedLambda: LambdaReference, expression) =>
         expression.returnType match {
           case reference: NamedFunctionReference =>
@@ -29,19 +29,19 @@ trait ParameterControlHelper {
           case _ =>
             invalidParameterType(expectedLambda, expression.returnType, expression.location)
         }
-      case _ if areTypeEqual(expectedParameter.typeReference, callExpression.returnType) =>
+      case _ if areTypeEqual(expectedParameter.typeReference, callExpression.returnType, library) =>
         OK
       case _ =>
         invalidParameterType(expectedParameter.typeReference, callExpression.returnType, callExpression.location)
     }
   }
 
-  private def validateLambda(expectedLambda: LambdaReference, gotLambda: LambdaExpression): ControlResult = {
+  private def validateLambda(expectedLambda: LambdaReference, gotLambda: LambdaExpression, library: Library): ControlResult = {
     if (expectedLambda.inputTypes.length == gotLambda.parameterList.length) {
       ControlResult.squash {
         expectedLambda.inputTypes.zip(gotLambda.parameterList)
           .map { case (expectedType, gotParameter) =>
-            controlTypeEquality(expectedType, gotParameter.typeReference, gotParameter.location)
+            controlTypeEquality(expectedType, gotParameter.typeReference, gotParameter.location, library)
           }
       }
     } else {
@@ -55,7 +55,7 @@ trait ParameterControlHelper {
         val expectedInputs = expectedLambda.inputTypes
         val gotInputs = gotNamedFunction.parameters
         if (expectedInputs.length == gotInputs.length) {
-          if (expectedInputs.zip(gotInputs.map(_.typeReference)).forall(x => areTypeEqual(x._1, x._2))) {
+          if (expectedInputs.zip(gotInputs.map(_.typeReference)).forall(x => areTypeEqual(x._1, x._2, library))) {
             OK
           } else {
             errorTypeEquality(expectedLambda, namedFunctionReference, location)

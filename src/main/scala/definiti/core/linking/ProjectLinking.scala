@@ -14,7 +14,7 @@ private[core] object ProjectLinking {
     core
       .view
       .map(_.name)
-      .map(name => StringUtils.lastPart(name, '.') -> name)
+      .map(name => StringUtils.lastPart(name) -> name)
       .toMap
   }
 
@@ -63,8 +63,18 @@ private[core] object ProjectLinking {
   def injectLinksIntoVerification(verification: PureVerification, packageName: String, typeMapping: TypeMapping): PureVerification = {
     verification.copy(
       packageName = packageName,
+      message = injectLinksIntoVerificationMessage(verification.message, typeMapping),
       function = injectLinksIntoFunction(verification.function, typeMapping)
     )
+  }
+
+  def injectLinksIntoVerificationMessage(verificationMessage: VerificationMessage, typeMapping: TypeMapping): VerificationMessage = {
+    verificationMessage match {
+      case message: LiteralMessage => message
+      case typedMessage: TypedMessage => typedMessage.copy(
+        types = typedMessage.types.map(injectLinksIntoTypeReference(_, typeMapping))
+      )
+    }
   }
 
   def injectLinksIntoClassDefinition(classDefinition: PureClassDefinition, packageName: String, typeMapping: TypeMapping): PureClassDefinition = {
@@ -98,6 +108,7 @@ private[core] object ProjectLinking {
 
   def injectLinksIntoTypeVerification(typeVerification: PureTypeVerification, typeMapping: TypeMapping): PureTypeVerification = {
     typeVerification.copy(
+      message = injectLinksIntoVerificationMessage(typeVerification.message, typeMapping),
       function = injectLinksIntoFunction(typeVerification.function, typeMapping)
     )
   }

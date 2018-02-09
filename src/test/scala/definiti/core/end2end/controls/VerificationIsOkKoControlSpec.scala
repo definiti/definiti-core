@@ -14,6 +14,11 @@ class VerificationIsOkKoControlSpec extends EndToEndSpec {
     output shouldBe ok[Root]
   }
 
+  it should "validate a verification returning OkKo with typed message in a package" in {
+    val output = processFile("controls.verificationIsOkKo.package", configuration)
+    output shouldBe ok[Root]
+  }
+
   it should "invalidate a verification returning number" in {
     val output = processFile("controls.verificationIsOkKo.number", configuration)
     output should beKo(

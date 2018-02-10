@@ -13,11 +13,7 @@ private[core] class ExpressionTyping(context: Context) {
       case PureCalculatorExpression(operator, left, right, location) => addTypeIntoCalculatorExpression(operator, left, right, location)
       case not: PureNot => addTypesIntoNotExpression(not)
 
-      case booleanValue: PureBooleanValue => Valid(BooleanValue(booleanValue.value, boolean, booleanValue.location))
-      case numberValue: PureNumberValue => Valid(NumberValue(numberValue.value, number, numberValue.location))
-      case quotedStringValue: PureQuotedStringValue => Valid(QuotedStringValue(quotedStringValue.value, string, quotedStringValue.location))
-
-      case reference: PureReference => addTypesIntoReference(reference)
+      case atomicExpression: PureAtomicExpression => addTypeIntoAtomicExpression(atomicExpression)
 
       case methodCall: PureMethodCall => addTypeIntoMethodCall(methodCall)
       case attributeCall: PureAttributeCall => addTypeIntoAttributeCall(attributeCall)
@@ -31,6 +27,15 @@ private[core] class ExpressionTyping(context: Context) {
 
       case okValue: PureOkValue => addTypesIntoOkValue(okValue)
       case koValue: PureKoValue => addTypesIntoKoValue(koValue)
+    }
+  }
+
+  def addTypeIntoAtomicExpression(expression: PureAtomicExpression): Validated[AtomicExpression] = {
+    expression match {
+      case booleanValue: PureBooleanValue => Valid(BooleanValue(booleanValue.value, boolean, booleanValue.location))
+      case numberValue: PureNumberValue => Valid(NumberValue(numberValue.value, number, numberValue.location))
+      case quotedStringValue: PureQuotedStringValue => Valid(QuotedStringValue(quotedStringValue.value, string, quotedStringValue.location))
+      case reference: PureReference => addTypesIntoReference(reference)
     }
   }
 
@@ -54,7 +59,7 @@ private[core] class ExpressionTyping(context: Context) {
     }
   }
 
-  def addTypesIntoReference(reference: PureReference): Validated[Expression] = {
+  def addTypesIntoReference(reference: PureReference): Validated[Reference] = {
     context.findTypeReference(reference.name) match {
       case Some(typeReference) =>
         Valid(Reference(
@@ -211,7 +216,7 @@ private[core] class ExpressionTyping(context: Context) {
     }
   }
 
-  def getAttributeOpt(classDefinition: PureClassDefinition, attribute: String)(implicit context: Context): Option[AttributeDefinition] = {
+  def getAttributeOpt(classDefinition: PureClassDefinition, attribute: String)(implicit context: Context): Option[PureAttributeDefinition] = {
     classDefinition match {
       case nativeClassDefinition: PureNativeClassDefinition =>
         nativeClassDefinition.attributes.find(_.name == attribute)
@@ -223,7 +228,7 @@ private[core] class ExpressionTyping(context: Context) {
         enum.cases
           .find(_.name == attribute)
           .map { enumCase =>
-            AttributeDefinition(
+            PureAttributeDefinition(
               name = enumCase.name,
               typeReference = TypeReference(enum.canonicalName),
               comment = enumCase.comment,

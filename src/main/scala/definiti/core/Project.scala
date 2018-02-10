@@ -58,7 +58,15 @@ class Project(configuration: Configuration) {
           name = nativeClassDefinition.name,
           fullName = nativeClassDefinition.name,
           genericTypes = nativeClassDefinition.genericTypes,
-          attributes = nativeClassDefinition.attributes,
+          attributes = nativeClassDefinition.attributes.map { attribute =>
+            AttributeDefinition(
+              name = attribute.name,
+              typeReference = attribute.typeReference,
+              comment = attribute.comment,
+              verifications = Seq.empty, // no verifications in core definition
+              location = attribute.location
+            )
+          },
           methods = nativeClassDefinition.methods,
           comment = nativeClassDefinition.comment
         )

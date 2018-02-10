@@ -1,0 +1,30 @@
+package my.test
+
+type Contact verifying HasMinimalPhones(1) {
+  name: String verifying MinimalString(3)
+  phones: List[String]
+}
+
+type Professional = Contact verifying HasMinimalPhones(5)
+
+verification HasMinimalPhones(min: Number) {
+  message("has.minimal.phones", Number, Number)
+  (contact: Contact) => {
+    if (contact.phones.size >= min) {
+      ok
+    } else {
+      ko(contact.phones.size, min)
+    }
+  }
+}
+
+verification MinimalString(min: Number) {
+  message("minimal.length", Number, Number)
+  (string: String) => {
+    if (string.length >= min) {
+      ok
+    } else {
+      ko(string.length, min)
+    }
+  }
+}

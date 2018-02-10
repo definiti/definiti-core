@@ -100,7 +100,7 @@ private[core] object ProjectLinking {
     }
   }
 
-  def injectLinksIntoAttributes(attributeDefinition: AttributeDefinition, typeMapping: TypeMapping): AttributeDefinition = {
+  def injectLinksIntoAttributes(attributeDefinition: PureAttributeDefinition, typeMapping: TypeMapping): PureAttributeDefinition = {
     attributeDefinition.copy(
       typeReference = injectLinksIntoTypeReference(attributeDefinition.typeReference, typeMapping),
       verifications = attributeDefinition.verifications.map(injectLinksIntoVerificationReference(_, typeMapping))
@@ -157,7 +157,7 @@ private[core] object ProjectLinking {
     )
   }
 
-  def injectLinksIntoVerificationReference(verificationReference: VerificationReference, typeMapping: TypeMapping): VerificationReference = {
+  def injectLinksIntoVerificationReference(verificationReference: PureVerificationReference, typeMapping: TypeMapping): PureVerificationReference = {
     verificationReference.copy(
       verificationName = getLink(verificationReference.verificationName, typeMapping)
     )

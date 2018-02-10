@@ -75,6 +75,12 @@ trait RootJsonSerialization {
   ))
   implicit lazy val logicalExpressionFormat: JsonFormat[LogicalExpression] = lazyFormat(jsonFormat5(LogicalExpression.apply))
   implicit lazy val notFormat: JsonFormat[Not] = lazyFormat(jsonFormat3(Not.apply))
+  implicit lazy val atomicExpressionFormat: JsonFormat[AtomicExpression] = lazyFormat(sealedTraitFormat(
+    Format("booleanValue", classOf[BooleanValue]),
+    Format("numberValue", classOf[NumberValue]),
+    Format("quotedStringValue", classOf[QuotedStringValue]),
+    Format("reference", classOf[Reference])
+  ))
   implicit lazy val booleanValueFormat: JsonFormat[BooleanValue] = lazyFormat(jsonFormat3(BooleanValue.apply))
   implicit lazy val numberValueFormat: JsonFormat[NumberValue] = lazyFormat(jsonFormat3(NumberValue.apply))
   implicit lazy val quotedStringValueFormat: JsonFormat[QuotedStringValue] = lazyFormat(jsonFormat3(QuotedStringValue.apply))

@@ -41,6 +41,7 @@ object Controls {
     VerificationIsOkKoControl,
     VerificationNameUniquenessControl,
     VerificationReferenceControl,
+    VerificationReferenceParametersControl,
     VerificationTypeControl
   )
 }

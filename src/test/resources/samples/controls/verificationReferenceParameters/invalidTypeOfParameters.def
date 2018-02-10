@@ -1,0 +1,28 @@
+type Contact verifying HasMinimalPhones("invalid") {
+  name: String verifying MinimalString("invalid")
+  phones: List[String]
+}
+
+type Professional = Contact verifying HasMinimalPhones("invalid")
+
+verification HasMinimalPhones(min: Number) {
+  message("has.minimal.phones", Number, Number)
+  (contact: Contact) => {
+    if (contact.phones.size >= min) {
+      ok
+    } else {
+      ko(contact.phones.size, min)
+    }
+  }
+}
+
+verification MinimalString(min: Number) {
+  message("minimal.length", Number, Number)
+  (string: String) => {
+    if (string.length >= min) {
+      ok
+    } else {
+      ko(string.length, min)
+    }
+  }
+}

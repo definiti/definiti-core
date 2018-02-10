@@ -63,14 +63,20 @@ expression
   | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_2  rightExpression=expression
   | leftExpression=expression operator=LOGICAL_OPERATOR             rightExpression=expression
   | leftExpression=expression operator=LOGICAL_COMBINATION_OPERATOR rightExpression=expression
-  | booleanExpression=BOOLEAN
-  | numberExpression=NUMBER
-  | stringExpression=STRING
-  | referenceExpression=IDENTIFIER
+  | atomicExpression
   | IF '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' (ELSE '{' conditionElseBody=chainedExpression '}')?
   ;
 
+atomicExpression
+  : booleanExpression=BOOLEAN
+  | numberExpression=NUMBER
+  | stringExpression=STRING
+  | referenceExpression=IDENTIFIER
+  ;
+
 expressionList : expression (',' expression)*;
+
+atomicExpressionList : atomicExpression (',' atomicExpression)*;
 
 verification :
   DOC_COMMENT?
@@ -123,7 +129,7 @@ enumCase: DOC_COMMENT? IDENTIFIER;
 function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
 
 verifyingList : verifying*;
-verifying : VERIFYING verificationName=IDENTIFIER ('(' message=STRING ')')?;
+verifying : VERIFYING verificationName=IDENTIFIER ('(' atomicExpressionList ')')?;
 
 parameterDefinition: parameterName=IDENTIFIER ':' typeReference;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );

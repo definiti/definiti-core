@@ -29,6 +29,8 @@ trait PureRootJsonSerialization {
     Format("definedType", classOf[PureDefinedType])
   ))
   implicit lazy val pureDefinedTypeFormat: JsonFormat[PureDefinedType] = lazyFormat(jsonFormat8(PureDefinedType.apply))
+  implicit lazy val pureVerificationReferenceFormat: JsonFormat[PureVerificationReference] = lazyFormat(jsonFormat3(PureVerificationReference.apply))
+  implicit lazy val pureAttributeDefinitionFormat: JsonFormat[PureAttributeDefinition] = lazyFormat(jsonFormat5(PureAttributeDefinition.apply))
   implicit lazy val pureAliasTypeFormat: JsonFormat[PureAliasType] = lazyFormat(jsonFormat8(PureAliasType.apply))
   implicit lazy val pureTypeVerificationFormat: JsonFormat[PureTypeVerification] = lazyFormat(jsonFormat3(PureTypeVerification.apply))
   implicit lazy val pureEnumFormat: JsonFormat[PureEnum] = lazyFormat(jsonFormat5(PureEnum.apply))
@@ -82,6 +84,12 @@ trait PureRootJsonSerialization {
   implicit lazy val pureLogicalExpressionFormat: JsonFormat[PureLogicalExpression] = lazyFormat(jsonFormat4(PureLogicalExpression.apply))
   implicit lazy val pureCalculatorExpressionFormat: JsonFormat[PureCalculatorExpression] = lazyFormat(jsonFormat4(PureCalculatorExpression.apply))
   implicit lazy val pureNotFormat: JsonFormat[PureNot] = lazyFormat(jsonFormat2(PureNot.apply))
+  implicit lazy val pureAtomicExpressionFormat: JsonFormat[PureAtomicExpression] = lazyFormat(sealedTraitFormat[PureAtomicExpression](
+    Format("booleanValue", classOf[PureBooleanValue]),
+    Format("numberValue", classOf[PureNumberValue]),
+    Format("quotedStringValue", classOf[PureQuotedStringValue]),
+    Format("reference", classOf[PureReference])
+  ))
   implicit lazy val pureBooleanValueFormat: JsonFormat[PureBooleanValue] = lazyFormat(jsonFormat2(PureBooleanValue.apply))
   implicit lazy val pureNumberValueFormat: JsonFormat[PureNumberValue] = lazyFormat(jsonFormat2(PureNumberValue.apply))
   implicit lazy val pureQuotedStringValueFormat: JsonFormat[PureQuotedStringValue] = lazyFormat(jsonFormat2(PureQuotedStringValue.apply))

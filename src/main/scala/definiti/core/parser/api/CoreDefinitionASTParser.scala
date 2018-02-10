@@ -39,8 +39,8 @@ private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonPa
     )
   }
 
-  private def processAttribute(context: AttributeDefinitionContext): AttributeDefinition = {
-    AttributeDefinition(
+  private def processAttribute(context: AttributeDefinitionContext): PureAttributeDefinition = {
+    PureAttributeDefinition(
       name = context.attributeName.getText,
       typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),

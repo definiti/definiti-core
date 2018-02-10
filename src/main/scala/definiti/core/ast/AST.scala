@@ -170,7 +170,11 @@ case class MethodDefinition(
   comment: Option[String]
 )
 
-case class VerificationReference(verificationName: String, message: Option[String], location: Location)
+case class VerificationReference(
+  verificationName: String,
+  parameters: Seq[AtomicExpression],
+  location: Location
+)
 
 case class TypeVerification(message: VerificationMessage, function: DefinedFunction, location: Location)
 

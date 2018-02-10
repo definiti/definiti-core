@@ -63,6 +63,7 @@ private[core] object ProjectLinking {
   def injectLinksIntoVerification(verification: PureVerification, packageName: String, typeMapping: TypeMapping): PureVerification = {
     verification.copy(
       packageName = packageName,
+      parameters = verification.parameters.map(injectLinksIntoParameter(_, typeMapping)),
       message = injectLinksIntoVerificationMessage(verification.message, typeMapping),
       function = injectLinksIntoFunction(verification.function, typeMapping)
     )

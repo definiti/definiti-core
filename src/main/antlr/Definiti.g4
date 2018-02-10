@@ -74,7 +74,7 @@ expressionList : expression (',' expression)*;
 
 verification :
   DOC_COMMENT?
-  VERIFICATION verificationName=IDENTIFIER '{'
+  VERIFICATION verificationName=IDENTIFIER ('(' parameterListDefinition ')')? '{'
     verificationMessage
     function
   '}';

@@ -1,0 +1,12 @@
+package my.test
+
+verification LengthBetween(minLength: Number, maxLength: Number) {
+  message("length.between", String, Number, Number)
+  (string: String) => {
+    if (minLength <= string.length && string.length <= maxLength) {
+      ok
+    } else {
+      ko(string, minLength, maxLength)
+    }
+  }
+}

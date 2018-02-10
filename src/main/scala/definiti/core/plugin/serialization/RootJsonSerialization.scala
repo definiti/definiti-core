@@ -26,7 +26,7 @@ trait RootJsonSerialization {
     Format("verification", classOf[Verification])
   ))
   implicit lazy val namespaceFormat: JsonFormat[Namespace] = lazyFormat(jsonFormat3(Namespace.apply))
-  implicit lazy val verificationFormat: JsonFormat[Verification] = lazyFormat(jsonFormat6(Verification.apply))
+  implicit lazy val verificationFormat: JsonFormat[Verification] = lazyFormat(jsonFormat7(Verification.apply))
   implicit lazy val verificationMessageFormat: JsonFormat[VerificationMessage] = lazyFormat(sealedTraitFormat[VerificationMessage](
     Format("literal", classOf[LiteralMessage]),
     Format("typed", classOf[TypedMessage])

@@ -23,8 +23,7 @@ trait PureRootJsonSerialization {
   ))
   implicit lazy val pureNativeClassDefinitionFormat: JsonFormat[PureNativeClassDefinition] = lazyFormat(jsonFormat5(PureNativeClassDefinition.apply))
   implicit lazy val pureDefinedFunctionFormat: JsonFormat[PureDefinedFunction] = lazyFormat(jsonFormat4(PureDefinedFunction.apply))
-  implicit lazy val pureParameterFormat: JsonFormat[PureParameter] = lazyFormat(jsonFormat3(PureParameter.apply))
-  implicit lazy val pureVerificationFormat: JsonFormat[PureVerification] = lazyFormat(jsonFormat6(PureVerification.apply))
+  implicit lazy val pureVerificationFormat: JsonFormat[PureVerification] = lazyFormat(jsonFormat7(PureVerification.apply))
   implicit lazy val pureTypeFormat: JsonFormat[PureType] = lazyFormat(sealedTraitFormat[PureType](
     Format("aliasType", classOf[PureAliasType]),
     Format("definedType", classOf[PureDefinedType])

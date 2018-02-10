@@ -1,0 +1,12 @@
+type AnyAlias = Number
+
+type AnyType {
+  name: String
+}
+
+verification LengthOf(anyAlias: AnyAlias, anyType: AnyType) {
+  "This verification is invalid because parameters are not atomic types (boolean, number, string)"
+  (string: String) => {
+    true
+  }
+}

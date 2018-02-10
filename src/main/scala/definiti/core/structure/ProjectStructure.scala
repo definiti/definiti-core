@@ -75,6 +75,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     Verification(
       name = verification.name,
       fullName = if (namespace.nonEmpty) namespace + "." + verification.name else verification.name,
+      parameters = verification.parameters,
       message = verification.message,
       function = verification.function,
       comment = verification.comment,

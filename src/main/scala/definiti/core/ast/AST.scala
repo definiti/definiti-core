@@ -15,6 +15,7 @@ case class Namespace(
 case class Verification(
   name: String,
   fullName: String,
+  parameters: Seq[ParameterDefinition],
   message: VerificationMessage,
   function: DefinedFunction,
   comment: Option[String],

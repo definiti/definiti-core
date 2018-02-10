@@ -47,6 +47,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     PureVerification(
       name = context.verificationName.getText,
       packageName = NOT_DEFINED,
+      parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
       message = processVerificationMessage(context.verificationMessage()),
       function = processFunction(context.function()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),

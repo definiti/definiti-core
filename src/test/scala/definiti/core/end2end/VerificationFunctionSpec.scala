@@ -27,6 +27,7 @@ object VerificationFunctionSpec {
         Verification(
           name = "IsStrongPassword",
           fullName = "verificationFunction.IsStrongPassword",
+          parameters = Seq.empty,
           message = LiteralMessage("The password is too simple", verificationFunctionLocation(4, 3, 31)),
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition(

@@ -32,6 +32,7 @@ object Controls {
     NamedFunctionTypeControl,
     NotExpressionIsBooleanControl,
     OrderOperandsAreNumberControl,
+    VerificationParameterUsableControl,
     TopLevelFullNameUniquenessControl,
     TypeNameFormatControl,
     TypeVerificationIsBooleanControl,

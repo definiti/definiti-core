@@ -36,9 +36,15 @@ private[core] case class PureNativeClassDefinition(
 
 private[core] case class PureDefinedFunction(parameters: Seq[ParameterDefinition], body: PureExpression, genericTypes: Seq[String], location: Location)
 
-private[core] case class PureParameter(name: String, typeReference: TypeReference, location: Location)
-
-private[core] case class PureVerification(name: String, packageName: String, message: VerificationMessage, function: PureDefinedFunction, comment: Option[String], location: Location) {
+private[core] case class PureVerification(
+  name: String,
+  packageName: String,
+  parameters: Seq[ParameterDefinition],
+  message: VerificationMessage,
+  function: PureDefinedFunction,
+  comment: Option[String],
+  location: Location
+) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 

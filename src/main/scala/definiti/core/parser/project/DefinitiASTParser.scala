@@ -88,6 +88,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
       name = typeName,
       packageName = NOT_DEFINED,
       genericTypes = generics,
+      parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
       verifications = scalaSeq(context.typeVerification()).map(processTypeVerification(_, typeName, generics)),
       inherited = processVerifyingList(context.verifyingList()),
@@ -153,11 +154,12 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     PureAliasType(
       name = context.typeName.getText,
       packageName = NOT_DEFINED,
+      genericTypes = generics,
+      parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
       alias = TypeReference(
         typeName = context.referenceTypeName.getText,
         genericTypes = processGenericTypeList(context.aliasGenericTypes)
       ),
-      genericTypes = generics,
       verifications = extractAliasTypeVerifications(context.aliasTypeBody(), context.typeName.getText, generics),
       inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),

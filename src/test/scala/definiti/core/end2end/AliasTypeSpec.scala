@@ -31,6 +31,7 @@ object AliasTypeSpec {
       name = "ListAlias",
       fullName = "ListAlias",
       genericTypes = Seq("A"),
+      parameters = Seq.empty,
       alias = TypeReference("List", Seq(TypeReference("A"))),
       inherited = Seq.empty,
       verifications = Seq(TypeVerification(

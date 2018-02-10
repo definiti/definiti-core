@@ -94,7 +94,7 @@ typeReference: name=IDENTIFIER ('[' genericTypeList ']')?;
 
 definedType :
   DOC_COMMENT?
-  TYPE typeName=IDENTIFIER ('[' genericTypeList ']')? verifyingList '{'
+  TYPE typeName=IDENTIFIER ('[' genericTypeList ']')? ( '(' parameterListDefinition ')' )? verifyingList '{'
     attributeDefinition+
 
     (typeVerification)*
@@ -114,7 +114,7 @@ typeVerificationFunction: '(' IDENTIFIER ')' '=>' '{' chainedExpression '}';
 
 aliasType:
   DOC_COMMENT?
-  TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList aliasTypeBody?;
+  TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? ( '(' parameterListDefinition ')' )? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList aliasTypeBody?;
 
 aliasTypeBody: '{'
   typeVerification*

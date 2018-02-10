@@ -116,7 +116,15 @@ private[core] case class ClassContext(
   }
 
   override def findTypeReference(name: String): Option[AbstractTypeReference] = {
-    outerContext.findTypeReference(name)
+    val classParameters = currentType match {
+      case aliasType: PureAliasType => aliasType.parameters
+      case definedType: PureDefinedType => definedType.parameters
+      case _ => Seq.empty
+    }
+    classParameters
+      .find(_.name == name)
+      .map(_.typeReference)
+      .orElse(outerContext.findTypeReference(name))
   }
 }
 

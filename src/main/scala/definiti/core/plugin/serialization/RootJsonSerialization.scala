@@ -38,8 +38,8 @@ trait RootJsonSerialization {
     Format("definedType", classOf[DefinedType]),
     Format("nativeClassDefinition", classOf[NativeClassDefinition])
   ))
-  implicit lazy val definedTypeFormat: JsonFormat[DefinedType] = lazyFormat(jsonFormat8(DefinedType.apply))
-  implicit lazy val aliasTypeFormat: JsonFormat[AliasType] = lazyFormat(jsonFormat8(AliasType.apply))
+  implicit lazy val definedTypeFormat: JsonFormat[DefinedType] = lazyFormat(jsonFormat9(DefinedType.apply))
+  implicit lazy val aliasTypeFormat: JsonFormat[AliasType] = lazyFormat(jsonFormat9(AliasType.apply))
   implicit lazy val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = lazyFormat(jsonFormat6(NativeClassDefinition.apply))
   implicit lazy val namedFunctionFormat: JsonFormat[NamedFunction] = lazyFormat(jsonFormat7(NamedFunction.apply))
 

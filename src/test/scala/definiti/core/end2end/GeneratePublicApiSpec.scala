@@ -36,6 +36,7 @@ object GeneratePublicApiSpec {
           name = "Blog",
           fullName = "blog.Blog",
           genericTypes = Seq.empty,
+          parameters = Seq.empty,
           attributes = Seq(
             AttributeDefinition(
               name = "title",
@@ -125,6 +126,7 @@ object GeneratePublicApiSpec {
           name = "Comment",
           fullName = "blog.Comment",
           genericTypes = Seq.empty,
+          parameters = Seq.empty,
           attributes = Seq(
             AttributeDefinition(
               name = "user",

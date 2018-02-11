@@ -6,6 +6,8 @@ sealed trait Expression {
   def returnType: AbstractTypeReference
 }
 
+sealed trait AtomicExpression extends Expression
+
 case class LogicalExpression(
   operator: LogicalOperator.Value,
   left: Expression,
@@ -24,13 +26,13 @@ case class CalculatorExpression(
 
 case class Not(inner: Expression, returnType: AbstractTypeReference, location: Location) extends Expression
 
-case class BooleanValue(value: Boolean, returnType: AbstractTypeReference, location: Location) extends Expression
+case class BooleanValue(value: Boolean, returnType: AbstractTypeReference, location: Location) extends AtomicExpression
 
-case class NumberValue(value: BigDecimal, returnType: AbstractTypeReference, location: Location) extends Expression
+case class NumberValue(value: BigDecimal, returnType: AbstractTypeReference, location: Location) extends AtomicExpression
 
-case class QuotedStringValue(value: String, returnType: AbstractTypeReference, location: Location) extends Expression
+case class QuotedStringValue(value: String, returnType: AbstractTypeReference, location: Location) extends AtomicExpression
 
-case class Reference(name: String, returnType: AbstractTypeReference, location: Location) extends Expression
+case class Reference(name: String, returnType: AbstractTypeReference, location: Location) extends AtomicExpression
 
 case class MethodCall(expression: Expression, method: String, parameters: Seq[Expression], generics: Seq[TypeReference], returnType: AbstractTypeReference, location: Location) extends Expression
 

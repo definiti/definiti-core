@@ -36,24 +36,34 @@ object GeneratePublicApiSpec {
           name = "Blog",
           fullName = "blog.Blog",
           genericTypes = Seq.empty,
+          parameters = Seq.empty,
           attributes = Seq(
             AttributeDefinition(
               name = "title",
-              typeReference = TypeReference("String"),
+              typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validBlogSrcTypes, 7, 10, 7, 16)),
               comment = None,
-              verifications = Seq(VerificationReference("blog.NonBlank", Some("Please provide a title"), Location(validBlogSrcTypes, 7, 17, 7, 61))),
+              verifications = Seq(VerificationReference(
+                "blog.NonBlank",
+                Seq(QuotedStringValue("Please provide a title", Constants.string, Location(validBlogSrcTypes, 7, 36, 7, 60))),
+                Location(validBlogSrcTypes, 7, 17, 7, 61)
+              )),
               location = Location(validBlogSrcTypes, 7, 3, 7, 61)
             ),
             AttributeDefinition(
               name = "content",
-              typeReference = TypeReference("String"),
+              typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validBlogSrcTypes, 8, 12, 8, 18)),
               comment = None,
-              verifications = Seq(VerificationReference("blog.NonBlank", None, Location(validBlogSrcTypes, 8, 19, 8, 37))),
+              verifications = Seq(VerificationReference("blog.NonBlank", Seq.empty, Location(validBlogSrcTypes, 8, 19, 8, 37))),
               location = Location(validBlogSrcTypes, 8, 3, 8, 37)
             ),
             AttributeDefinition(
               name = "tags",
-              typeReference = TypeReference("List", Seq(TypeReference("String"))),
+              typeDeclaration = TypeDeclaration(
+                typeName = "List",
+                genericTypes = Seq(TypeDeclaration("String", Seq.empty, Seq.empty, Location(validBlogSrcTypes, 9, 14, 9, 20))),
+                parameters = Seq.empty,
+                location = Location(validBlogSrcTypes, 9, 9, 9, 21)
+              ),
               comment = None,
               verifications = Seq.empty,
               location = Location(validBlogSrcTypes, 9, 3, 9, 21)
@@ -121,29 +131,35 @@ object GeneratePublicApiSpec {
           name = "Comment",
           fullName = "blog.Comment",
           genericTypes = Seq.empty,
+          parameters = Seq.empty,
           attributes = Seq(
             AttributeDefinition(
               name = "user",
-              typeReference = TypeReference("String"),
+              typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validBlogSrcTypes, 26, 9, 26, 15)),
               comment = None,
               verifications = Seq(
-                VerificationReference("blog.NonBlank", None, Location(validBlogSrcTypes, 26, 16, 26, 34)),
-                VerificationReference("blog.ShortString", None, Location(validBlogSrcTypes, 26, 35, 26, 56))
+                VerificationReference("blog.NonBlank", Seq.empty, Location(validBlogSrcTypes, 26, 16, 26, 34)),
+                VerificationReference("blog.ShortString", Seq.empty, Location(validBlogSrcTypes, 26, 35, 26, 56))
               ),
               location = Location(validBlogSrcTypes, 26, 3, 26, 56)
             ),
             AttributeDefinition(
               name = "title",
-              typeReference = TypeReference("Option", Seq(TypeReference("String"))),
+              typeDeclaration = TypeDeclaration(
+                typeName = "Option",
+                genericTypes = Seq(TypeDeclaration("String", Seq.empty, Seq.empty, Location(validBlogSrcTypes, 27, 17, 27, 23))),
+                parameters = Seq.empty,
+                location = Location(validBlogSrcTypes, 27, 10, 27, 24)
+              ),
               comment = None,
               verifications = Seq.empty,
               location = Location(validBlogSrcTypes, 27, 3, 27, 24)
             ),
             AttributeDefinition(
               name = "content",
-              typeReference = TypeReference("String"),
+              typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validBlogSrcTypes, 28, 12, 28, 18)),
               comment = None,
-              verifications = Seq(VerificationReference("blog.NonBlank", None, Location(validBlogSrcTypes, 28, 19, 28, 37))),
+              verifications = Seq(VerificationReference("blog.NonBlank", Seq.empty, Location(validBlogSrcTypes, 28, 19, 28, 37))),
               location = Location(validBlogSrcTypes, 28, 3, 28, 37)
             )
           ),
@@ -155,6 +171,7 @@ object GeneratePublicApiSpec {
         Verification(
           name = "NonBlank",
           fullName = "blog.NonBlank",
+          parameters = Seq.empty,
           message = LiteralMessage("The string should not be blank", Location(validBlogSrcVerifications, 4, 3, 4, 35)),
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition("string", TypeReference("String"), Location(validBlogSrcVerifications, 5, 4, 5, 18))),
@@ -182,6 +199,7 @@ object GeneratePublicApiSpec {
         Verification(
           name = "ShortString",
           fullName = "blog.ShortString",
+          parameters = Seq.empty,
           message = LiteralMessage("The string should not have more than 25 characters", Location(validBlogSrcVerifications, 11, 3, 11, 55)),
           function = DefinedFunction(
             parameters = Seq(ParameterDefinition("string", TypeReference("String"), Location(validBlogSrcVerifications, 12, 4, 12, 18))),

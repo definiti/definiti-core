@@ -27,20 +27,47 @@ private[core] sealed trait PureClassDefinition {
 private[core] case class PureNativeClassDefinition(
   name: String,
   genericTypes: Seq[String],
-  attributes: Seq[AttributeDefinition],
+  attributes: Seq[PureAttributeDefinition],
   methods: Seq[MethodDefinition],
   comment: Option[String]
 ) extends PureClassDefinition {
   override def canonicalName: String = name
 }
 
+private[core] case class PureAttributeDefinition(
+  name: String,
+  typeDeclaration: PureTypeDeclaration,
+  comment: Option[String],
+  verifications: Seq[PureVerificationReference],
+  location: Location
+)
+
+private[core] case class PureTypeDeclaration(
+  typeName: String,
+  genericTypes: Seq[PureTypeDeclaration],
+  parameters: Seq[PureAtomicExpression],
+  location: Location
+)
+
 private[core] case class PureDefinedFunction(parameters: Seq[ParameterDefinition], body: PureExpression, genericTypes: Seq[String], location: Location)
 
-private[core] case class PureParameter(name: String, typeReference: TypeReference, location: Location)
-
-private[core] case class PureVerification(name: String, packageName: String, message: VerificationMessage, function: PureDefinedFunction, comment: Option[String], location: Location) {
+private[core] case class PureVerification(
+  name: String,
+  packageName: String,
+  parameters: Seq[ParameterDefinition],
+  message: VerificationMessage,
+  function: PureDefinedFunction,
+  comment: Option[String],
+  location: Location
+) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
+
+private[core] case class PureVerificationReference(
+  verificationName: String,
+  parameters: Seq[PureAtomicExpression],
+  location: Location
+)
 
 private[core] sealed trait PureType extends PureClassDefinition {
   def comment: Option[String]
@@ -50,9 +77,10 @@ private[core] case class PureDefinedType(
   name: String,
   packageName: String,
   genericTypes: Seq[String],
-  attributes: Seq[AttributeDefinition],
+  parameters: Seq[ParameterDefinition],
+  attributes: Seq[PureAttributeDefinition],
   verifications: Seq[PureTypeVerification],
-  inherited: Seq[VerificationReference],
+  inherited: Seq[PureVerificationReference],
   comment: Option[String],
   location: Location
 ) extends PureType {
@@ -65,9 +93,10 @@ private[core] case class PureAliasType(
   name: String,
   packageName: String,
   genericTypes: Seq[String],
-  alias: TypeReference,
+  parameters: Seq[ParameterDefinition],
+  alias: PureTypeDeclaration,
   verifications: Seq[PureTypeVerification],
-  inherited: Seq[VerificationReference],
+  inherited: Seq[PureVerificationReference],
   comment: Option[String],
   location: Location
 ) extends PureType {

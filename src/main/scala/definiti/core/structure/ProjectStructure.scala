@@ -75,6 +75,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     Verification(
       name = verification.name,
       fullName = if (namespace.nonEmpty) namespace + "." + verification.name else verification.name,
+      parameters = verification.parameters,
       message = verification.message,
       function = verification.function,
       comment = verification.comment,
@@ -96,6 +97,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
       name = definedType.name,
       fullName = if (namespace.nonEmpty) s"${namespace}.${definedType.name}" else definedType.name,
       genericTypes = definedType.genericTypes,
+      parameters = definedType.parameters,
       attributes = definedType.attributes,
       verifications = definedType.verifications,
       inherited = definedType.inherited,
@@ -109,6 +111,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
       name = aliasType.name,
       fullName = if (namespace.nonEmpty) s"${namespace}.${aliasType.name}" else aliasType.name,
       genericTypes = aliasType.genericTypes,
+      parameters = aliasType.parameters,
       alias = aliasType.alias,
       verifications = aliasType.verifications,
       inherited = aliasType.inherited,

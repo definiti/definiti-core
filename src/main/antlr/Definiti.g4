@@ -63,18 +63,24 @@ expression
   | leftExpression=expression operator=CALCULATOR_OPERATOR_LEVEL_2  rightExpression=expression
   | leftExpression=expression operator=LOGICAL_OPERATOR             rightExpression=expression
   | leftExpression=expression operator=LOGICAL_COMBINATION_OPERATOR rightExpression=expression
-  | booleanExpression=BOOLEAN
+  | atomicExpression
+  | IF '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' (ELSE '{' conditionElseBody=chainedExpression '}')?
+  ;
+
+atomicExpression
+  : booleanExpression=BOOLEAN
   | numberExpression=NUMBER
   | stringExpression=STRING
   | referenceExpression=IDENTIFIER
-  | IF '(' conditionExpression=expression ')' '{' conditionIfBody=chainedExpression '}' (ELSE '{' conditionElseBody=chainedExpression '}')?
   ;
 
 expressionList : expression (',' expression)*;
 
+atomicExpressionList : atomicExpression (',' atomicExpression)*;
+
 verification :
   DOC_COMMENT?
-  VERIFICATION verificationName=IDENTIFIER '{'
+  VERIFICATION verificationName=IDENTIFIER ('(' parameterListDefinition ')')? '{'
     verificationMessage
     function
   '}';
@@ -84,11 +90,14 @@ verificationMessage
   | MESSAGE '(' message=STRING (',' typeReference)* ')'
   ;
 
+typeDeclaration: name=IDENTIFIER ('[' typeDeclarationList ']')? ( '(' atomicExpressionList ')' )?;
+typeDeclarationList: ((typeDeclaration ',')* typeDeclaration);
+
 typeReference: name=IDENTIFIER ('[' genericTypeList ']')?;
 
 definedType :
   DOC_COMMENT?
-  TYPE typeName=IDENTIFIER ('[' genericTypeList ']')? verifyingList '{'
+  TYPE typeName=IDENTIFIER ('[' genericTypeList ']')? ( '(' parameterListDefinition ')' )? verifyingList '{'
     attributeDefinition+
 
     (typeVerification)*
@@ -96,7 +105,7 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')? verifyingList;
+  attributeName=IDENTIFIER ':' typeDeclaration verifyingList;
 
 typeVerification:
   VERIFY '{'
@@ -108,7 +117,7 @@ typeVerificationFunction: '(' IDENTIFIER ')' '=>' '{' chainedExpression '}';
 
 aliasType:
   DOC_COMMENT?
-  TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList aliasTypeBody?;
+  TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? ( '(' parameterListDefinition ')' )? '=' typeDeclaration verifyingList aliasTypeBody?;
 
 aliasTypeBody: '{'
   typeVerification*
@@ -123,7 +132,7 @@ enumCase: DOC_COMMENT? IDENTIFIER;
 function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' chainedExpression '}';
 
 verifyingList : verifying*;
-verifying : VERIFYING verificationName=IDENTIFIER ('(' message=STRING ')')?;
+verifying : VERIFYING verificationName=IDENTIFIER ('(' atomicExpressionList ')')?;
 
 parameterDefinition: parameterName=IDENTIFIER ':' typeReference;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );

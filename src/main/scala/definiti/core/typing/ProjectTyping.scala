@@ -27,12 +27,14 @@ private[core] class ProjectTyping(context: Context) {
   }
 
   def addTypesIntoVerification(verification: PureVerification): Validated[TypedVerification] = {
-    val definedFunctionContext = DefinedFunctionContext(context, verification.function)
+    val verificationContext = VerificationContext(context, verification)
+    val definedFunctionContext = DefinedFunctionContext(verificationContext, verification.function)
     val validatedFunction = new FunctionTyping(definedFunctionContext).addTypesIntoDefinedFunction(verification.function)
     validatedFunction.map { function =>
       TypedVerification(
         name = verification.name,
         packageName = verification.packageName,
+        parameters = verification.parameters,
         message = verification.message,
         function = function,
         comment = verification.comment,

@@ -1,0 +1,86 @@
+type Test {
+  list1: ListOfSize(3)
+  list2: ListOfSize(1)
+  positive: PositiveNumber("The number is not positive")
+  higherThanTen: HigherThan(10, "Please give a number higher than 10")
+  name: RequiredString("Please give a name")
+  username: RequiredNonBlankString("Please give a non blank username")
+  phone: String verifying LengthOf(10, "Please provide a phone number of 10 characters")
+}
+
+type Contact(owner: String, numberOfPhones: Number) {
+  address: RequiredString("Please define the address of ${owner}")
+  phones: List[RequiredString("Please define the phone number of ${owner}")]
+
+  verify {
+    message("contact.verify.phones", String, Number)
+    (contact) => {
+      if (contact.phones.length == numberOfPhones) {
+        ok
+      } else {
+        ko(owner, numberOfPhones)
+      }
+    }
+  }
+}
+
+type ListOfSize[A](size: Number) = List[A] {
+  verify {
+    message("list.of.size", Number)
+    (list) => {
+      if (list.size == size) {
+        ok
+      } else {
+        ko(size)
+      }
+    }
+  }
+}
+
+type PositiveNumber(messageContent: String = "Please give a positive number") = HigherThan(0, messageContent)
+
+type HigherThan(reference: Number, messageContent: String) = Number {
+  verify {
+    message("higher.than", String)
+    (number) => {
+      if (number > reference) {
+        ok
+      } else {
+        ko(messageContent)
+      }
+    }
+  }
+}
+
+type RequiredString(messageContent: String) = String {
+  verify {
+    message("required.string", String)
+    (string) => {
+      if (string.nonEmpty()) {
+        ok
+      } else {
+        ko(messageContent)
+      }
+    }
+  }
+}
+
+type RequiredNonBlankString(messageContent: String) = String verifying NonBlank(messageContent)
+
+verification NonBlank {
+  "Please provide a string with non blank characters"
+  (string) => {
+    string.trim().nonEmpty()
+  }
+}
+
+verification LengthOf(length: Number) {
+  message("length.of", Number)
+  (string: String) => {
+    if (string.length == length) {
+      ok
+    } else {
+      ko(length)
+    }
+  }
+}

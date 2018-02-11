@@ -34,7 +34,15 @@ private[core] case class TypedNativeClassDefinition(
   override def canonicalName: String = name
 }
 
-private[core] case class TypedVerification(name: String, packageName: String, message: VerificationMessage, function: DefinedFunction, comment: Option[String], location: Location) {
+private[core] case class TypedVerification(
+  name: String,
+  packageName: String,
+  parameters: Seq[ParameterDefinition],
+  message: VerificationMessage,
+  function: DefinedFunction,
+  comment: Option[String],
+  location: Location
+) {
   def canonicalName: String = ASTHelper.canonical(packageName, name)
 }
 
@@ -46,6 +54,7 @@ private[core] case class TypedDefinedType(
   name: String,
   packageName: String,
   genericTypes: Seq[String],
+  parameters: Seq[ParameterDefinition],
   attributes: Seq[AttributeDefinition],
   verifications: Seq[TypeVerification],
   inherited: Seq[VerificationReference],
@@ -59,7 +68,8 @@ private[core] case class TypedAliasType(
   name: String,
   packageName: String,
   genericTypes: Seq[String],
-  alias: TypeReference,
+  parameters: Seq[ParameterDefinition],
+  alias: TypeDeclaration,
   verifications: Seq[TypeVerification],
   inherited: Seq[VerificationReference],
   comment: Option[String],

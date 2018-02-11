@@ -32,14 +32,18 @@ object Controls {
     NamedFunctionTypeControl,
     NotExpressionIsBooleanControl,
     OrderOperandsAreNumberControl,
+    VerificationParameterUsableControl,
     TopLevelFullNameUniquenessControl,
     TypeNameFormatControl,
+    TypeParameterUsableControl,
+    TypeDeclarationParametersControl,
     TypeVerificationIsBooleanControl,
     TypeVerificationIsOkKoControl,
     VerificationIsBooleanControl,
     VerificationIsOkKoControl,
     VerificationNameUniquenessControl,
     VerificationReferenceControl,
+    VerificationReferenceParametersControl,
     VerificationTypeControl
   )
 }

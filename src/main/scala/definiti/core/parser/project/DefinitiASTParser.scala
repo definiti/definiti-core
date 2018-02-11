@@ -47,6 +47,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     PureVerification(
       name = context.verificationName.getText,
       packageName = NOT_DEFINED,
+      parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
       message = processVerificationMessage(context.verificationMessage()),
       function = processFunction(context.function()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
@@ -87,6 +88,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
       name = typeName,
       packageName = NOT_DEFINED,
       genericTypes = generics,
+      parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
       verifications = scalaSeq(context.typeVerification()).map(processTypeVerification(_, typeName, generics)),
       inherited = processVerifyingList(context.verifyingList()),
@@ -95,17 +97,17 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     )
   }
 
-  def processAttributeDefinition(context: AttributeDefinitionContext): AttributeDefinition = {
-    AttributeDefinition(
+  def processAttributeDefinition(context: AttributeDefinitionContext): PureAttributeDefinition = {
+    PureAttributeDefinition(
       name = context.attributeName.getText,
-      typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
+      typeDeclaration = processTypeDeclaration(context.typeDeclaration),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       verifications = processVerifyingList(context.verifyingList()),
       location = getLocationFromContext(context)
     )
   }
 
-  def processVerifyingList(verifyingListContext: VerifyingListContext): Seq[VerificationReference] = {
+  def processVerifyingList(verifyingListContext: VerifyingListContext): Seq[PureVerificationReference] = {
     if (verifyingListContext != null) {
       scalaSeq(verifyingListContext.verifying()).map(processVerifying)
     } else {
@@ -113,12 +115,16 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     }
   }
 
-  def processVerifying(context: VerifyingContext): VerificationReference = {
-    VerificationReference(
+  def processVerifying(context: VerifyingContext): PureVerificationReference = {
+    PureVerificationReference(
       verificationName = context.verificationName.getText,
-      message = Option(context.message).map(message => extractStringContent(message.getText)),
+      parameters = Option(context.atomicExpressionList).map(processAtomicExpressionList).getOrElse(Seq.empty),
       location = getLocationFromContext(context)
     )
+  }
+
+  private def processAtomicExpressionList(context: AtomicExpressionListContext): Seq[PureAtomicExpression] = {
+    scalaSeq(context.atomicExpression()).map(processAtomicExpression)
   }
 
   def processTypeVerification(context: TypeVerificationContext, typeName: String, generics: Seq[String]): PureTypeVerification = {
@@ -148,16 +154,27 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     PureAliasType(
       name = context.typeName.getText,
       packageName = NOT_DEFINED,
-      alias = TypeReference(
-        typeName = context.referenceTypeName.getText,
-        genericTypes = processGenericTypeList(context.aliasGenericTypes)
-      ),
       genericTypes = generics,
+      parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
+      alias = processTypeDeclaration(context.typeDeclaration),
       verifications = extractAliasTypeVerifications(context.aliasTypeBody(), context.typeName.getText, generics),
       inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       location = getLocationFromContext(context)
     )
+  }
+
+  def processTypeDeclaration(context: TypeDeclarationContext): PureTypeDeclaration = {
+    PureTypeDeclaration(
+      typeName = context.name.getText,
+      genericTypes = Option(context.typeDeclarationList).map(processTypeDeclarationList).getOrElse(Seq.empty),
+      parameters = Option(context.atomicExpressionList).map(processAtomicExpressionList).getOrElse(Seq.empty),
+      location = getLocationFromContext(context)
+    )
+  }
+
+  def processTypeDeclarationList(context: TypeDeclarationListContext): Seq[PureTypeDeclaration] = {
+    scalaSeq(context.typeDeclaration).map(processTypeDeclaration)
   }
 
   def extractAliasTypeVerifications(context: AliasTypeBodyContext, typeName: String, generics: Seq[String]): Seq[PureTypeVerification] = {
@@ -230,14 +247,8 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
       processNotExpression(context)
     } else if (context.leftExpression != null) {
       processLeftRightExpression(context)
-    } else if (context.booleanExpression != null) {
-      processBooleanExpression(context)
-    } else if (context.numberExpression != null) {
-      processNumberExpression(context)
-    } else if (context.stringExpression != null) {
-      processStringExpression(context)
-    } else if (context.referenceExpression != null) {
-      processReferenceExpression(context)
+    } else if (context.atomicExpression != null) {
+      processAtomicExpression(context.atomicExpression)
     } else if (context.conditionExpression != null) {
       processConditionExpression(context)
     } else if (context.lambdaExpression != null) {
@@ -314,22 +325,38 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     }
   }
 
-  def processBooleanExpression(context: ExpressionContext): PureExpression = {
+  def processAtomicExpression(context: AtomicExpressionContext): PureAtomicExpression = {
+    if (context.booleanExpression != null) {
+      processBooleanExpression(context)
+    } else if (context.numberExpression != null) {
+      processNumberExpression(context)
+    } else if (context.stringExpression != null) {
+      processStringExpression(context)
+    } else if (context.referenceExpression != null) {
+      processReferenceExpression(context)
+    } else {
+      // This exception exists to remind us to implement expression processing when we add one
+      // This should never happen in production code.
+      throw new RuntimeException(s"Expression ${context.getText} was not processed")
+    }
+  }
+
+  def processBooleanExpression(context: AtomicExpressionContext): PureAtomicExpression = {
     context.booleanExpression.getText match {
       case "true" => PureBooleanValue(value = true, getLocationFromContext(context))
       case _ => PureBooleanValue(value = false, getLocationFromContext(context))
     }
   }
 
-  def processNumberExpression(context: ExpressionContext): PureExpression = {
+  def processNumberExpression(context: AtomicExpressionContext): PureAtomicExpression = {
     PureNumberValue(BigDecimal(context.numberExpression.getText), getLocationFromContext(context))
   }
 
-  def processStringExpression(context: ExpressionContext): PureExpression = {
+  def processStringExpression(context: AtomicExpressionContext): PureAtomicExpression = {
     PureQuotedStringValue(extractStringContent(context.stringExpression.getText), getLocationFromContext(context))
   }
 
-  def processReferenceExpression(context: ExpressionContext): PureExpression = {
+  def processReferenceExpression(context: AtomicExpressionContext): PureAtomicExpression = {
     PureReference(
       name = context.referenceExpression.getText,
       location = getLocationFromContext(context)

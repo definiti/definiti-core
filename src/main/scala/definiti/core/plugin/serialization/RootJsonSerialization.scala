@@ -26,7 +26,7 @@ trait RootJsonSerialization {
     Format("verification", classOf[Verification])
   ))
   implicit lazy val namespaceFormat: JsonFormat[Namespace] = lazyFormat(jsonFormat3(Namespace.apply))
-  implicit lazy val verificationFormat: JsonFormat[Verification] = lazyFormat(jsonFormat6(Verification.apply))
+  implicit lazy val verificationFormat: JsonFormat[Verification] = lazyFormat(jsonFormat7(Verification.apply))
   implicit lazy val verificationMessageFormat: JsonFormat[VerificationMessage] = lazyFormat(sealedTraitFormat[VerificationMessage](
     Format("literal", classOf[LiteralMessage]),
     Format("typed", classOf[TypedMessage])
@@ -38,11 +38,12 @@ trait RootJsonSerialization {
     Format("definedType", classOf[DefinedType]),
     Format("nativeClassDefinition", classOf[NativeClassDefinition])
   ))
-  implicit lazy val definedTypeFormat: JsonFormat[DefinedType] = lazyFormat(jsonFormat8(DefinedType.apply))
-  implicit lazy val aliasTypeFormat: JsonFormat[AliasType] = lazyFormat(jsonFormat8(AliasType.apply))
+  implicit lazy val definedTypeFormat: JsonFormat[DefinedType] = lazyFormat(jsonFormat9(DefinedType.apply))
+  implicit lazy val aliasTypeFormat: JsonFormat[AliasType] = lazyFormat(jsonFormat9(AliasType.apply))
   implicit lazy val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = lazyFormat(jsonFormat6(NativeClassDefinition.apply))
   implicit lazy val namedFunctionFormat: JsonFormat[NamedFunction] = lazyFormat(jsonFormat7(NamedFunction.apply))
 
+  implicit lazy val typeDeclarationFormat: JsonFormat[TypeDeclaration] = lazyFormat(jsonFormat4(TypeDeclaration.apply))
   implicit lazy val abstractTypeReferenceFormat: JsonFormat[AbstractTypeReference] = lazyFormat(sealedTraitFormat[AbstractTypeReference](
     Format("typeReference", classOf[TypeReference]),
     Format("lambdaReference", classOf[LambdaReference]),
@@ -75,6 +76,12 @@ trait RootJsonSerialization {
   ))
   implicit lazy val logicalExpressionFormat: JsonFormat[LogicalExpression] = lazyFormat(jsonFormat5(LogicalExpression.apply))
   implicit lazy val notFormat: JsonFormat[Not] = lazyFormat(jsonFormat3(Not.apply))
+  implicit lazy val atomicExpressionFormat: JsonFormat[AtomicExpression] = lazyFormat(sealedTraitFormat(
+    Format("booleanValue", classOf[BooleanValue]),
+    Format("numberValue", classOf[NumberValue]),
+    Format("quotedStringValue", classOf[QuotedStringValue]),
+    Format("reference", classOf[Reference])
+  ))
   implicit lazy val booleanValueFormat: JsonFormat[BooleanValue] = lazyFormat(jsonFormat3(BooleanValue.apply))
   implicit lazy val numberValueFormat: JsonFormat[NumberValue] = lazyFormat(jsonFormat3(NumberValue.apply))
   implicit lazy val quotedStringValueFormat: JsonFormat[QuotedStringValue] = lazyFormat(jsonFormat3(QuotedStringValue.apply))

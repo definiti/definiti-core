@@ -13,11 +13,7 @@ private[core] class ExpressionTyping(context: Context) {
       case PureCalculatorExpression(operator, left, right, location) => addTypeIntoCalculatorExpression(operator, left, right, location)
       case not: PureNot => addTypesIntoNotExpression(not)
 
-      case booleanValue: PureBooleanValue => Valid(BooleanValue(booleanValue.value, boolean, booleanValue.location))
-      case numberValue: PureNumberValue => Valid(NumberValue(numberValue.value, number, numberValue.location))
-      case quotedStringValue: PureQuotedStringValue => Valid(QuotedStringValue(quotedStringValue.value, string, quotedStringValue.location))
-
-      case reference: PureReference => addTypesIntoReference(reference)
+      case atomicExpression: PureAtomicExpression => addTypeIntoAtomicExpression(atomicExpression)
 
       case methodCall: PureMethodCall => addTypeIntoMethodCall(methodCall)
       case attributeCall: PureAttributeCall => addTypeIntoAttributeCall(attributeCall)
@@ -31,6 +27,15 @@ private[core] class ExpressionTyping(context: Context) {
 
       case okValue: PureOkValue => addTypesIntoOkValue(okValue)
       case koValue: PureKoValue => addTypesIntoKoValue(koValue)
+    }
+  }
+
+  def addTypeIntoAtomicExpression(expression: PureAtomicExpression): Validated[AtomicExpression] = {
+    expression match {
+      case booleanValue: PureBooleanValue => Valid(BooleanValue(booleanValue.value, boolean, booleanValue.location))
+      case numberValue: PureNumberValue => Valid(NumberValue(numberValue.value, number, numberValue.location))
+      case quotedStringValue: PureQuotedStringValue => Valid(QuotedStringValue(quotedStringValue.value, string, quotedStringValue.location))
+      case reference: PureReference => addTypesIntoReference(reference)
     }
   }
 
@@ -54,7 +59,7 @@ private[core] class ExpressionTyping(context: Context) {
     }
   }
 
-  def addTypesIntoReference(reference: PureReference): Validated[Expression] = {
+  def addTypesIntoReference(reference: PureReference): Validated[Reference] = {
     context.findTypeReference(reference.name) match {
       case Some(typeReference) =>
         Valid(Reference(
@@ -200,7 +205,7 @@ private[core] class ExpressionTyping(context: Context) {
                 Valid(AttributeCall(
                   expression = expression,
                   attribute = attributeCall.attribute,
-                  returnType = attributeDefinition.typeReference,
+                  returnType = typeDeclarationToTypeReference(attributeDefinition.typeDeclaration),
                   location = attributeCall.location
                 ))
               case None => Invalid(s"Unknown attribute ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.location)
@@ -211,7 +216,14 @@ private[core] class ExpressionTyping(context: Context) {
     }
   }
 
-  def getAttributeOpt(classDefinition: PureClassDefinition, attribute: String)(implicit context: Context): Option[AttributeDefinition] = {
+  private def typeDeclarationToTypeReference(typeDeclaration: PureTypeDeclaration): TypeReference = {
+    TypeReference(
+      typeName = typeDeclaration.typeName,
+      genericTypes = typeDeclaration.genericTypes.map(typeDeclarationToTypeReference)
+    )
+  }
+
+  def getAttributeOpt(classDefinition: PureClassDefinition, attribute: String)(implicit context: Context): Option[PureAttributeDefinition] = {
     classDefinition match {
       case nativeClassDefinition: PureNativeClassDefinition =>
         nativeClassDefinition.attributes.find(_.name == attribute)
@@ -223,9 +235,16 @@ private[core] class ExpressionTyping(context: Context) {
         enum.cases
           .find(_.name == attribute)
           .map { enumCase =>
-            AttributeDefinition(
+            // Actually this is quite a little workaround because it is not really an attribute with all their feature.
+            // But it avoid rewriting lot of code outside just to consider enum and their cases.
+            PureAttributeDefinition(
               name = enumCase.name,
-              typeReference = TypeReference(enum.canonicalName),
+              typeDeclaration = PureTypeDeclaration(
+                enum.canonicalName,
+                genericTypes = Seq.empty,
+                parameters = Seq.empty,
+                location = enum.location
+              ),
               comment = enumCase.comment,
               verifications = Seq.empty,
               location = enumCase.location

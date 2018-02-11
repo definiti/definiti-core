@@ -63,6 +63,7 @@ private[core] object ProjectLinking {
   def injectLinksIntoVerification(verification: PureVerification, packageName: String, typeMapping: TypeMapping): PureVerification = {
     verification.copy(
       packageName = packageName,
+      parameters = verification.parameters.map(injectLinksIntoParameter(_, typeMapping)),
       message = injectLinksIntoVerificationMessage(verification.message, typeMapping),
       function = injectLinksIntoFunction(verification.function, typeMapping)
     )
@@ -82,7 +83,7 @@ private[core] object ProjectLinking {
       case aliasType: PureAliasType =>
         aliasType.copy(
           packageName = packageName,
-          alias = injectLinksIntoTypeReference(aliasType.alias, typeMapping),
+          alias = injectLinksIntoTypeDeclaration(aliasType.alias, typeMapping),
           verifications = aliasType.verifications.map(injectLinksIntoTypeVerification(_, typeMapping)),
           inherited = aliasType.inherited.map(injectLinksIntoVerificationReference(_, typeMapping))
         )
@@ -99,9 +100,9 @@ private[core] object ProjectLinking {
     }
   }
 
-  def injectLinksIntoAttributes(attributeDefinition: AttributeDefinition, typeMapping: TypeMapping): AttributeDefinition = {
+  def injectLinksIntoAttributes(attributeDefinition: PureAttributeDefinition, typeMapping: TypeMapping): PureAttributeDefinition = {
     attributeDefinition.copy(
-      typeReference = injectLinksIntoTypeReference(attributeDefinition.typeReference, typeMapping),
+      typeDeclaration = injectLinksIntoTypeDeclaration(attributeDefinition.typeDeclaration, typeMapping),
       verifications = attributeDefinition.verifications.map(injectLinksIntoVerificationReference(_, typeMapping))
     )
   }
@@ -135,6 +136,13 @@ private[core] object ProjectLinking {
     )
   }
 
+  def injectLinksIntoTypeDeclaration(typeDeclaration: PureTypeDeclaration, typeMapping: TypeMapping): PureTypeDeclaration = {
+    typeDeclaration.copy(
+      typeName = getLink(typeDeclaration.typeName, typeMapping),
+      genericTypes = typeDeclaration.genericTypes.map(injectLinksIntoTypeDeclaration(_, typeMapping))
+    )
+  }
+
   def injectLinksIntoAbstractTypeReference(abstractTypeReference: AbstractTypeReference, typeMapping: TypeMapping): AbstractTypeReference = {
     abstractTypeReference match {
       case typeReference: TypeReference => injectLinksIntoTypeReference(typeReference, typeMapping)
@@ -156,7 +164,7 @@ private[core] object ProjectLinking {
     )
   }
 
-  def injectLinksIntoVerificationReference(verificationReference: VerificationReference, typeMapping: TypeMapping): VerificationReference = {
+  def injectLinksIntoVerificationReference(verificationReference: PureVerificationReference, typeMapping: TypeMapping): PureVerificationReference = {
     verificationReference.copy(
       verificationName = getLink(verificationReference.verificationName, typeMapping)
     )

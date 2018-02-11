@@ -116,7 +116,15 @@ private[core] case class ClassContext(
   }
 
   override def findTypeReference(name: String): Option[AbstractTypeReference] = {
-    outerContext.findTypeReference(name)
+    val classParameters = currentType match {
+      case aliasType: PureAliasType => aliasType.parameters
+      case definedType: PureDefinedType => definedType.parameters
+      case _ => Seq.empty
+    }
+    classParameters
+      .find(_.name == name)
+      .map(_.typeReference)
+      .orElse(outerContext.findTypeReference(name))
   }
 }
 
@@ -167,6 +175,35 @@ private[core] case class MethodContext(
         _.typeReference match {
           case typeReference: TypeReference => Some(typeReference)
           case _ => None // Currently, lambdaReference are not accepted for definiti functions
+        }
+      }
+      .orElse(outerContext.findTypeReference(name))
+  }
+}
+
+private[core] case class VerificationContext(
+  outerContext: Context,
+  currentVerification: PureVerification
+) extends Context {
+  override def isTypeAvailable(typeName: String): Boolean = outerContext.isTypeAvailable(typeName)
+
+  override def findType(typeName: String): Option[PureClassDefinition] = outerContext.findType(typeName)
+
+  override def isVerificationAvailable(verificationName: String): Boolean = outerContext.isVerificationAvailable(verificationName)
+
+  override def findVerification(verificationName: String): Option[PureVerification] = outerContext.findVerification(verificationName)
+
+  override def isFunctionAvailable(functionName: String): Boolean = outerContext.isFunctionAvailable(functionName)
+
+  override def findFunction(functionName: String): Option[PureNamedFunction] = outerContext.findFunction(functionName)
+
+  override def findTypeReference(name: String): Option[AbstractTypeReference] = {
+    currentVerification.parameters
+      .find(_.name == name)
+      .flatMap {
+        _.typeReference match {
+          case typeReference: TypeReference => Some(typeReference)
+          case _ => None // Currently, lambdaReference are not accepted for definiti verifications
         }
       }
       .orElse(outerContext.findTypeReference(name))

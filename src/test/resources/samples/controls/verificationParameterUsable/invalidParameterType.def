@@ -1,0 +1,10 @@
+verification LengthOf(length: UnknownNumber) {
+  message("length.of", Number)
+  (string: String) => {
+    if (string.length == length) {
+      ok
+    } else {
+      ko(length)
+    }
+  }
+}

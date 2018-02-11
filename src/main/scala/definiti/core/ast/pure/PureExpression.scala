@@ -6,6 +6,8 @@ private[core] sealed trait PureExpression {
   def location: Location
 }
 
+sealed trait PureAtomicExpression extends PureExpression
+
 private[core] case class PureLogicalExpression(
   operator: LogicalOperator.Value,
   left: PureExpression,
@@ -22,13 +24,13 @@ private[core] case class PureCalculatorExpression(
 
 private[core] case class PureNot(inner: PureExpression, location: Location) extends PureExpression
 
-private[core] case class PureBooleanValue(value: Boolean, location: Location) extends PureExpression
+private[core] case class PureBooleanValue(value: Boolean, location: Location) extends PureAtomicExpression
 
-private[core] case class PureNumberValue(value: BigDecimal, location: Location) extends PureExpression
+private[core] case class PureNumberValue(value: BigDecimal, location: Location) extends PureAtomicExpression
 
-private[core] case class PureQuotedStringValue(value: String, location: Location) extends PureExpression
+private[core] case class PureQuotedStringValue(value: String, location: Location) extends PureAtomicExpression
 
-private[core] case class PureReference(name: String, location: Location) extends PureExpression
+private[core] case class PureReference(name: String, location: Location) extends PureAtomicExpression
 
 private[core] case class PureMethodCall(expression: PureExpression, method: String, parameters: Seq[PureExpression], generics: Seq[TypeReference], location: Location) extends PureExpression
 

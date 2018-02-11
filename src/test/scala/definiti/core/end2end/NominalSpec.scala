@@ -57,10 +57,11 @@ object NominalSpec {
       name = "MyType",
       fullName = "MyType",
       genericTypes = Seq.empty,
+      parameters = Seq.empty,
       attributes = Seq(
         AttributeDefinition(
           name = "myAttribute",
-          typeReference = TypeReference("String"),
+          typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(definedTypeSrc, 2, 16, 2, 22)),
           comment = None,
           verifications = Seq.empty,
           location = Location(definedTypeSrc, 2, 3, 2, 22)
@@ -79,7 +80,8 @@ object NominalSpec {
       name = "AliasString",
       fullName = "AliasString",
       genericTypes = Seq.empty,
-      alias = TypeReference("String"),
+      parameters = Seq.empty,
+      alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(aliasTypeSrc, 1, 20, 1, 26)),
       verifications = Seq.empty,
       inherited = Seq.empty,
       comment = None,
@@ -106,6 +108,7 @@ object NominalSpec {
     elements = Seq(Verification(
       name = "AlwaysTrue",
       fullName = "AlwaysTrue",
+      parameters = Seq.empty,
       message = LiteralMessage("Never fail", Location(verificationSrc, 2, 3, 2, 15)),
       function = DefinedFunction(
         parameters = Seq(ParameterDefinition(
@@ -153,7 +156,8 @@ object NominalSpec {
         name = "AliasString",
         fullName = "tst.AliasString",
         genericTypes = Seq.empty,
-        alias = TypeReference("String"),
+        parameters = Seq.empty,
+        alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(packageAliasTypeSrc, 3, 20, 3, 26)),
         verifications = Seq.empty,
         inherited = Seq.empty,
         comment = None,

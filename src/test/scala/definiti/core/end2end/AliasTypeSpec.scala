@@ -32,7 +32,12 @@ object AliasTypeSpec {
       fullName = "ListAlias",
       genericTypes = Seq("A"),
       parameters = Seq.empty,
-      alias = TypeReference("List", Seq(TypeReference("A"))),
+      alias = TypeDeclaration(
+        typeName = "List",
+        genericTypes = Seq(TypeDeclaration("A", Seq.empty, Seq.empty, Location(inlineVerificationFile, 1, 26, 1, 27))),
+        parameters = Seq.empty,
+        location = Location(inlineVerificationFile, 1, 21, 1, 28)
+      ),
       inherited = Seq.empty,
       verifications = Seq(TypeVerification(
         message = LiteralMessage("The list should not be empty", Location(inlineVerificationFile, 3, 5, 3, 35)),

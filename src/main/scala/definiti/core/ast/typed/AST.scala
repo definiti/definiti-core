@@ -69,7 +69,7 @@ private[core] case class TypedAliasType(
   packageName: String,
   genericTypes: Seq[String],
   parameters: Seq[ParameterDefinition],
-  alias: TypeReference,
+  alias: TypeDeclaration,
   verifications: Seq[TypeVerification],
   inherited: Seq[VerificationReference],
   comment: Option[String],

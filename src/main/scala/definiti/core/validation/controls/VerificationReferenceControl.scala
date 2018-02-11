@@ -59,16 +59,12 @@ object VerificationReferenceControl extends Control with TypeReferenceControlHel
   }
 
   private def controlAttribute(attribute: AttributeDefinition, library: Library): ControlResult = {
-    attribute.typeReference match {
-      case TypeReference(typeName, _) =>
-        library.typesMap.get(typeName) match {
-          case Some(classDefinition) =>
-            ControlResult.squash {
-              attribute.verifications.map(controlVerificationReference(_, classDefinition, library))
-            }
-          case None => ignored
+    library.typesMap.get(attribute.typeDeclaration.typeName) match {
+      case Some(classDefinition) =>
+        ControlResult.squash {
+          attribute.verifications.map(controlVerificationReference(_, classDefinition, library))
         }
-      case _ => ignored
+      case None => ignored
     }
   }
 

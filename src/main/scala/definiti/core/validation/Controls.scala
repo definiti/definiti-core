@@ -36,6 +36,7 @@ object Controls {
     TopLevelFullNameUniquenessControl,
     TypeNameFormatControl,
     TypeParameterUsableControl,
+    TypeDeclarationParametersControl,
     TypeVerificationIsBooleanControl,
     TypeVerificationIsOkKoControl,
     VerificationIsBooleanControl,

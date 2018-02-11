@@ -24,7 +24,7 @@ member
 
 attributeDefinition :
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')?;
+  attributeName=IDENTIFIER ':' typeReference;
 
 methodDefinition :
   DOC_COMMENT?
@@ -33,7 +33,7 @@ methodDefinition :
 parameterDefinition: parameterName=IDENTIFIER ':' abstractTypeReference;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
 
-typeReference: IDENTIFIER ('[' genericTypeList ']')?;
+typeReference: IDENTIFIER ('[' typeReferenceList ']')?;
 typeReferenceList: (typeReference ',')* typeReference;
 lambdaReference
   : input=typeReference '=>' output=typeReference

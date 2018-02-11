@@ -100,7 +100,7 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
   def processAttributeDefinition(context: AttributeDefinitionContext): PureAttributeDefinition = {
     PureAttributeDefinition(
       name = context.attributeName.getText,
-      typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
+      typeDeclaration = processTypeDeclaration(context.typeDeclaration),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       verifications = processVerifyingList(context.verifyingList()),
       location = getLocationFromContext(context)
@@ -156,15 +156,25 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
       packageName = NOT_DEFINED,
       genericTypes = generics,
       parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
-      alias = TypeReference(
-        typeName = context.referenceTypeName.getText,
-        genericTypes = processGenericTypeList(context.aliasGenericTypes)
-      ),
+      alias = processTypeDeclaration(context.typeDeclaration),
       verifications = extractAliasTypeVerifications(context.aliasTypeBody(), context.typeName.getText, generics),
       inherited = processVerifyingList(context.verifyingList()),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       location = getLocationFromContext(context)
     )
+  }
+
+  def processTypeDeclaration(context: TypeDeclarationContext): PureTypeDeclaration = {
+    PureTypeDeclaration(
+      typeName = context.name.getText,
+      genericTypes = Option(context.typeDeclarationList).map(processTypeDeclarationList).getOrElse(Seq.empty),
+      parameters = Option(context.atomicExpressionList).map(processAtomicExpressionList).getOrElse(Seq.empty),
+      location = getLocationFromContext(context)
+    )
+  }
+
+  def processTypeDeclarationList(context: TypeDeclarationListContext): Seq[PureTypeDeclaration] = {
+    scalaSeq(context.typeDeclaration).map(processTypeDeclaration)
   }
 
   def extractAliasTypeVerifications(context: AliasTypeBodyContext, typeName: String, generics: Seq[String]): Seq[PureTypeVerification] = {

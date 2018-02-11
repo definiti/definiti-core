@@ -42,11 +42,24 @@ private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonPa
   private def processAttribute(context: AttributeDefinitionContext): PureAttributeDefinition = {
     PureAttributeDefinition(
       name = context.attributeName.getText,
-      typeReference = TypeReference(context.attributeType.getText, processGenericTypeList(context.genericTypeList())),
+      typeDeclaration = processTypeReferenceAsDeclaration(context.typeReference),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       verifications = Seq.empty,
       location = getLocationFromContext(context)
     )
+  }
+
+  private def processTypeReferenceAsDeclaration(context: TypeReferenceContext): PureTypeDeclaration = {
+    PureTypeDeclaration(
+      typeName = context.IDENTIFIER.getText,
+      genericTypes = Option(context.typeReferenceList).map(processTypeReferenceListAsDeclaration).getOrElse(Seq.empty),
+      parameters = Seq.empty,
+      location = getLocationFromContext(context)
+    )
+  }
+
+  private def processTypeReferenceListAsDeclaration(context: TypeReferenceListContext): Seq[PureTypeDeclaration] = {
+    scalaSeq(context.typeReference).map(processTypeReferenceAsDeclaration)
   }
 
   private def processMethod(context: MethodDefinitionContext): MethodDefinition = {
@@ -97,23 +110,14 @@ private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonPa
     }
   }
 
-  private def processTypeReference(finalParameterType: TypeReferenceContext): TypeReference = {
+  private def processTypeReference(context: TypeReferenceContext): TypeReference = {
     TypeReference(
-      finalParameterType.IDENTIFIER().getText,
-      processGenericTypeList(finalParameterType.genericTypeList())
+      context.IDENTIFIER().getText,
+      Option(context.typeReferenceList).map(processTypeReferenceList).getOrElse(Seq.empty)
     )
   }
 
-  private def processGenericTypeList(context: GenericTypeListContext): Seq[TypeReference] = {
-    if (context != null) {
-      scalaSeq(context.genericType()).map { genericTypeContext =>
-        TypeReference(
-          genericTypeContext.IDENTIFIER().getText,
-          processGenericTypeList(genericTypeContext.genericTypeList())
-        )
-      }
-    } else {
-      Seq()
-    }
+  private def processTypeReferenceList(context: TypeReferenceListContext): Seq[TypeReference] = {
+    scalaSeq(context.typeReference).map(processTypeReference)
   }
 }

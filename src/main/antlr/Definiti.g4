@@ -90,6 +90,9 @@ verificationMessage
   | MESSAGE '(' message=STRING (',' typeReference)* ')'
   ;
 
+typeDeclaration: name=IDENTIFIER ('[' typeDeclarationList ']')? ( '(' atomicExpressionList ')' )?;
+typeDeclarationList: ((typeDeclaration ',')* typeDeclaration);
+
 typeReference: name=IDENTIFIER ('[' genericTypeList ']')?;
 
 definedType :
@@ -102,7 +105,7 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' attributeType=IDENTIFIER ('[' genericTypeList ']')? verifyingList;
+  attributeName=IDENTIFIER ':' typeDeclaration verifyingList;
 
 typeVerification:
   VERIFY '{'
@@ -114,7 +117,7 @@ typeVerificationFunction: '(' IDENTIFIER ')' '=>' '{' chainedExpression '}';
 
 aliasType:
   DOC_COMMENT?
-  TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? ( '(' parameterListDefinition ')' )? '=' referenceTypeName=IDENTIFIER ('[' aliasGenericTypes=genericTypeList ']')? verifyingList aliasTypeBody?;
+  TYPE typeName=IDENTIFIER ('[' genericTypes=genericTypeList ']')? ( '(' parameterListDefinition ')' )? '=' typeDeclaration verifyingList aliasTypeBody?;
 
 aliasTypeBody: '{'
   typeVerification*

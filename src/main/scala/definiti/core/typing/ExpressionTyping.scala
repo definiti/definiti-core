@@ -205,7 +205,7 @@ private[core] class ExpressionTyping(context: Context) {
                 Valid(AttributeCall(
                   expression = expression,
                   attribute = attributeCall.attribute,
-                  returnType = attributeDefinition.typeReference,
+                  returnType = typeDeclarationToTypeReference(attributeDefinition.typeDeclaration),
                   location = attributeCall.location
                 ))
               case None => Invalid(s"Unknown attribute ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.location)
@@ -214,6 +214,13 @@ private[core] class ExpressionTyping(context: Context) {
         case _: LambdaReference => Invalid("Expected type, got lambda", expression.location)
       }
     }
+  }
+
+  private def typeDeclarationToTypeReference(typeDeclaration: PureTypeDeclaration): TypeReference = {
+    TypeReference(
+      typeName = typeDeclaration.typeName,
+      genericTypes = typeDeclaration.genericTypes.map(typeDeclarationToTypeReference)
+    )
   }
 
   def getAttributeOpt(classDefinition: PureClassDefinition, attribute: String)(implicit context: Context): Option[PureAttributeDefinition] = {
@@ -228,9 +235,16 @@ private[core] class ExpressionTyping(context: Context) {
         enum.cases
           .find(_.name == attribute)
           .map { enumCase =>
+            // Actually this is quite a little workaround because it is not really an attribute with all their feature.
+            // But it avoid rewriting lot of code outside just to consider enum and their cases.
             PureAttributeDefinition(
               name = enumCase.name,
-              typeReference = TypeReference(enum.canonicalName),
+              typeDeclaration = PureTypeDeclaration(
+                enum.canonicalName,
+                genericTypes = Seq.empty,
+                parameters = Seq.empty,
+                location = enum.location
+              ),
               comment = enumCase.comment,
               verifications = Seq.empty,
               location = enumCase.location

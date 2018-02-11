@@ -1,0 +1,34 @@
+type Person {
+  name: StringOfLength("invalid")
+  contact: Contact("invalid")
+}
+
+type ContactThreePhones = Contact("invalid")
+
+type Contact(numberOfPhones: Number) {
+  phones: List[String]
+
+  verify {
+    message("contact.number.of.phones", Number, Number)
+    (contact) => {
+      if (contact.phones.size == numberOfPhones) {
+        ok
+      } else {
+        ko(contact.phones.size, numberOfPhones)
+      }
+    }
+  }
+}
+
+type StringOfLength(length: Number) = String {
+  verify {
+    message("string.of.size", Number, Number)
+    (string) => {
+      if (string.length == length) {
+        ok
+      } else {
+        ko(string.length, length)
+      }
+    }
+  }
+}

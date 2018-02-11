@@ -58,19 +58,30 @@ class Project(configuration: Configuration) {
           name = nativeClassDefinition.name,
           fullName = nativeClassDefinition.name,
           genericTypes = nativeClassDefinition.genericTypes,
-          attributes = nativeClassDefinition.attributes.map { attribute =>
-            AttributeDefinition(
-              name = attribute.name,
-              typeReference = attribute.typeReference,
-              comment = attribute.comment,
-              verifications = Seq.empty, // no verifications in core definition
-              location = attribute.location
-            )
-          },
+          attributes = nativeClassDefinition.attributes.map(nativeTransformAttributeDefinition),
           methods = nativeClassDefinition.methods,
           comment = nativeClassDefinition.comment
         )
     }
+  }
+
+  private def nativeTransformAttributeDefinition(attribute: PureAttributeDefinition): AttributeDefinition = {
+    AttributeDefinition(
+      name = attribute.name,
+      typeDeclaration = nativeTransformTypeDeclaration(attribute.typeDeclaration),
+      comment = attribute.comment,
+      verifications = Seq.empty, // no verifications in core definition
+      location = attribute.location
+    )
+  }
+
+  private def nativeTransformTypeDeclaration(typeDeclaration: PureTypeDeclaration): TypeDeclaration = {
+    TypeDeclaration(
+      typeName = typeDeclaration.typeName,
+      genericTypes = typeDeclaration.genericTypes.map(nativeTransformTypeDeclaration),
+      parameters = Seq.empty,
+      location = typeDeclaration.location
+    )
   }
 
   private def processPluginParsers(root: PureRoot): Program[PureRoot] = Program.validated {

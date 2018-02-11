@@ -43,6 +43,7 @@ trait RootJsonSerialization {
   implicit lazy val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = lazyFormat(jsonFormat6(NativeClassDefinition.apply))
   implicit lazy val namedFunctionFormat: JsonFormat[NamedFunction] = lazyFormat(jsonFormat7(NamedFunction.apply))
 
+  implicit lazy val typeDeclarationFormat: JsonFormat[TypeDeclaration] = lazyFormat(jsonFormat4(TypeDeclaration.apply))
   implicit lazy val abstractTypeReferenceFormat: JsonFormat[AbstractTypeReference] = lazyFormat(sealedTraitFormat[AbstractTypeReference](
     Format("typeReference", classOf[TypeReference]),
     Format("lambdaReference", classOf[LambdaReference]),

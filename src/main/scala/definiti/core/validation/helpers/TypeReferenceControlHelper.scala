@@ -102,4 +102,11 @@ trait TypeReferenceControlHelper {
       location
     )
   }
+
+  implicit protected def typeDeclarationToTypeReference(typeDeclaration: TypeDeclaration): TypeReference = {
+    TypeReference(
+      typeName = typeDeclaration.typeName,
+      genericTypes = typeDeclaration.genericTypes.map(typeDeclarationToTypeReference)
+    )
+  }
 }

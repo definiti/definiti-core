@@ -34,11 +34,18 @@ private[core] case class PureNativeClassDefinition(
   override def canonicalName: String = name
 }
 
-case class PureAttributeDefinition(
+private[core] case class PureAttributeDefinition(
   name: String,
-  typeReference: TypeReference,
+  typeDeclaration: PureTypeDeclaration,
   comment: Option[String],
   verifications: Seq[PureVerificationReference],
+  location: Location
+)
+
+private[core] case class PureTypeDeclaration(
+  typeName: String,
+  genericTypes: Seq[PureTypeDeclaration],
+  parameters: Seq[PureAtomicExpression],
   location: Location
 )
 
@@ -87,7 +94,7 @@ private[core] case class PureAliasType(
   packageName: String,
   genericTypes: Seq[String],
   parameters: Seq[ParameterDefinition],
-  alias: TypeReference,
+  alias: PureTypeDeclaration,
   verifications: Seq[PureTypeVerification],
   inherited: Seq[PureVerificationReference],
   comment: Option[String],

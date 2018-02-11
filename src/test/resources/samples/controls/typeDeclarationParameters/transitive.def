@@ -1,0 +1,28 @@
+type Contact(nameLength: Number, numberOfPhones: Number) {
+  name: StringOfLength(nameLength)
+  phones: List[String] verifying IsListOfSize(numberOfPhones)
+}
+
+type StringOfLength(length: Number) = String verifying IsStringOfLength(length)
+
+verification IsStringOfLength(length: Number) {
+  message("is.string.of.length", Number, Number)
+  (string: String) => {
+    if (string.length == length) {
+      ok
+    } else {
+      ko(string.length, length)
+    }
+  }
+}
+
+verification IsListOfSize(size: Number) {
+  message("is.list.of.size", Number, Number)
+  [A](list: List[A]) => {
+    if (list.size == size) {
+      ok
+    } else {
+      ko(list.size, size)
+    }
+  }
+}

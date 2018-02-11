@@ -50,14 +50,29 @@ private[core] class ClassDefinitionTyping(context: Context) {
   }
 
   def addTypesIntoAttributeDefinition(attributeDefinition: PureAttributeDefinition): Validated[AttributeDefinition] = {
+    val validatedTypeDeclaration = addTypesIntoTypeDeclaration(attributeDefinition.typeDeclaration)
     val validatedVerificationReferences = Validated.squash(attributeDefinition.verifications.map(addTypesIntoVerificationReference))
-    validatedVerificationReferences.map { verifications =>
+    Validated.both(validatedTypeDeclaration, validatedVerificationReferences).map { case (typeDeclaration, verifications) =>
       AttributeDefinition(
         name = attributeDefinition.name,
-        typeReference = attributeDefinition.typeReference,
+        typeDeclaration = typeDeclaration,
         comment = attributeDefinition.comment,
         verifications = verifications,
         location = attributeDefinition.location
+      )
+    }
+  }
+
+  def addTypesIntoTypeDeclaration(typeDeclaration: PureTypeDeclaration): Validated[TypeDeclaration] = {
+    val expressionTyping = new ExpressionTyping(context)
+    val validatedGenericTypes = Validated.squash(typeDeclaration.genericTypes.map(addTypesIntoTypeDeclaration))
+    val validatedParameters = Validated.squash(typeDeclaration.parameters.map(expressionTyping.addTypeIntoAtomicExpression))
+    Validated.both(validatedGenericTypes, validatedParameters).map { case (genericTypes, parameters) =>
+      TypeDeclaration(
+        typeName = typeDeclaration.typeName,
+        genericTypes = genericTypes,
+        parameters = parameters,
+        location = typeDeclaration.location
       )
     }
   }
@@ -87,17 +102,18 @@ private[core] class ClassDefinitionTyping(context: Context) {
   }
 
   def addTypesIntoAliasType(aliasType: PureAliasType): Validated[TypedAliasType] = {
+    val validatedAlias = addTypesIntoTypeDeclaration(aliasType.alias)
     val validatedTypeVerifications = Validated.squash(aliasType.verifications.map(addTypesIntoTypeVerification))
     val validatedInherited = Validated.squash(aliasType.inherited.map(addTypesIntoVerificationReference))
-    Validated.both(validatedTypeVerifications, validatedInherited)
-      .map { case (typeVerifications, inherited) =>
+    Validated.both(validatedAlias, validatedTypeVerifications, validatedInherited)
+      .map { case (alias, typeVerifications, inherited) =>
         TypedAliasType(
           name = aliasType.name,
           packageName = aliasType.packageName,
           genericTypes = aliasType.genericTypes,
           parameters = aliasType.parameters,
+          alias = alias,
           verifications = typeVerifications,
-          alias = aliasType.alias,
           inherited = inherited,
           comment = aliasType.comment,
           location = aliasType.location

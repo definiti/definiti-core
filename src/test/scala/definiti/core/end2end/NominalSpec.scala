@@ -61,7 +61,7 @@ object NominalSpec {
       attributes = Seq(
         AttributeDefinition(
           name = "myAttribute",
-          typeReference = TypeReference("String"),
+          typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(definedTypeSrc, 2, 16, 2, 22)),
           comment = None,
           verifications = Seq.empty,
           location = Location(definedTypeSrc, 2, 3, 2, 22)
@@ -81,7 +81,7 @@ object NominalSpec {
       fullName = "AliasString",
       genericTypes = Seq.empty,
       parameters = Seq.empty,
-      alias = TypeReference("String"),
+      alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(aliasTypeSrc, 1, 20, 1, 26)),
       verifications = Seq.empty,
       inherited = Seq.empty,
       comment = None,
@@ -157,7 +157,7 @@ object NominalSpec {
         fullName = "tst.AliasString",
         genericTypes = Seq.empty,
         parameters = Seq.empty,
-        alias = TypeReference("String"),
+        alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(packageAliasTypeSrc, 3, 20, 3, 26)),
         verifications = Seq.empty,
         inherited = Seq.empty,
         comment = None,

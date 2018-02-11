@@ -72,7 +72,7 @@ case class AliasType(
   fullName: String,
   genericTypes: Seq[String],
   parameters: Seq[ParameterDefinition],
-  alias: TypeReference,
+  alias: TypeDeclaration,
   inherited: Seq[VerificationReference],
   verifications: Seq[TypeVerification],
   comment: Option[String],
@@ -124,6 +124,21 @@ sealed trait AbstractTypeReference {
   def readableString: String
 }
 
+case class TypeDeclaration(
+  typeName: String,
+  genericTypes: Seq[TypeDeclaration],
+  parameters: Seq[AtomicExpression],
+  location: Location
+) {
+  def readableString: String = {
+    if (genericTypes.nonEmpty) {
+      s"$typeName[${genericTypes.map(_.readableString).mkString(", ")}]"
+    } else {
+      typeName
+    }
+  }
+}
+
 case class TypeReference(
   typeName: String,
   genericTypes: Seq[TypeReference] = Seq.empty
@@ -152,7 +167,7 @@ case class NamedFunctionReference(
 
 case class AttributeDefinition(
   name: String,
-  typeReference: TypeReference,
+  typeDeclaration: TypeDeclaration,
   comment: Option[String],
   verifications: Seq[VerificationReference],
   location: Location

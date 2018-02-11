@@ -83,7 +83,7 @@ private[core] object ProjectLinking {
       case aliasType: PureAliasType =>
         aliasType.copy(
           packageName = packageName,
-          alias = injectLinksIntoTypeReference(aliasType.alias, typeMapping),
+          alias = injectLinksIntoTypeDeclaration(aliasType.alias, typeMapping),
           verifications = aliasType.verifications.map(injectLinksIntoTypeVerification(_, typeMapping)),
           inherited = aliasType.inherited.map(injectLinksIntoVerificationReference(_, typeMapping))
         )
@@ -102,7 +102,7 @@ private[core] object ProjectLinking {
 
   def injectLinksIntoAttributes(attributeDefinition: PureAttributeDefinition, typeMapping: TypeMapping): PureAttributeDefinition = {
     attributeDefinition.copy(
-      typeReference = injectLinksIntoTypeReference(attributeDefinition.typeReference, typeMapping),
+      typeDeclaration = injectLinksIntoTypeDeclaration(attributeDefinition.typeDeclaration, typeMapping),
       verifications = attributeDefinition.verifications.map(injectLinksIntoVerificationReference(_, typeMapping))
     )
   }
@@ -133,6 +133,13 @@ private[core] object ProjectLinking {
   def injectLinksIntoParameter(parameterDefinition: ParameterDefinition, typeMapping: TypeMapping): ParameterDefinition = {
     parameterDefinition.copy(
       typeReference = injectLinksIntoAbstractTypeReference(parameterDefinition.typeReference, typeMapping)
+    )
+  }
+
+  def injectLinksIntoTypeDeclaration(typeDeclaration: PureTypeDeclaration, typeMapping: TypeMapping): PureTypeDeclaration = {
+    typeDeclaration.copy(
+      typeName = getLink(typeDeclaration.typeName, typeMapping),
+      genericTypes = typeDeclaration.genericTypes.map(injectLinksIntoTypeDeclaration(_, typeMapping))
     )
   }
 

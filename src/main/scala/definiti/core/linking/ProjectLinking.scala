@@ -108,10 +108,18 @@ private[core] object ProjectLinking {
   }
 
   def injectLinksIntoTypeVerification(typeVerification: PureTypeVerification, typeMapping: TypeMapping): PureTypeVerification = {
-    typeVerification.copy(
-      message = injectLinksIntoVerificationMessage(typeVerification.message, typeMapping),
-      function = injectLinksIntoFunction(typeVerification.function, typeMapping)
-    )
+    typeVerification match {
+      case atomicTypeVerification: PureAtomicTypeVerification =>
+        atomicTypeVerification.copy(
+          message = injectLinksIntoVerificationMessage(atomicTypeVerification.message, typeMapping),
+          function = injectLinksIntoFunction(atomicTypeVerification.function, typeMapping)
+        )
+      case dependentTypeVerification: PureDependentTypeVerification =>
+        dependentTypeVerification.copy(
+          message = injectLinksIntoVerificationMessage(dependentTypeVerification.message, typeMapping),
+          function = injectLinksIntoFunction(dependentTypeVerification.function, typeMapping)
+        )
+    }
   }
 
   def injectLinksIntoNamedFunction(namedFunction: PureNamedFunction, packageName: String, typeMapping: TypeMapping): PureNamedFunction = {

@@ -32,7 +32,6 @@ object VerificationTypeControl extends Control with TypeReferenceControlHelper {
   private def controlTypeReference(typeReference: TypeReference, verification: Verification, location: Location, library: Library): ControlResult = {
     controlTypeReference(
       typeReference = typeReference,
-      elementName = verification.fullName,
       availableGenerics = verification.function.genericTypes,
       location = location,
       library = library

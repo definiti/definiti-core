@@ -41,7 +41,7 @@ class NamedFunctionTypeControlSpec extends EndToEndSpec {
     val output = processFile("controls.namedFunctionType.invalidGenerics", configuration)
     output should beKo(
       NamedFunctionTypeControl.errorDifferentType("myFunction", "List[B]", "List[A]", invalidGenericsLocation(1, 1, 3, 2)),
-      NamedFunctionTypeControl.errorUnknownType("B", "myFunction", invalidGenericsLocation(1, 1, 3, 2))
+      NamedFunctionTypeControl.errorUnknownType("B", invalidGenericsLocation(1, 1, 3, 2))
     )
   }
 
@@ -49,7 +49,7 @@ class NamedFunctionTypeControlSpec extends EndToEndSpec {
     val output = processFile("controls.namedFunctionType.unknownType", configuration)
     output should beKo(
       NamedFunctionTypeControl.errorDifferentType("myFunction", "Unknown", "String", invalidUnknownLocation(1, 1, 3, 2)),
-      NamedFunctionTypeControl.errorUnknownType("Unknown", "myFunction", invalidUnknownLocation(1, 1, 3, 2))
+      NamedFunctionTypeControl.errorUnknownType("Unknown", invalidUnknownLocation(1, 1, 3, 2))
     )
   }
 }

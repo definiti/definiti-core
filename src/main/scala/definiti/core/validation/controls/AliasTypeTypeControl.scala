@@ -17,7 +17,6 @@ object AliasTypeTypeControl extends Control with TypeReferenceControlHelper {
   private def controlAliasType(aliasType: AliasType, library: Library): ControlResult = {
     controlTypeReference(
       typeReference = aliasType.alias,
-      elementName = aliasType.fullName,
       availableGenerics = aliasType.genericTypes,
       location = aliasType.location,
       library = library

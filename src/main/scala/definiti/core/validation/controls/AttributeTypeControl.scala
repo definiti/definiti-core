@@ -23,7 +23,6 @@ object AttributeTypeControl extends Control with TypeReferenceControlHelper {
   private def controlAttribute(attributeDefinition: AttributeDefinition, definedType: DefinedType, library: Library): ControlResult = {
     controlTypeReference(
       typeReference = attributeDefinition.typeDeclaration,
-      elementName = s"${definedType.fullName}.${attributeDefinition.name}",
       availableGenerics = definedType.genericTypes,
       location = attributeDefinition.location,
       library = library

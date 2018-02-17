@@ -121,7 +121,20 @@ private[core] case class PureEnumCase(
   location: Location
 )
 
-private[core] case class PureTypeVerification(message: VerificationMessage, function: PureDefinedFunction, location: Location)
+private[core] sealed trait PureTypeVerification
+
+private[core] case class PureAtomicTypeVerification(
+  message: VerificationMessage,
+  function: PureDefinedFunction,
+  location: Location
+) extends PureTypeVerification
+
+private[core] case class PureDependentTypeVerification(
+  name: String,
+  message: VerificationMessage,
+  function: PureDefinedFunction,
+  location: Location
+) extends PureTypeVerification
 
 private[core] case class PureNamedFunction(
   name: String,

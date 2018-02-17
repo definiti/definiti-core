@@ -39,6 +39,7 @@ object Controls {
     TypeDeclarationParametersControl,
     TypeVerificationIsBooleanControl,
     TypeVerificationIsOkKoControl,
+    TypeVerificationParameterUsableControl,
     VerificationIsBooleanControl,
     VerificationIsOkKoControl,
     VerificationNameUniquenessControl,

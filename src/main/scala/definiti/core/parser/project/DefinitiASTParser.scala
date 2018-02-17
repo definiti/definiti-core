@@ -128,14 +128,26 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
   }
 
   def processTypeVerification(context: TypeVerificationContext, typeName: String, generics: Seq[String]): PureTypeVerification = {
-    PureTypeVerification(
+    if (context.atomicTypeVerification() != null) {
+      processAtomicTypeVerification(context.atomicTypeVerification(), typeName, generics)
+    } else if (context.dependentTypeVerification() != null) {
+      processDependentTypeVerification(context.dependentTypeVerification(), typeName, generics)
+    } else {
+      // This exception exists to remind us to implement expression processing when we add one
+      // This should never happen in production code.
+      throw new RuntimeException(s"TypeVerification ${context.getText} was not processed")
+    }
+  }
+
+  def processAtomicTypeVerification(context: AtomicTypeVerificationContext, typeName: String, generics: Seq[String]): PureTypeVerification = {
+    PureAtomicTypeVerification(
       processVerificationMessage(context.verificationMessage),
-      processTypeVerificationFunction(context.typeVerificationFunction(), typeName, generics),
+      processAtomicTypeVerificationFunction(context.typeVerificationFunction(), typeName, generics),
       location = getLocationFromContext(context)
     )
   }
 
-  def processTypeVerificationFunction(context: TypeVerificationFunctionContext, typeName: String, generics: Seq[String]): PureDefinedFunction = {
+  def processAtomicTypeVerificationFunction(context: TypeVerificationFunctionContext, typeName: String, generics: Seq[String]): PureDefinedFunction = {
     val parameters = Seq(ParameterDefinition(
       name = context.IDENTIFIER().getText,
       typeReference = TypeReference(typeName, generics.map(TypeReference(_, Seq.empty))),
@@ -143,6 +155,34 @@ private[core] class DefinitiASTParser(sourceFile: String, configuration: Configu
     ))
     PureDefinedFunction(
       parameters = parameters,
+      body = processChainedExpression(context.chainedExpression()),
+      genericTypes = Seq.empty,
+      location = getLocationFromContext(context)
+    )
+  }
+
+  def processDependentTypeVerification(context: DependentTypeVerificationContext, typeName: String, generics: Seq[String]): PureTypeVerification = {
+    PureDependentTypeVerification(
+      name = context.verificationName.getText,
+      processVerificationMessage(context.verificationMessage),
+      processDependantTypeVerificationFunction(
+        context = context.typeVerificationFunction(),
+        dependentParameters = processParameterListDefinition(context.parameterListDefinition()),
+        typeName = typeName,
+        generics = generics
+      ),
+      location = getLocationFromContext(context)
+    )
+  }
+
+  def processDependantTypeVerificationFunction(context: TypeVerificationFunctionContext, dependentParameters: Seq[ParameterDefinition], typeName: String, generics: Seq[String]): PureDefinedFunction = {
+    val parameters = Seq(ParameterDefinition(
+      name = context.IDENTIFIER().getText,
+      typeReference = TypeReference(typeName, generics.map(TypeReference(_, Seq.empty))),
+      location = Location(file, getRangeFromTerminalNode(context.IDENTIFIER()))
+    ))
+    PureDefinedFunction(
+      parameters = parameters ++ dependentParameters,
       body = processChainedExpression(context.chainedExpression()),
       genericTypes = Seq.empty,
       location = getLocationFromContext(context)

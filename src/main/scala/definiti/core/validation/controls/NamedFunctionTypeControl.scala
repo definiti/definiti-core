@@ -22,7 +22,6 @@ object NamedFunctionTypeControl extends Control with TypeReferenceControlHelper 
   private def controlReturnTypeReference(namedFunction: NamedFunction, library: Library): ControlResult = {
     controlTypeReference(
       typeReference = namedFunction.returnType,
-      elementName = namedFunction.fullName,
       availableGenerics = namedFunction.genericTypes,
       location = namedFunction.location,
       library = library

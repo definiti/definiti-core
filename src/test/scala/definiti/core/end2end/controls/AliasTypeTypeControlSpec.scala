@@ -27,7 +27,7 @@ class AliasTypeTypeControlSpec extends EndToEndSpec {
   it should "invalidate an alias type with an unknown type" in {
     val output = processFile("controls.aliasTypeType.unknownType", configuration)
     output should beResult(Ko[Root](
-      AliasTypeTypeControl.errorUnknownType("Unknown", "AliasUnknown", unknownTypeLocation(1, 1, 28))
+      AliasTypeTypeControl.errorUnknownType("Unknown", unknownTypeLocation(1, 1, 28))
     ))
   }
 }

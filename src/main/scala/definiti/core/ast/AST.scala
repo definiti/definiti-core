@@ -193,7 +193,24 @@ case class VerificationReference(
   location: Location
 )
 
-case class TypeVerification(message: VerificationMessage, function: DefinedFunction, location: Location)
+sealed trait TypeVerification {
+  def message: VerificationMessage
+  def function: DefinedFunction
+  def location: Location
+}
+
+case class AtomicTypeVerification(
+  message: VerificationMessage,
+  function: DefinedFunction,
+  location: Location
+) extends TypeVerification
+
+case class DependentTypeVerification(
+  name: String,
+  message: VerificationMessage,
+  function: DefinedFunction,
+  location: Location
+) extends TypeVerification
 
 case class DefinedFunction(parameters: Seq[ParameterDefinition], body: Expression, genericTypes: Seq[String], location: Location)
 

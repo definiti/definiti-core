@@ -1,0 +1,19 @@
+type Contact {
+  phones: List[String]
+
+  verify withConfiguration(minimalNumberOfPhones: UnknownNumber) {
+    "contact.minimal.number.of.phones"
+    (user) => {
+      user.phones.size >= minimalNumberOfPhones
+    }
+  }
+}
+
+type ContactWithMaximalNumberOfPhones = Contact {
+  verify withConfiguration(maximalNumberOfPhones: UnknownNumber) {
+    "contact.minimal.number.of.phones"
+    (user) => {
+      user.phones.size <= maximalNumberOfPhones
+    }
+  }
+}

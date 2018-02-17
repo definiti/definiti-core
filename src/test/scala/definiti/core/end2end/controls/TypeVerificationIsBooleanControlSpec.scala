@@ -9,8 +9,13 @@ import definiti.core.validation.controls.TypeVerificationIsBooleanControl
 class TypeVerificationIsBooleanControlSpec extends EndToEndSpec {
   import TypeVerificationIsBooleanControlSpec._
 
-  "Project.generatePublicAST" should "validate a type verification returning boolean" in {
+  "Project.generatePublicAST" should "validate an atomic type verification returning boolean" in {
     val output = processFile("controls.typeVerificationIsBoolean.nominal", configuration)
+    output shouldBe ok[Root]
+  }
+
+  it should "validate a dependent type verification returning boolean" in {
+    val output = processFile("controls.typeVerificationIsBoolean.dependentType", configuration)
     output shouldBe ok[Root]
   }
 

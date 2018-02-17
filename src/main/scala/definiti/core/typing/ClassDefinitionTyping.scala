@@ -90,14 +90,29 @@ private[core] class ClassDefinitionTyping(context: Context) {
   }
 
   def addTypesIntoTypeVerification(typeVerification: PureTypeVerification): Validated[TypeVerification] = {
-    val functionContext = DefinedFunctionContext(context, typeVerification.function)
-    val validatedFunction = new FunctionTyping(functionContext).addTypesIntoDefinedFunction(typeVerification.function)
-    validatedFunction.map { function =>
-      TypeVerification(
-        message = typeVerification.message,
-        function = function,
-        location = typeVerification.location
-      )
+    typeVerification match {
+      case atomicTypeVerification: PureAtomicTypeVerification =>
+        val functionContext = DefinedFunctionContext(context, atomicTypeVerification.function)
+        val validatedFunction = new FunctionTyping(functionContext).addTypesIntoDefinedFunction(atomicTypeVerification.function)
+        validatedFunction.map { function =>
+          AtomicTypeVerification(
+            message = atomicTypeVerification.message,
+            function = function,
+            location = atomicTypeVerification.location
+          )
+        }
+
+      case dependentTypeVerification: PureDependentTypeVerification =>
+        val functionContext = DefinedFunctionContext(context, dependentTypeVerification.function)
+        val validatedFunction = new FunctionTyping(functionContext).addTypesIntoDefinedFunction(dependentTypeVerification.function)
+        validatedFunction.map { function =>
+          DependentTypeVerification(
+            name = dependentTypeVerification.name,
+            message = dependentTypeVerification.message,
+            function = function,
+            location = dependentTypeVerification.location
+          )
+        }
     }
   }
 

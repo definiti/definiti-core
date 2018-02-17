@@ -1,0 +1,28 @@
+type Range {
+  start: Number
+  end: Number
+
+  verify universe(minimal: Number) {
+    message("range.after", Number)
+    (range) => {
+      if (range.start > minimal) {
+        ok
+      } else {
+        ko(minimal)
+      }
+    }
+  }
+}
+
+type OtherRange = Range {
+  verify universe(maximal: Number) {
+    message("range.before")
+    (range) => {
+      if (range.start < maximal) {
+        ok
+      } else {
+        ko(maximal)
+      }
+    }
+  }
+}

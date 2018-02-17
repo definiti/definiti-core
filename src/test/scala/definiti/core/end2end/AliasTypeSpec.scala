@@ -39,7 +39,7 @@ object AliasTypeSpec {
         location = Location(inlineVerificationFile, 1, 21, 1, 28)
       ),
       inherited = Seq.empty,
-      verifications = Seq(TypeVerification(
+      verifications = Seq(AtomicTypeVerification(
         message = LiteralMessage("The list should not be empty", Location(inlineVerificationFile, 3, 5, 3, 35)),
         function = DefinedFunction(
           parameters = Seq(ParameterDefinition(

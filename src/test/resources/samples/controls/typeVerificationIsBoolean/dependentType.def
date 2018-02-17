@@ -1,0 +1,20 @@
+type Range {
+  start: Number
+  end: Number
+
+  verify universe(minimal: Number) {
+    "Should be after"
+    (range) => {
+      range.start > minimal
+    }
+  }
+}
+
+type OtherRange = Range {
+  verify universe(maximal: Number) {
+    "Should be before"
+    (range) => {
+      range.end < maximal
+    }
+  }
+}

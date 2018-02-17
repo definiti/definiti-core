@@ -27,7 +27,7 @@ class AttributeTypeControlSpec extends EndToEndSpec {
   it should "invalidate an attribute with an unknown type" in {
     val output = processFile("controls.attributeType.unknownType", configuration)
     output should beResult(Ko[Root](
-      AttributeTypeControl.errorUnknownType("Unknown", "MyType.myAttribute", unknownTypeLocation(2, 3, 23))
+      AttributeTypeControl.errorUnknownType("Unknown", unknownTypeLocation(2, 3, 23))
     ))
   }
 }

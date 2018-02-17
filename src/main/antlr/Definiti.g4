@@ -107,8 +107,19 @@ attributeDefinition:
   DOC_COMMENT?
   attributeName=IDENTIFIER ':' typeDeclaration verifyingList;
 
-typeVerification:
+typeVerification
+  : atomicTypeVerification
+  | dependentTypeVerification
+  ;
+
+atomicTypeVerification:
   VERIFY '{'
+    verificationMessage
+    typeVerificationFunction
+  '}';
+
+dependentTypeVerification:
+  VERIFY verificationName=IDENTIFIER '(' parameterListDefinition ')' '{'
     verificationMessage
     typeVerificationFunction
   '}';

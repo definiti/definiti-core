@@ -28,7 +28,7 @@ class VerificationTypeControlSpec extends EndToEndSpec {
   it should "invalidate a verification with an unknown type" in {
     val output = processFile("controls.verificationType.unknownType", configuration)
     output should beResult(Ko[Root](
-      VerificationTypeControl.errorUnknownType("Unknown", "UnknownVerification", unknownTypeLocation(3, 4, 20))
+      VerificationTypeControl.errorUnknownType("Unknown", unknownTypeLocation(3, 4, 20))
     ))
   }
 }

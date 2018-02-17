@@ -70,7 +70,7 @@ object GeneratePublicApiSpec {
             )
           ),
           verifications = Seq(
-            TypeVerification(
+            AtomicTypeVerification(
               message = LiteralMessage("No tag can be empty", Location(validBlogSrcTypes, 12, 5, 12, 26)),
               function = DefinedFunction(
                 parameters = Seq(ParameterDefinition("blog", TypeReference("blog.Blog"), Location(validBlogSrcTypes, 13, 6, 13, 10))),

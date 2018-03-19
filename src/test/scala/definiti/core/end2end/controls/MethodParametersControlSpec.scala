@@ -14,6 +14,11 @@ class MethodParametersControlSpec extends EndToEndSpec {
     output shouldBe ok[Root]
   }
 
+  it should "validate a method call with a lambda and generics" in {
+    val output = processFile("controls.methodParameters.validGenericLambdaReference", configuration)
+    output shouldBe ok[Root]
+  }
+
   it should "invalidate a method call when lambda reference does not match" in {
     val output = processFile("controls.methodParameters.invalidLambdaReference", configuration)
     output should beResult(Ko[Root](

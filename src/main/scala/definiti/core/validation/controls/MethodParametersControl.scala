@@ -19,10 +19,10 @@ object MethodParametersControl extends Control with ExpressionControlHelper with
 
   private def controlMethodCall(methodCall: MethodCall, library: Library): ControlResult = {
     val result = for {
-      typeReference <- getTypeReference(methodCall.expression)
-      classDefinition <- getClassDefinition(typeReference, library, methodCall.location)
+      returnTypeReference <- getTypeReference(methodCall.expression)
+      classDefinition <- getClassDefinition(returnTypeReference, library, methodCall.location)
       rawMethod <- getMethod(classDefinition, methodCall, library)
-      method = updateTypesInMethod(rawMethod, classDefinition, typeReference)
+      method = updateTypesInMethod(rawMethod, classDefinition, methodCall, returnTypeReference)
     } yield {
       controlParameters(method.parameters, methodCall.parameters, library, methodCall.location)
     }
@@ -61,10 +61,12 @@ object MethodParametersControl extends Control with ExpressionControlHelper with
     }
   }
 
-  private def updateTypesInMethod(methodDefinition: MethodDefinition, classDefinition: ClassDefinition, typeReference: TypeReference): MethodDefinition = {
+  private def updateTypesInMethod(methodDefinition: MethodDefinition, classDefinition: ClassDefinition, methodCall: MethodCall, returnTypeReference: TypeReference): MethodDefinition = {
     def updateType(innerType: TypeReference): TypeReference = {
       if (classDefinition.genericTypes.contains(innerType.typeName)) {
-        typeReference.genericTypes(classDefinition.genericTypes.indexOf(innerType.typeName))
+        returnTypeReference.genericTypes(classDefinition.genericTypes.indexOf(innerType.typeName))
+      } else if (methodDefinition.genericTypes.contains(innerType.typeName)) {
+        methodCall.generics(methodDefinition.genericTypes.indexOf(innerType.typeName))
       } else {
         TypeReference(innerType.typeName, innerType.genericTypes.map(updateType))
       }

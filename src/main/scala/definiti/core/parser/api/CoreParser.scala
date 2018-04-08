@@ -1,35 +1,34 @@
 package definiti.core.parser.api
 
-import java.nio.file.{Files, Path}
-
 import definiti.core._
 import definiti.core.ast.pure.PureClassDefinition
 import definiti.core.parser.ParserHelper
 import definiti.core.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser}
-import definiti.core.utils.CollectionUtils.scalaSeq
 import definiti.core.utils.ErrorListener
 
-private[core] class CoreParser(configuration: Configuration) {
-  private val coreSource: Path = configuration.apiSource
+import scala.io.Source
 
+private[core] class CoreParser(configuration: Configuration) {
   def parse(): Program[Seq[PureClassDefinition]] = Program.validated {
     val sourceFiles = extractCoreDefinitionFiles()
-    val validatedCoreAst = sourceFiles.map(path => parseCoreDefinitionFile(path.toString))
+    val validatedCoreAst = sourceFiles.map(parseCoreDefinitionFile)
     Validated.flatSquash(validatedCoreAst)
   }
 
-  private def extractCoreDefinitionFiles(): Seq[Path] = {
-    scalaSeq(Files.find(coreSource, 1000, (path, _) => String.valueOf(path).endsWith(".definition")))
+  private def extractCoreDefinitionFiles(): Seq[String] = {
+    Source.fromResource("api")
+      .getLines()
+      .toSeq
   }
 
-  private def parseCoreDefinitionFile(source: String): Validated[Seq[PureClassDefinition]] = {
-    val errorListener = new ErrorListener(source)
-    val parser = ParserHelper.buildParser(source, new CoreDefinitionLexer(_), new CoreDefinitionParser(_), errorListener)
+  private def parseCoreDefinitionFile(path: String): Validated[Seq[PureClassDefinition]] = {
+    val errorListener = new ErrorListener(path)
+    val parser = ParserHelper.buildParser(Source.fromResource(path), new CoreDefinitionLexer(_), new CoreDefinitionParser(_), errorListener)
     val result: CoreDefinitionParser.CoreDefinitionContext = parser.coreDefinition()
     if (errorListener.hasError) {
       Invalid(errorListener.errors.map(_.toError))
     } else {
-      Valid(new CoreDefinitionASTParser(source).definitionContextToAST(result))
+      Valid(new CoreDefinitionASTParser(path).definitionContextToAST(result))
     }
   }
 }

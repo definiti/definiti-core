@@ -14,8 +14,6 @@ import scala.util.{Failure, Success, Try}
 trait Configuration {
   def source: Path
 
-  def apiSource: Path
-
   def parsers: Seq[ParserPlugin]
 
   def validators: Seq[ValidatorPlugin]
@@ -48,8 +46,6 @@ private[core] class FileConfiguration(externalConfig: Config) extends Configurat
   lazy val jsonSerialization = new JsonSerialization(this)
 
   lazy val source: Path = getPathOrElse("source", Paths.get("src"))
-
-  lazy val apiSource: Path = getPathOrElse("api", Paths.get("src/main/resources/api"))
 
   lazy val parsers: Seq[ParserPlugin] = generateInstancesOf(classOf[ParserPlugin], "parsers")
 

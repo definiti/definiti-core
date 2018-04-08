@@ -47,7 +47,7 @@ object VerificationReferenceControl extends Control with TypeReferenceControlHel
   private def controlTypeReference(typeReference: TypeReference, expectedType: ClassDefinition, verificationName: String, location: Location, library: Library): ControlResult = {
     val typesAreEqual = expectedType match {
       case aliasType: AliasType if typeReference.typeName != expectedType.fullName =>
-        areTypeEqual(typeReference, aliasType.alias, library)
+        areTypeEqual(replaceGenerics(typeReference, aliasType.alias), aliasType.alias, library)
       case _ =>
         typeReference.typeName == expectedType.fullName
     }

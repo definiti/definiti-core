@@ -58,6 +58,10 @@ trait TypeReferenceControlHelper {
     }
   }
 
+  def replaceGenerics(typeReference: TypeReference, referenceTypeReference: TypeReference): AbstractTypeReference = {
+    typeReference.copy(genericTypes = referenceTypeReference.genericTypes)
+  }
+
   def areTypeEqual(expectedType: AbstractTypeReference, gotType: AbstractTypeReference, library: Library): Boolean = {
     normalizeType(expectedType, library) == normalizeType(gotType, library)
   }

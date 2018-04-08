@@ -4,3 +4,4 @@
 /.idea
 /src/main/java/definiti/core/parser/antlr
 /tmp
+/src/main/resources/local.conf

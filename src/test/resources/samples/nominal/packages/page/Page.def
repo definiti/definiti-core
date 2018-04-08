@@ -1,0 +1,7 @@
+package packages.common.page
+
+import packages.common.verifications.IsNonBlank
+
+type Page {
+  title: String verifying IsNonBlank("Please give a title")
+}

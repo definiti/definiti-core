@@ -48,6 +48,12 @@ class NominalSpec extends EndToEndSpec {
     val output = processFile("nominal.package")
     output should beResult[Root](expected)
   }
+
+  it should "generate a valid AST for a valid package with sub packages" in {
+    val expected = Ok(packages)
+    val output = processDirectory("nominal.packages")
+    output should beResult[Root](expected)
+  }
 }
 
 object NominalSpec {
@@ -162,6 +168,95 @@ object NominalSpec {
         inherited = Seq.empty,
         comment = None,
         location = Location(packageAliasTypeSrc, 3, 1, 3, 26)
+      ))
+    ))
+  )
+
+  val packagesPageSrc = "src/test/resources/samples/nominal/packages/page/Page.def"
+  val packagesStringSrc = "src/test/resources/samples/nominal/packages/verifications/string.def"
+  val packages: Root = Root(
+    elements = Seq(Namespace(
+      name = "packages",
+      fullName = "packages",
+      elements = Seq(Namespace(
+        name = "common",
+        fullName = "packages.common",
+        elements = Seq(
+          Namespace(
+            name = "page",
+            fullName = "packages.common.page",
+            elements = Seq(DefinedType(
+              name = "Page",
+              fullName = "packages.common.page.Page",
+              genericTypes = Seq.empty,
+              parameters = Seq.empty,
+              attributes = Seq(
+                AttributeDefinition(
+                  name = "title",
+                  typeDeclaration = TypeDeclaration(
+                    typeName = "String",
+                    genericTypes = Seq.empty,
+                    parameters = Seq.empty,
+                    location = Location(packagesPageSrc, 6, 10, 6, 16)
+                  ),
+                  comment = None,
+                  verifications = Seq(
+                    VerificationReference(
+                      verificationName = "packages.common.verifications.IsNonBlank",
+                      parameters = Seq(QuotedStringValue(
+                        value = "Please give a title",
+                        returnType = TypeReference("String"),
+                        location = Location(packagesPageSrc, 6, 38, 6, 59)
+                      )),
+                      location = Location(packagesPageSrc, 6, 17, 6, 60)
+                    )
+                  ),
+                  location = Location(packagesPageSrc, 6, 3, 6, 60)
+                )
+              ),
+              verifications = Seq.empty,
+              inherited = Seq.empty,
+              comment = None,
+              location = Location(packagesPageSrc, 5, 1, 7, 2)
+            ))
+          ),
+          Namespace(
+            name = "verifications",
+            fullName = "packages.common.verifications",
+            elements = Seq(Verification(
+              name = "IsNonBlank",
+              fullName = "packages.common.verifications.IsNonBlank",
+              parameters = Seq.empty,
+              message = LiteralMessage("The field is required", Location(packagesStringSrc, 4, 3, 4, 26)),
+              function = DefinedFunction(
+                parameters = Seq(ParameterDefinition("string", TypeReference("String"), Location(packagesStringSrc, 5, 4, 5, 18))),
+                body = MethodCall(
+                  expression = MethodCall(
+                    expression = Reference(
+                      name = "string",
+                      returnType = TypeReference("String"),
+                      location = Location(packagesStringSrc, 6, 5, 6, 11)
+                    ),
+                    method = "trim",
+                    parameters = Seq.empty,
+                    generics = Seq.empty,
+                    returnType = TypeReference("String"),
+                    location = Location(packagesStringSrc, 6, 5, 6, 18)
+                  ),
+                  method = "nonEmpty",
+                  parameters = Seq.empty,
+                  generics = Seq.empty,
+                  returnType = TypeReference("Boolean"),
+                  location = Location(packagesStringSrc, 6, 5, 6, 29)
+                ),
+                genericTypes = Seq.empty,
+                location = Location(packagesStringSrc, 5, 3, 7, 4)
+              ),
+              comment = None,
+              location = Location(packagesStringSrc, 3, 1, 8, 2)
+            ))
+          )
+        )
       ))
     ))
   )

@@ -68,7 +68,7 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
         packageName
       }
     }
-    directSubPackageNames
+    directSubPackageNames.distinct
   }
 
   private def transformVerification(verification: typed.TypedVerification, namespace: String): Verification = {

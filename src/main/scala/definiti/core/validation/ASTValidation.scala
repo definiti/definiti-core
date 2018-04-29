@@ -16,7 +16,7 @@ private[core] class ASTValidation(configuration: Configuration, library: Library
 
   private def validateExtendedContexts(): Validated[NoResult] = {
     Validated.squash {
-      library.namespaces.flatMap(_.elements).collect {
+      (library.root.elements ++ library.namespaces.flatMap(_.elements)).collect {
         case extendedContext: ExtendedContext[_] => validateExtendedContext(extendedContext, library)
       }
     }.map(_ => NoResult)

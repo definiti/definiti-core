@@ -5,7 +5,5 @@ package object core {
 
   private[core] val emptyImportsMap: ImportsMap = Map.empty[String, String]
 
-  private[core] val NOT_DEFINED: String = "NOT_DEFINED"
-
   private[core] val BOOLEAN = "Boolean"
 }

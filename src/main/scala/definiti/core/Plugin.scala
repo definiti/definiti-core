@@ -25,7 +25,7 @@ trait GeneratorPlugin extends Plugin {
 trait ContextPlugin[A] extends Plugin {
   def contextName: String
 
-  def parse(content: String, location: Location): A
+  def parse(content: String, packageName: String, imports: Map[String, String], location: Location): A
 
   def validate(context: A, library: Library): Validated[NoResult]
 

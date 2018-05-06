@@ -6,7 +6,6 @@ import java.nio.file.{Files, Path, StandardOpenOption}
 import definiti.core.ProgramResult.NoResult
 import definiti.core.ast._
 import definiti.core.ast.pure._
-import definiti.core.linking.ProjectLinking
 import definiti.core.parser.api.CoreParser
 import definiti.core.parser.project.ProjectParser
 import definiti.core.structure.ProjectStructure
@@ -40,8 +39,7 @@ class Project(configuration: Configuration) {
     for {
       parsedPureRoot <- projectParser.parse()
       core <- coreParser.parse()
-      linkedPureRoot = ProjectLinking.injectLinks(parsedPureRoot, core)
-      finalPureRoot <- processPluginParsers(linkedPureRoot)
+      finalPureRoot <- processPluginParsers(parsedPureRoot)
       context = createProjectContext(finalPureRoot, core)
       typedRoot <- new ProjectTyping(context).addTypes(finalPureRoot)
       structuredRoot = new ProjectStructure(typedRoot).generateStructure()

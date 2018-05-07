@@ -1,4 +1,6 @@
-package definiti.core
+package definiti.common.program
+
+import definiti.common.validation.Alert
 
 sealed trait ProgramResult[A] {
   def prettyPrint: String

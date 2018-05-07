@@ -1,9 +1,9 @@
-package definiti.core.utils
+package definiti.common.utils
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
-private[core] object CollectionUtils {
+object CollectionUtils {
   def scalaSeq[A](list: java.util.List[A]): Seq[A] = {
     if (list != null) {
       list.asScala.toList

@@ -1,10 +1,10 @@
 package definiti.core.parser.project
 
+import definiti.common.utils.CollectionUtils._
+import definiti.common.utils.StringUtils
 import definiti.core.Configuration
 import definiti.core.ast.pure._
 import definiti.core.parser.antlr.DefinitiParser._
-import definiti.core.utils.CollectionUtils._
-import definiti.core.utils.StringUtils
 
 import scala.collection.mutable.ListBuffer
 

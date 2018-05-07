@@ -1,10 +1,10 @@
 package definiti.core.validation.controls
 
-import definiti.core.Alert
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
+import definiti.common.validation.Alert
 
-object TypeNameFormatControl extends Control {
+private[core] object TypeNameFormatControl extends Control {
   override val description: String = "Check the format of name of every type (UpperCamelCase)"
   override val defaultLevel: ControlLevel.Value = ControlLevel.warning
 

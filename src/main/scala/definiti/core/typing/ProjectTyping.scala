@@ -1,5 +1,7 @@
 package definiti.core.typing
 
+import definiti.common.program.Program
+import definiti.common.validation.Validated
 import definiti.core._
 import definiti.core.ast.pure._
 import definiti.core.ast.typed._

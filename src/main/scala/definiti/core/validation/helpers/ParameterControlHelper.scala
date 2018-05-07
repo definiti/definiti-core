@@ -1,10 +1,10 @@
 package definiti.core.validation.helpers
 
-import definiti.core.Alert
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlResult}
+import definiti.common.validation.Alert
 
-trait ParameterControlHelper {
+private[core] trait ParameterControlHelper {
   self: Control with TypeReferenceControlHelper =>
 
   def controlParameters(expectedParameters: Seq[ParameterDefinition], gotParameters: Seq[Expression], library: Library, location: Location): ControlResult = {

@@ -2,17 +2,19 @@ package definiti.core.end2end
 
 import java.nio.file.Paths
 
+import definiti.common.ast._
+import definiti.common.program.ProgramResult
+import definiti.common.control.ControlLevel
 import definiti.core._
-import definiti.core.ast.{Location, Root}
 import definiti.core.mock.plugins.StringExtendedContext
-import definiti.core.validation.{ControlLevel, Controls}
+import definiti.core.validation.Controls
 import org.scalatest.{FlatSpec, Matchers}
 
 trait EndToEndSpec extends FlatSpec with Matchers {
   def processDirectory(sample: String, configuration: ConfigurationMock = ConfigurationMock()): ProgramResult[Root] = {
     val finalConfiguration = configurationDirectory(sample, configuration)
     val project = new Project(finalConfiguration)
-    project.generatePublicAST().run(finalConfiguration)
+    project.generatePublicAST().run(finalConfiguration.programConfiguration)
   }
 
   def configurationDirectory(sample: String, configuration: ConfigurationMock): Configuration = {
@@ -26,7 +28,7 @@ trait EndToEndSpec extends FlatSpec with Matchers {
   def processFile(sample: String, configuration: ConfigurationMock = ConfigurationMock()): ProgramResult[Root] = {
     val finalConfiguration = configurationFile(sample, configuration)
     val project = new Project(finalConfiguration)
-    project.generatePublicAST().run(finalConfiguration)
+    project.generatePublicAST().run(finalConfiguration.programConfiguration)
   }
 
   def configurationFile(sample: String, configuration: ConfigurationMock): Configuration = {

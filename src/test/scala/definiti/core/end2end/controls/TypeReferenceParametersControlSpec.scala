@@ -1,8 +1,9 @@
 package definiti.core.end2end.controls
 
-import definiti.core.{Constants, Ko}
+import definiti.common.ast.Root
+import definiti.common.program.Ko
+import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.TypeDeclarationParametersControl
 

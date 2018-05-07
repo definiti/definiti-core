@@ -1,7 +1,8 @@
 package definiti.core.typing
 
+import definiti.common.ast._
+import definiti.common.validation.{Invalid, Valid, Validated}
 import definiti.core._
-import definiti.core.ast._
 import definiti.core.ast.pure._
 
 private[core] class ExpressionTyping(context: Context) {

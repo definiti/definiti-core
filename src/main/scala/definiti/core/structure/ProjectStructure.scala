@@ -1,8 +1,9 @@
 package definiti.core.structure
 
-import definiti.core.ast._
-import definiti.core.ast.typed.TypedRootFile
-import definiti.core.utils.StringUtils
+import definiti.common.ast._
+import definiti.common.utils.StringUtils
+import definiti.core.ast.typed._
+import definiti.core.ast.{pure, typed}
 
 private[core] class ProjectStructure(root: typed.TypedRoot) {
   def generateStructure(): Root = {

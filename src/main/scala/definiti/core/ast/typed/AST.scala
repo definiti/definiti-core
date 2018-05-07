@@ -1,8 +1,8 @@
 package definiti.core.ast.typed
 
-import definiti.core.ast._
+import definiti.common.ast.{Expression, Location, _}
+import definiti.common.utils.StringUtils
 import definiti.core.ast.pure._
-import definiti.core.{ASTHelper, ast}
 
 private[core] case class TypedRoot(
   files: Seq[TypedRootFile]
@@ -43,7 +43,7 @@ private[core] case class TypedVerification(
   comment: Option[String],
   location: Location
 ) {
-  def canonicalName: String = ASTHelper.canonical(packageName, name)
+  def canonicalName: String = StringUtils.canonical(packageName, name)
 }
 
 private[core] sealed trait Type extends TypedClassDefinition {
@@ -61,7 +61,7 @@ private[core] case class TypedDefinedType(
   comment: Option[String],
   location: Location
 ) extends Type {
-  override def canonicalName: String = ASTHelper.canonical(packageName, name)
+  override def canonicalName: String = StringUtils.canonical(packageName, name)
 }
 
 private[core] case class TypedAliasType(
@@ -75,7 +75,7 @@ private[core] case class TypedAliasType(
   comment: Option[String],
   location: Location
 ) extends Type {
-  override def canonicalName: String = ASTHelper.canonical(packageName, name)
+  override def canonicalName: String = StringUtils.canonical(packageName, name)
 }
 
 private[core] case class TypedEnum(
@@ -85,7 +85,7 @@ private[core] case class TypedEnum(
   comment: Option[String],
   location: Location
 ) extends Type {
-  override def canonicalName: String = ASTHelper.canonical(packageName, name)
+  override def canonicalName: String = StringUtils.canonical(packageName, name)
 
   override def genericTypes: Seq[String] = Seq.empty
 }
@@ -102,6 +102,6 @@ private[core] case class TypedNamedFunction(
   genericTypes: Seq[String],
   parameters: Seq[ParameterDefinition],
   returnType: TypeReference,
-  body: ast.Expression,
+  body: Expression,
   location: Location
 )

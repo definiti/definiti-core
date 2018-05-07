@@ -1,10 +1,12 @@
 package definiti.core.end2end
 
-import definiti.core.ProgramResult.NoResult
+import definiti.common._
+import definiti.common.ast._
+import definiti.common.program.ProgramResult.NoResult
+import definiti.common.validation._
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.{Library, Root}
-import definiti.core.mock.plugins.StringExtendedContext
 import definiti.core._
+import definiti.core.mock.plugins.StringExtendedContext
 
 class ExtendedContextSpec extends EndToEndSpec {
   import ExtendedContextSpec._

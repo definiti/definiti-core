@@ -1,10 +1,10 @@
 package definiti.core.validation.helpers
 
-import definiti.core.Alert
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlResult}
+import definiti.common.validation.Alert
 
-trait TopLevelParameterControlHelper {
+private[core] trait TopLevelParameterControlHelper {
   self: Control =>
 
   private val authorizedTypes: Seq[TypeReference] = Seq("Boolean", "Number", "String").map(TypeReference(_))

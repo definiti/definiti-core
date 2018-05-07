@@ -1,13 +1,14 @@
 package definiti.core.plugin.serialization
 
-import definiti.core.{ASTError, Error, Invalid, SimpleError}
+import definiti.common.validation
+import definiti.common.validation.{ASTError, Invalid, SimpleError}
 import spray.json._
 
-trait ValidationJsonSerialization {
+private[core] trait ValidationJsonSerialization {
   self: JsonSerialization =>
 
   def invalidFromJson(value: String): Invalid = {
-    Invalid(seqErrorReader.read(value.parseJson))
+    validation.Invalid(seqErrorReader.read(value.parseJson))
   }
 
   import spray.json.DefaultJsonProtocol._
@@ -21,13 +22,13 @@ trait ValidationJsonSerialization {
 
     override def write(obj: SimpleError): JsValue = JsString(obj.message)
   }
-  private lazy val errorFormat: JsonFormat[Error] = new JsonFormat[Error] {
-    override def write(error: Error): JsValue = error match {
+  private lazy val errorFormat: JsonFormat[validation.Error] = new JsonFormat[validation.Error] {
+    override def write(error: validation.Error): JsValue = error match {
       case astError: ASTError => astErrorMessageFormat.write(astError)
       case simpleError: SimpleError => simpleErrorMessageFormat.write(simpleError)
     }
 
-    override def read(json: JsValue): Error = {
+    override def read(json: JsValue): validation.Error = {
       json match {
         case _: JsObject => astErrorMessageFormat.read(json)
         case _: JsString => simpleErrorMessageFormat.read(json)
@@ -35,5 +36,5 @@ trait ValidationJsonSerialization {
       }
     }
   }
-  private lazy val seqErrorReader: JsonFormat[Seq[Error]] = seqFormat[Error](errorFormat)
+  private lazy val seqErrorReader: JsonFormat[Seq[validation.Error]] = seqFormat[validation.Error](errorFormat)
 }

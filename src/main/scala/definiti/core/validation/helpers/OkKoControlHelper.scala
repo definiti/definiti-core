@@ -1,10 +1,10 @@
 package definiti.core.validation.helpers
 
-import definiti.core.Alert
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlResult}
+import definiti.common.validation.Alert
 
-trait OkKoControlHelper {
+private[core] trait OkKoControlHelper {
   self: Control with TypeReferenceControlHelper =>
 
   def controlTypes(expectedTypes: Seq[TypeReference], gotExpressions: Seq[Expression], location: Location, library: Library): ControlResult = {

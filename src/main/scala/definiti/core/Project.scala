@@ -3,8 +3,10 @@ package definiti.core
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
-import definiti.core.ProgramResult.NoResult
-import definiti.core.ast._
+import definiti.common.ast._
+import definiti.common.program.Program
+import definiti.common.program.ProgramResult.NoResult
+import definiti.common.validation.{Invalid, Valid, Validated}
 import definiti.core.ast.pure._
 import definiti.core.parser.api.CoreParser
 import definiti.core.parser.project.ProjectParser

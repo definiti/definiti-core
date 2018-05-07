@@ -1,8 +1,8 @@
 package definiti.core.end2end
 
-import definiti.core.Ok
+import definiti.common.ast._
+import definiti.common.program.Ok
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast._
 
 class VerificationFunctionSpec extends EndToEndSpec {
   import VerificationFunctionSpec._

@@ -1,4 +1,4 @@
-package definiti.core.ast
+package definiti.common.ast
 
 import scala.collection.mutable.ListBuffer
 

@@ -1,8 +1,9 @@
 package definiti.core.end2end
 
+import definiti.common.ast._
+import definiti.common.program.{Ko, Ok}
+import definiti.common.validation.AlertLocation
 import definiti.core.ProgramResultMatchers._
-import definiti.core._
-import definiti.core.ast._
 
 class NamedFunctionSpec extends EndToEndSpec {
   import NamedFunctionSpec._

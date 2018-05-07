@@ -2,11 +2,13 @@ package definiti.core.parser.project
 
 import java.nio.file.{Files, Path}
 
+import definiti.common.program.Program
+import definiti.common.utils.CollectionUtils._
+import definiti.common.validation.{Invalid, Valid, Validated}
 import definiti.core._
 import definiti.core.ast.pure._
 import definiti.core.parser.ParserHelper
 import definiti.core.parser.antlr.{DefinitiLexer, DefinitiParser}
-import definiti.core.utils.CollectionUtils._
 import definiti.core.utils.ErrorListener
 
 private[core] class ProjectParser(configuration: Configuration) {

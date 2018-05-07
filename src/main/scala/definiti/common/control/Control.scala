@@ -1,7 +1,7 @@
-package definiti.core.validation
+package definiti.common.control
 
-import definiti.core.ast.{Library, Location, Root}
-import definiti.core.{Alert, AlertControl}
+import definiti.common.ast.{Library, Location, Root}
+import definiti.common.validation.{Alert, AlertControl}
 
 trait Control {
   val name: String = {

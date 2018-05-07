@@ -1,9 +1,9 @@
 package definiti.core.validation.helpers
 
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlResult}
 
-trait ExpressionControlHelper {
+private[core] trait ExpressionControlHelper {
   self: Control =>
 
   def deepControl(expression: Expression)(op: PartialFunction[Expression, ControlResult]): ControlResult = {

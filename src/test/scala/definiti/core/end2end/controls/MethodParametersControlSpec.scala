@@ -1,10 +1,11 @@
 package definiti.core.end2end.controls
 
+import definiti.common.ast.{LambdaReference, NamedFunctionReference, Root}
+import definiti.common.program.Ko
+import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.{LambdaReference, NamedFunctionReference, Root}
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.MethodParametersControl
-import definiti.core.{Constants, Ko}
 
 class MethodParametersControlSpec extends EndToEndSpec {
   import MethodParametersControlSpec._

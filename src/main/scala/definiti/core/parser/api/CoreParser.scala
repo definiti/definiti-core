@@ -1,5 +1,7 @@
 package definiti.core.parser.api
 
+import definiti.common.program.Program
+import definiti.common.validation.{Invalid, Valid, Validated}
 import definiti.core._
 import definiti.core.ast.pure.PureClassDefinition
 import definiti.core.parser.ParserHelper

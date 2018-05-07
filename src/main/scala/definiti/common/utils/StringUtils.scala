@@ -1,6 +1,6 @@
-package definiti.core.utils
+package definiti.common.utils
 
-private[core] object StringUtils {
+object StringUtils {
   def lastPart(source: String, separator: Char = '.'): String = {
     if (source.last == separator) {
       lastPart(source.substring(0, source.length - 1), separator)
@@ -8,6 +8,14 @@ private[core] object StringUtils {
       source.substring(source.lastIndexOf(".") + 1)
     } else {
       source
+    }
+  }
+
+  def canonical(prefix: String, suffix: String, separator: Char = '.'): String = {
+    if (prefix.nonEmpty) {
+      prefix + "." + suffix
+    } else {
+      suffix
     }
   }
 }

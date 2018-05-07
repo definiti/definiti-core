@@ -1,8 +1,11 @@
 package definiti.core
 
-import definiti.core.ProgramResult.NoResult
-import definiti.core.ast.Location
-import definiti.core.validation.{ControlLevel, ControlResult}
+import definiti.common._
+import definiti.common.ast.Location
+import definiti.common.program.ProgramResult.NoResult
+import definiti.common.program.{Ko, Ok, Program}
+import definiti.common.control.{ControlLevel, ControlResult}
+import definiti.common.validation.{AlertControl, AlertLocation, Invalid, Valid}
 import org.scalatest.{FlatSpec, Matchers}
 
 class ProgramSpec extends FlatSpec with Matchers {
@@ -13,7 +16,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       start <- Program(1)
       end <- Program(start + 2)
     } yield end
-    program.run(configuration) should ===(Ok(3))
+    program.run(configuration.programConfiguration) should ===(Ok(3))
   }
 
   it should "be executed when run" in {
@@ -26,7 +29,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       }
       end <- Program(middle + 2)
     } yield end
-    program.run(configuration)
+    program.run(configuration.programConfiguration)
     x should ===(1)
   }
 
@@ -41,7 +44,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       end <- Program(middle + 2)
     } yield end
     x should ===(0)
-    program.run(configuration)
+    program.run(configuration.programConfiguration)
   }
 
   it should "pass through valid validations" in {
@@ -49,7 +52,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       start <- Program(1)
       validation <- Program.validated(Valid(start + 2))
     } yield validation
-    program.run(configuration) should ===(Ok(3))
+    program.run(configuration.programConfiguration) should ===(Ok(3))
   }
 
   it should "be blocked by invalid validations" in {
@@ -57,7 +60,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       _ <- Program(1)
       validation <- Program.validated[NoResult](Invalid("This is an error", anyLocation))
     } yield validation
-    program.run(configuration) should ===(Ko(Seq(AlertLocation("This is an error", anyLocation))))
+    program.run(configuration.programConfiguration) should ===(Ko(Seq(AlertLocation("This is an error", anyLocation))))
   }
 
   it should "pass through valid result" in {
@@ -65,7 +68,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       value <- Program(1)
       _ <- Program(ControlResult(Seq.empty))
     } yield value
-    program.run(configuration) should ===(Ok(1))
+    program.run(configuration.programConfiguration) should ===(Ok(1))
   }
 
   it should "be blocked by invalid result" in {
@@ -73,7 +76,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       value <- Program(1)
       _ <- Program(ControlResult(Seq(alertError)))
     } yield value
-    program.run(configuration) should ===(Ko(Seq(alertError)))
+    program.run(configuration.programConfiguration) should ===(Ko(Seq(alertError)))
   }
 
   it should "accept alerts when success" in {
@@ -81,7 +84,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       start <- Program(1)
       end <- Program(Ok(start + 2, Seq(alertInfo1)))
     } yield end
-    program.run(configuration) should ===(Ok(3, Seq(alertInfo1)))
+    program.run(configuration.programConfiguration) should ===(Ok(3, Seq(alertInfo1)))
   }
 
   it should "accumulate alerts when success" in {
@@ -90,7 +93,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       middle <- Program(Ok(start + 2, Seq(alertInfo1)))
       end <- Program(Ok(middle + 3, Seq(alertInfo2)))
     } yield end
-    program.run(configuration) should ===(Ok(6, Seq(alertInfo1, alertInfo2)))
+    program.run(configuration.programConfiguration) should ===(Ok(6, Seq(alertInfo1, alertInfo2)))
   }
 
   it should "accumulate alerts and stop on error" in {
@@ -100,7 +103,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       middle <- Program(Ko[Int](Seq(alertInfo2)))
       end <- Program(Ok(middle + 3, Seq(alertInfo3)))
     } yield end
-    program.run(configuration) should ===(Ko(Seq(alertInfo1, alertInfo2)))
+    program.run(configuration.programConfiguration) should ===(Ko(Seq(alertInfo1, alertInfo2)))
   }
 
   it should "be invalid in terms of the configuration - stop on error" in {
@@ -110,7 +113,7 @@ class ProgramSpec extends FlatSpec with Matchers {
       middle2 <- Program(Ok(middle1 + 3, Seq(alertError)))
       end <- Program(Ok(middle2 + 4, Seq(alertInfo3)))
     } yield end
-    program.run(configuration) should ===(Ko(Seq(alertInfo1, alertError)))
+    program.run(configuration.programConfiguration) should ===(Ko(Seq(alertInfo1, alertError)))
   }
 
   it should "be invalid in terms of the configuration - stop on info" in {
@@ -123,7 +126,7 @@ class ProgramSpec extends FlatSpec with Matchers {
     val conf = configuration.copy(
       fatalLevel = ControlLevel.info
     )
-    program.run(conf) should ===(Ko(Seq(alertInfo1)))
+    program.run(conf.programConfiguration) should ===(Ko(Seq(alertInfo1)))
   }
 }
 

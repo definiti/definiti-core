@@ -2,16 +2,17 @@ package definiti.core.plugin
 
 import java.nio.file.Path
 
-import definiti.core.ProgramResult.NoResult
-import definiti.core._
+import definiti.common.ast.{Library, Root}
+import definiti.common.plugin._
+import definiti.common.program.ProgramResult.NoResult
+import definiti.common.validation.{Valid, Validated}
 import definiti.core.ast.pure.PureRoot
-import definiti.core.ast.{Library, Root}
 import definiti.core.plugin.serialization.JsonSerialization
 
 import scala.collection.mutable.ListBuffer
 import scala.sys.process._
 
-class ParserCommandPlugin(command: String, jsonSerialization: JsonSerialization) extends ParserPlugin {
+private[core] class ParserCommandPlugin(command: String, jsonSerialization: JsonSerialization) extends ParserPlugin {
   override def name: String = command
 
   private val commandPath: String = if (command.startsWith("./")) command else s"./${command}"
@@ -24,7 +25,7 @@ class ParserCommandPlugin(command: String, jsonSerialization: JsonSerialization)
   }
 }
 
-class ValidatorCommandPlugin(command: String, jsonSerialization: JsonSerialization) extends ValidatorPlugin {
+private[core] class ValidatorCommandPlugin(command: String, jsonSerialization: JsonSerialization) extends ValidatorPlugin {
   override def name: String = command
 
   private val commandPath: String = if (command.startsWith("./")) command else s"./${command}"
@@ -37,7 +38,7 @@ class ValidatorCommandPlugin(command: String, jsonSerialization: JsonSerializati
   }
 }
 
-class GeneratorCommandPlugin(command: String, jsonSerialization: JsonSerialization) extends GeneratorPlugin {
+private[core] class GeneratorCommandPlugin(command: String, jsonSerialization: JsonSerialization) extends GeneratorPlugin {
   override def name: String = command
 
   private val commandPath: String = if (command.startsWith("./")) command else s"./${command}"
@@ -50,9 +51,9 @@ class GeneratorCommandPlugin(command: String, jsonSerialization: JsonSerializati
   }
 }
 
-case class CommandResult(status: Int, out: String, err: String)
+private[core] case class CommandResult(status: Int, out: String, err: String)
 
-object Command {
+private[core] object Command {
   def execute(command: String, arguments: String*): CommandResult = {
     val logger = new CommandPluginProcessLogger
     val status = (command +: arguments).!(logger)

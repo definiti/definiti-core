@@ -1,11 +1,11 @@
 package definiti.core.plugin.serialization
 
-import definiti.core.ContextPlugin
-import definiti.core.ast.Location
+import definiti.common.ast.Location
+import definiti.common.plugin.ContextPlugin
 import definiti.core.ast.pure._
 import spray.json._
 
-trait PureRootJsonSerialization {
+private[core] trait PureRootJsonSerialization {
   self: JsonSerialization =>
 
   def pureRootToJson(pureRoot: PureRoot): String = pureRootFormat.write(pureRoot).compactPrint

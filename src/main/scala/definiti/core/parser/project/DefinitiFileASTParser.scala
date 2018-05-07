@@ -1,11 +1,11 @@
 package definiti.core.parser.project
 
+import definiti.common.ast.LogicalOperator.{apply => _}
+import definiti.common.ast._
+import definiti.common.utils.CollectionUtils.scalaSeq
 import definiti.core.Configuration
-import definiti.core.ast.LogicalOperator.{apply => _}
-import definiti.core.ast._
 import definiti.core.ast.pure._
 import definiti.core.parser.antlr.DefinitiParser._
-import definiti.core.utils.CollectionUtils.scalaSeq
 import org.antlr.v4.runtime.Token
 import org.antlr.v4.runtime.misc.Interval
 
@@ -362,8 +362,8 @@ private[core] class DefinitiFileASTParser(
   }
 
   private def processLeftRightExpression(context: ExpressionContext): PureExpression = {
-    import CalculatorOperator._
-    import LogicalOperator._
+    import definiti.common.ast.CalculatorOperator._
+    import definiti.common.ast.LogicalOperator._
     val left = processExpression(context.leftExpression)
     val right = processExpression(context.rightExpression)
     context.operator.getText match {

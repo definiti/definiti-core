@@ -1,10 +1,10 @@
 package definiti.core.validation.controls
 
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlLevel, ControlResult}
-import definiti.core.{Alert, BOOLEAN}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
+import definiti.common.validation.Alert
 
-object VerificationIsBooleanControl extends Control {
+private[core] object VerificationIsBooleanControl extends Control {
   override val description: String = "Checks if the expression inside verification is Boolean is case of literal messages"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 
@@ -17,7 +17,7 @@ object VerificationIsBooleanControl extends Control {
   }
 
   private def controlVerification(verification: Verification): ControlResult = {
-    if (verification.function.body.returnType == TypeReference(BOOLEAN)) {
+    if (verification.function.body.returnType == TypeReference("Boolean")) {
       OK
     } else {
       ControlResult(errorNotBoolean(verification.fullName, verification.function.body.returnType, verification.function.location))

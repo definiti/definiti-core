@@ -1,11 +1,11 @@
 package definiti.core.validation.controls
 
-import definiti.core.Alert
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
+import definiti.common.validation.Alert
 import definiti.core.validation.helpers.TypeReferenceControlHelper
 
-object NamedFunctionTypeControl extends Control with TypeReferenceControlHelper {
+private[core] object NamedFunctionTypeControl extends Control with TypeReferenceControlHelper {
   override val description: String = "Check if the type of the body of the named function match the defined one"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

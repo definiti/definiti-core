@@ -1,6 +1,6 @@
 package definiti.core
 
-import definiti.core.ast._
+import definiti.common.ast._
 import definiti.core.ast.pure._
 
 private[core] case class ClassReference(classDefinition: PureClassDefinition, genericTypes: Seq[ClassReference])

@@ -1,9 +1,10 @@
 package definiti.core.typing
 
-import definiti.core.ast._
+import definiti.common.ast._
+import definiti.common.validation.{Valid, Validated}
 import definiti.core.ast.pure._
 import definiti.core.ast.typed._
-import definiti.core.{Context, DefinedFunctionContext, Valid, Validated}
+import definiti.core.{Context, DefinedFunctionContext}
 
 private[core] class ClassDefinitionTyping(context: Context) {
   def addTypesIntoClassDefinition(classDefinition: PureClassDefinition): Validated[TypedClassDefinition] = {

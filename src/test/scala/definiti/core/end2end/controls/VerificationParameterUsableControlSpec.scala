@@ -1,8 +1,8 @@
 package definiti.core.end2end.controls
 
-import definiti.core.Ko
+import definiti.common.ast.{Root, TypeReference}
+import definiti.common.program.Ko
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.{Root, TypeReference}
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.VerificationParameterUsableControl
 

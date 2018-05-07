@@ -1,9 +1,9 @@
 package definiti.core.plugin.serialization
 
-import definiti.core.ast._
+import definiti.common.ast._
 import spray.json._
 
-trait RootJsonSerialization {
+private[core] trait RootJsonSerialization {
   self: JsonSerialization =>
 
   def rootToJson(root: Root): String = {
@@ -63,7 +63,6 @@ trait RootJsonSerialization {
   implicit lazy val atomicTypeVerificationFormat: JsonFormat[AtomicTypeVerification] = lazyFormat(jsonFormat3(AtomicTypeVerification.apply))
   implicit lazy val dependentTypeVerificationFormat: JsonFormat[DependentTypeVerification] = lazyFormat(jsonFormat4(DependentTypeVerification.apply))
   implicit lazy val definedFunctionFormat: JsonFormat[DefinedFunction] = lazyFormat(jsonFormat4(DefinedFunction.apply))
-  implicit lazy val parameterFormat: JsonFormat[Parameter] = lazyFormat(jsonFormat3(Parameter.apply))
 
   implicit lazy val expressionFormat: JsonFormat[Expression] = lazyFormat(sealedTraitFormat(
     Format("logicalExpression", classOf[LogicalExpression]),

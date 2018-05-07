@@ -1,12 +1,12 @@
 package definiti.core.ast.pure
 
-import definiti.core.ast._
+import definiti.common.ast._
 
 private[core] sealed trait PureExpression {
   def location: Location
 }
 
-sealed trait PureAtomicExpression extends PureExpression
+private[core] sealed trait PureAtomicExpression extends PureExpression
 
 private[core] case class PureLogicalExpression(
   operator: LogicalOperator.Value,

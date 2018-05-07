@@ -1,10 +1,10 @@
 package definiti.core.validation.controls
 
-import definiti.core.ast._
-import definiti.core.validation._
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.core.validation.helpers.TopLevelParameterControlHelper
 
-object VerificationParameterUsableControl extends Control with TopLevelParameterControlHelper {
+private[core] object VerificationParameterUsableControl extends Control with TopLevelParameterControlHelper {
   override val description: String = "Check if parameter types in verification are valid"
 
   override val defaultLevel: ControlLevel.Value = ControlLevel.error

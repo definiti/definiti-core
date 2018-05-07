@@ -1,15 +1,15 @@
 package definiti.core.ast.pure
 
-import definiti.core.ASTHelper
-import definiti.core.ast._
+import definiti.common.ast._
+import definiti.common.utils.StringUtils
 
-private[core] case class PureRoot(
+case class PureRoot(
   files: Seq[PureRootFile]
 )
 
 private[core] case class PureRootFile(
   packageName: String,
-  imports: ImportsMap,
+  imports: Map[String, String],
   verifications: Seq[PureVerification],
   classDefinitions: Seq[PureClassDefinition],
   namedFunctions: Seq[PureNamedFunction],
@@ -60,7 +60,7 @@ private[core] case class PureVerification(
   comment: Option[String],
   location: Location
 ) {
-  def canonicalName: String = ASTHelper.canonical(packageName, name)
+  def canonicalName: String = StringUtils.canonical(packageName, name)
 }
 
 private[core] case class PureVerificationReference(
@@ -86,7 +86,7 @@ private[core] case class PureDefinedType(
 ) extends PureType {
   def methods: Seq[MethodDefinition] = Seq()
 
-  override def canonicalName: String = ASTHelper.canonical(packageName, name)
+  override def canonicalName: String = StringUtils.canonical(packageName, name)
 }
 
 private[core] case class PureAliasType(
@@ -100,7 +100,7 @@ private[core] case class PureAliasType(
   comment: Option[String],
   location: Location
 ) extends PureType {
-  override def canonicalName: String = ASTHelper.canonical(packageName, name)
+  override def canonicalName: String = StringUtils.canonical(packageName, name)
 }
 
 private[core] case class PureEnum(
@@ -110,7 +110,7 @@ private[core] case class PureEnum(
   comment: Option[String],
   location: Location
 ) extends PureClassDefinition {
-  override def canonicalName: String = ASTHelper.canonical(packageName, name)
+  override def canonicalName: String = StringUtils.canonical(packageName, name)
 
   override def genericTypes: Seq[String] = Seq.empty
 }
@@ -145,7 +145,7 @@ private[core] case class PureNamedFunction(
   body: PureExpression,
   location: Location
 ) {
-  def canonicalName: String = ASTHelper.canonical(packageName, name)
+  def canonicalName: String = StringUtils.canonical(packageName, name)
 }
 
 private[core] case class PureExtendedContext[A](name: String, content: A, location: Location)

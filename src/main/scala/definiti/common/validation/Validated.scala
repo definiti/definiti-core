@@ -1,6 +1,6 @@
-package definiti.core
+package definiti.common.validation
 
-import definiti.core.ast.Location
+import definiti.common.ast.Location
 
 sealed trait Validated[+A] {
   def isValid: Boolean

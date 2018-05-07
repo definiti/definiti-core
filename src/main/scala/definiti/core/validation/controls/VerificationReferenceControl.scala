@@ -1,11 +1,11 @@
 package definiti.core.validation.controls
 
-import definiti.core.Alert
-import definiti.core.ast._
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
+import definiti.common.validation.Alert
 import definiti.core.validation.helpers.TypeReferenceControlHelper
-import definiti.core.validation.{Control, ControlLevel, ControlResult}
 
-object VerificationReferenceControl extends Control with TypeReferenceControlHelper {
+private[core] object VerificationReferenceControl extends Control with TypeReferenceControlHelper {
   override val description: String = "Check if all verification references are valid (name and type)"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

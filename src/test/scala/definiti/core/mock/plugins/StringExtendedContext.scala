@@ -1,8 +1,9 @@
 package definiti.core.mock.plugins
 
-import definiti.core.ProgramResult.NoResult
-import definiti.core.ast.{Library, Location}
-import definiti.core.{ContextPlugin, Valid, Validated}
+import definiti.common.ast.{Library, Location}
+import definiti.common.plugin.ContextPlugin
+import definiti.common.program.ProgramResult.NoResult
+import definiti.common.validation.{Valid, Validated}
 
 class StringExtendedContext extends ContextPlugin[String] {
   override def contextName = "stringContext"

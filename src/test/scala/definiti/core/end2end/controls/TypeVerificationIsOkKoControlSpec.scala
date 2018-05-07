@@ -1,8 +1,8 @@
 package definiti.core.end2end.controls
 
+import definiti.common.ast.{Root, TypedMessage}
 import definiti.core.ProgramResultMatchers._
 import definiti.core._
-import definiti.core.ast.{Root, TypedMessage}
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.TypeVerificationIsOkKoControl
 

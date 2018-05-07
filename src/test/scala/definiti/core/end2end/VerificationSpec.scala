@@ -3,6 +3,7 @@ package definiti.core.end2end
 import definiti.common.ast._
 import definiti.common.program.Ok
 import definiti.core.ProgramResultMatchers._
+import definiti.common.utils.ASTUtils._
 
 class VerificationSpec extends EndToEndSpec {
   import VerificationSpec._
@@ -19,7 +20,7 @@ object VerificationSpec {
 
   val nonEmptyListSrc = "src/test/resources/samples/verification/NonEmptyList.def"
   val nonEmptyListLocation = LocationPath(nonEmptyListSrc)
-  val validNonEmptyList = Root(Seq(
+  val validNonEmptyList = root(
     Verification(
       name = "NonEmptyList",
       fullName = "NonEmptyList",
@@ -41,5 +42,5 @@ object VerificationSpec {
       comment = None,
       location = nonEmptyListLocation(1, 1, 6, 2)
     )
-  ))
+  )
 }

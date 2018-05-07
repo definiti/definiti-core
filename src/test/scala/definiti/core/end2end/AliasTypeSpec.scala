@@ -3,6 +3,7 @@ package definiti.core.end2end
 import definiti.common.ast._
 import definiti.common.program.Ok
 import definiti.core.ProgramResultMatchers._
+import definiti.common.utils.ASTUtils._
 
 class AliasTypeSpec extends EndToEndSpec {
   import AliasTypeSpec._
@@ -26,7 +27,7 @@ class AliasTypeSpec extends EndToEndSpec {
 
 object AliasTypeSpec {
   val inlineVerificationFile = "src/test/resources/samples/aliasTypes/inline-verification.def"
-  val inlineVerification = Root(Seq(
+  val inlineVerification = root(
     AliasType(
       name = "ListAlias",
       fullName = "ListAlias",
@@ -67,5 +68,5 @@ object AliasTypeSpec {
       comment = None,
       location = Location(inlineVerificationFile, 1, 1, 8, 2)
     )
-  ))
+  )
 }

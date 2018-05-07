@@ -1,13 +1,13 @@
 package definiti.common.ast
 
 case class Root(
-  elements: Seq[NamespaceElement]
+  namespaces: Seq[Namespace]
 )
-
-trait NamespaceElement
 
 case class Namespace(
   name: String,
   fullName: String,
   elements: Seq[NamespaceElement]
-) extends NamespaceElement
+)
+
+trait NamespaceElement

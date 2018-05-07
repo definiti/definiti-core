@@ -22,7 +22,6 @@ private[core] trait RootJsonSerialization {
     Format("definedType", classOf[DefinedType]),
     Format("nativeClassDefinition", classOf[NativeClassDefinition]),
     Format("namedFunction", classOf[NamedFunction]),
-    Format("namespace", classOf[Namespace]),
     Format("verification", classOf[Verification])
   ))
   implicit lazy val namespaceFormat: JsonFormat[Namespace] = lazyFormat(jsonFormat3(Namespace.apply))

@@ -7,40 +7,27 @@ import definiti.core.ast.{pure, typed}
 
 private[core] class ProjectStructure(root: typed.TypedRoot) {
   def generateStructure(): Root = {
-    val filesOfPackage = rootFileWithoutPackage()
-    val elementsOfFiles = filesOfPackage.flatMap(packageElementsOfFile)
-
-    val topLevelPackageNames = topLevelPackages()
-    val subPackages = topLevelPackageNames.map(buildPackage)
-
-    Root(Seq(elementsOfFiles ++ subPackages: _*))
+    Root(
+      namespaces = extractPackageNames().map(buildPackage)
+    )
   }
 
-  private def rootFileWithoutPackage(): Seq[TypedRootFile] = {
-    root.files.filter(_.packageName.isEmpty)
-  }
-
-  private def topLevelPackages(): Seq[String] = {
-    val topLevelPackages = root.files.map { rootFile =>
-      val packageName = rootFile.packageName
-      if (packageName.contains(".")) {
-        packageName.substring(0, packageName.indexOf("."))
-      } else {
-        packageName
-      }
-    }
-    topLevelPackages.filter(_.nonEmpty).distinct
+  private def extractPackageNames(): Seq[String] = {
+    root.files
+      .map(_.packageName)
+      .distinct
   }
 
   private def buildPackage(packageName: String): Namespace = {
-    val filesOfPackage = extractFileOfPackage(packageName)
-    val elementsOfFiles = filesOfPackage.flatMap(packageElementsOfFile)
+    Namespace(
+      name = StringUtils.lastPart(packageName),
+      fullName = packageName,
+      elements = extractFileOfPackage(packageName).flatMap(packageElementsOfFile)
+    )
+  }
 
-    val subPackageNames = extractSubPackageNames(packageName)
-    val subPackages = subPackageNames.map(subPackageName => buildPackage(s"${packageName}.${subPackageName}"))
-
-    val packageElements = Seq(elementsOfFiles ++ subPackages: _*)
-    Namespace(StringUtils.lastPart(packageName), packageName, packageElements)
+  private def extractFileOfPackage(packageName: String): Seq[TypedRootFile] = {
+    root.files.filter(_.packageName == packageName)
   }
 
   private def packageElementsOfFile(rootFile: TypedRootFile): Seq[NamespaceElement] = {
@@ -50,26 +37,6 @@ private[core] class ProjectStructure(root: typed.TypedRoot) {
     val extendedContexts = rootFile.contexts.map(transformExtendedContext(_))
 
     Seq(verifications ++ classDefinition ++ namedFunctions ++ extendedContexts: _*)
-  }
-
-  private def extractFileOfPackage(packageName: String): Seq[TypedRootFile] = {
-    root.files.filter(_.packageName == packageName)
-  }
-
-  private def extractSubPackageNames(packageName: String): Seq[String] = {
-    val packageNames = root.files.map(_.packageName)
-    val subPackageNames =
-      packageNames
-        .filter(_.startsWith(s"${packageName}."))
-        .map(_.substring(s"${packageName}.".length))
-    val directSubPackageNames = subPackageNames.map { packageName =>
-      if (packageName.contains(".")) {
-        packageName.substring(0, packageName.indexOf("."))
-      } else {
-        packageName
-      }
-    }
-    directSubPackageNames.distinct
   }
 
   private def transformVerification(verification: typed.TypedVerification, namespace: String): Verification = {

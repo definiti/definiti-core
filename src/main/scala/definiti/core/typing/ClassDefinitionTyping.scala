@@ -1,13 +1,13 @@
 package definiti.core.typing
 
 import definiti.common.ast._
+import definiti.common.utils.StringUtils
 import definiti.common.validation.{Valid, Validated}
 import definiti.core.ast.pure._
-import definiti.core.ast.typed._
 import definiti.core.{Context, DefinedFunctionContext}
 
 private[core] class ClassDefinitionTyping(context: Context) {
-  def addTypesIntoClassDefinition(classDefinition: PureClassDefinition): Validated[TypedClassDefinition] = {
+  def addTypesIntoClassDefinition(classDefinition: PureClassDefinition): Validated[ClassDefinition] = {
     classDefinition match {
       case native: PureNativeClassDefinition => transformNativeClassDefinition(native)
       case definedType: PureDefinedType => addTypesIntoDefinedType(definedType)
@@ -16,11 +16,12 @@ private[core] class ClassDefinitionTyping(context: Context) {
     }
   }
 
-  def transformNativeClassDefinition(classDefinition: PureNativeClassDefinition): Validated[TypedNativeClassDefinition] = {
+  def transformNativeClassDefinition(classDefinition: PureNativeClassDefinition): Validated[NativeClassDefinition] = {
     val validatedAttributes = Validated.squash(classDefinition.attributes.map(addTypesIntoAttributeDefinition))
     validatedAttributes.map { attributes =>
-      TypedNativeClassDefinition(
+      NativeClassDefinition(
         name = classDefinition.name,
+        fullName = "",
         genericTypes = classDefinition.genericTypes,
         attributes = attributes,
         methods = classDefinition.methods,
@@ -30,15 +31,15 @@ private[core] class ClassDefinitionTyping(context: Context) {
 
   }
 
-  def addTypesIntoDefinedType(definedType: PureDefinedType): Validated[TypedDefinedType] = {
+  def addTypesIntoDefinedType(definedType: PureDefinedType): Validated[DefinedType] = {
     val validatedTypeVerifications = Validated.squash(definedType.verifications.map(addTypesIntoTypeVerification))
     val validatedAttributes = Validated.squash(definedType.attributes.map(addTypesIntoAttributeDefinition))
     val validatedInherited = Validated.squash(definedType.inherited.map(addTypesIntoVerificationReference))
     Validated.both(validatedTypeVerifications, validatedAttributes, validatedInherited)
       .map { case (typeVerifications, attributes, inherited) =>
-        TypedDefinedType(
+        DefinedType(
           name = definedType.name,
-          packageName = definedType.packageName,
+          fullName = StringUtils.canonical(definedType.packageName, definedType.name),
           genericTypes = definedType.genericTypes,
           parameters = definedType.parameters,
           attributes = attributes,
@@ -117,15 +118,15 @@ private[core] class ClassDefinitionTyping(context: Context) {
     }
   }
 
-  def addTypesIntoAliasType(aliasType: PureAliasType): Validated[TypedAliasType] = {
+  def addTypesIntoAliasType(aliasType: PureAliasType): Validated[AliasType] = {
     val validatedAlias = addTypesIntoTypeDeclaration(aliasType.alias)
     val validatedTypeVerifications = Validated.squash(aliasType.verifications.map(addTypesIntoTypeVerification))
     val validatedInherited = Validated.squash(aliasType.inherited.map(addTypesIntoVerificationReference))
     Validated.both(validatedAlias, validatedTypeVerifications, validatedInherited)
       .map { case (alias, typeVerifications, inherited) =>
-        TypedAliasType(
+        AliasType(
           name = aliasType.name,
-          packageName = aliasType.packageName,
+          fullName = StringUtils.canonical(aliasType.packageName, aliasType.name),
           genericTypes = aliasType.genericTypes,
           parameters = aliasType.parameters,
           alias = alias,
@@ -137,12 +138,12 @@ private[core] class ClassDefinitionTyping(context: Context) {
       }
   }
 
-  def transformEnum(enum: PureEnum): TypedEnum = {
-    TypedEnum(
+  def transformEnum(enum: PureEnum): Enum = {
+    Enum(
       name = enum.name,
-      packageName = enum.packageName,
+      fullName = StringUtils.canonical(enum.packageName, enum.name),
       cases = enum.cases.map { enumCase =>
-        TypedEnumCase(
+        EnumCase(
           name = enumCase.name,
           comment = enumCase.comment,
           location = enumCase.location

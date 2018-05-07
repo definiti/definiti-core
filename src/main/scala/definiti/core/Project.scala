@@ -10,7 +10,6 @@ import definiti.common.validation.{Invalid, Valid, Validated}
 import definiti.core.ast.pure._
 import definiti.core.parser.api.CoreParser
 import definiti.core.parser.project.ProjectParser
-import definiti.core.structure.ProjectStructure
 import definiti.core.typing.ProjectTyping
 import definiti.core.validation._
 
@@ -43,12 +42,11 @@ class Project(configuration: Configuration) {
       core <- coreParser.parse()
       finalPureRoot <- processPluginParsers(parsedPureRoot)
       context = createProjectContext(finalPureRoot, core)
-      typedRoot <- new ProjectTyping(context).addTypes(finalPureRoot)
-      structuredRoot = new ProjectStructure(typedRoot).generateStructure()
-      library = Library(structuredRoot, pureCoreToStructureCore(core))
-      _ <- processInternalValidation(structuredRoot, library)
-      _ <- processExternalValidation(structuredRoot, library)
-    } yield (structuredRoot, library)
+      root <- new ProjectTyping(context).addTypes(finalPureRoot)
+      library = Library(root, pureCoreToStructureCore(core))
+      _ <- processInternalValidation(root, library)
+      _ <- processExternalValidation(root, library)
+    } yield (root, library)
   }
 
   private def pureCoreToStructureCore(pureCore: Seq[PureClassDefinition]): Seq[ClassDefinition] = {

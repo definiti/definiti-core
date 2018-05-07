@@ -1,41 +1,43 @@
 package definiti.core.typing
 
+import definiti.common.ast._
 import definiti.common.program.Program
+import definiti.common.utils.StringUtils
 import definiti.common.validation.Validated
 import definiti.core._
+import definiti.core.ast.pure
 import definiti.core.ast.pure._
-import definiti.core.ast.typed._
 
 private[core] class ProjectTyping(context: Context) {
-  def addTypes(root: PureRoot): Program[TypedRoot] = Program.validated {
+  def addTypes(root: PureRoot): Program[Root] = Program.validated {
     Validated.squash(root.files.map(addTypesIntoRootFile))
-      .map(files => TypedRoot(files))
+      .map(mergeNamespaces)
+      .map(Root)
   }
 
-  def addTypesIntoRootFile(rootFile: PureRootFile): Validated[TypedRootFile] = {
+  def addTypesIntoRootFile(rootFile: PureRootFile): Validated[Namespace] = {
     val validatedTypedVerifications = Validated.squash(rootFile.verifications.map(addTypesIntoVerification))
     val validatedTypedClassDefinition = Validated.squash(rootFile.classDefinitions.map(addTypeIntoClassDefinition))
     val validatedTypedNamedFunction = Validated.squash(rootFile.namedFunctions.map(addTypesIntoNamedFunction))
+    val extendedContexts = rootFile.contexts.map(transformExtendedContext(_))
     Validated.both(validatedTypedVerifications, validatedTypedClassDefinition, validatedTypedNamedFunction)
       .map { case (verifications, classDefinitions, namedFunctions) =>
-        TypedRootFile(
-          packageName = rootFile.packageName,
-          verifications = verifications,
-          classDefinitions = classDefinitions,
-          namedFunctions = namedFunctions,
-          contexts = rootFile.contexts
+        Namespace(
+          name = StringUtils.lastPart(rootFile.packageName),
+          fullName = rootFile.packageName,
+          elements = verifications ++ classDefinitions ++ namedFunctions ++ extendedContexts
         )
       }
   }
 
-  def addTypesIntoVerification(verification: PureVerification): Validated[TypedVerification] = {
+  def addTypesIntoVerification(verification: PureVerification): Validated[Verification] = {
     val verificationContext = VerificationContext(context, verification)
     val definedFunctionContext = DefinedFunctionContext(verificationContext, verification.function)
     val validatedFunction = new FunctionTyping(definedFunctionContext).addTypesIntoDefinedFunction(verification.function)
     validatedFunction.map { function =>
-      TypedVerification(
+      Verification(
         name = verification.name,
-        packageName = verification.packageName,
+        fullName = StringUtils.canonical(verification.packageName, verification.name),
         parameters = verification.parameters,
         message = verification.message,
         function = function,
@@ -45,21 +47,21 @@ private[core] class ProjectTyping(context: Context) {
     }
   }
 
-  def addTypeIntoClassDefinition(classDefinition: PureClassDefinition): Validated[TypedClassDefinition] = {
+  def addTypeIntoClassDefinition(classDefinition: PureClassDefinition): Validated[ClassDefinition] = {
     val classDefinitionContext = ClassContext(context, classDefinition)
     new ClassDefinitionTyping(classDefinitionContext).addTypesIntoClassDefinition(classDefinition)
   }
 
-  def addTypesIntoNamedFunction(namedFunction: PureNamedFunction): Validated[TypedNamedFunction] = {
+  def addTypesIntoNamedFunction(namedFunction: PureNamedFunction): Validated[NamedFunction] = {
     val namedFunctionContext = NamedFunctionReferenceContext(
       outerContext = context,
       currentFunction = namedFunction
     )
     val validatedExpression = new ExpressionTyping(namedFunctionContext).addTypesIntoExpression(namedFunction.body)
     validatedExpression.map { expression =>
-      TypedNamedFunction(
+      NamedFunction(
         name = namedFunction.name,
-        packageName = namedFunction.packageName,
+        fullName = StringUtils.canonical(namedFunction.packageName, namedFunction.name),
         genericTypes = namedFunction.genericTypes,
         parameters = namedFunction.parameters,
         returnType = namedFunction.returnType,
@@ -67,5 +69,26 @@ private[core] class ProjectTyping(context: Context) {
         location = namedFunction.location
       )
     }
+  }
+
+  private def transformExtendedContext[A](extendedContext: pure.PureExtendedContext[A]): ExtendedContext[A] = {
+    ExtendedContext(
+      name = extendedContext.name,
+      content = extendedContext.content,
+      location = extendedContext.location
+    )
+  }
+
+  private def mergeNamespaces(namespaces: Seq[Namespace]): Seq[Namespace] = {
+    namespaces.foldLeft(Map.empty[String, Namespace]) { (acc, current) =>
+      acc.get(current.fullName) match {
+        case Some(existingNamespace) =>
+          acc + (existingNamespace.fullName -> existingNamespace.copy(
+            elements = existingNamespace.elements ++ current.elements
+          ))
+        case None =>
+          acc + (current.fullName -> current)
+      }
+    }.values.toSeq
   }
 }

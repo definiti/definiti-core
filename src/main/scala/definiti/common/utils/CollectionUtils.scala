@@ -33,4 +33,8 @@ object CollectionUtils {
   def javaList[A](seq: Seq[A]): java.util.List[A] = {
     new java.util.ArrayList[A](seq.asJava)
   }
+
+  def squash[A, B](maps: Seq[Map[A, B]]): Map[A, B] = {
+    maps.foldLeft(Map.empty[A, B])(_ ++ _)
+  }
 }

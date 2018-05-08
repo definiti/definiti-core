@@ -6,7 +6,6 @@ import definiti.common.ast.{Library, Root}
 import definiti.common.plugin._
 import definiti.common.program.ProgramResult.NoResult
 import definiti.common.validation.{Valid, Validated}
-import definiti.core.ast.pure.PureRoot
 import definiti.core.plugin.serialization.JsonSerialization
 
 import scala.collection.mutable.ListBuffer
@@ -17,9 +16,9 @@ private[core] class ParserCommandPlugin(command: String, jsonSerialization: Json
 
   private val commandPath: String = if (command.startsWith("./")) command else s"./${command}"
 
-  override def transform(root: PureRoot): Validated[PureRoot] = {
-    Command.execute(commandPath, "transform", jsonSerialization.pureRootToJson(root)) match {
-      case CommandResult(0, out, _) => Valid(jsonSerialization.pureRootFromJson(out))
+  override def transform(root: Root): Validated[Root] = {
+    Command.execute(commandPath, "transform", jsonSerialization.rootToJson(root)) match {
+      case CommandResult(0, out, _) => Valid(jsonSerialization.rootFromJson(out))
       case CommandResult(_, out, _) => jsonSerialization.invalidFromJson(out)
     }
   }

@@ -12,7 +12,7 @@ case class LogicalExpression(
   operator: LogicalOperator.Value,
   left: Expression,
   right: Expression,
-  returnType: TypeReference,
+  returnType: AbstractTypeReference,
   location: Location
 ) extends Expression
 
@@ -20,7 +20,7 @@ case class CalculatorExpression(
   operator: CalculatorOperator.Value,
   left: Expression,
   right: Expression,
-  returnType: TypeReference,
+  returnType: AbstractTypeReference,
   location: Location
 ) extends Expression
 

@@ -1,9 +1,9 @@
 package definiti.core.parser.project
 
+import definiti.common.ast.Namespace
 import definiti.common.utils.CollectionUtils._
 import definiti.common.utils.StringUtils
 import definiti.core.Configuration
-import definiti.core.ast.pure._
 import definiti.core.parser.antlr.DefinitiParser._
 
 import scala.collection.mutable.ListBuffer
@@ -11,7 +11,7 @@ import scala.collection.mutable.ListBuffer
 private[core] class DefinitiASTParser(sourceFile: String, configuration: Configuration) extends CommonParser {
   val file: String = sourceFile.replaceAllLiterally("\\", "/")
 
-  def definitiContextToAST(context: DefinitiContext): PureRootFile = {
+  def definitiContextToAST(context: DefinitiContext): Namespace = {
     val packageName = extractPackageName(context)
     new DefinitiFileASTParser(
       sourceFile = sourceFile,

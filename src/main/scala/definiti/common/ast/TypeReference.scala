@@ -4,6 +4,10 @@ sealed trait AbstractTypeReference {
   def readableString: String
 }
 
+case object Unset extends AbstractTypeReference {
+  override def readableString: String = "***Unset***"
+}
+
 case class TypeReference(
   typeName: String,
   genericTypes: Seq[TypeReference] = Seq.empty

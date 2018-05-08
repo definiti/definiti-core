@@ -3,8 +3,8 @@ package definiti.core.parser.project
 import definiti.common.ast.LogicalOperator.{apply => _}
 import definiti.common.ast._
 import definiti.common.utils.CollectionUtils.scalaSeq
+import definiti.common.utils.StringUtils
 import definiti.core.Configuration
-import definiti.core.ast.pure._
 import definiti.core.parser.antlr.DefinitiParser._
 import org.antlr.v4.runtime.Token
 import org.antlr.v4.runtime.misc.Interval
@@ -19,33 +19,27 @@ private[core] class DefinitiFileASTParser(
 ) extends CommonParser {
   val file: String = sourceFile.replaceAllLiterally("\\", "/")
 
-  def parse(context: DefinitiContext): PureRootFile = {
-    val verifications = ListBuffer[PureVerification]()
-    val classDefinitions = ListBuffer[PureClassDefinition]()
-    val namedFunctions = ListBuffer[PureNamedFunction]()
-    val contexts = ListBuffer[PureExtendedContext[_]]()
+  def parse(context: DefinitiContext): Namespace = {
+    val elements = ListBuffer[NamespaceElement]()
 
     scalaSeq(context.toplevel()).foreach { element =>
-      appendIfDefined(element.verification(), verifications, processVerification)
-      appendIfDefined(element.definedType(), classDefinitions, processDefinedType)
-      appendIfDefined(element.aliasType(), classDefinitions, processAliasType)
-      appendIfDefined(element.enumType(), classDefinitions, processEnum)
-      appendIfDefined(element.namedFunction(), namedFunctions, processNamedFunction)
+      appendIfDefined(element.verification(), elements, processVerification)
+      appendIfDefined(element.definedType(), elements, processDefinedType)
+      appendIfDefined(element.aliasType(), elements, processAliasType)
+      appendIfDefined(element.enumType(), elements, processEnum)
+      appendIfDefined(element.namedFunction(), elements, processNamedFunction)
       Option(element.context()).foreach { internalContext =>
         processContext(internalContext) match {
-          case Some(parsedContext) => contexts.append(parsedContext)
+          case Some(parsedContext) => elements.append(parsedContext)
           case None => println(s"No plugin set for context: ${internalContext.IDENTIFIER().getText}")
         }
       }
     }
 
-    PureRootFile(
-      packageName = packageName,
-      imports = imports,
-      verifications = List(verifications: _*),
-      classDefinitions = List(classDefinitions: _*),
-      namedFunctions = List(namedFunctions: _*),
-      contexts = List(contexts: _*)
+    Namespace(
+      name = StringUtils.lastPart(packageName),
+      fullName = packageName,
+      elements = List(elements: _*)
     )
   }
 
@@ -61,10 +55,10 @@ private[core] class DefinitiFileASTParser(
     List(topLevelNames: _*)
   }
 
-  private def processVerification(context: VerificationContext): PureVerification = {
-    PureVerification(
+  private def processVerification(context: VerificationContext): Verification = {
+    Verification(
       name = context.verificationName.getText,
-      packageName = packageName,
+      fullName = StringUtils.canonical(packageName, context.verificationName.getText),
       parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
       message = processVerificationMessage(context.verificationMessage()),
       function = processFunction(context.function()),
@@ -88,8 +82,8 @@ private[core] class DefinitiFileASTParser(
     }
   }
 
-  private def processFunction(context: FunctionContext): PureDefinedFunction = {
-    PureDefinedFunction(
+  private def processFunction(context: FunctionContext): DefinedFunction = {
+    DefinedFunction(
       parameters = processParameterListDefinition(context.parameterListDefinition()),
       body = processChainedExpression(context.chainedExpression()),
       genericTypes = Option(context.genericTypeList())
@@ -99,12 +93,12 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def processDefinedType(context: DefinedTypeContext): PureDefinedType = {
+  private def processDefinedType(context: DefinedTypeContext): DefinedType = {
     val typeName = context.typeName.getText
     val generics = processGenericTypeListDefinition(context.genericTypeList())
-    PureDefinedType(
+    DefinedType(
       name = typeName,
-      packageName = packageName,
+      fullName = StringUtils.canonical(packageName, typeName),
       genericTypes = generics,
       parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
       attributes = scalaSeq(context.attributeDefinition()).map(processAttributeDefinition),
@@ -115,8 +109,8 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def processAttributeDefinition(context: AttributeDefinitionContext): PureAttributeDefinition = {
-    PureAttributeDefinition(
+  private def processAttributeDefinition(context: AttributeDefinitionContext): AttributeDefinition = {
+    AttributeDefinition(
       name = context.attributeName.getText,
       typeDeclaration = processTypeDeclaration(context.typeDeclaration),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
@@ -125,7 +119,7 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def processVerifyingList(verifyingListContext: VerifyingListContext): Seq[PureVerificationReference] = {
+  private def processVerifyingList(verifyingListContext: VerifyingListContext): Seq[VerificationReference] = {
     if (verifyingListContext != null) {
       scalaSeq(verifyingListContext.verifying()).map(processVerifying)
     } else {
@@ -133,19 +127,19 @@ private[core] class DefinitiFileASTParser(
     }
   }
 
-  private def processVerifying(context: VerifyingContext): PureVerificationReference = {
-    PureVerificationReference(
+  private def processVerifying(context: VerifyingContext): VerificationReference = {
+    VerificationReference(
       verificationName = identifierWithImport(context.verificationName),
       parameters = Option(context.atomicExpressionList).map(processAtomicExpressionList).getOrElse(Seq.empty),
       location = getLocationFromContext(context)
     )
   }
 
-  private def processAtomicExpressionList(context: AtomicExpressionListContext): Seq[PureAtomicExpression] = {
+  private def processAtomicExpressionList(context: AtomicExpressionListContext): Seq[AtomicExpression] = {
     scalaSeq(context.atomicExpression()).map(processAtomicExpression)
   }
 
-  private def processTypeVerification(context: TypeVerificationContext, typeName: String, generics: Seq[String]): PureTypeVerification = {
+  private def processTypeVerification(context: TypeVerificationContext, typeName: String, generics: Seq[String]): TypeVerification = {
     if (context.atomicTypeVerification() != null) {
       processAtomicTypeVerification(context.atomicTypeVerification(), typeName, generics)
     } else if (context.dependentTypeVerification() != null) {
@@ -157,21 +151,21 @@ private[core] class DefinitiFileASTParser(
     }
   }
 
-  private def processAtomicTypeVerification(context: AtomicTypeVerificationContext, typeName: String, generics: Seq[String]): PureTypeVerification = {
-    PureAtomicTypeVerification(
+  private def processAtomicTypeVerification(context: AtomicTypeVerificationContext, typeName: String, generics: Seq[String]): TypeVerification = {
+    AtomicTypeVerification(
       processVerificationMessage(context.verificationMessage),
       processAtomicTypeVerificationFunction(context.typeVerificationFunction(), typeName, generics),
       location = getLocationFromContext(context)
     )
   }
 
-  private def processAtomicTypeVerificationFunction(context: TypeVerificationFunctionContext, typeName: String, generics: Seq[String]): PureDefinedFunction = {
+  private def processAtomicTypeVerificationFunction(context: TypeVerificationFunctionContext, typeName: String, generics: Seq[String]): DefinedFunction = {
     val parameters = Seq(ParameterDefinition(
       name = context.IDENTIFIER().getText,
       typeReference = TypeReference(identifierWithImport(typeName), generics.map(TypeReference(_, Seq.empty))),
       location = Location(file, getRangeFromTerminalNode(context.IDENTIFIER()))
     ))
-    PureDefinedFunction(
+    DefinedFunction(
       parameters = parameters,
       body = processChainedExpression(context.chainedExpression()),
       genericTypes = Seq.empty,
@@ -179,8 +173,8 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def processDependentTypeVerification(context: DependentTypeVerificationContext, typeName: String, generics: Seq[String]): PureTypeVerification = {
-    PureDependentTypeVerification(
+  private def processDependentTypeVerification(context: DependentTypeVerificationContext, typeName: String, generics: Seq[String]): TypeVerification = {
+    DependentTypeVerification(
       name = context.verificationName.getText,
       processVerificationMessage(context.verificationMessage),
       processDependantTypeVerificationFunction(
@@ -193,13 +187,13 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def processDependantTypeVerificationFunction(context: TypeVerificationFunctionContext, dependentParameters: Seq[ParameterDefinition], typeName: String, generics: Seq[String]): PureDefinedFunction = {
+  private def processDependantTypeVerificationFunction(context: TypeVerificationFunctionContext, dependentParameters: Seq[ParameterDefinition], typeName: String, generics: Seq[String]): DefinedFunction = {
     val parameters = Seq(ParameterDefinition(
       name = context.IDENTIFIER().getText,
       typeReference = TypeReference(identifierWithImport(typeName), generics.map(TypeReference(_, Seq.empty))),
       location = Location(file, getRangeFromTerminalNode(context.IDENTIFIER()))
     ))
-    PureDefinedFunction(
+    DefinedFunction(
       parameters = parameters ++ dependentParameters,
       body = processChainedExpression(context.chainedExpression()),
       genericTypes = Seq.empty,
@@ -207,11 +201,11 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def processAliasType(context: AliasTypeContext): PureAliasType = {
+  private def processAliasType(context: AliasTypeContext): AliasType = {
     val generics = processGenericTypeListDefinition(context.genericTypes)
-    PureAliasType(
+    AliasType(
       name = context.typeName.getText,
-      packageName = packageName,
+      fullName = StringUtils.canonical(packageName, context.typeName.getText),
       genericTypes = generics,
       parameters = Option(context.parameterListDefinition).map(processParameterListDefinition).getOrElse(Seq.empty),
       alias = processTypeDeclaration(context.typeDeclaration),
@@ -222,8 +216,8 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def processTypeDeclaration(context: TypeDeclarationContext): PureTypeDeclaration = {
-    PureTypeDeclaration(
+  private def processTypeDeclaration(context: TypeDeclarationContext): TypeDeclaration = {
+    TypeDeclaration(
       typeName = identifierWithImport(context.name),
       genericTypes = Option(context.typeDeclarationList).map(processTypeDeclarationList).getOrElse(Seq.empty),
       parameters = Option(context.atomicExpressionList).map(processAtomicExpressionList).getOrElse(Seq.empty),
@@ -231,11 +225,11 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def processTypeDeclarationList(context: TypeDeclarationListContext): Seq[PureTypeDeclaration] = {
+  private def processTypeDeclarationList(context: TypeDeclarationListContext): Seq[TypeDeclaration] = {
     scalaSeq(context.typeDeclaration).map(processTypeDeclaration)
   }
 
-  private def extractAliasTypeVerifications(context: AliasTypeBodyContext, typeName: String, generics: Seq[String]): Seq[PureTypeVerification] = {
+  private def extractAliasTypeVerifications(context: AliasTypeBodyContext, typeName: String, generics: Seq[String]): Seq[TypeVerification] = {
     if (context == null) {
       Seq.empty
     } else {
@@ -243,28 +237,28 @@ private[core] class DefinitiFileASTParser(
     }
   }
 
-  private def processEnum(context: EnumTypeContext): PureEnum = {
-    PureEnum(
+  private def processEnum(context: EnumTypeContext): Enum = {
+    Enum(
       name = context.typeName.getText,
-      packageName = packageName,
+      fullName = StringUtils.canonical(packageName, context.typeName.getText),
       cases = scalaSeq(context.enumCase()).map(processEnumCase),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       location = getLocationFromContext(context)
     )
   }
 
-  private def processEnumCase(context: EnumCaseContext): PureEnumCase = {
-    PureEnumCase(
+  private def processEnumCase(context: EnumCaseContext): EnumCase = {
+    EnumCase(
       name = context.IDENTIFIER().getText,
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       location = getLocationFromContext(context)
     )
   }
 
-  private def processNamedFunction(context: NamedFunctionContext): PureNamedFunction = {
-    PureNamedFunction(
+  private def processNamedFunction(context: NamedFunctionContext): NamedFunction = {
+    NamedFunction(
       name = context.name.getText,
-      packageName = packageName,
+      fullName = StringUtils.canonical(packageName, context.name.getText),
       parameters = processParameterListDefinition(context.parameterListDefinition()),
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
@@ -275,7 +269,7 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def processNamedFunctionBody(context: NamedFunctionBodyContext): PureExpression = {
+  private def processNamedFunctionBody(context: NamedFunctionBodyContext): Expression = {
     if (context.chainedExpression() != null) {
       processChainedExpression(context.chainedExpression())
     } else {
@@ -283,14 +277,18 @@ private[core] class DefinitiFileASTParser(
     }
   }
 
-  private def processChainedExpression(context: ChainedExpressionContext): PureExpression = {
+  private def processChainedExpression(context: ChainedExpressionContext): Expression = {
     scalaSeq(context.expression()) match {
       case head :: Nil => processExpression(head)
-      case expressions => PureCombinedExpression(expressions.map(processExpression), getLocationFromContext(context))
+      case expressions => CombinedExpression(
+        parts = expressions.map(processExpression),
+        returnType = Unset,
+        location = getLocationFromContext(context)
+      )
     }
   }
 
-  private def processExpression(context: ExpressionContext): PureExpression = {
+  private def processExpression(context: ExpressionContext): Expression = {
     if (context.parenthesis != null) {
       processParenthesisExpression(context)
     } else if (context.OK() != null) {
@@ -320,70 +318,80 @@ private[core] class DefinitiFileASTParser(
     }
   }
 
-  private def processParenthesisExpression(context: ExpressionContext): PureExpression = {
+  private def processParenthesisExpression(context: ExpressionContext): Expression = {
     processExpression(context.parenthesis)
   }
 
-  private def processOkExpression(context: ExpressionContext): PureExpression = {
-    PureOkValue(getLocationFromContext(context))
+  private def processOkExpression(context: ExpressionContext): Expression = {
+    OkValue(
+      returnType = Unset,
+      getLocationFromContext(context)
+    )
   }
 
-  private def processKoExpression(context: ExpressionContext): PureExpression = {
-    PureKoValue(
+  private def processKoExpression(context: ExpressionContext): Expression = {
+    KoValue(
       parameters = Option(context.koExpressionParameters) map { koExpressionParameters =>
         scalaSeq(koExpressionParameters.expression()).map(processExpression)
       } getOrElse Seq.empty,
+      returnType = Unset,
       location = getLocationFromContext(context)
     )
   }
 
-  private def processMethodCallExpression(context: ExpressionContext): PureExpression = {
-    PureMethodCall(
+  private def processMethodCallExpression(context: ExpressionContext): Expression = {
+    MethodCall(
       expression = processExpression(context.methodExpression),
       method = context.methodName.getText,
       parameters = Option(context.methodExpressionParameters) map { methodExpressionParameters =>
         scalaSeq(methodExpressionParameters.expression()).map(processExpression)
       } getOrElse Seq.empty,
       generics = processGenericTypeList(context.genericTypeList()),
+      returnType = Unset,
       location = getLocationFromContext(context)
     )
   }
 
-  private def processAttributeCallExpression(context: ExpressionContext): PureExpression = {
-    PureAttributeCall(
+  private def processAttributeCallExpression(context: ExpressionContext): Expression = {
+    AttributeCall(
       expression = processExpression(context.attributeExpression),
       attribute = context.attributeName.getText,
+      returnType = Unset,
       location = getLocationFromContext(context)
     )
   }
 
-  private def processNotExpression(context: ExpressionContext): PureExpression = {
-    PureNot(processExpression(context.notExpression), getLocationFromContext(context))
+  private def processNotExpression(context: ExpressionContext): Expression = {
+    Not(
+      inner = processExpression(context.notExpression),
+      returnType = Unset,
+      location = getLocationFromContext(context)
+    )
   }
 
-  private def processLeftRightExpression(context: ExpressionContext): PureExpression = {
+  private def processLeftRightExpression(context: ExpressionContext): Expression = {
     import definiti.common.ast.CalculatorOperator._
     import definiti.common.ast.LogicalOperator._
     val left = processExpression(context.leftExpression)
     val right = processExpression(context.rightExpression)
     context.operator.getText match {
-      case "*" => PureCalculatorExpression(Time, left, right, getLocationFromContext(context))
-      case "/" => PureCalculatorExpression(Divide, left, right, getLocationFromContext(context))
-      case "%" => PureCalculatorExpression(Modulo, left, right, getLocationFromContext(context))
-      case "+" => PureCalculatorExpression(Plus, left, right, getLocationFromContext(context))
-      case "-" => PureCalculatorExpression(Minus, left, right, getLocationFromContext(context))
-      case "==" => PureLogicalExpression(Equal, left, right, getLocationFromContext(context))
-      case "!=" => PureLogicalExpression(NotEqual, left, right, getLocationFromContext(context))
-      case "<" => PureLogicalExpression(Lower, left, right, getLocationFromContext(context))
-      case "<=" => PureLogicalExpression(LowerOrEqual, left, right, getLocationFromContext(context))
-      case ">" => PureLogicalExpression(Upper, left, right, getLocationFromContext(context))
-      case ">=" => PureLogicalExpression(UpperOrEqual, left, right, getLocationFromContext(context))
-      case "&&" => PureLogicalExpression(And, left, right, getLocationFromContext(context))
-      case "||" => PureLogicalExpression(Or, left, right, getLocationFromContext(context))
+      case "*" => CalculatorExpression(Time, left, right, Unset, getLocationFromContext(context))
+      case "/" => CalculatorExpression(Divide, left, right, Unset, getLocationFromContext(context))
+      case "%" => CalculatorExpression(Modulo, left, right, Unset, getLocationFromContext(context))
+      case "+" => CalculatorExpression(Plus, left, right, Unset, getLocationFromContext(context))
+      case "-" => CalculatorExpression(Minus, left, right, Unset, getLocationFromContext(context))
+      case "==" => LogicalExpression(Equal, left, right, Unset, getLocationFromContext(context))
+      case "!=" => LogicalExpression(NotEqual, left, right, Unset, getLocationFromContext(context))
+      case "<" => LogicalExpression(Lower, left, right, Unset, getLocationFromContext(context))
+      case "<=" => LogicalExpression(LowerOrEqual, left, right, Unset, getLocationFromContext(context))
+      case ">" => LogicalExpression(Upper, left, right, Unset, getLocationFromContext(context))
+      case ">=" => LogicalExpression(UpperOrEqual, left, right, Unset, getLocationFromContext(context))
+      case "&&" => LogicalExpression(And, left, right, Unset, getLocationFromContext(context))
+      case "||" => LogicalExpression(Or, left, right, Unset, getLocationFromContext(context))
     }
   }
 
-  private def processAtomicExpression(context: AtomicExpressionContext): PureAtomicExpression = {
+  private def processAtomicExpression(context: AtomicExpressionContext): AtomicExpression = {
     if (context.booleanExpression != null) {
       processBooleanExpression(context)
     } else if (context.numberExpression != null) {
@@ -399,52 +407,64 @@ private[core] class DefinitiFileASTParser(
     }
   }
 
-  private def processBooleanExpression(context: AtomicExpressionContext): PureAtomicExpression = {
+  private def processBooleanExpression(context: AtomicExpressionContext): AtomicExpression = {
     context.booleanExpression.getText match {
-      case "true" => PureBooleanValue(value = true, getLocationFromContext(context))
-      case _ => PureBooleanValue(value = false, getLocationFromContext(context))
+      case "true" => BooleanValue(value = true, Unset, getLocationFromContext(context))
+      case _ => BooleanValue(value = false, Unset, getLocationFromContext(context))
     }
   }
 
-  private def processNumberExpression(context: AtomicExpressionContext): PureAtomicExpression = {
-    PureNumberValue(BigDecimal(context.numberExpression.getText), getLocationFromContext(context))
-  }
-
-  private def processStringExpression(context: AtomicExpressionContext): PureAtomicExpression = {
-    PureQuotedStringValue(extractStringContent(context.stringExpression.getText), getLocationFromContext(context))
-  }
-
-  private def processReferenceExpression(context: AtomicExpressionContext): PureAtomicExpression = {
-    PureReference(
-      name = context.referenceExpression.getText,
+  private def processNumberExpression(context: AtomicExpressionContext): AtomicExpression = {
+    NumberValue(
+      value = BigDecimal(context.numberExpression.getText),
+      returnType = Unset,
       location = getLocationFromContext(context)
     )
   }
 
-  private def processConditionExpression(context: ExpressionContext): PureExpression = {
-    PureCondition(
+  private def processStringExpression(context: AtomicExpressionContext): AtomicExpression = {
+    QuotedStringValue(
+      value = extractStringContent(context.stringExpression.getText),
+      returnType = Unset,
+      location = getLocationFromContext(context)
+    )
+  }
+
+  private def processReferenceExpression(context: AtomicExpressionContext): AtomicExpression = {
+    Reference(
+      name = context.referenceExpression.getText,
+      returnType = Unset,
+      location = getLocationFromContext(context)
+    )
+  }
+
+  private def processConditionExpression(context: ExpressionContext): Expression = {
+    Condition(
       condition = processExpression(context.conditionExpression),
       onTrue = processChainedExpression(context.conditionIfBody),
       onFalse = Option(context.conditionElseBody).map(processChainedExpression),
+      returnType = Unset,
       location = getLocationFromContext(context)
     )
   }
 
-  private def processLambdaExpression(context: ExpressionContext): PureExpression = {
-    PureLambdaExpression(
+  private def processLambdaExpression(context: ExpressionContext): Expression = {
+    LambdaExpression(
       parameterList = processParameterListDefinition(context.parameterListDefinition()),
       expression = processExpression(context.lambdaExpression),
+      returnType = Unset,
       location = getLocationFromContext(context)
     )
   }
 
-  private def processFunctionCall(context: ExpressionContext): PureExpression = {
-    PureFunctionCall(
+  private def processFunctionCall(context: ExpressionContext): Expression = {
+    FunctionCall(
       name = identifierWithImport(context.functionName),
       parameters = Option(context.functionExpressionParameters) map { functionExpressionParameters =>
         scalaSeq(functionExpressionParameters.expression()).map(processExpression)
       } getOrElse Seq.empty,
       generics = processGenericTypeList(context.functionGenerics),
+      returnType = Unset,
       location = getLocationFromContext(context)
     )
   }
@@ -455,7 +475,7 @@ private[core] class DefinitiFileASTParser(
       .getOrElse(Seq())
   }
 
-  private def processContext(context: ContextContext): Option[PureExtendedContext[_]] = {
+  private def processContext(context: ContextContext): Option[ExtendedContext[_]] = {
     val contextName = context.IDENTIFIER().getText
     configuration.contexts
       .find(_.contextName == contextName)
@@ -464,7 +484,7 @@ private[core] class DefinitiFileASTParser(
         val contentInterval = new Interval(contextContent.getStart.getStartIndex, contextContent.getStop.getStopIndex)
         val content = contextContent.getStart.getInputStream.getText(contentInterval)
         val location = getLocationFromContext(contextContent)
-        PureExtendedContext(contextName, contextPlugin.parse(content, packageName, imports, location), location)
+        ExtendedContext(contextName, contextPlugin.parse(content, packageName, imports, location), location)
       }
   }
 

@@ -6,7 +6,6 @@ import spray.json._
 private[core] class JsonSerialization(val config: Configuration)
   extends GeneratorSerialization
     with LibrarySerialization
-    with PureRootJsonSerialization
     with RootJsonSerialization
     with ValidationJsonSerialization {
 

@@ -4,7 +4,7 @@ import definiti.common.ast._
 import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.common.validation.Alert
 
-private[core] object TopLevelFullNameUniquenessControl extends Control {
+private[core] object TopLevelFullNameUniquenessControl extends Control[Root] {
   override val description: String = "Check if there is two top-level statements with the same full name (package + name)"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

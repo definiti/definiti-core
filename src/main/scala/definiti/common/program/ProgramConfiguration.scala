@@ -12,7 +12,7 @@ case class ProgramConfiguration(
     userFlags.get(controlName).orElse(defaultLevels.get(controlName))
   }
 
-  def isControlAccepted(control: Control): Boolean = {
+  def isControlAccepted[_](control: Control[_]): Boolean = {
     levelOfControl(control.name).getOrElse(ControlLevel.ignored) >= controlLevel
   }
 }

@@ -19,4 +19,8 @@ object ControlResult {
   def squash(results: Seq[ControlResult]): ControlResult = {
     ControlResult(results.flatMap(_.alerts))
   }
+
+  implicit def autoSquashControlResults(results: Seq[ControlResult]): ControlResult = {
+    squash(results)
+  }
 }

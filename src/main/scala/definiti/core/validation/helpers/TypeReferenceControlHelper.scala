@@ -5,7 +5,7 @@ import definiti.common.control.{Control, ControlResult}
 import definiti.common.validation.Alert
 
 private[core] trait TypeReferenceControlHelper {
-  self: Control =>
+  self: Control[Root] =>
 
   def controlTypeReference(typeReference: TypeReference, availableGenerics: Seq[String], location: Location, library: Library): ControlResult = {
     def process(typeReference: TypeReference): Seq[Alert] = {

@@ -18,7 +18,7 @@ object LocationPath {
     LocationPath(s"src/test/resources/samples/controls/${name}/${file}.def")
   }
 
-  def control(control: Control, file: String): LocationPath = {
+  def control(control: Control[_], file: String): LocationPath = {
     LocationPath.control(control.name, file)
   }
 }

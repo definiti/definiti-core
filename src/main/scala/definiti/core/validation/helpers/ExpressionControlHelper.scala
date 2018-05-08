@@ -4,7 +4,7 @@ import definiti.common.ast._
 import definiti.common.control.{Control, ControlResult}
 
 private[core] trait ExpressionControlHelper {
-  self: Control =>
+  self: Control[Root] =>
 
   def deepControl(expression: Expression)(op: PartialFunction[Expression, ControlResult]): ControlResult = {
     def deepProcess(expression: Expression): ControlResult = {

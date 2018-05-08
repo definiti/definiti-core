@@ -4,7 +4,7 @@ import definiti.common.ast._
 import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.common.validation.Alert
 
-private[core] object VerificationNameUniquenessControl extends Control {
+private[core] object VerificationNameUniquenessControl extends Control[Root] {
   override val description: String = "Check that each verification name exists once in project, across all packages"
   override val defaultLevel: ControlLevel.Value = ControlLevel.info
 

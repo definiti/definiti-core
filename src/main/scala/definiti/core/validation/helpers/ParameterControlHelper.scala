@@ -5,7 +5,7 @@ import definiti.common.control.{Control, ControlResult}
 import definiti.common.validation.Alert
 
 private[core] trait ParameterControlHelper {
-  self: Control with TypeReferenceControlHelper =>
+  self: Control[Root] with TypeReferenceControlHelper =>
 
   def controlParameters(expectedParameters: Seq[ParameterDefinition], gotParameters: Seq[Expression], library: Library, location: Location): ControlResult = {
     if (expectedParameters.length == gotParameters.length) {

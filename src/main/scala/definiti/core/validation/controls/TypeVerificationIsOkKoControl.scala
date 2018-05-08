@@ -5,7 +5,7 @@ import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.common.validation.Alert
 import definiti.core.validation.helpers._
 
-private[core] object TypeVerificationIsOkKoControl extends Control with ExpressionControlHelper with TypeReferenceControlHelper with OkKoControlHelper {
+private[core] object TypeVerificationIsOkKoControl extends Control[Root] with ExpressionControlHelper with TypeReferenceControlHelper with OkKoControlHelper {
   override def description: String = "Check if the type verification ends with a Okko type in case of typed messages and its types are valid"
 
   override def defaultLevel: ControlLevel.Value = ControlLevel.error

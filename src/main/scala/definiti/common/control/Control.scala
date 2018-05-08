@@ -3,7 +3,7 @@ package definiti.common.control
 import definiti.common.ast.{Library, Location, Root}
 import definiti.common.validation.{Alert, AlertControl}
 
-trait Control {
+trait Control[A] {
   val name: String = {
     val simpleName = this.getClass.getSimpleName
     val normalizedName = simpleName.substring(0, simpleName.length - "Control$".length)
@@ -14,7 +14,7 @@ trait Control {
 
   def defaultLevel: ControlLevel.Value
 
-  def control(root: Root, library: Library): ControlResult
+  def control(value: A, library: Library): ControlResult
 
   val OK: ControlResult = ControlResult.OK
 

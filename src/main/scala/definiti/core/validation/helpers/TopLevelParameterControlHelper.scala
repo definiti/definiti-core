@@ -5,7 +5,7 @@ import definiti.common.control.{Control, ControlResult}
 import definiti.common.validation.Alert
 
 private[core] trait TopLevelParameterControlHelper {
-  self: Control =>
+  self: Control[Root] =>
 
   private val authorizedTypes: Seq[TypeReference] = Seq("Boolean", "Number", "String").map(TypeReference(_))
 

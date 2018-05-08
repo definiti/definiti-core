@@ -5,7 +5,7 @@ import definiti.common.control.{Control, ControlResult}
 import definiti.common.validation.Alert
 
 private[core] trait OkKoControlHelper {
-  self: Control with TypeReferenceControlHelper =>
+  self: Control[Root] with TypeReferenceControlHelper =>
 
   def controlTypes(expectedTypes: Seq[TypeReference], gotExpressions: Seq[Expression], location: Location, library: Library): ControlResult = {
     if (expectedTypes.length == gotExpressions.length) {

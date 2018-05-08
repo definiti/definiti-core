@@ -5,7 +5,7 @@ import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.common.validation.Alert
 import definiti.core.validation.helpers.TypeReferenceControlHelper
 
-private[core] object VerificationTypeControl extends Control with TypeReferenceControlHelper {
+private[core] object VerificationTypeControl extends Control[Root] with TypeReferenceControlHelper {
   override val description: String = "Check if the type of the verification is valid"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

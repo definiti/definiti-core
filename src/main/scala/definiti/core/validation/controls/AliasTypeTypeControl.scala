@@ -4,7 +4,7 @@ import definiti.common.ast._
 import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.core.validation.helpers.TypeReferenceControlHelper
 
-private[core] object AliasTypeTypeControl extends Control with TypeReferenceControlHelper {
+private[core] object AliasTypeTypeControl extends Control[Root] with TypeReferenceControlHelper {
   override val description: String = "Check if types of alias type is valid"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

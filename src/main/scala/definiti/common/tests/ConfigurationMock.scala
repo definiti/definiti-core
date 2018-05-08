@@ -38,7 +38,7 @@ case class ConfigurationMock(
     )
   }
 
-  def withOnlyControls(controls: Control*)(implicit dummyImplicit: DummyImplicit): ConfigurationMock = {
+  def withOnlyControls(controls: Control[_]*)(implicit dummyImplicit: DummyImplicit): ConfigurationMock = {
     withOnlyControls(controls.map(_.name): _*)
   }
 }

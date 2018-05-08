@@ -5,7 +5,7 @@ import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.common.validation.Alert
 import definiti.core.validation.helpers.{ParameterControlHelper, TypeReferenceControlHelper}
 
-private[core] object VerificationReferenceParametersControl extends Control with ParameterControlHelper with TypeReferenceControlHelper {
+private[core] object VerificationReferenceParametersControl extends Control[Root] with ParameterControlHelper with TypeReferenceControlHelper {
   override val description: String = "Check if a type or attribute references a verification with valid types"
 
   override val defaultLevel: ControlLevel.Value = ControlLevel.error

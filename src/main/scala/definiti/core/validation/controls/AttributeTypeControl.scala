@@ -4,7 +4,7 @@ import definiti.common.ast._
 import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.core.validation.helpers.TypeReferenceControlHelper
 
-private[core] object AttributeTypeControl extends Control with TypeReferenceControlHelper {
+private[core] object AttributeTypeControl extends Control[Root] with TypeReferenceControlHelper {
   override val description: String = "Check if types of defined type is valid"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

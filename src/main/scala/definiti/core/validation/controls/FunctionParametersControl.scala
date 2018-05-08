@@ -4,7 +4,7 @@ import definiti.common.ast._
 import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.core.validation.helpers.{ExpressionControlHelper, ParameterControlHelper, TypeReferenceControlHelper}
 
-private[core] object FunctionParametersControl extends Control with ExpressionControlHelper with TypeReferenceControlHelper with ParameterControlHelper {
+private[core] object FunctionParametersControl extends Control[Root] with ExpressionControlHelper with TypeReferenceControlHelper with ParameterControlHelper {
   override val description: String = "Check if parameters and arguments on a named function are the same"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

@@ -5,7 +5,7 @@ import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.common.validation.Alert
 import definiti.core.validation.helpers.{ExpressionControlHelper, TypeReferenceControlHelper}
 
-private[core] object NotExpressionIsBooleanControl extends Control with TypeReferenceControlHelper with ExpressionControlHelper {
+private[core] object NotExpressionIsBooleanControl extends Control[Root] with TypeReferenceControlHelper with ExpressionControlHelper {
   override val description: String = "Check if not expression is a boolean expression"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

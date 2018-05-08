@@ -4,7 +4,7 @@ import definiti.common.ast._
 import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.common.validation.Alert
 
-private[core] object EnumerationUniquenessControl extends Control {
+private[core] object EnumerationUniquenessControl extends Control[Root] {
   override val description: String = "Check if each case of enumeration is unique"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

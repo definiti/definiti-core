@@ -4,7 +4,7 @@ import definiti.common.ast._
 import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.common.validation.Alert
 
-private[core] object TypeNameFormatControl extends Control {
+private[core] object TypeNameFormatControl extends Control[Root] {
   override val description: String = "Check the format of name of every type (UpperCamelCase)"
   override val defaultLevel: ControlLevel.Value = ControlLevel.warning
 

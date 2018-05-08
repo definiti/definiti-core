@@ -4,7 +4,7 @@ import definiti.common.ast._
 import definiti.common.control.{Control, ControlLevel, ControlResult}
 import definiti.common.validation.Alert
 
-private[core] object VerificationIsBooleanControl extends Control {
+private[core] object VerificationIsBooleanControl extends Control[Root] {
   override val description: String = "Checks if the expression inside verification is Boolean is case of literal messages"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

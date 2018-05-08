@@ -6,7 +6,7 @@ name := "core"
 
 version := "0.3.0-SNAPSHOT"
 
-scalaVersion := "2.12.5"
+scalaVersion := "2.12.6"
 
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 

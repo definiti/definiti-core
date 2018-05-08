@@ -1,12 +1,10 @@
 package definiti.core.end2end
 
-import definiti.common._
 import definiti.common.ast._
 import definiti.common.program.ProgramResult.NoResult
+import definiti.common.tests.{ConfigurationMock, DummyExtendedContext}
 import definiti.common.validation._
 import definiti.core.ProgramResultMatchers._
-import definiti.core._
-import definiti.core.mock.plugins.StringExtendedContext
 
 class ExtendedContextSpec extends EndToEndSpec {
   import ExtendedContextSpec._
@@ -36,17 +34,17 @@ object ExtendedContextSpec {
 
   val givenError: Alert = AlertSimple("error")
 
-  def configuration(context: StringExtendedContext): ConfigurationMock = {
+  def configuration(context: DummyExtendedContext): ConfigurationMock = {
     ConfigurationMock(
       contexts = Seq(context)
     )
   }
 
-  object ValidExtendedContext extends StringExtendedContext {
+  object ValidExtendedContext extends DummyExtendedContext {
     override def validate(context: String, library: Library) = Valid(NoResult)
   }
 
-  object InvalidExtendedContext extends StringExtendedContext {
+  object InvalidExtendedContext extends DummyExtendedContext {
     override def validate(context: String, library: Library) = Invalid(Seq(SimpleError(givenError.prettyPrint)))
   }
 

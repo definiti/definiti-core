@@ -1,10 +1,10 @@
 package definiti.core
 
-import definiti.common._
 import definiti.common.ast.Location
+import definiti.common.control.{ControlLevel, ControlResult}
 import definiti.common.program.ProgramResult.NoResult
 import definiti.common.program.{Ko, Ok, Program}
-import definiti.common.control.{ControlLevel, ControlResult}
+import definiti.common.tests.ConfigurationMock
 import definiti.common.validation.{AlertControl, AlertLocation, Invalid, Valid}
 import org.scalatest.{FlatSpec, Matchers}
 

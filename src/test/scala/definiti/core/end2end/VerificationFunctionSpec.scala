@@ -2,6 +2,7 @@ package definiti.core.end2end
 
 import definiti.common.ast._
 import definiti.common.program.Ok
+import definiti.common.tests.LocationPath
 import definiti.core.ProgramResultMatchers._
 
 class VerificationFunctionSpec extends EndToEndSpec {
@@ -15,8 +16,6 @@ class VerificationFunctionSpec extends EndToEndSpec {
 }
 
 object VerificationFunctionSpec {
-  import EndToEndSpec._
-
   val verificationFunctionSrc = "src/test/resources/samples/verificationFunction/verificationFunction.def"
   val verificationFunctionLocation = LocationPath(verificationFunctionSrc)
   val validVerificationFunction = Root(Seq(

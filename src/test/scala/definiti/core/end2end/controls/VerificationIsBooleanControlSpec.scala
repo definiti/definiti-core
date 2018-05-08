@@ -2,6 +2,7 @@ package definiti.core.end2end.controls
 
 import definiti.common.ast.Root
 import definiti.common.program.Ko
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.ProgramResultMatchers._
 import definiti.core._
 import definiti.core.end2end.EndToEndSpec
@@ -33,10 +34,8 @@ class VerificationIsBooleanControlSpec extends EndToEndSpec {
 }
 
 object VerificationIsBooleanControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(VerificationIsBooleanControl)
 
-  val configuration = configurationForceControls(VerificationIsBooleanControl.name)
-
-  val numberLocation = LocationPath.control(VerificationIsBooleanControl.name, "number")
-  val conditionLocation = LocationPath.control(VerificationIsBooleanControl.name, "condition")
+  val numberLocation = LocationPath.control(VerificationIsBooleanControl, "number")
+  val conditionLocation = LocationPath.control(VerificationIsBooleanControl, "condition")
 }

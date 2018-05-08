@@ -1,6 +1,7 @@
 package definiti.core.end2end.controls
 
 import definiti.common.ast.{Root, TypedMessage}
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.ProgramResultMatchers._
 import definiti.core._
 import definiti.core.end2end.EndToEndSpec
@@ -59,12 +60,10 @@ class TypeVerificationIsOkKoControlSpec extends EndToEndSpec {
 }
 
 object TypeVerificationIsOkKoControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(TypeVerificationIsOkKoControl)
 
-  val configuration = configurationForceControls(TypeVerificationIsOkKoControl.name)
-
-  val numberLocation = LocationPath.control(TypeVerificationIsOkKoControl.name, "number")
-  val booleanLocation = LocationPath.control(TypeVerificationIsOkKoControl.name, "boolean")
-  val invalidTypesLocation = LocationPath.control(TypeVerificationIsOkKoControl.name, "invalidTypes")
-  val invalidNumberOfParametersLocation = LocationPath.control(TypeVerificationIsOkKoControl.name, "invalidNumberOfParameters")
+  val numberLocation = LocationPath.control(TypeVerificationIsOkKoControl, "number")
+  val booleanLocation = LocationPath.control(TypeVerificationIsOkKoControl, "boolean")
+  val invalidTypesLocation = LocationPath.control(TypeVerificationIsOkKoControl, "invalidTypes")
+  val invalidNumberOfParametersLocation = LocationPath.control(TypeVerificationIsOkKoControl, "invalidNumberOfParameters")
 }

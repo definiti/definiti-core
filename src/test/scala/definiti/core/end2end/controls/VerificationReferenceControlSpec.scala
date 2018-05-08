@@ -1,6 +1,7 @@
 package definiti.core.end2end.controls
 
 import definiti.common.ast.Root
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
 import definiti.core.end2end.EndToEndSpec
@@ -116,18 +117,16 @@ class VerificationReferenceControlSpec extends EndToEndSpec {
 }
 
 object VerificationReferenceControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(VerificationReferenceControl)
 
-  val configuration = configurationForceControls(VerificationReferenceControl.name)
-
-  val invalidDefinedTypeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidDefinedType")
-  val invalidAliasTypeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidAliasType")
-  val invalidAttributeNativeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidAttributeNative")
-  val invalidAttributeDefinedTypeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidAttributeDefinedType")
-  val invalidAttributeAliasTypeLocation = LocationPath.control(VerificationReferenceControl.name, "invalidAttributeAliasType")
-  val unmatchedDefinedTypeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedDefinedType")
-  val unmatchedAliasTypeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedAliasType")
-  val unmatchedAttributeNativeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedAttributeNative")
-  val unmatchedAttributeDefinedTypeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedAttributeDefinedType")
-  val unmatchedAttributeAliasTypeLocation = LocationPath.control(VerificationReferenceControl.name, "unmatchedAttributeAliasType")
+  val invalidDefinedTypeLocation = LocationPath.control(VerificationReferenceControl, "invalidDefinedType")
+  val invalidAliasTypeLocation = LocationPath.control(VerificationReferenceControl, "invalidAliasType")
+  val invalidAttributeNativeLocation = LocationPath.control(VerificationReferenceControl, "invalidAttributeNative")
+  val invalidAttributeDefinedTypeLocation = LocationPath.control(VerificationReferenceControl, "invalidAttributeDefinedType")
+  val invalidAttributeAliasTypeLocation = LocationPath.control(VerificationReferenceControl, "invalidAttributeAliasType")
+  val unmatchedDefinedTypeLocation = LocationPath.control(VerificationReferenceControl, "unmatchedDefinedType")
+  val unmatchedAliasTypeLocation = LocationPath.control(VerificationReferenceControl, "unmatchedAliasType")
+  val unmatchedAttributeNativeLocation = LocationPath.control(VerificationReferenceControl, "unmatchedAttributeNative")
+  val unmatchedAttributeDefinedTypeLocation = LocationPath.control(VerificationReferenceControl, "unmatchedAttributeDefinedType")
+  val unmatchedAttributeAliasTypeLocation = LocationPath.control(VerificationReferenceControl, "unmatchedAttributeAliasType")
 }

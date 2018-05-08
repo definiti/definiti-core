@@ -2,6 +2,7 @@ package definiti.core.end2end.controls
 
 import definiti.common.ast._
 import definiti.common.program.Ko
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.ProgramResultMatchers._
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.AliasTypeTypeControl
@@ -33,9 +34,7 @@ class AliasTypeTypeControlSpec extends EndToEndSpec {
 }
 
 object AliasTypeTypeControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(AliasTypeTypeControl)
 
-  val configuration = configurationForceControls(AliasTypeTypeControl.name)
-
-  val unknownTypeLocation = LocationPath.control(AliasTypeTypeControl.name, "unknownType")
+  val unknownTypeLocation = LocationPath.control(AliasTypeTypeControl, "unknownType")
 }

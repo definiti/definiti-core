@@ -148,7 +148,7 @@ object NominalSpec {
   val extendedContextSrc = "src/test/resources/samples/nominal/extendedContext.def"
   val extendedContext: Root = root(
     ExtendedContext(
-      name = "stringContext",
+      name = "dummyContext",
       content = "Something here",
       location = Location(extendedContextSrc, 2, 3, 2, 17)
     )

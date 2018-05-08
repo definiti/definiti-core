@@ -1,6 +1,7 @@
 package definiti.core.end2end.controls
 
 import definiti.common.ast.Root
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
 import definiti.core.end2end.EndToEndSpec
@@ -51,12 +52,10 @@ class LogicalOperandsAreBooleanControlSpec extends EndToEndSpec {
 }
 
 object LogicalOperandsAreBooleanControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(LogicalOperandsAreBooleanControl)
 
-  val configuration = configurationForceControls(LogicalOperandsAreBooleanControl.name)
-
-  val invalidLeftLocation = LocationPath.control(LogicalOperandsAreBooleanControl.name, "invalidLeft")
-  val invalidRightLocation = LocationPath.control(LogicalOperandsAreBooleanControl.name, "invalidRight")
-  val invalidBothLocation = LocationPath.control(LogicalOperandsAreBooleanControl.name, "invalidBoth")
-  val invalidConditionLocation = LocationPath.control(LogicalOperandsAreBooleanControl.name, "invalidCondition")
+  val invalidLeftLocation = LocationPath.control(LogicalOperandsAreBooleanControl, "invalidLeft")
+  val invalidRightLocation = LocationPath.control(LogicalOperandsAreBooleanControl, "invalidRight")
+  val invalidBothLocation = LocationPath.control(LogicalOperandsAreBooleanControl, "invalidBoth")
+  val invalidConditionLocation = LocationPath.control(LogicalOperandsAreBooleanControl, "invalidCondition")
 }

@@ -1,6 +1,7 @@
 package definiti.core.end2end.controls
 
 import definiti.common.ast.Root
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.ProgramResultMatchers._
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.EnumerationUniquenessControl
@@ -22,9 +23,7 @@ class EnumerationUniquenessControlSpec extends EndToEndSpec {
 }
 
 object EnumerationUniquenessControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(EnumerationUniquenessControl)
 
-  val configuration = configurationForceControls(EnumerationUniquenessControl.name)
-
-  val duplicationLocation = LocationPath.control(EnumerationUniquenessControl.name, "duplication")
+  val duplicationLocation = LocationPath.control(EnumerationUniquenessControl, "duplication")
 }

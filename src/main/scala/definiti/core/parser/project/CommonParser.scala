@@ -1,8 +1,7 @@
 package definiti.core.parser.project
 
-import definiti.core.ast.{Position, Range, _}
-import definiti.core.parser.antlr.DefinitiParser._
-import definiti.core.utils.CollectionUtils.scalaSeq
+import definiti.common.ast
+import definiti.common.ast.{Location, Position}
 import org.antlr.v4.runtime.tree.TerminalNode
 import org.antlr.v4.runtime.{ParserRuleContext, Token}
 
@@ -10,48 +9,6 @@ import scala.collection.mutable.ListBuffer
 
 private[core] trait CommonParser {
   def file: String
-
-  def processParameterListDefinition(context: ParameterListDefinitionContext): Seq[ParameterDefinition] = {
-    scalaSeq(context.parameterDefinition()).map(processParameter)
-  }
-
-  def processParameter(context: ParameterDefinitionContext): ParameterDefinition = {
-    ParameterDefinition(
-      name = context.parameterName.getText,
-      typeReference = processTypeReference(context.typeReference()),
-      location = Location(file, getRangeFromContext(context))
-    )
-  }
-
-  def processTypeReference(context: TypeReferenceContext): TypeReference = {
-    TypeReference(context.name.getText, processGenericTypeList(context.genericTypeList()))
-  }
-
-  def processGenericTypeList(context: GenericTypeListContext): Seq[TypeReference] = {
-    if (context != null) {
-      scalaSeq(context.genericType()).map(processGenericType)
-    } else {
-      Seq()
-    }
-  }
-
-  def processGenericType(context: GenericTypeContext): TypeReference = {
-    TypeReference(
-      context.IDENTIFIER().getText,
-      processGenericTypeList(context.genericTypeList())
-    )
-  }
-
-  def extractStringContent(string: String): String = {
-    var temporaryResult = string
-    if (temporaryResult.startsWith("\"")) {
-      temporaryResult = temporaryResult.substring(1)
-    }
-    if (temporaryResult.endsWith("\"")) {
-      temporaryResult = temporaryResult.substring(0, temporaryResult.length - 1)
-    }
-    temporaryResult
-  }
 
   def extractDocComment(string: String): String = {
     var temporaryResult = string
@@ -65,10 +22,10 @@ private[core] trait CommonParser {
   }
 
   def getLocationFromContext(context: ParserRuleContext): Location = {
-    Location(file, getRangeFromContext(context))
+    ast.Location(file, getRangeFromContext(context))
   }
 
-  def getRangeFromContext(context: ParserRuleContext): Range = {
+  def getRangeFromContext(context: ParserRuleContext): ast.Range = {
     val start = Option(context.getStart)
       .map(token => Position(token.getLine, token.getCharPositionInLine + 1))
       .getOrElse(Position.default)
@@ -77,19 +34,19 @@ private[core] trait CommonParser {
       .map(token => Position(token.getLine, token.getCharPositionInLine + token.getText.length + 1))
       .getOrElse(Position.default)
 
-    Range(start, end)
+    ast.Range(start, end)
   }
 
-  def getRangeFromTerminalNode(terminalNode: TerminalNode): Range = {
+  def getRangeFromTerminalNode(terminalNode: TerminalNode): ast.Range = {
     val symbol = terminalNode.getSymbol
-    Range(
+    ast.Range(
       Position(symbol.getLine, symbol.getCharPositionInLine + 1),
       Position(symbol.getLine, symbol.getCharPositionInLine + symbol.getText.length + 1)
     )
   }
 
-  def getRangeFromToken(token: Token): Range = {
-    Range(
+  def getRangeFromToken(token: Token): ast.Range = {
+    ast.Range(
       Position(token.getLine, token.getCharPositionInLine + 1),
       Position(token.getLine, token.getCharPositionInLine + token.getText.length + 1)
     )

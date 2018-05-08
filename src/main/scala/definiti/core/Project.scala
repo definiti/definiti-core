@@ -3,13 +3,12 @@ package definiti.core
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
-import definiti.core.ProgramResult.NoResult
-import definiti.core.ast._
-import definiti.core.ast.pure._
-import definiti.core.linking.ProjectLinking
+import definiti.common.ast._
+import definiti.common.program.Program
+import definiti.common.program.ProgramResult.NoResult
+import definiti.common.validation.{Invalid, Valid, Validated}
 import definiti.core.parser.api.CoreParser
 import definiti.core.parser.project.ProjectParser
-import definiti.core.structure.ProjectStructure
 import definiti.core.typing.ProjectTyping
 import definiti.core.validation._
 
@@ -38,56 +37,21 @@ class Project(configuration: Configuration) {
 
   def generateStructureWithLibrary(): Program[(Root, Library)] = {
     for {
-      parsedPureRoot <- projectParser.parse()
+      untypedRoot <- projectParser.parse()
       core <- coreParser.parse()
-      linkedPureRoot = ProjectLinking.injectLinks(parsedPureRoot, core)
-      finalPureRoot <- processPluginParsers(linkedPureRoot)
-      context = createProjectContext(finalPureRoot, core)
-      typedRoot <- new ProjectTyping(context).addTypes(finalPureRoot)
-      structuredRoot = new ProjectStructure(typedRoot).generateStructure()
-      library = Library(structuredRoot, pureCoreToStructureCore(core))
-      _ <- processInternalValidation(structuredRoot, library)
-      _ <- processExternalValidation(structuredRoot, library)
-    } yield (structuredRoot, library)
+      finalUntypedRoot <- processPluginParsers(untypedRoot)
+      context = createProjectContext(finalUntypedRoot, core)
+      root <- new ProjectTyping(context).addTypes(finalUntypedRoot)
+      library = Library(root, core)
+      _ <- processInternalValidation(root, library)
+      _ <- processExternalValidation(root, library)
+    } yield (root, library)
   }
 
-  private def pureCoreToStructureCore(pureCore: Seq[PureClassDefinition]): Seq[ClassDefinition] = {
-    pureCore.collect {
-      case nativeClassDefinition: PureNativeClassDefinition =>
-        NativeClassDefinition(
-          name = nativeClassDefinition.name,
-          fullName = nativeClassDefinition.name,
-          genericTypes = nativeClassDefinition.genericTypes,
-          attributes = nativeClassDefinition.attributes.map(nativeTransformAttributeDefinition),
-          methods = nativeClassDefinition.methods,
-          comment = nativeClassDefinition.comment
-        )
-    }
-  }
-
-  private def nativeTransformAttributeDefinition(attribute: PureAttributeDefinition): AttributeDefinition = {
-    AttributeDefinition(
-      name = attribute.name,
-      typeDeclaration = nativeTransformTypeDeclaration(attribute.typeDeclaration),
-      comment = attribute.comment,
-      verifications = Seq.empty, // no verifications in core definition
-      location = attribute.location
-    )
-  }
-
-  private def nativeTransformTypeDeclaration(typeDeclaration: PureTypeDeclaration): TypeDeclaration = {
-    TypeDeclaration(
-      typeName = typeDeclaration.typeName,
-      genericTypes = typeDeclaration.genericTypes.map(nativeTransformTypeDeclaration),
-      parameters = Seq.empty,
-      location = typeDeclaration.location
-    )
-  }
-
-  private def processPluginParsers(root: PureRoot): Program[PureRoot] = Program.validated {
+  private def processPluginParsers(root: Root): Program[Root] = Program.validated {
     // Do not accumulate errors because of eventual dependencies between plugins
     // See what is done and validate or update behavior
-    val initialRoot: Validated[PureRoot] = Valid(root)
+    val initialRoot: Validated[Root] = Valid(root)
     configuration.parsers.foldLeft(initialRoot) { case (acc, parser) =>
       acc match {
         case errors@Invalid(_) => errors
@@ -108,11 +72,10 @@ class Project(configuration: Configuration) {
     configuration.generators.flatMap(_.generate(root, library)).toMap
   }
 
-  private def createProjectContext(root: PureRoot, core: Seq[PureClassDefinition]): ReferenceContext = {
+  private def createProjectContext(root: Root, core: Seq[ClassDefinition]): ReferenceContext = {
     ReferenceContext(
-      classes = core ++ root.files.flatMap(_.classDefinitions),
-      verifications = root.files.flatMap(_.verifications),
-      namedFunctions = root.files.flatMap(_.namedFunctions)
+      classes = core ++ root.namespaces.flatMap(_.elements).collect { case classDefinition: ClassDefinition => classDefinition },
+      namedFunctions = root.namespaces.flatMap(_.elements).collect { case namedFunction: NamedFunction => namedFunction }
     )
   }
 }

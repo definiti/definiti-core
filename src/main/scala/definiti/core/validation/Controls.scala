@@ -1,21 +1,18 @@
 package definiti.core.validation
 
-import definiti.core.ProgramResult.NoResult
-import definiti.core._
-import definiti.core.ast.{Library, Root}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlResult}
+import definiti.common.program.ProgramResult.NoResult
+import definiti.common.program.{Program, ProgramConfiguration}
 import definiti.core.validation.controls._
 
-class Controls(configuration: Configuration) {
+class Controls(configuration: ProgramConfiguration) {
   def validate(root: Root, library: Library): Program[NoResult] = Program {
     ControlResult.squash {
       Controls.all
-        .filter(isControlAccepted)
+        .filter(configuration.isControlAccepted)
         .map(_.control(root, library))
     }
-  }
-
-  private def isControlAccepted(control: Control): Boolean = {
-    configuration.controlLevels(control.name) >= configuration.controlLevel
   }
 }
 

@@ -1,8 +1,9 @@
 package definiti.core.end2end.controls
 
+import definiti.common.ast.Root
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.NotExpressionIsBooleanControl
 
@@ -28,9 +29,7 @@ class NotExpressionIsBooleanControlSpec extends EndToEndSpec {
 }
 
 object NotExpressionIsBooleanControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(NotExpressionIsBooleanControl)
 
-  val configuration = configurationForceControls(NotExpressionIsBooleanControl.name)
-
-  val invalidConditionLocation = LocationPath.control(NotExpressionIsBooleanControl.name, "invalidCondition")
+  val invalidConditionLocation = LocationPath.control(NotExpressionIsBooleanControl, "invalidCondition")
 }

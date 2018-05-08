@@ -4,10 +4,13 @@ import java.nio.file.{Files, Path, Paths}
 
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.Logger
+import definiti.common.control.ControlLevel
+import definiti.common.plugin._
+import definiti.common.program.ProgramConfiguration
+import definiti.common.utils.CollectionUtils._
 import definiti.core.plugin.serialization.JsonSerialization
 import definiti.core.plugin.{GeneratorCommandPlugin, ParserCommandPlugin, ValidatorCommandPlugin}
-import definiti.core.utils.CollectionUtils._
-import definiti.core.validation.{ControlLevel, Controls}
+import definiti.core.validation.Controls
 
 import scala.util.{Failure, Success, Try}
 
@@ -22,17 +25,7 @@ trait Configuration {
 
   def contexts: Seq[ContextPlugin[_]]
 
-  def controlLevel: ControlLevel.Value
-
-  def fatalLevel: ControlLevel.Value
-
-  def userFlags: Map[String, ControlLevel.Value]
-
-  lazy val controlLevels: Map[String, ControlLevel.Value] = {
-    Controls.all
-      .map { control => control.name -> userFlags.getOrElse(control.name, control.defaultLevel) }
-      .toMap
-  }
+  def programConfiguration: ProgramConfiguration
 }
 
 private[core] class FileConfiguration(externalConfig: Config) extends Configuration {
@@ -43,23 +36,19 @@ private[core] class FileConfiguration(externalConfig: Config) extends Configurat
     this(ConfigFactory.load())
   }
 
-  lazy val jsonSerialization = new JsonSerialization(this)
+  val jsonSerialization = new JsonSerialization(this)
 
-  lazy val source: Path = getPathOrElse("source", Paths.get("src"))
+  val source: Path = getPathOrElse("source", Paths.get("src"))
 
-  lazy val parsers: Seq[ParserPlugin] = generateInstancesOf(classOf[ParserPlugin], "parsers")
+  val parsers: Seq[ParserPlugin] = generateInstancesOf(classOf[ParserPlugin], "parsers")
 
-  lazy val validators: Seq[ValidatorPlugin] = generateInstancesOf(classOf[ValidatorPlugin], "validators")
+  val validators: Seq[ValidatorPlugin] = generateInstancesOf(classOf[ValidatorPlugin], "validators")
 
-  lazy val generators: Seq[GeneratorPlugin] = generateInstancesOf(classOf[GeneratorPlugin], "generators")
+  val generators: Seq[GeneratorPlugin] = generateInstancesOf(classOf[GeneratorPlugin], "generators")
 
-  lazy val contexts: Seq[ContextPlugin[_]] = generateInstancesOf(classOf[ContextPlugin[_]], "contexts")
+  val contexts: Seq[ContextPlugin[_]] = generateInstancesOf(classOf[ContextPlugin[_]], "contexts")
 
-  lazy val controlLevel: ControlLevel.Value = getEnumeration("controlLevel", ControlLevel, ControlLevel.warning)
-
-  lazy val fatalLevel: ControlLevel.Value = getEnumeration("fatalLevel", ControlLevel, ControlLevel.error)
-
-  lazy val userFlags: Map[String, ControlLevel.Value] = extractMap("flags").flatMap { case (key, value) =>
+  private val userFlags: Map[String, ControlLevel.Value] = extractMap("flags").flatMap { case (key, value) =>
     ControlLevel.fromString(value) match {
       case Some(level) =>
         Some(key -> level)
@@ -68,6 +57,17 @@ private[core] class FileConfiguration(externalConfig: Config) extends Configurat
         None
     }
   }
+
+  val programConfiguration: ProgramConfiguration = ProgramConfiguration(
+    controlLevel = getEnumeration("controlLevel", ControlLevel, ControlLevel.warning),
+    fatalLevel = getEnumeration("fatalLevel", ControlLevel, ControlLevel.error),
+    userFlags = userFlags,
+    defaultLevels = {
+      Controls.all
+        .map { control => control.name -> control.defaultLevel }
+        .toMap
+    }
+  )
 
   private def getPathOrElse(configurationPath: String, defaultValue: => Path): Path = {
     if (config.hasPath(configurationPath)) {

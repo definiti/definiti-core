@@ -1,10 +1,10 @@
 package definiti.core.validation.controls
 
-import definiti.core._
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
+import definiti.common.validation.Alert
 
-object TypeVerificationIsBooleanControl extends Control {
+private[core] object TypeVerificationIsBooleanControl extends Control {
   override val description: String = "Checks if the expression inside type verification is Boolean"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

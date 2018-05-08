@@ -1,69 +1,51 @@
 package definiti.core.typing
 
+import definiti.common.ast._
+import definiti.common.program.Program
+import definiti.common.validation.{Valid, Validated}
 import definiti.core._
-import definiti.core.ast.pure._
-import definiti.core.ast.typed._
 
 private[core] class ProjectTyping(context: Context) {
-  def addTypes(root: PureRoot): Program[TypedRoot] = Program.validated {
-    Validated.squash(root.files.map(addTypesIntoRootFile))
-      .map(files => TypedRoot(files))
+  def addTypes(root: Root): Program[Root] = Program.validated {
+    Validated.squash(root.namespaces.map(addTypesIntoNamespace))
+      .map(Root)
   }
 
-  def addTypesIntoRootFile(rootFile: PureRootFile): Validated[TypedRootFile] = {
-    val validatedTypedVerifications = Validated.squash(rootFile.verifications.map(addTypesIntoVerification))
-    val validatedTypedClassDefinition = Validated.squash(rootFile.classDefinitions.map(addTypeIntoClassDefinition))
-    val validatedTypedNamedFunction = Validated.squash(rootFile.namedFunctions.map(addTypesIntoNamedFunction))
-    Validated.both(validatedTypedVerifications, validatedTypedClassDefinition, validatedTypedNamedFunction)
-      .map { case (verifications, classDefinitions, namedFunctions) =>
-        TypedRootFile(
-          packageName = rootFile.packageName,
-          verifications = verifications,
-          classDefinitions = classDefinitions,
-          namedFunctions = namedFunctions,
-          contexts = rootFile.contexts
-        )
+  def addTypesIntoNamespace(namespace: Namespace): Validated[Namespace] = {
+    Validated.squash {
+      namespace.elements.map {
+        case verification: Verification => addTypesIntoVerification(verification)
+        case classDefinition: ClassDefinition => addTypeIntoClassDefinition(classDefinition)
+        case namedFunction: NamedFunction => addTypesIntoNamedFunction(namedFunction)
+        case other => Valid(other)
       }
+    } map { elements =>
+      namespace.copy(elements = elements)
+    }
   }
 
-  def addTypesIntoVerification(verification: PureVerification): Validated[TypedVerification] = {
+  def addTypesIntoVerification(verification: Verification): Validated[Verification] = {
     val verificationContext = VerificationContext(context, verification)
     val definedFunctionContext = DefinedFunctionContext(verificationContext, verification.function)
     val validatedFunction = new FunctionTyping(definedFunctionContext).addTypesIntoDefinedFunction(verification.function)
     validatedFunction.map { function =>
-      TypedVerification(
-        name = verification.name,
-        packageName = verification.packageName,
-        parameters = verification.parameters,
-        message = verification.message,
-        function = function,
-        comment = verification.comment,
-        location = verification.location
-      )
+      verification.copy(function = function)
     }
   }
 
-  def addTypeIntoClassDefinition(classDefinition: PureClassDefinition): Validated[TypedClassDefinition] = {
+  def addTypeIntoClassDefinition(classDefinition: ClassDefinition): Validated[ClassDefinition] = {
     val classDefinitionContext = ClassContext(context, classDefinition)
     new ClassDefinitionTyping(classDefinitionContext).addTypesIntoClassDefinition(classDefinition)
   }
 
-  def addTypesIntoNamedFunction(namedFunction: PureNamedFunction): Validated[TypedNamedFunction] = {
+  def addTypesIntoNamedFunction(namedFunction: NamedFunction): Validated[NamedFunction] = {
     val namedFunctionContext = NamedFunctionReferenceContext(
       outerContext = context,
       currentFunction = namedFunction
     )
     val validatedExpression = new ExpressionTyping(namedFunctionContext).addTypesIntoExpression(namedFunction.body)
     validatedExpression.map { expression =>
-      TypedNamedFunction(
-        name = namedFunction.name,
-        packageName = namedFunction.packageName,
-        genericTypes = namedFunction.genericTypes,
-        parameters = namedFunction.parameters,
-        returnType = namedFunction.returnType,
-        body = expression,
-        location = namedFunction.location
-      )
+      namedFunction.copy(body = expression)
     }
   }
 }

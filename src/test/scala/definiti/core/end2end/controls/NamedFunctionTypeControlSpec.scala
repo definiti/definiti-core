@@ -1,6 +1,7 @@
 package definiti.core.end2end.controls
 
-import definiti.core.ast.Root
+import definiti.common.ast.Root
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.NamedFunctionTypeControl
 
@@ -55,12 +56,10 @@ class NamedFunctionTypeControlSpec extends EndToEndSpec {
 }
 
 object NamedFunctionTypeControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(NamedFunctionTypeControl)
 
-  val configuration = configurationForceControls(NamedFunctionTypeControl.name)
-
-  val invalidTypeLocation = LocationPath.control(NamedFunctionTypeControl.name, "invalidType")
-  val invalidListLocation = LocationPath.control(NamedFunctionTypeControl.name, "invalidList")
-  val invalidGenericsLocation = LocationPath.control(NamedFunctionTypeControl.name, "invalidGenerics")
-  val invalidUnknownLocation = LocationPath.control(NamedFunctionTypeControl.name, "unknownType")
+  val invalidTypeLocation = LocationPath.control(NamedFunctionTypeControl, "invalidType")
+  val invalidListLocation = LocationPath.control(NamedFunctionTypeControl, "invalidList")
+  val invalidGenericsLocation = LocationPath.control(NamedFunctionTypeControl, "invalidGenerics")
+  val invalidUnknownLocation = LocationPath.control(NamedFunctionTypeControl, "unknownType")
 }

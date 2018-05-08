@@ -1,6 +1,8 @@
 package definiti.core
 
-import definiti.core.ast.Root
+import definiti.common.ast.Root
+import definiti.common.program.{Ko, Ok, ProgramResult}
+import definiti.common.validation.Alert
 import org.scalatest.matchers.{MatchResult, Matcher}
 
 trait ProgramResultMatchers {

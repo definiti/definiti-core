@@ -1,10 +1,10 @@
 package definiti.core.validation.controls
 
-import definiti.core.Alert
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
+import definiti.common.validation.Alert
 
-object EnumerationUniquenessControl extends Control {
+private[core] object EnumerationUniquenessControl extends Control {
   override val description: String = "Check if each case of enumeration is unique"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

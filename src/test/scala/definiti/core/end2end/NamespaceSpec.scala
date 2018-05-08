@@ -1,8 +1,9 @@
 package definiti.core.end2end
 
-import definiti.core.Ok
+import definiti.common.ast._
+import definiti.common.program.Ok
+import definiti.common.utils.ASTUtils._
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast._
 
 class NamespaceSpec extends EndToEndSpec {
   import NamespaceSpec._
@@ -22,58 +23,32 @@ class NamespaceSpec extends EndToEndSpec {
 
 object NamespaceSpec {
   val validSubnamespaceSrc = "src/test/resources/samples/namespace/subnamespace.def"
-  val validSubnamespace = Root(Seq(
-    Namespace(
-      name = "my",
-      fullName = "my",
-      elements = Seq(
-        Namespace(
-          name = "ns",
-          fullName = "my.ns",
-          elements = Seq(AliasType(
-            name = "AliasString",
-            fullName = "my.ns.AliasString",
-            genericTypes = Seq.empty,
-            parameters = Seq.empty,
-            alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validSubnamespaceSrc, 3, 20, 3, 26)),
-            verifications = Seq.empty,
-            inherited = Seq.empty,
-            comment = None,
-            location = Location(validSubnamespaceSrc, 3, 1, 3, 26)
-          ))
-        )
-      )
+  val validSubnamespace = root(namespace("ns", "my.ns",
+    AliasType(
+      name = "AliasString",
+      fullName = "my.ns.AliasString",
+      genericTypes = Seq.empty,
+      parameters = Seq.empty,
+      alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validSubnamespaceSrc, 3, 20, 3, 26)),
+      verifications = Seq.empty,
+      inherited = Seq.empty,
+      comment = None,
+      location = Location(validSubnamespaceSrc, 3, 1, 3, 26)
     )
   ))
 
   val validSub2namespaceSrc = "src/test/resources/samples/namespace/sub2namespace.def"
-  val validSub2namespace = Root(Seq(
-    Namespace(
-      name = "my",
-      fullName = "my",
-      elements = Seq(
-        Namespace(
-          name = "sub",
-          fullName = "my.sub",
-          elements = Seq(
-            Namespace(
-              name = "ns",
-              fullName = "my.sub.ns",
-              elements = Seq(AliasType(
-                name = "AliasString",
-                fullName = "my.sub.ns.AliasString",
-                genericTypes = Seq.empty,
-                parameters = Seq.empty,
-                alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validSub2namespaceSrc, 3, 20, 3, 26)),
-                verifications = Seq.empty,
-                inherited = Seq.empty,
-                comment = None,
-                location = Location(validSub2namespaceSrc, 3, 1, 3, 26)
-              ))
-            )
-          )
-        )
-      )
+  val validSub2namespace = root(namespace("ns", "my.sub.ns",
+    AliasType(
+      name = "AliasString",
+      fullName = "my.sub.ns.AliasString",
+      genericTypes = Seq.empty,
+      parameters = Seq.empty,
+      alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validSub2namespaceSrc, 3, 20, 3, 26)),
+      verifications = Seq.empty,
+      inherited = Seq.empty,
+      comment = None,
+      location = Location(validSub2namespaceSrc, 3, 1, 3, 26)
     )
   ))
 }

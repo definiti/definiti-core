@@ -1,5 +1,5 @@
 package x
 
-context stringContext {{{
+context dummyContext {{{
   Content!
 }}}

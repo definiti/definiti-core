@@ -1,6 +1,6 @@
 package definiti.core
 
-import definiti.core.ast.TypeReference
+import definiti.common.ast.TypeReference
 
 object Constants {
   val boolean = TypeReference("Boolean")

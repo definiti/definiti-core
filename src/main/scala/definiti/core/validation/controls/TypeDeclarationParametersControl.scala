@@ -1,11 +1,11 @@
 package definiti.core.validation.controls
 
-import definiti.core.Alert
-import definiti.core.ast._
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
+import definiti.common.validation.Alert
 import definiti.core.validation.helpers.{ParameterControlHelper, TypeReferenceControlHelper}
-import definiti.core.validation.{Control, ControlLevel, ControlResult}
 
-object TypeDeclarationParametersControl extends Control with ParameterControlHelper with TypeReferenceControlHelper {
+private[core] object TypeDeclarationParametersControl extends Control with ParameterControlHelper with TypeReferenceControlHelper {
   override val description: String = "Check if a type or attribute references another type with valid types"
 
   override val defaultLevel: ControlLevel.Value = ControlLevel.error

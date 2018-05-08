@@ -1,7 +1,8 @@
 package definiti.core.end2end.controls
 
+import definiti.common.ast.Root
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.TopLevelFullNameUniquenessControl
 
@@ -59,12 +60,10 @@ class TopLevelFullNameUniquenessControlSpec extends EndToEndSpec {
 }
 
 object TopLevelFullNameUniquenessControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(TopLevelFullNameUniquenessControl)
 
-  val configuration = configurationForceControls(TopLevelFullNameUniquenessControl.name)
-
-  val invalidTwoDefinedTypesLocation = LocationPath.control(TopLevelFullNameUniquenessControl.name, "invalidTwoDefinedTypes")
-  val invalidDefinedTypeNamedFunctionLocation = LocationPath.control(TopLevelFullNameUniquenessControl.name, "invalidDefinedTypeNamedFunction")
-  val invalidNamedFunctionVerificationLocation = LocationPath.control(TopLevelFullNameUniquenessControl.name, "invalidNamedFunctionVerification")
-  val invalidVerificationAliasTypeLocation = LocationPath.control(TopLevelFullNameUniquenessControl.name, "invalidVerificationAliasType")
+  val invalidTwoDefinedTypesLocation = LocationPath.control(TopLevelFullNameUniquenessControl, "invalidTwoDefinedTypes")
+  val invalidDefinedTypeNamedFunctionLocation = LocationPath.control(TopLevelFullNameUniquenessControl, "invalidDefinedTypeNamedFunction")
+  val invalidNamedFunctionVerificationLocation = LocationPath.control(TopLevelFullNameUniquenessControl, "invalidNamedFunctionVerification")
+  val invalidVerificationAliasTypeLocation = LocationPath.control(TopLevelFullNameUniquenessControl, "invalidVerificationAliasType")
 }

@@ -1,7 +1,9 @@
 package definiti.core.parser.api
 
+import definiti.common.ast.ClassDefinition
+import definiti.common.program.Program
+import definiti.common.validation.{Invalid, Valid, Validated}
 import definiti.core._
-import definiti.core.ast.pure.PureClassDefinition
 import definiti.core.parser.ParserHelper
 import definiti.core.parser.antlr.{CoreDefinitionLexer, CoreDefinitionParser}
 import definiti.core.utils.ErrorListener
@@ -9,7 +11,7 @@ import definiti.core.utils.ErrorListener
 import scala.io.Source
 
 private[core] class CoreParser(configuration: Configuration) {
-  def parse(): Program[Seq[PureClassDefinition]] = Program.validated {
+  def parse(): Program[Seq[ClassDefinition]] = Program.validated {
     val sourceFiles = extractCoreDefinitionFiles()
     val validatedCoreAst = sourceFiles.map(parseCoreDefinitionFile)
     Validated.flatSquash(validatedCoreAst)
@@ -21,7 +23,7 @@ private[core] class CoreParser(configuration: Configuration) {
       .toSeq
   }
 
-  private def parseCoreDefinitionFile(path: String): Validated[Seq[PureClassDefinition]] = {
+  private def parseCoreDefinitionFile(path: String): Validated[Seq[ClassDefinition]] = {
     val errorListener = new ErrorListener(path)
     val parser = ParserHelper.buildParser(Source.fromResource(path), new CoreDefinitionLexer(_), new CoreDefinitionParser(_), errorListener)
     val result: CoreDefinitionParser.CoreDefinitionContext = parser.coreDefinition()

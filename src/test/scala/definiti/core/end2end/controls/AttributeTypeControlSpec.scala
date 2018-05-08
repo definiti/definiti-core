@@ -1,8 +1,9 @@
 package definiti.core.end2end.controls
 
-import definiti.core.Ko
+import definiti.common.ast.Root
+import definiti.common.program.Ko
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.AttributeTypeControl
 
@@ -33,9 +34,7 @@ class AttributeTypeControlSpec extends EndToEndSpec {
 }
 
 object AttributeTypeControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(AttributeTypeControl)
 
-  val configuration = configurationForceControls(AttributeTypeControl.name)
-
-  val unknownTypeLocation = LocationPath.control(AttributeTypeControl.name, "unknownType")
+  val unknownTypeLocation = LocationPath.control(AttributeTypeControl, "unknownType")
 }

@@ -1,18 +1,17 @@
 package definiti.core.parser.api
 
-import definiti.core.ast._
-import definiti.core.ast.pure._
+import definiti.common.ast._
+import definiti.common.utils.CollectionUtils._
 import definiti.core.parser.antlr.CoreDefinitionParser._
 import definiti.core.parser.project.CommonParser
-import definiti.core.utils.CollectionUtils._
 
 import scala.collection.mutable.ListBuffer
 
 private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonParser {
   val file: String = sourceFile.replaceAllLiterally("\\", "/")
 
-  def definitionContextToAST(context: CoreDefinitionContext): Seq[PureClassDefinition] = {
-    val classDefinitions = ListBuffer[PureClassDefinition]()
+  def definitionContextToAST(context: CoreDefinitionContext): Seq[ClassDefinition] = {
+    val classDefinitions = ListBuffer[ClassDefinition]()
 
     scalaSeq(context.toplevel()).foreach { element =>
       if (element.coreType() != null) {
@@ -26,10 +25,11 @@ private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonPa
     classDefinitions
   }
 
-  private def processCoreType(context: CoreTypeContext): PureClassDefinition = {
+  private def processCoreType(context: CoreTypeContext): ClassDefinition = {
     val members = scalaSeq(context.member())
-    PureNativeClassDefinition(
+    NativeClassDefinition(
       name = context.typeName.getText,
+      fullName = context.typeName.getText,
       genericTypes = Option(context.genericTypeList())
         .map(genericTypes => scalaSeq(genericTypes.genericType()).map(_.getText))
         .getOrElse(Seq()),
@@ -39,8 +39,8 @@ private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonPa
     )
   }
 
-  private def processAttribute(context: AttributeDefinitionContext): PureAttributeDefinition = {
-    PureAttributeDefinition(
+  private def processAttribute(context: AttributeDefinitionContext): AttributeDefinition = {
+    AttributeDefinition(
       name = context.attributeName.getText,
       typeDeclaration = processTypeReferenceAsDeclaration(context.typeReference),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
@@ -49,8 +49,8 @@ private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonPa
     )
   }
 
-  private def processTypeReferenceAsDeclaration(context: TypeReferenceContext): PureTypeDeclaration = {
-    PureTypeDeclaration(
+  private def processTypeReferenceAsDeclaration(context: TypeReferenceContext): TypeDeclaration = {
+    TypeDeclaration(
       typeName = context.IDENTIFIER.getText,
       genericTypes = Option(context.typeReferenceList).map(processTypeReferenceListAsDeclaration).getOrElse(Seq.empty),
       parameters = Seq.empty,
@@ -58,7 +58,7 @@ private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonPa
     )
   }
 
-  private def processTypeReferenceListAsDeclaration(context: TypeReferenceListContext): Seq[PureTypeDeclaration] = {
+  private def processTypeReferenceListAsDeclaration(context: TypeReferenceListContext): Seq[TypeDeclaration] = {
     scalaSeq(context.typeReference).map(processTypeReferenceAsDeclaration)
   }
 

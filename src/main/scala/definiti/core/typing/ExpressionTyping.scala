@@ -1,77 +1,83 @@
 package definiti.core.typing
 
+import definiti.common.ast._
+import definiti.common.validation.{Invalid, Valid, Validated}
 import definiti.core._
-import definiti.core.ast._
-import definiti.core.ast.pure._
 
 private[core] class ExpressionTyping(context: Context) {
   import ExpressionTyping._
 
-  def addTypesIntoExpression(expression: PureExpression): Validated[Expression] = {
+  def addTypesIntoExpression(expression: Expression): Validated[Expression] = {
     expression match {
-      case PureLogicalExpression(operator, left, right, location) => addTypeIntoLogicalExpression(operator, left, right, location)
-      case PureCalculatorExpression(operator, left, right, location) => addTypeIntoCalculatorExpression(operator, left, right, location)
-      case not: PureNot => addTypesIntoNotExpression(not)
+      case logicalExpression: LogicalExpression => addTypeIntoLogicalExpression(logicalExpression)
+      case calculatorExpression: CalculatorExpression => addTypeIntoCalculatorExpression(calculatorExpression)
+      case not: Not => addTypesIntoNotExpression(not)
 
-      case atomicExpression: PureAtomicExpression => addTypeIntoAtomicExpression(atomicExpression)
+      case atomicExpression: AtomicExpression => addTypeIntoAtomicExpression(atomicExpression)
 
-      case methodCall: PureMethodCall => addTypeIntoMethodCall(methodCall)
-      case attributeCall: PureAttributeCall => addTypeIntoAttributeCall(attributeCall)
+      case methodCall: MethodCall => addTypeIntoMethodCall(methodCall)
+      case attributeCall: AttributeCall => addTypeIntoAttributeCall(attributeCall)
 
-      case combinedExpression: PureCombinedExpression => addTypeIntoCombinedExpression(combinedExpression)
+      case combinedExpression: CombinedExpression => addTypeIntoCombinedExpression(combinedExpression)
 
-      case condition: PureCondition => addTypeIntoCondition(condition)
+      case condition: Condition => addTypeIntoCondition(condition)
 
-      case lambdaExpression: PureLambdaExpression => addTypeIntoLambdaExpression(lambdaExpression)
-      case functionCall: PureFunctionCall => addTypeIntoFunctionCall(functionCall)
+      case lambdaExpression: LambdaExpression => addTypeIntoLambdaExpression(lambdaExpression)
+      case functionCall: FunctionCall => addTypeIntoFunctionCall(functionCall)
 
-      case okValue: PureOkValue => addTypesIntoOkValue(okValue)
-      case koValue: PureKoValue => addTypesIntoKoValue(koValue)
+      case okValue: OkValue => addTypesIntoOkValue(okValue)
+      case koValue: KoValue => addTypesIntoKoValue(koValue)
     }
   }
 
-  def addTypeIntoAtomicExpression(expression: PureAtomicExpression): Validated[AtomicExpression] = {
+  def addTypeIntoAtomicExpression(expression: AtomicExpression): Validated[AtomicExpression] = {
     expression match {
-      case booleanValue: PureBooleanValue => Valid(BooleanValue(booleanValue.value, boolean, booleanValue.location))
-      case numberValue: PureNumberValue => Valid(NumberValue(numberValue.value, number, numberValue.location))
-      case quotedStringValue: PureQuotedStringValue => Valid(QuotedStringValue(quotedStringValue.value, string, quotedStringValue.location))
-      case reference: PureReference => addTypesIntoReference(reference)
+      case booleanValue: BooleanValue => Valid(booleanValue.copy(returnType = boolean))
+      case numberValue: NumberValue => Valid(numberValue.copy(returnType = number))
+      case quotedStringValue: QuotedStringValue => Valid(quotedStringValue.copy(returnType = string))
+      case reference: Reference => addTypesIntoReference(reference)
     }
   }
 
-  def addTypeIntoLogicalExpression(operator: LogicalOperator.Value, left: PureExpression, right: PureExpression, location: Location): Validated[Expression] = {
-    Validated.both(addTypesIntoExpression(left), addTypesIntoExpression(right))
+  def addTypeIntoLogicalExpression(logicalExpression: LogicalExpression): Validated[Expression] = {
+    Validated.both(addTypesIntoExpression(logicalExpression.left), addTypesIntoExpression(logicalExpression.right))
       .map { case (typedLeft, typedRight) =>
-        LogicalExpression(operator, typedLeft, typedRight, boolean, location)
+        logicalExpression.copy(
+          left = typedLeft,
+          right = typedRight,
+          returnType = boolean
+        )
       }
   }
 
-  def addTypeIntoCalculatorExpression(operator: CalculatorOperator.Value, left: PureExpression, right: PureExpression, location: Location): Validated[Expression] = {
-    Validated.both(addTypesIntoExpression(left), addTypesIntoExpression(right))
+  def addTypeIntoCalculatorExpression(calculatorExpression: CalculatorExpression): Validated[Expression] = {
+    Validated.both(addTypesIntoExpression(calculatorExpression.left), addTypesIntoExpression(calculatorExpression.right))
       .map { case (typedLeft, typedRight) =>
-        CalculatorExpression(operator, typedLeft, typedRight, number, location)
+        calculatorExpression.copy(
+          left = typedLeft,
+          right = typedRight,
+          returnType = number
+        )
       }
   }
 
-  def addTypesIntoNotExpression(not: PureNot): Validated[Expression] = {
+  def addTypesIntoNotExpression(not: Not): Validated[Expression] = {
     addTypesIntoExpression(not.inner).map { expression =>
-      Not(expression, boolean, not.location)
+      not.copy(
+        inner = expression,
+        returnType = boolean
+      )
     }
   }
 
-  def addTypesIntoReference(reference: PureReference): Validated[Reference] = {
+  def addTypesIntoReference(reference: Reference): Validated[Reference] = {
     context.findTypeReference(reference.name) match {
-      case Some(typeReference) =>
-        Valid(Reference(
-          name = reference.name,
-          returnType = typeReference,
-          location = reference.location
-        ))
+      case Some(typeReference) => Valid(reference.copy(returnType = typeReference))
       case None => Invalid("Unknown reference: " + reference.name, reference.location)
     }
   }
 
-  def addTypeIntoMethodCall(methodCall: PureMethodCall): Validated[MethodCall] = {
+  def addTypeIntoMethodCall(methodCall: MethodCall): Validated[MethodCall] = {
     val validatedTypedExpression = addTypesIntoExpression(methodCall.expression)
     val validatedTypedParameters = Validated.squash(methodCall.parameters.map(addTypesIntoExpression))
     Validated
@@ -86,18 +92,15 @@ private[core] class ExpressionTyping(context: Context) {
               getMethodOpt(classReference.classDefinition, methodCall.method)(context) match {
                 case Some(methodDefinition) =>
                   val typedMethodDefinition = considerTypeIntoMethodDefinition(methodDefinition, classReference)
-                  Valid(MethodCall(
+                  Valid(methodCall.copy(
                     expression = expression,
-                    method = methodCall.method,
                     parameters = parameters,
-                    generics = methodCall.generics,
-                    returnType = returnTypeOfMethod(typedMethodDefinition, parameters),
-                    location = methodCall.location
+                    returnType = returnTypeOfMethod(typedMethodDefinition, parameters)
                   ))
                 case None => Invalid(s"Unknown method ${typeReference.typeName}.${methodCall.method}", methodCall.location)
               }
             }
-          case _: LambdaReference => Invalid("Expected type, got lambda", expression.location)
+          case other => Invalid(s"Expected type, got ${other.readableString}", expression.location)
         }
       }
   }
@@ -121,6 +124,7 @@ private[core] class ExpressionTyping(context: Context) {
             case typeReference: TypeReference => adaptTypeReference(typeReference)
             case LambdaReference(inputTypes, outputType) => LambdaReference(inputTypes.map(adaptTypeReference), adaptTypeReference(outputType))
             case namedFunctionReference: NamedFunctionReference => namedFunctionReference
+            case Unset => Unset
           }
         )
       },
@@ -130,7 +134,7 @@ private[core] class ExpressionTyping(context: Context) {
 
   private def classReferenceToTypeReference(classReference: ClassReference): TypeReference = {
     TypeReference(
-      typeName = classReference.classDefinition.canonicalName,
+      typeName = classReference.classDefinition.fullName,
       genericTypes = classReference.genericTypes.map(classReferenceToTypeReference)
     )
   }
@@ -180,18 +184,17 @@ private[core] class ExpressionTyping(context: Context) {
     }
   }
 
-  def getMethodOpt(classDefinition: PureClassDefinition, method: String)(implicit context: Context): Option[MethodDefinition] = {
+  def getMethodOpt(classDefinition: ClassDefinition, method: String)(implicit context: Context): Option[MethodDefinition] = {
     classDefinition match {
-      case nativeClassDefinition: PureNativeClassDefinition =>
+      case nativeClassDefinition: NativeClassDefinition =>
         nativeClassDefinition.methods.find(_.name == method)
-      case aliasType: PureAliasType =>
+      case aliasType: AliasType =>
         context.findType(aliasType.alias.typeName).flatMap(getMethodOpt(_, method))
-      case definedType: PureDefinedType =>
-        definedType.methods.find(_.name == method)
+      case _ => None
     }
   }
 
-  def addTypeIntoAttributeCall(attributeCall: PureAttributeCall): Validated[AttributeCall] = {
+  def addTypeIntoAttributeCall(attributeCall: AttributeCall): Validated[AttributeCall] = {
     val validatedTypedExpression = addTypesIntoExpression(attributeCall.expression)
     validatedTypedExpression.flatMap { expression =>
       expression.returnType match {
@@ -202,45 +205,43 @@ private[core] class ExpressionTyping(context: Context) {
           ).flatMap { classReference =>
             getAttributeOpt(classReference.classDefinition, attributeCall.attribute)(context) match {
               case Some(attributeDefinition) =>
-                Valid(AttributeCall(
+                Valid(attributeCall.copy(
                   expression = expression,
-                  attribute = attributeCall.attribute,
-                  returnType = typeDeclarationToTypeReference(attributeDefinition.typeDeclaration),
-                  location = attributeCall.location
+                  returnType = typeDeclarationToTypeReference(attributeDefinition.typeDeclaration)
                 ))
               case None => Invalid(s"Unknown attribute ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.location)
             }
           }
-        case _: LambdaReference => Invalid("Expected type, got lambda", expression.location)
+        case other => Invalid(s"Expected type, got ${other.readableString}", expression.location)
       }
     }
   }
 
-  private def typeDeclarationToTypeReference(typeDeclaration: PureTypeDeclaration): TypeReference = {
+  private def typeDeclarationToTypeReference(typeDeclaration: TypeDeclaration): TypeReference = {
     TypeReference(
       typeName = typeDeclaration.typeName,
       genericTypes = typeDeclaration.genericTypes.map(typeDeclarationToTypeReference)
     )
   }
 
-  def getAttributeOpt(classDefinition: PureClassDefinition, attribute: String)(implicit context: Context): Option[PureAttributeDefinition] = {
+  def getAttributeOpt(classDefinition: ClassDefinition, attribute: String)(implicit context: Context): Option[AttributeDefinition] = {
     classDefinition match {
-      case nativeClassDefinition: PureNativeClassDefinition =>
+      case nativeClassDefinition: NativeClassDefinition =>
         nativeClassDefinition.attributes.find(_.name == attribute)
-      case aliasType: PureAliasType =>
+      case aliasType: AliasType =>
         context.findType(aliasType.alias.typeName).flatMap(getAttributeOpt(_, attribute))
-      case definedType: PureDefinedType =>
+      case definedType: DefinedType =>
         definedType.attributes.find(_.name == attribute)
-      case enum: PureEnum =>
+      case enum: Enum =>
         enum.cases
           .find(_.name == attribute)
           .map { enumCase =>
             // Actually this is quite a little workaround because it is not really an attribute with all their feature.
             // But it avoid rewriting lot of code outside just to consider enum and their cases.
-            PureAttributeDefinition(
+            AttributeDefinition(
               name = enumCase.name,
-              typeDeclaration = PureTypeDeclaration(
-                enum.canonicalName,
+              typeDeclaration = TypeDeclaration(
+                enum.fullName,
                 genericTypes = Seq.empty,
                 parameters = Seq.empty,
                 location = enum.location
@@ -253,13 +254,18 @@ private[core] class ExpressionTyping(context: Context) {
     }
   }
 
-  def addTypeIntoCombinedExpression(combinedExpression: PureCombinedExpression): Validated[CombinedExpression] = {
+  def addTypeIntoCombinedExpression(combinedExpression: CombinedExpression): Validated[CombinedExpression] = {
     Validated
       .squash(combinedExpression.parts.map(addTypesIntoExpression))
-      .map(parts => CombinedExpression(parts, parts.last.returnType, combinedExpression.location))
+      .map { parts =>
+        combinedExpression.copy(
+          parts = parts,
+          returnType = parts.last.returnType
+        )
+      }
   }
 
-  def addTypeIntoCondition(condition: PureCondition): Validated[Condition] = {
+  def addTypeIntoCondition(condition: Condition): Validated[Condition] = {
     val validatedTypedCondition = addTypesIntoExpression(condition.condition)
     val validatedTypedOnTrue = addTypesIntoExpression(condition.onTrue)
     val validatedTypeOnFalse = Validated.reverseOption(condition.onFalse.map(addTypesIntoExpression))
@@ -269,43 +275,37 @@ private[core] class ExpressionTyping(context: Context) {
         val returnType = if (onFalse.exists(_.returnType == onTrue.returnType)) {
           onTrue.returnType
         } else {
-          TypeReference("unit", Seq.empty)
+          unit
         }
-        Condition(
+        condition.copy(
           condition = conditionExpression,
           onTrue = onTrue,
           onFalse = onFalse,
-          returnType = returnType,
-          location = condition.location
+          returnType = returnType
         )
       }
   }
 
-  def addTypeIntoLambdaExpression(lambdaExpression: PureLambdaExpression): Validated[LambdaExpression] = {
+  def addTypeIntoLambdaExpression(lambdaExpression: LambdaExpression): Validated[LambdaExpression] = {
     val lambdaContext = LambdaContext(context, lambdaExpression)
     val lambdaExpressionTyping = new ExpressionTyping(lambdaContext)
     lambdaExpressionTyping.addTypesIntoExpression(lambdaExpression.expression)
       .map { expression =>
-        LambdaExpression(
-          parameterList = lambdaExpression.parameterList,
+        lambdaExpression.copy(
           expression = expression,
-          returnType = expression.returnType,
-          location = lambdaExpression.location
+          returnType = expression.returnType
         )
       }
   }
 
-  def addTypeIntoFunctionCall(functionCall: PureFunctionCall): Validated[FunctionCall] = {
+  def addTypeIntoFunctionCall(functionCall: FunctionCall): Validated[FunctionCall] = {
     context.findFunction(functionCall.name) match {
       case Some(namedFunction) =>
         val validatedTypedParameters = Validated.squash(functionCall.parameters.map(addTypesIntoExpression))
         validatedTypedParameters.map { parameters =>
-          FunctionCall(
-            name = functionCall.name,
+          functionCall.copy(
             parameters = parameters,
-            generics = functionCall.generics,
-            returnType = namedFunction.returnType,
-            location = functionCall.location
+            returnType = namedFunction.returnType
           )
         }
       case None =>
@@ -313,22 +313,16 @@ private[core] class ExpressionTyping(context: Context) {
     }
   }
 
-  private def addTypesIntoOkValue(okValue: PureOkValue): Validated[OkValue] = {
-    Valid {
-      OkValue(
-        returnType = okko,
-        location = okValue.location
-      )
-    }
+  private def addTypesIntoOkValue(okValue: OkValue): Validated[OkValue] = {
+    Valid(okValue.copy(returnType = okko))
   }
 
-  private def addTypesIntoKoValue(koValue: PureKoValue): Validated[KoValue] = {
+  private def addTypesIntoKoValue(koValue: KoValue): Validated[KoValue] = {
     val validatedTypedParameters = Validated.squash(koValue.parameters.map(addTypesIntoExpression))
     validatedTypedParameters.map { parameters =>
-      KoValue(
+      koValue.copy(
         parameters = parameters,
-        returnType = okko,
-        location = koValue.location
+        returnType = okko
       )
     }
   }
@@ -341,4 +335,5 @@ object ExpressionTyping {
   val number = TypeReference("Number", Seq.empty)
   val string = TypeReference("String", Seq.empty)
   val okko = TypeReference("OkKo", Seq.empty)
+  val unit = TypeReference("unit", Seq.empty)
 }

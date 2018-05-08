@@ -1,8 +1,9 @@
 package definiti.core.end2end.controls
 
+import definiti.common.ast.Root
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.CalculatorOperandsAreNumberControl
 
@@ -51,13 +52,11 @@ class CalculatorOperandsAreNumberControlSpec extends EndToEndSpec {
 }
 
 object CalculatorOperandsAreNumberControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(CalculatorOperandsAreNumberControl)
 
-  val configuration = configurationForceControls(CalculatorOperandsAreNumberControl.name)
-
-  val invalidLeftLocation = LocationPath.control(CalculatorOperandsAreNumberControl.name, "invalidLeft")
-  val invalidRightLocation = LocationPath.control(CalculatorOperandsAreNumberControl.name, "invalidRight")
-  val invalidBothLocation = LocationPath.control(CalculatorOperandsAreNumberControl.name, "invalidBoth")
-  val invalidConditionLocation = LocationPath.control(CalculatorOperandsAreNumberControl.name, "invalidCondition")
+  val invalidLeftLocation = LocationPath.control(CalculatorOperandsAreNumberControl, "invalidLeft")
+  val invalidRightLocation = LocationPath.control(CalculatorOperandsAreNumberControl, "invalidRight")
+  val invalidBothLocation = LocationPath.control(CalculatorOperandsAreNumberControl, "invalidBoth")
+  val invalidConditionLocation = LocationPath.control(CalculatorOperandsAreNumberControl, "invalidCondition")
 }
 

@@ -1,10 +1,9 @@
 package definiti.core.plugin.serialization
 
-
-import definiti.core.ast.Library
+import definiti.common.ast.Library
 import spray.json.{JsArray, JsObject, JsString}
 
-trait LibrarySerialization {
+private[core] trait LibrarySerialization {
   self: JsonSerialization =>
 
   def libraryToJson(library: Library): String = {

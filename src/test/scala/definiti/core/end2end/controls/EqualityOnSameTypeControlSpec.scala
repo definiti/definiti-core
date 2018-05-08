@@ -1,8 +1,9 @@
 package definiti.core.end2end.controls
 
+import definiti.common.ast.Root
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.EqualityOnSameTypeControl
 
@@ -28,9 +29,7 @@ class EqualityOnSameTypeControlSpec extends EndToEndSpec {
 }
 
 object EqualityOnSameTypeControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(EqualityOnSameTypeControl)
 
-  val configuration = configurationForceControls(EqualityOnSameTypeControl.name)
-
-  val invalidConditionLocation = LocationPath.control(EqualityOnSameTypeControl.name, "invalidCondition")
+  val invalidConditionLocation = LocationPath.control(EqualityOnSameTypeControl, "invalidCondition")
 }

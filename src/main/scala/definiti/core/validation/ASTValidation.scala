@@ -1,11 +1,14 @@
 package definiti.core.validation
 
-import definiti.core.ProgramResult.NoResult
+import definiti.common.ast.{Library, _}
+import definiti.common.plugin.ContextPlugin
+import definiti.common.program.Program
+import definiti.common.program.ProgramResult.NoResult
+import definiti.common.validation.{Valid, Validated}
 import definiti.core._
-import definiti.core.ast._
 
 private[core] class ASTValidation(configuration: Configuration, library: Library) {
-  val controls = new Controls(configuration)
+  val controls = new Controls(configuration.programConfiguration)
 
   def validate(root: Root): Program[NoResult] = {
     for {
@@ -16,7 +19,7 @@ private[core] class ASTValidation(configuration: Configuration, library: Library
 
   private def validateExtendedContexts(): Validated[NoResult] = {
     Validated.squash {
-      (library.root.elements ++ library.namespaces.flatMap(_.elements)).collect {
+      library.root.namespaces.flatMap(_.elements).collect {
         case extendedContext: ExtendedContext[_] => validateExtendedContext(extendedContext, library)
       }
     }.map(_ => NoResult)

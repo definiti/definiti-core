@@ -1,8 +1,10 @@
 package definiti.core.end2end
 
+import definiti.common.ast._
+import definiti.common.program.{Ko, Ok}
+import definiti.common.validation.AlertLocation
 import definiti.core.ProgramResultMatchers._
-import definiti.core._
-import definiti.core.ast._
+import definiti.common.utils.ASTUtils._
 
 class NamedFunctionSpec extends EndToEndSpec {
   import NamedFunctionSpec._
@@ -27,7 +29,7 @@ class NamedFunctionSpec extends EndToEndSpec {
 
 object NamedFunctionSpec {
   val validContainsSrc = "src/test/resources/samples/namedFunction/contains.def"
-  val validContains = Root(Seq(
+  val validContains = root(
     NamedFunction(
       name = "contains",
       fullName = "contains",
@@ -84,7 +86,7 @@ object NamedFunctionSpec {
       ),
       location = Location(validContainsSrc, 1, 1, 3, 2)
     )
-  ))
+  )
 
   val invalidContainsGenericsSrc = "src/test/resources/samples/namedFunction/invalid-contains-generics.def"
   val invalidContainsGenerics = Seq(AlertLocation(

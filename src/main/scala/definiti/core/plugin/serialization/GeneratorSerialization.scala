@@ -4,7 +4,7 @@ import java.nio.file.{Path, Paths}
 
 import spray.json._
 
-trait GeneratorSerialization {
+private[core] trait GeneratorSerialization {
   self: JsonSerialization =>
 
   def filesFromJson(json: String): Map[Path, String] = {

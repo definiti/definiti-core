@@ -1,8 +1,9 @@
 package definiti.core.end2end.controls
 
-import definiti.core.Ko
+import definiti.common.ast._
+import definiti.common.program.Ko
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast._
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.TypeParameterUsableControl
 
@@ -38,10 +39,8 @@ class TypeParameterUsableControlSpec extends EndToEndSpec {
 }
 
 object TypeParameterUsableControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(TypeParameterUsableControl)
 
-  val configuration = configurationForceControls(TypeParameterUsableControl.name)
-
-  val invalidParameterTypeLocation = LocationPath.control(TypeParameterUsableControl.name, "invalidParameterType")
-  val unauthorizedParameterTypeLocation = LocationPath.control(TypeParameterUsableControl.name, "unauthorizedParameterType")
+  val invalidParameterTypeLocation = LocationPath.control(TypeParameterUsableControl, "invalidParameterType")
+  val unauthorizedParameterTypeLocation = LocationPath.control(TypeParameterUsableControl, "unauthorizedParameterType")
 }

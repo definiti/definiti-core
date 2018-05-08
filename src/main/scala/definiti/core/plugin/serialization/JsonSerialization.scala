@@ -3,10 +3,9 @@ package definiti.core.plugin.serialization
 import definiti.core.Configuration
 import spray.json._
 
-class JsonSerialization(val config: Configuration)
+private[core] class JsonSerialization(val config: Configuration)
   extends GeneratorSerialization
     with LibrarySerialization
-    with PureRootJsonSerialization
     with RootJsonSerialization
     with ValidationJsonSerialization {
 

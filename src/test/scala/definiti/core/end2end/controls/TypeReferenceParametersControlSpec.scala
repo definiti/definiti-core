@@ -1,8 +1,10 @@
 package definiti.core.end2end.controls
 
-import definiti.core.{Constants, Ko}
+import definiti.common.ast.Root
+import definiti.common.program.Ko
+import definiti.common.tests.{ConfigurationMock, LocationPath}
+import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.TypeDeclarationParametersControl
 
@@ -45,10 +47,8 @@ class TypeReferenceParametersControlSpec extends EndToEndSpec {
 }
 
 object TypeReferenceParametersControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(TypeDeclarationParametersControl)
 
-  val configuration = configurationForceControls(TypeDeclarationParametersControl.name)
-
-  val invalidNumberOfParametersLocation = LocationPath.control(TypeDeclarationParametersControl.name, "invalidNumberOfParameters")
-  val invalidTypeOfParametersLocation = LocationPath.control(TypeDeclarationParametersControl.name, "invalidTypeOfParameters")
+  val invalidNumberOfParametersLocation = LocationPath.control(TypeDeclarationParametersControl, "invalidNumberOfParameters")
+  val invalidTypeOfParametersLocation = LocationPath.control(TypeDeclarationParametersControl, "invalidTypeOfParameters")
 }

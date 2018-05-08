@@ -1,7 +1,8 @@
 package definiti.core.end2end.controls
 
+import definiti.common.ast.Root
+import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.Root
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.TypeVerificationParameterUsableControl
 
@@ -28,9 +29,7 @@ class TypeVerificationParameterUsableControlSpec extends EndToEndSpec {
 }
 
 object TypeVerificationParameterUsableControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(TypeVerificationParameterUsableControl)
 
-  val configuration = configurationForceControls(TypeVerificationParameterUsableControl.name)
-
-  val invalidParameterLocation = LocationPath.control(TypeVerificationParameterUsableControl.name, "invalidParameterType")
+  val invalidParameterLocation = LocationPath.control(TypeVerificationParameterUsableControl, "invalidParameterType")
 }

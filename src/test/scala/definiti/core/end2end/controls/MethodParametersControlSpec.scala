@@ -1,10 +1,12 @@
 package definiti.core.end2end.controls
 
+import definiti.common.ast.{LambdaReference, NamedFunctionReference, Root}
+import definiti.common.program.Ko
+import definiti.common.tests.{ConfigurationMock, LocationPath}
+import definiti.core.Constants
 import definiti.core.ProgramResultMatchers._
-import definiti.core.ast.{LambdaReference, NamedFunctionReference, Root}
 import definiti.core.end2end.EndToEndSpec
 import definiti.core.validation.controls.MethodParametersControl
-import definiti.core.{Constants, Ko}
 
 class MethodParametersControlSpec extends EndToEndSpec {
   import MethodParametersControlSpec._
@@ -53,12 +55,10 @@ class MethodParametersControlSpec extends EndToEndSpec {
 }
 
 object MethodParametersControlSpec {
-  import EndToEndSpec._
+  val configuration = ConfigurationMock().withOnlyControls(MethodParametersControl)
 
-  val configuration = configurationForceControls(MethodParametersControl.name)
-
-  val invalidLambdaReferenceLocation = LocationPath.control(MethodParametersControl.name, "invalidLambdaReference")
-  val invalidNamedFunctionReferenceLocation = LocationPath.control(MethodParametersControl.name, "invalidNamedFunctionReference")
-  val invalidNumberOfParametersLocation = LocationPath.control(MethodParametersControl.name, "invalidNumberOfParameters")
-  val invalidTypeReferenceLocation = LocationPath.control(MethodParametersControl.name, "invalidTypeReference")
+  val invalidLambdaReferenceLocation = LocationPath.control(MethodParametersControl, "invalidLambdaReference")
+  val invalidNamedFunctionReferenceLocation = LocationPath.control(MethodParametersControl, "invalidNamedFunctionReference")
+  val invalidNumberOfParametersLocation = LocationPath.control(MethodParametersControl, "invalidNumberOfParameters")
+  val invalidTypeReferenceLocation = LocationPath.control(MethodParametersControl, "invalidTypeReference")
 }

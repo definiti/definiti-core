@@ -1,6 +1,6 @@
 package definiti.core.utils
 
-import definiti.core.{Error, SimpleError}
+import definiti.common.validation.{Error, SimpleError}
 import org.antlr.v4.runtime._
 
 import scala.collection.mutable.ListBuffer

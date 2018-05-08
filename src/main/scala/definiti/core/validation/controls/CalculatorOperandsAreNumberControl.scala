@@ -1,11 +1,11 @@
 package definiti.core.validation.controls
 
-import definiti.core.Alert
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
+import definiti.common.validation.Alert
 import definiti.core.validation.helpers.{ExpressionControlHelper, TypeReferenceControlHelper}
 
-object CalculatorOperandsAreNumberControl extends Control with ExpressionControlHelper with TypeReferenceControlHelper {
+private[core] object CalculatorOperandsAreNumberControl extends Control with ExpressionControlHelper with TypeReferenceControlHelper {
   override val description: String = "Check if all operands of calculator expression are number expressions"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

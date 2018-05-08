@@ -1,11 +1,11 @@
 package definiti.core.validation.controls
 
-import definiti.core.Alert
-import definiti.core.ast._
-import definiti.core.validation.{Control, ControlLevel, ControlResult}
+import definiti.common.ast._
+import definiti.common.control.{Control, ControlLevel, ControlResult}
+import definiti.common.validation.Alert
 import definiti.core.validation.helpers.{ExpressionControlHelper, TypeReferenceControlHelper}
 
-object EqualityOnSameTypeControl extends Control with ExpressionControlHelper with TypeReferenceControlHelper {
+private[core] object EqualityOnSameTypeControl extends Control with ExpressionControlHelper with TypeReferenceControlHelper {
   override val description: String = "Check if both expressions on equality comparison have the same type"
   override val defaultLevel: ControlLevel.Value = ControlLevel.error
 

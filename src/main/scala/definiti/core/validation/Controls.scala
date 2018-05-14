@@ -7,7 +7,7 @@ import definiti.common.program.{Program, ProgramConfiguration}
 import definiti.core.validation.controls._
 
 class Controls(configuration: ProgramConfiguration) {
-  def validate(root: Root, library: Library): Program[NoResult] = Program {
+  def validate(root: Root, library: Library): Program[NoResult] = Program.control {
     ControlResult.squash {
       Controls.all
         .filter(configuration.isControlAccepted)

@@ -1,5 +1,6 @@
 package definiti.core
 
+import cats.implicits._
 import definiti.common.ast.Location
 import definiti.common.control.{ControlLevel, ControlResult}
 import definiti.common.program.ProgramResult.NoResult
@@ -13,8 +14,8 @@ class ProgramSpec extends FlatSpec with Matchers {
 
   "Program" should "execute the action" in {
     val program = for {
-      start <- Program(1)
-      end <- Program(start + 2)
+      start <- Program.pure(1)
+      end <- Program.pure(start + 2)
     } yield end
     program.run(configuration.programConfiguration) should ===(Ok(3))
   }
@@ -22,12 +23,12 @@ class ProgramSpec extends FlatSpec with Matchers {
   it should "be executed when run" in {
     var x = 0
     val program = for {
-      start <- Program(1)
-      middle <- Program {
+      start <- Program.pure(1)
+      middle <- Program.pure {
         x = start
         x + 1
       }
-      end <- Program(middle + 2)
+      end <- Program.pure(middle + 2)
     } yield end
     program.run(configuration.programConfiguration)
     x should ===(1)
@@ -36,12 +37,12 @@ class ProgramSpec extends FlatSpec with Matchers {
   it should "not be executed when not run" in {
     var x = 0
     val program = for {
-      start <- Program(1)
-      middle <- Program {
+      start <- Program.pure(1)
+      middle <- Program.pure {
         x = start
         x + 1
       }
-      end <- Program(middle + 2)
+      end <- Program.pure(middle + 2)
     } yield end
     x should ===(0)
     program.run(configuration.programConfiguration)
@@ -49,7 +50,7 @@ class ProgramSpec extends FlatSpec with Matchers {
 
   it should "pass through valid validations" in {
     val program = for {
-      start <- Program(1)
+      start <- Program.pure(1)
       validation <- Program.validated(Valid(start + 2))
     } yield validation
     program.run(configuration.programConfiguration) should ===(Ok(3))
@@ -57,7 +58,7 @@ class ProgramSpec extends FlatSpec with Matchers {
 
   it should "be blocked by invalid validations" in {
     val program = for {
-      _ <- Program(1)
+      _ <- Program.pure(1)
       validation <- Program.validated[NoResult](Invalid("This is an error", anyLocation))
     } yield validation
     program.run(configuration.programConfiguration) should ===(Ko(Seq(AlertLocation("This is an error", anyLocation))))
@@ -65,63 +66,63 @@ class ProgramSpec extends FlatSpec with Matchers {
 
   it should "pass through valid result" in {
     val program = for {
-      value <- Program(1)
-      _ <- Program(ControlResult(Seq.empty))
+      value <- Program.pure(1)
+      _ <- Program.control(ControlResult(Seq.empty))
     } yield value
     program.run(configuration.programConfiguration) should ===(Ok(1))
   }
 
   it should "be blocked by invalid result" in {
     val program = for {
-      value <- Program(1)
-      _ <- Program(ControlResult(Seq(alertError)))
+      value <- Program.pure(1)
+      _ <- Program.control(ControlResult(Seq(alertError)))
     } yield value
     program.run(configuration.programConfiguration) should ===(Ko(Seq(alertError)))
   }
 
   it should "accept alerts when success" in {
     val program = for {
-      start <- Program(1)
-      end <- Program(Ok(start + 2, Seq(alertInfo1)))
+      start <- Program.pure(1)
+      end <- Program(_ => Ok(start + 2, Seq(alertInfo1)))
     } yield end
     program.run(configuration.programConfiguration) should ===(Ok(3, Seq(alertInfo1)))
   }
 
   it should "accumulate alerts when success" in {
     val program = for {
-      start <- Program(1)
-      middle <- Program(Ok(start + 2, Seq(alertInfo1)))
-      end <- Program(Ok(middle + 3, Seq(alertInfo2)))
+      start <- Program.pure(1)
+      middle <- Program(_ => Ok(start + 2, Seq(alertInfo1)))
+      end <- Program(_ => Ok(middle + 3, Seq(alertInfo2)))
     } yield end
     program.run(configuration.programConfiguration) should ===(Ok(6, Seq(alertInfo1, alertInfo2)))
   }
 
   it should "accumulate alerts and stop on error" in {
     val program = for {
-      start <- Program(1)
-      _ <- Program(Ok(start + 2, Seq(alertInfo1)))
-      middle <- Program(Ko[Int](Seq(alertInfo2)))
-      end <- Program(Ok(middle + 3, Seq(alertInfo3)))
+      start <- Program.pure(1)
+      _ <- Program(_ => Ok(start + 2, Seq(alertInfo1)))
+      middle <- Program(_ => Ko[Int](Seq(alertInfo2)))
+      end <- Program(_ => Ok(middle + 3, Seq(alertInfo3)))
     } yield end
     program.run(configuration.programConfiguration) should ===(Ko(Seq(alertInfo1, alertInfo2)))
   }
 
   it should "be invalid in terms of the configuration - stop on error" in {
     val program = for {
-      start <- Program(1)
-      middle1 <- Program(Ok(start + 2, Seq(alertInfo1)))
-      middle2 <- Program(Ok(middle1 + 3, Seq(alertError)))
-      end <- Program(Ok(middle2 + 4, Seq(alertInfo3)))
+      start <- Program.pure(1)
+      middle1 <- Program(_ => Ok(start + 2, Seq(alertInfo1)))
+      middle2 <- Program(_ => Ok(middle1 + 3, Seq(alertError)))
+      end <- Program(_ => Ok(middle2 + 4, Seq(alertInfo3)))
     } yield end
     program.run(configuration.programConfiguration) should ===(Ko(Seq(alertInfo1, alertError)))
   }
 
   it should "be invalid in terms of the configuration - stop on info" in {
     val program = for {
-      start <- Program(1)
-      middle1 <- Program(Ok(start + 2, Seq(alertInfo1)))
-      middle2 <- Program(Ok(middle1 + 3, Seq(alertError)))
-      end <- Program(Ok(middle2 + 4, Seq(alertInfo3)))
+      start <- Program.pure(1)
+      middle1 <- Program(_ => Ok(start + 2, Seq(alertInfo1)))
+      middle2 <- Program(_ => Ok(middle1 + 3, Seq(alertError)))
+      end <- Program(_ => Ok(middle2 + 4, Seq(alertInfo3)))
     } yield end
     val conf = configuration.copy(
       fatalLevel = ControlLevel.info

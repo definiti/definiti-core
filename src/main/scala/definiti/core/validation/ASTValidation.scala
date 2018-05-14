@@ -1,5 +1,6 @@
 package definiti.core.validation
 
+import cats.implicits._
 import definiti.common.ast.{Library, _}
 import definiti.common.plugin.ContextPlugin
 import definiti.common.program.Program

@@ -3,6 +3,7 @@ package definiti.core
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, StandardOpenOption}
 
+import cats.implicits._
 import definiti.common.ast._
 import definiti.common.program.Program
 import definiti.common.program.ProgramResult.NoResult

@@ -15,6 +15,7 @@ libraryDependencies += "org.antlr" % "antlr4" % "4.7.1"
 libraryDependencies += "com.typesafe" % "config" % "1.3.2"
 libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.7.2"
 libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.7.25"
+libraryDependencies += "org.typelevel" %% "cats-core" % "1.0.1"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.5" % "test"

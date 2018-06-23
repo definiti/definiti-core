@@ -110,9 +110,13 @@ private[core] class DefinitiFileASTParser(
   }
 
   private def processAttributeDefinition(context: AttributeDefinitionContext): AttributeDefinition = {
+    val attributeName = context.attributeName.getText
+    val typeDeclaration = Option(context.typeDeclaration)
+        .map(processTypeDeclaration)
+        .getOrElse(TypeDeclaration(attributeName.capitalize, Seq.empty, Seq.empty, getLocationFromToken(context.attributeName)))
     AttributeDefinition(
-      name = context.attributeName.getText,
-      typeDeclaration = processTypeDeclaration(context.typeDeclaration),
+      name = attributeName,
+      typeDeclaration = typeDeclaration,
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       verifications = processVerifyingList(context.verifyingList()),
       location = getLocationFromContext(context)
@@ -493,9 +497,13 @@ private[core] class DefinitiFileASTParser(
   }
 
   private def processParameter(context: ParameterDefinitionContext): ParameterDefinition = {
+    val name = context.parameterName.getText
+    val typeReference = Option(context.typeReference())
+      .map(processTypeReference)
+      .getOrElse(TypeReference(identifierWithImport(name.capitalize)))
     ParameterDefinition(
-      name = context.parameterName.getText,
-      typeReference = processTypeReference(context.typeReference()),
+      name = name,
+      typeReference = typeReference,
       location = Location(file, getRangeFromContext(context))
     )
   }

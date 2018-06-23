@@ -105,7 +105,7 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' typeDeclaration verifyingList;
+  attributeName=IDENTIFIER (':' typeDeclaration)? verifyingList;
 
 typeVerification
   : atomicTypeVerification
@@ -145,7 +145,7 @@ function : ('[' genericTypeList ']')? '(' parameterListDefinition ')' '=>' '{' c
 verifyingList : verifying*;
 verifying : VERIFYING verificationName=IDENTIFIER ('(' atomicExpressionList ')')?;
 
-parameterDefinition: parameterName=IDENTIFIER ':' typeReference;
+parameterDefinition: parameterName=IDENTIFIER (':' typeReference)?;
 parameterListDefinition: ((parameterDefinition ',')* parameterDefinition | );
 
 namedFunction: DEF name=IDENTIFIER ('[' genericTypeList ']')? '(' parameterListDefinition ')' ':' genericType '=>' namedFunctionBody;

@@ -1,0 +1,18 @@
+type Person {
+  email verifying IsNonEmptyEmail
+  address
+}
+
+type Email = String
+
+type Address {
+  city: String
+  country: String
+}
+
+verification IsNonEmptyEmail {
+  "Please give a non empty email"
+  (email: Email) => {
+    email.nonEmpty()
+  }
+}

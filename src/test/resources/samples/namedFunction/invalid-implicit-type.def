@@ -1,0 +1,3 @@
+def nonEmpty(unknown): Boolean => {
+  unknown.nonEmpty()
+}

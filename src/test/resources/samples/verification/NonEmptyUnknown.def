@@ -1,0 +1,6 @@
+verification NonEmptyUnknown {
+  "The unknown should not be empty"
+  (unknown) => {
+    unknown.nonEmpty()
+  }
+}

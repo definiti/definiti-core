@@ -15,15 +15,26 @@ class NamedFunctionSpec extends EndToEndSpec {
     output should beResult[Root](expected)
   }
 
-  "Project.generatePublicAST" should "give error for the invalid named function 'contains' when generics are invalid" in {
+  it should "give error for the invalid named function 'contains' when generics are invalid" in {
     val expected = Ko[Root](invalidContainsGenerics)
     val output = processFile("namedFunction.invalid-contains-generics")
     output should beResult[Root](expected)
   }
 
-  "Project.generatePublicAST" should "accept generics in named functions" in {
+  it should "accept generics in named functions" in {
     val output = processFile("namedFunction.nonEmptyList")
     output shouldBe ok[Root]
+  }
+
+  it should "define implicitly a type by the parameter name" in {
+    val expected = Ok(implicitType)
+    val output = processFile("namedFunction.implicit-type")
+    output should beResult[Root](expected)
+  }
+
+  it should "define refuse a type by its parameter name when the type does not exist" in {
+    val output = processFile("namedFunction.invalid-implicit-type")
+    output shouldBe ko[Root]
   }
 }
 
@@ -93,4 +104,34 @@ object NamedFunctionSpec {
     message = "Class B not found when trying to determine the type of the expression",
     location = Location(invalidContainsGenericsSrc, 2, 3, 2, 7)
   ))
+
+  val implicitTypeSrc = "src/test/resources/samples/namedFunction/implicit-type.def"
+  val implicitType = root(
+    NamedFunction(
+      name = "nonEmpty",
+      fullName = "nonEmpty",
+      genericTypes = Seq.empty,
+      parameters = Seq(
+        ParameterDefinition(
+          name = "string",
+          typeReference = TypeReference("String"),
+          location = Location(implicitTypeSrc, 1, 14, 1, 20)
+        )
+      ),
+      returnType = TypeReference("Boolean"),
+      body = MethodCall(
+        expression = Reference(
+          name = "string",
+          returnType = TypeReference("String"),
+          location = Location(implicitTypeSrc, 2, 3, 2, 9)
+        ),
+        method = "nonEmpty",
+        parameters = Seq.empty,
+        generics = Seq.empty,
+        returnType = TypeReference("Boolean"),
+        location = Location(implicitTypeSrc, 2, 3, 2, 20)
+      ),
+      location = Location(implicitTypeSrc, 1, 1, 3, 2)
+    )
+  )
 }

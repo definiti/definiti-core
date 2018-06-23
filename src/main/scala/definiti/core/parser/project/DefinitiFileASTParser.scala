@@ -493,9 +493,13 @@ private[core] class DefinitiFileASTParser(
   }
 
   private def processParameter(context: ParameterDefinitionContext): ParameterDefinition = {
+    val name = context.parameterName.getText
+    val typeReference = Option(context.typeReference())
+      .map(processTypeReference)
+      .getOrElse(TypeReference(identifierWithImport(name.capitalize)))
     ParameterDefinition(
-      name = context.parameterName.getText,
-      typeReference = processTypeReference(context.typeReference()),
+      name = name,
+      typeReference = typeReference,
       location = Location(file, getRangeFromContext(context))
     )
   }

@@ -32,8 +32,19 @@ class NamedFunctionSpec extends EndToEndSpec {
     output should beResult[Root](expected)
   }
 
-  it should "define refuse a type by its parameter name when the type does not exist" in {
+  it should "refuse a type by its parameter name when the type does not exist" in {
     val output = processFile("namedFunction.invalid-implicit-type")
+    output shouldBe ko[Root]
+  }
+
+  it should "define implicitly a type by the lambda parameter name" in {
+    val expected = Ok(implicitLambdaParameterType)
+    val output = processFile("namedFunction.implicit-lambda-parameter-type")
+    output should beResult[Root](expected)
+  }
+
+  it should "refuse a type by its parameter name when the type does not exist in lambda" in {
+    val output = processFile("namedFunction.invalid-implicit-lambda-parameter-type")
     output shouldBe ko[Root]
   }
 }
@@ -132,6 +143,66 @@ object NamedFunctionSpec {
         location = Location(implicitTypeSrc, 2, 3, 2, 20)
       ),
       location = Location(implicitTypeSrc, 1, 1, 3, 2)
+    )
+  )
+
+  val implicitLambdaParameterTypeSrc = "src/test/resources/samples/namedFunction/implicit-lambda-parameter-type.def"
+  val implicitLambdaParameterType = root(
+    NamedFunction(
+      name = "contains",
+      fullName = "contains",
+      genericTypes = Seq("A"),
+      parameters = Seq(
+        ParameterDefinition(
+          name = "list",
+          typeReference = TypeReference("List", Seq(TypeReference("A"))),
+          location = Location(implicitLambdaParameterTypeSrc, 1, 17, 1, 30)
+        ),
+        ParameterDefinition(
+          name = "element",
+          typeReference = TypeReference("A"),
+          location = Location(implicitLambdaParameterTypeSrc, 1, 32, 1, 42)
+        )
+      ),
+      returnType = TypeReference("Boolean"),
+      body = MethodCall(
+        expression = Reference(
+          name = "list",
+          returnType = TypeReference("List", Seq(TypeReference("A"))),
+          location = Location(implicitLambdaParameterTypeSrc, 2, 3, 2, 7)
+        ),
+        method = "exists",
+        parameters = Seq(
+          LambdaExpression(
+            parameterList = Seq(ParameterDefinition(
+              name = "a",
+              typeReference = TypeReference("A"),
+              location = Location(implicitLambdaParameterTypeSrc, 2, 16, 2, 17)
+            )),
+            expression = LogicalExpression(
+              operator = LogicalOperator.Equal,
+              left = Reference(
+                name = "a",
+                returnType = TypeReference("A"),
+                location = Location(implicitLambdaParameterTypeSrc, 2, 23, 2, 24)
+              ),
+              right = Reference(
+                name = "element",
+                returnType = TypeReference("A"),
+                location = Location(implicitLambdaParameterTypeSrc, 2, 28, 2, 35)
+              ),
+              returnType = TypeReference("Boolean"),
+              location = Location(implicitLambdaParameterTypeSrc, 2, 23, 2, 35)
+            ),
+            returnType = TypeReference("Boolean"),
+            location = Location(implicitLambdaParameterTypeSrc, 2, 15, 2, 36)
+          )
+        ),
+        generics = Seq.empty,
+        returnType = TypeReference("Boolean"),
+        location = Location(implicitLambdaParameterTypeSrc, 2, 3, 2, 37)
+      ),
+      location = Location(implicitLambdaParameterTypeSrc, 1, 1, 3, 2)
     )
   )
 }

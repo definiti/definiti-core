@@ -25,6 +25,10 @@ private[core] trait CommonParser {
     ast.Location(file, getRangeFromContext(context))
   }
 
+  def getLocationFromToken(token: Token): Location = {
+    ast.Location(file, getRangeFromToken(token))
+  }
+
   def getRangeFromContext(context: ParserRuleContext): ast.Range = {
     val start = Option(context.getStart)
       .map(token => Position(token.getLine, token.getCharPositionInLine + 1))

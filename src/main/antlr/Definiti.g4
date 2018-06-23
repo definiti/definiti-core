@@ -105,7 +105,7 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER ':' typeDeclaration verifyingList;
+  attributeName=IDENTIFIER (':' typeDeclaration)? verifyingList;
 
 typeVerification
   : atomicTypeVerification

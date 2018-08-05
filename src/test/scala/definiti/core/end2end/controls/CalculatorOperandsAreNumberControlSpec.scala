@@ -49,6 +49,11 @@ class CalculatorOperandsAreNumberControlSpec extends EndToEndSpec {
       CalculatorOperandsAreNumberControl.errorNotNumber(Constants.string, invalidConditionLocation(2, 27, 40))
     )
   }
+
+  it should "validate an expression where both operands are the same type alias of a number" in {
+    val output = processFile("controls.calculatorOperandsAreNumber.validAliasType", configuration)
+    output shouldBe ok[Root]
+  }
 }
 
 object CalculatorOperandsAreNumberControlSpec {

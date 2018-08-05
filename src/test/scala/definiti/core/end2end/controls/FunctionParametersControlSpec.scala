@@ -1,6 +1,6 @@
 package definiti.core.end2end.controls
 
-import definiti.common.ast.Root
+import definiti.common.ast.{Root, TypeReference}
 import definiti.common.program.Ko
 import definiti.common.tests.{ConfigurationMock, LocationPath}
 import definiti.core.Constants
@@ -29,6 +29,13 @@ class FunctionParametersControlSpec extends EndToEndSpec {
       FunctionParametersControl.invalidParameterType(Constants.string, Constants.number, invalidTypeReferenceLocation(6, 11, 17))
     ))
   }
+
+  it should "invalidate a function call when the type reference targets the alias type and not the type" in {
+    val output = processFile("controls.functionParameters.invalidAliasTypeReference", configuration)
+    output should beResult(Ko[Root](
+      FunctionParametersControl.invalidParameterType(TypeReference("Title"), Constants.string, invalidAliasTypeReferenceLocation(8, 16, 22))
+    ))
+  }
 }
 
 object FunctionParametersControlSpec {
@@ -36,4 +43,5 @@ object FunctionParametersControlSpec {
 
   val invalidNumberOfParametersLocation = LocationPath.control(FunctionParametersControl, "invalidNumberOfParameters")
   val invalidTypeReferenceLocation = LocationPath.control(FunctionParametersControl, "invalidTypeReference")
+  val invalidAliasTypeReferenceLocation = LocationPath.control(FunctionParametersControl, "invalidAliasTypeReference")
 }

@@ -1,0 +1,9 @@
+type Amount = Number
+
+def isNotZero(value: Amount): Boolean => {
+  value == 0
+}
+
+def isPositive(value: Amount): Boolean => {
+  value > 0
+}

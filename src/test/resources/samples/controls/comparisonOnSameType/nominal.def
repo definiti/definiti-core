@@ -28,3 +28,8 @@ verification MyVerification {
     value.length + 5 != 5
   }
 }
+
+type Amount = Number
+def amountLowerThan(amount: Amount, reference: Amount): Boolean => {
+  amount < reference
+}

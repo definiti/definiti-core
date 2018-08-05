@@ -1,0 +1,14 @@
+type Amount = Number
+type Rate = Number
+
+def plus(amount1: Amount, amount2: Amount): Number => {
+  amount1 + amount2
+}
+
+def minus(amount1: Amount, amount2: Number): Number => {
+  amount1 + amount2
+}
+
+def times(amount1: Amount, rate: Rate): Number => {
+  amount1 * rate
+}

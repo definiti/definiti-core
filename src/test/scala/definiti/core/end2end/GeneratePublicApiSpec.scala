@@ -48,6 +48,7 @@ object GeneratePublicApiSpec {
                 Seq(QuotedStringValue("Please provide a title", Constants.string, Location(validBlogSrcTypes, 7, 36, 7, 60))),
                 Location(validBlogSrcTypes, 7, 17, 7, 61)
               )),
+              typeName = None,
               location = Location(validBlogSrcTypes, 7, 3, 7, 61)
             ),
             AttributeDefinition(
@@ -55,6 +56,7 @@ object GeneratePublicApiSpec {
               typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validBlogSrcTypes, 8, 12, 8, 18)),
               comment = None,
               verifications = Seq(VerificationReference("blog.NonBlank", Seq.empty, Location(validBlogSrcTypes, 8, 19, 8, 37))),
+              typeName = None,
               location = Location(validBlogSrcTypes, 8, 3, 8, 37)
             ),
             AttributeDefinition(
@@ -67,6 +69,7 @@ object GeneratePublicApiSpec {
               ),
               comment = None,
               verifications = Seq.empty,
+              typeName = None,
               location = Location(validBlogSrcTypes, 9, 3, 9, 21)
             )
           ),
@@ -142,6 +145,7 @@ object GeneratePublicApiSpec {
                 VerificationReference("blog.NonBlank", Seq.empty, Location(validBlogSrcTypes, 26, 16, 26, 34)),
                 VerificationReference("blog.ShortString", Seq.empty, Location(validBlogSrcTypes, 26, 35, 26, 56))
               ),
+              typeName = None,
               location = Location(validBlogSrcTypes, 26, 3, 26, 56)
             ),
             AttributeDefinition(
@@ -154,6 +158,7 @@ object GeneratePublicApiSpec {
               ),
               comment = None,
               verifications = Seq.empty,
+              typeName = None,
               location = Location(validBlogSrcTypes, 27, 3, 27, 24)
             ),
             AttributeDefinition(
@@ -161,6 +166,7 @@ object GeneratePublicApiSpec {
               typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validBlogSrcTypes, 28, 12, 28, 18)),
               comment = None,
               verifications = Seq(VerificationReference("blog.NonBlank", Seq.empty, Location(validBlogSrcTypes, 28, 19, 28, 37))),
+              typeName = None,
               location = Location(validBlogSrcTypes, 28, 3, 28, 37)
             )
           ),

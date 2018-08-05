@@ -14,6 +14,7 @@ ENUM         : 'enum';
 MESSAGE      : 'message';
 OK           : 'ok';
 KO           : 'ko';
+AS           : 'as';
 
 BOOLEAN                      : 'true' | 'false';
 NUMBER                       : [0-9]+('.'[0-9]+)?;
@@ -105,7 +106,7 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER (':' typeDeclaration)? verifyingList;
+  attributeName=IDENTIFIER (':' typeDeclaration)? verifyingList (AS attributeTypeName=IDENTIFIER)?;
 
 typeVerification
   : atomicTypeVerification

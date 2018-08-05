@@ -90,6 +90,7 @@ case class AttributeDefinition(
   typeDeclaration: TypeDeclaration,
   comment: Option[String],
   verifications: Seq[VerificationReference],
+  typeName: Option[String],
   location: Location
 )
 

@@ -119,6 +119,7 @@ private[core] class DefinitiFileASTParser(
       typeDeclaration = typeDeclaration,
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       verifications = processVerifyingList(context.verifyingList()),
+      typeName = Option(context.attributeTypeName).map(_.getText),
       location = getLocationFromContext(context)
     )
   }

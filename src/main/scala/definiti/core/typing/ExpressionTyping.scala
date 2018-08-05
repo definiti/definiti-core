@@ -248,6 +248,7 @@ private[core] class ExpressionTyping(context: Context) {
               ),
               comment = enumCase.comment,
               verifications = Seq.empty,
+              typeName = None,
               location = enumCase.location
             )
           }

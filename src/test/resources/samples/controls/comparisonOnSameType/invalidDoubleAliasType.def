@@ -1,0 +1,10 @@
+type Amount = Number
+type Rate = Number
+
+def isEqual(value: Amount, rate: Rate): Boolean => {
+  value != rate
+}
+
+def isLower(value: Amount, rate: Rate): Boolean => {
+  value < rate
+}

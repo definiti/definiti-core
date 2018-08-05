@@ -22,7 +22,7 @@ object Controls {
     AttributeTypeControl,
     CalculatorOperandsAreNumberControl,
     EnumerationUniquenessControl,
-    EqualityOnSameTypeControl,
+    ComparisonOnSameTypeControl,
     FunctionParametersControl,
     LogicalOperandsAreBooleanControl,
     MethodParametersControl,

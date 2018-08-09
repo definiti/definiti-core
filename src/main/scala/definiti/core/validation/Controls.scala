@@ -26,6 +26,7 @@ object Controls {
     FunctionParametersControl,
     LogicalOperandsAreBooleanControl,
     MethodParametersControl,
+    NamedFunctionParameterTypeControl,
     NamedFunctionTypeControl,
     NotExpressionIsBooleanControl,
     OrderOperandsAreNumberControl,

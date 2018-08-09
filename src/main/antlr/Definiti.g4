@@ -91,10 +91,12 @@ verificationMessage
   | MESSAGE '(' message=STRING (',' typeReference)* ')'
   ;
 
-typeDeclaration: name=IDENTIFIER ('[' typeDeclarationList ']')? ( '(' atomicExpressionList ')' )?;
+typeDeclaration: name=referenceName ('[' typeDeclarationList ']')? ( '(' atomicExpressionList ')' )?;
 typeDeclarationList: ((typeDeclaration ',')* typeDeclaration);
 
-typeReference: name=IDENTIFIER ('[' genericTypeList ']')?;
+typeReference: name=referenceName ('[' genericTypeList ']')?;
+
+referenceName: (IDENTIFIER '.')* IDENTIFIER;
 
 definedType :
   DOC_COMMENT?

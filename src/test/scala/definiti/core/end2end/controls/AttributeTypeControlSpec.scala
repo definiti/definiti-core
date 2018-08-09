@@ -31,10 +31,28 @@ class AttributeTypeControlSpec extends EndToEndSpec {
       AttributeTypeControl.errorUnknownType("Unknown", unknownTypeLocation(2, 3, 23))
     ))
   }
+
+  it should "accept a valid reference to an attribute type" in {
+    val output = processFile("controls.attributeType.validAttributeTypeReference", configuration)
+    output shouldBe ok[Root]
+  }
+
+  it should "accept a valid reference to an attribute type in the same type" in {
+    val output = processFile("controls.attributeType.validInternalAttributeTypeReference", configuration)
+    output shouldBe ok[Root]
+  }
+
+  it should "refuse an invalid reference to an attribute type" in {
+    val output = processFile("controls.attributeType.invalidAttributeTypeReference", configuration)
+    output should beResult(Ko[Root](
+      AttributeTypeControl.errorUnknownType("Order.Unknown", invalidAttributeTypeReferenceLocation(6, 3, 23))
+    ))
+  }
 }
 
 object AttributeTypeControlSpec {
   val configuration = ConfigurationMock().withOnlyControls(AttributeTypeControl)
 
   val unknownTypeLocation = LocationPath.control(AttributeTypeControl, "unknownType")
+  val invalidAttributeTypeReferenceLocation = LocationPath.control(AttributeTypeControl, "invalidAttributeTypeReference")
 }

@@ -215,10 +215,10 @@ object GeneratePublicApiSpec {
               left = AttributeCall(
                 expression = Reference("string", TypeReference("String"), Location(validBlogSrcVerifications, 13, 5, 13, 11)),
                 attribute = "length",
-                returnType = TypeReference("Number"),
+                returnType = TypeReference("Integer"),
                 location = Location(validBlogSrcVerifications, 13, 5, 13, 18)
               ),
-              right = NumberValue(25, TypeReference("Number"), Location(validBlogSrcVerifications, 13, 22, 13, 24)),
+              right = IntegerValue(25, TypeReference("Integer"), Location(validBlogSrcVerifications, 13, 22, 13, 24)),
               returnType = TypeReference("Boolean"),
               location = Location(validBlogSrcVerifications, 13, 5, 13, 24)
             ),

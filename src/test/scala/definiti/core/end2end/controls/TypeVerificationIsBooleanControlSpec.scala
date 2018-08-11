@@ -26,7 +26,7 @@ class TypeVerificationIsBooleanControlSpec extends EndToEndSpec {
       TypeVerificationIsBooleanControl.errorNotBoolean(
         typeName = "InvalidNumber",
         message = LiteralMessage("This verification is invalid because returns a number", numberAliasLocation(3, 5, 60)),
-        returnType = Constants.number,
+        returnType = Constants.integer,
         location = numberAliasLocation(4, 5, 6, 6)
       )
     )
@@ -39,7 +39,7 @@ class TypeVerificationIsBooleanControlSpec extends EndToEndSpec {
       TypeVerificationIsBooleanControl.errorNotBoolean(
         typeName = "InvalidNumber",
         message = LiteralMessage("This verification is invalid because returns a number", numberDefinedLocation(5, 5, 60)),
-        returnType = Constants.number,
+        returnType = Constants.integer,
         location = numberDefinedLocation(6, 5, 8, 6)
       )
     )

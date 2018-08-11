@@ -5,8 +5,8 @@ type Contact verifying HasMinimalPhones(1) {
 
 type Professional = Contact verifying HasMinimalPhones(5)
 
-verification HasMinimalPhones(min: Number) {
-  message("has.minimal.phones", Number, Number)
+verification HasMinimalPhones(min: Integer) {
+  message("has.minimal.phones", Integer, Integer)
   (contact: Contact) => {
     if (contact.phones.size >= min) {
       ok
@@ -16,8 +16,8 @@ verification HasMinimalPhones(min: Number) {
   }
 }
 
-verification MinimalString(min: Number) {
-  message("minimal.length", Number, Number)
+verification MinimalString(min: Integer) {
+  message("minimal.length", Integer, Integer)
   (string: String) => {
     if (string.length >= min) {
       ok

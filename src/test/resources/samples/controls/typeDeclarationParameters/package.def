@@ -7,11 +7,11 @@ type Person {
 
 type ContactThreePhones = Contact(3)
 
-type Contact(numberOfPhones: Number) {
+type Contact(numberOfPhones: Integer) {
   phones: List[String]
 
   verify {
-    message("contact.number.of.phones", Number, Number)
+    message("contact.number.of.phones", Integer, Integer)
     (contact) => {
       if (contact.phones.size == numberOfPhones) {
         ok
@@ -22,9 +22,9 @@ type Contact(numberOfPhones: Number) {
   }
 }
 
-type StringOfLength(length: Number) = String {
+type StringOfLength(length: Integer) = String {
   verify {
-    message("string.of.size", Number, Number)
+    message("string.of.size", Integer, Integer)
     (string) => {
       if (string.length == length) {
         ok

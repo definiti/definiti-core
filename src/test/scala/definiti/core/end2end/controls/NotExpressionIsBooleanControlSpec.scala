@@ -23,7 +23,7 @@ class NotExpressionIsBooleanControlSpec extends EndToEndSpec {
   it should "invalidate an invalid expression in a condition" in {
     val output = processFile("controls.notExpressionIsBoolean.invalidCondition", configuration)
     output should beKo(
-      NotExpressionIsBooleanControl.errorNotBoolean(Constants.number, invalidConditionLocation(2, 8, 21))
+      NotExpressionIsBooleanControl.errorNotBoolean(Constants.integer, invalidConditionLocation(2, 8, 21))
     )
   }
 }

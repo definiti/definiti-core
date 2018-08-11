@@ -100,8 +100,8 @@ private[core] class DefinitiFileASTParser(
   private def processAttributeDefinition(context: AttributeDefinitionContext): AttributeDefinition = {
     val attributeName = context.attributeName.getText
     val typeDeclaration = Option(context.typeDeclaration)
-        .map(processTypeDeclaration)
-        .getOrElse(TypeDeclaration(attributeName.capitalize, Seq.empty, Seq.empty, getLocationFromToken(context.attributeName)))
+      .map(processTypeDeclaration)
+      .getOrElse(TypeDeclaration(attributeName.capitalize, Seq.empty, Seq.empty, getLocationFromToken(context.attributeName)))
     AttributeDefinition(
       name = attributeName,
       typeDeclaration = typeDeclaration,
@@ -389,6 +389,8 @@ private[core] class DefinitiFileASTParser(
       processBooleanExpression(context)
     } else if (context.numberExpression != null) {
       processNumberExpression(context)
+    } else if (context.integerExpression != null) {
+      processIntegerExpression(context)
     } else if (context.stringExpression != null) {
       processStringExpression(context)
     } else if (context.referenceExpression != null) {
@@ -410,6 +412,14 @@ private[core] class DefinitiFileASTParser(
   private def processNumberExpression(context: AtomicExpressionContext): AtomicExpression = {
     NumberValue(
       value = BigDecimal(context.numberExpression.getText),
+      returnType = Unset,
+      location = getLocationFromContext(context)
+    )
+  }
+
+  private def processIntegerExpression(context: AtomicExpressionContext): AtomicExpression = {
+    IntegerValue(
+      value = BigInt(context.integerExpression.getText),
       returnType = Unset,
       location = getLocationFromContext(context)
     )

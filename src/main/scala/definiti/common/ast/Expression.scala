@@ -28,6 +28,8 @@ case class Not(inner: Expression, returnType: AbstractTypeReference, location: L
 
 case class BooleanValue(value: Boolean, returnType: AbstractTypeReference, location: Location) extends AtomicExpression
 
+case class IntegerValue(value: BigInt, returnType: AbstractTypeReference, location: Location) extends AtomicExpression
+
 case class NumberValue(value: BigDecimal, returnType: AbstractTypeReference, location: Location) extends AtomicExpression
 
 case class QuotedStringValue(value: String, returnType: AbstractTypeReference, location: Location) extends AtomicExpression

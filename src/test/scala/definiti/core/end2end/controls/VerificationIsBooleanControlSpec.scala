@@ -18,7 +18,7 @@ class VerificationIsBooleanControlSpec extends EndToEndSpec {
 
   it should "invalidate a verification returning number" in {
     val expected = Ko[Root](
-      VerificationIsBooleanControl.errorNotBoolean("InvalidNumber", Constants.number, numberLocation(3, 3, 5, 4))
+      VerificationIsBooleanControl.errorNotBoolean("InvalidNumber", Constants.integer, numberLocation(3, 3, 5, 4))
     )
     val output = processFile("controls.verificationIsBoolean.number", configuration)
     output should beResult(expected)

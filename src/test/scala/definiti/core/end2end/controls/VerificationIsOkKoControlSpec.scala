@@ -23,7 +23,7 @@ class VerificationIsOkKoControlSpec extends EndToEndSpec {
   it should "invalidate a verification returning number" in {
     val output = processFile("controls.verificationIsOkKo.number", configuration)
     output should beKo(
-      VerificationIsOkKoControl.errorNotOkKo("ShortString", Constants.number, numberLocation(4, 3, 6, 4))
+      VerificationIsOkKoControl.errorNotOkKo("ShortString", Constants.integer, numberLocation(4, 3, 6, 4))
     )
   }
 
@@ -44,7 +44,7 @@ class VerificationIsOkKoControlSpec extends EndToEndSpec {
   it should "invalidate a KoValue with invalid types of parameters" in {
     val output = processFile("controls.verificationIsOkKo.invalidTypes", configuration)
     output should beKo(
-      VerificationIsOkKoControl.invalidType(Constants.string, Constants.number, invalidTypesLocation(5, 8, 11))
+      VerificationIsOkKoControl.invalidType(Constants.string, Constants.integer, invalidTypesLocation(5, 8, 11))
     )
   }
 }

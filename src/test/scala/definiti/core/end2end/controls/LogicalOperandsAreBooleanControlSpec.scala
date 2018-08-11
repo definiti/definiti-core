@@ -23,7 +23,7 @@ class LogicalOperandsAreBooleanControlSpec extends EndToEndSpec {
   it should "invalidate an expression when the left expression is not boolean" in {
     val output = processFile("controls.logicalOperandsAreBoolean.invalidLeft", configuration)
     output should beKo(
-      LogicalOperandsAreBooleanControl.errorNotBoolean(Constants.number, invalidLeftLocation(2, 3, 16))
+      LogicalOperandsAreBooleanControl.errorNotBoolean(Constants.integer, invalidLeftLocation(2, 3, 16))
     )
   }
 
@@ -37,7 +37,7 @@ class LogicalOperandsAreBooleanControlSpec extends EndToEndSpec {
   it should "invalidate an expression when both left and right expressions are not boolean" in {
     val output = processFile("controls.logicalOperandsAreBoolean.invalidBoth", configuration)
     output should beKo(
-      LogicalOperandsAreBooleanControl.errorNotBoolean(Constants.number, invalidBothLocation(2, 3, 16)),
+      LogicalOperandsAreBooleanControl.errorNotBoolean(Constants.integer, invalidBothLocation(2, 3, 16)),
       LogicalOperandsAreBooleanControl.errorNotBoolean(Constants.string, invalidBothLocation(2, 20, 33))
     )
   }
@@ -45,7 +45,7 @@ class LogicalOperandsAreBooleanControlSpec extends EndToEndSpec {
   it should "invalidate an invalid expression in a condition" in {
     val output = processFile("controls.logicalOperandsAreBoolean.invalidCondition", configuration)
     output should beKo(
-      LogicalOperandsAreBooleanControl.errorNotBoolean(Constants.number, invalidConditionLocation(2, 7, 20)),
+      LogicalOperandsAreBooleanControl.errorNotBoolean(Constants.integer, invalidConditionLocation(2, 7, 20)),
       LogicalOperandsAreBooleanControl.errorNotBoolean(Constants.string, invalidConditionLocation(2, 24, 37))
     )
   }

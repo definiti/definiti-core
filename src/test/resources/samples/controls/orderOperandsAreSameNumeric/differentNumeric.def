@@ -1,0 +1,3 @@
+def compare(number: Number, integer: Integer): Boolean => {
+  number >= integer
+}

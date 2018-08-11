@@ -35,23 +35,23 @@ private[core] trait TypeReferenceControlHelper {
   }
 
   def isBoolean(typeReference: AbstractTypeReference, library: Library): Boolean = {
-    typeReference match {
-      case typeReference: TypeReference =>
-        library.typesMap.get(typeReference.typeName) match {
-          case Some(native: NativeClassDefinition) => native.name == "Boolean"
-          case Some(alias: AliasType) => isBoolean(alias.alias, library)
-          case _ => false
-        }
-      case _ => false
-    }
+    isTypeDeeply("Boolean", typeReference, library)
+  }
+
+  def isInteger(typeReference: AbstractTypeReference, library: Library): Boolean = {
+    isTypeDeeply("Integer", typeReference, library)
   }
 
   def isNumber(typeReference: AbstractTypeReference, library: Library): Boolean = {
+    isTypeDeeply("Number", typeReference, library)
+  }
+
+  private def isTypeDeeply(typeName: String, typeReference: AbstractTypeReference, library: Library): Boolean = {
     typeReference match {
       case typeReference: TypeReference =>
         library.typesMap.get(typeReference.typeName) match {
-          case Some(native: NativeClassDefinition) => native.name == "Number"
-          case Some(alias: AliasType) => isNumber(alias.alias, library)
+          case Some(native: NativeClassDefinition) => native.name == typeName
+          case Some(alias: AliasType) => isTypeDeeply(typeName, alias.alias, library)
           case _ => false
         }
       case _ => false

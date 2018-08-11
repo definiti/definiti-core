@@ -199,7 +199,6 @@ contextContentSymbol
   | '='
   | ','
   | '?'
-  | '/'
   | DOC_COMMENT
   | BLOCK_COMMENT
   | LINE_COMMENT

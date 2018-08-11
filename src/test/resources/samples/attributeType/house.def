@@ -1,0 +1,8 @@
+package house
+
+import user.User
+
+type House {
+  name: String
+  userId: User.Id
+}

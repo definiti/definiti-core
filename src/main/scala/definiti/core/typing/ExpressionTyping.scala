@@ -205,10 +205,18 @@ private[core] class ExpressionTyping(context: Context) {
           ).flatMap { classReference =>
             getAttributeOpt(classReference.classDefinition, attributeCall.attribute)(context) match {
               case Some(attributeDefinition) =>
-                Valid(attributeCall.copy(
-                  expression = expression,
-                  returnType = typeDeclarationToTypeReference(attributeDefinition.typeDeclaration)
-                ))
+                attributeDefinition.typeName match {
+                  case Some(typeName) =>
+                    Valid(attributeCall.copy(
+                      expression = expression,
+                      returnType = TypeReference(s"${classReference.classDefinition.fullName}.${typeName}")
+                    ))
+                  case None =>
+                    Valid(attributeCall.copy(
+                      expression = expression,
+                      returnType = typeDeclarationToTypeReference(attributeDefinition.typeDeclaration)
+                    ))
+                }
               case None => Invalid(s"Unknown attribute ${typeReference.typeName}.${attributeCall.attribute}", attributeCall.location)
             }
           }
@@ -248,6 +256,7 @@ private[core] class ExpressionTyping(context: Context) {
               ),
               comment = enumCase.comment,
               verifications = Seq.empty,
+              typeName = None,
               location = enumCase.location
             )
           }

@@ -14,6 +14,7 @@ ENUM         : 'enum';
 MESSAGE      : 'message';
 OK           : 'ok';
 KO           : 'ko';
+AS           : 'as';
 
 BOOLEAN                      : 'true' | 'false';
 NUMBER                       : [0-9]+('.'[0-9]+)?;
@@ -90,10 +91,12 @@ verificationMessage
   | MESSAGE '(' message=STRING (',' typeReference)* ')'
   ;
 
-typeDeclaration: name=IDENTIFIER ('[' typeDeclarationList ']')? ( '(' atomicExpressionList ')' )?;
+typeDeclaration: name=referenceName ('[' typeDeclarationList ']')? ( '(' atomicExpressionList ')' )?;
 typeDeclarationList: ((typeDeclaration ',')* typeDeclaration);
 
-typeReference: name=IDENTIFIER ('[' genericTypeList ']')?;
+typeReference: name=referenceName ('[' genericTypeList ']')?;
+
+referenceName: (IDENTIFIER '.')* IDENTIFIER;
 
 definedType :
   DOC_COMMENT?
@@ -105,7 +108,7 @@ definedType :
 
 attributeDefinition:
   DOC_COMMENT?
-  attributeName=IDENTIFIER (':' typeDeclaration)? verifyingList;
+  attributeName=IDENTIFIER (':' typeDeclaration)? verifyingList (AS attributeTypeName=IDENTIFIER)?;
 
 typeVerification
   : atomicTypeVerification

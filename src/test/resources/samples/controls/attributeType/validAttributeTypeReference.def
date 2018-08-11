@@ -1,0 +1,7 @@
+type Order {
+  reference: String as Id
+}
+
+type OrderLine {
+  order: Order.Id
+}

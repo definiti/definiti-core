@@ -1,0 +1,7 @@
+type User {
+  name: String as Name
+}
+
+def isUsernameCool(username: User.Unknown): Boolean => {
+  "cool" == "looc"
+}

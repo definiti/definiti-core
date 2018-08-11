@@ -1,0 +1,11 @@
+type User {
+  id: String as Id
+  email: String verifying IsEmail as Email
+}
+
+verification IsEmail {
+  "Should be an email"
+  (email: String) => {
+    email.contains("@")
+  }
+}

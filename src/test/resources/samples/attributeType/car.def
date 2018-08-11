@@ -1,0 +1,8 @@
+package car
+
+import user.User.Id
+
+type Car {
+  name: String
+  userId: Id
+}

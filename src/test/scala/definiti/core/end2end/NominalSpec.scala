@@ -71,6 +71,7 @@ object NominalSpec {
           typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(definedTypeSrc, 2, 16, 2, 22)),
           comment = None,
           verifications = Seq.empty,
+          typeName = None,
           location = Location(definedTypeSrc, 2, 3, 2, 22)
         )
       ),
@@ -199,6 +200,7 @@ object NominalSpec {
                 location = Location(packagesPageSrc, 6, 17, 6, 60)
               )
             ),
+            typeName = None,
             location = Location(packagesPageSrc, 6, 3, 6, 60)
           )
         ),

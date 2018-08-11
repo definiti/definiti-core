@@ -1,0 +1,4 @@
+type Group {
+  id: String as GroupId
+  parent: Group.GroupId
+}

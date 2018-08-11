@@ -45,6 +45,7 @@ private[core] class CoreDefinitionASTParser(sourceFile: String) extends CommonPa
       typeDeclaration = processTypeReferenceAsDeclaration(context.typeReference),
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       verifications = Seq.empty,
+      typeName = None,
       location = getLocationFromContext(context)
     )
   }

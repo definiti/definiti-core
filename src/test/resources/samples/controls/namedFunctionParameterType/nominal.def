@@ -1,0 +1,3 @@
+def isEmpty(string: String): Boolean => {
+  string.nonEmpty()
+}

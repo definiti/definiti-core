@@ -43,18 +43,6 @@ private[core] class DefinitiFileASTParser(
     )
   }
 
-  private def extractTopLevelNames(context: DefinitiContext): Seq[String] = {
-    val topLevelNames = ListBuffer[String]()
-    scalaSeq(context.toplevel()).foreach { element =>
-      appendIfDefined(element.verification(), topLevelNames, (c: VerificationContext) => c.verificationName.getText)
-      appendIfDefined(element.definedType(), topLevelNames, (c: DefinedTypeContext) => c.typeName.getText)
-      appendIfDefined(element.aliasType(), topLevelNames, (c: AliasTypeContext) => c.typeName.getText)
-      appendIfDefined(element.enumType(), topLevelNames, (c: EnumTypeContext) => c.typeName.getText)
-      appendIfDefined(element.namedFunction(), topLevelNames, (c: NamedFunctionContext) => c.name.getText)
-    }
-    List(topLevelNames: _*)
-  }
-
   private def processVerification(context: VerificationContext): Verification = {
     Verification(
       name = context.verificationName.getText,
@@ -119,6 +107,7 @@ private[core] class DefinitiFileASTParser(
       typeDeclaration = typeDeclaration,
       comment = Option(context.DOC_COMMENT()).map(_.getText).map(extractDocComment),
       verifications = processVerifyingList(context.verifyingList()),
+      typeName = Option(context.attributeTypeName).map(_.getText),
       location = getLocationFromContext(context)
     )
   }
@@ -536,6 +525,14 @@ private[core] class DefinitiFileASTParser(
       temporaryResult = temporaryResult.substring(0, temporaryResult.length - 1)
     }
     temporaryResult
+  }
+
+  private def identifierWithImport(context: ReferenceNameContext): String = {
+    scalaSeq(context.IDENTIFIER()).map(_.getText).toList match {
+      case Nil => ""
+      case head :: Nil => identifierWithImport(head)
+      case head :: tail => identifierWithImport(head) + "." + tail.mkString(".")
+    }
   }
 
   private def identifierWithImport(identifier: Token): String = {

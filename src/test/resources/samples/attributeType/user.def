@@ -1,0 +1,5 @@
+package user
+
+type User {
+  id: String as Id
+}

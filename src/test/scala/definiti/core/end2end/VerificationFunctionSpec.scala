@@ -44,10 +44,10 @@ object VerificationFunctionSpec {
                   location = verificationFunctionLocation(6, 19, 25)
                 )),
                 generics = Seq.empty,
-                returnType = TypeReference("Number"),
+                returnType = TypeReference("Integer"),
                 location = verificationFunctionLocation(6, 5, 26)
               ),
-              right = NumberValue(30, TypeReference("Number"), verificationFunctionLocation(6, 30, 32)),
+              right = IntegerValue(30, TypeReference("Integer"), verificationFunctionLocation(6, 30, 32)),
               returnType = TypeReference("Boolean"),
               location = verificationFunctionLocation(6, 5, 32)
             ),
@@ -62,23 +62,23 @@ object VerificationFunctionSpec {
           fullName = "verificationFunction.passwordScore",
           genericTypes = Seq.empty,
           parameters = Seq(ParameterDefinition("string", TypeReference("String"), verificationFunctionLocation(10, 19, 33))),
-          returnType = TypeReference("Number"),
+          returnType = TypeReference("Integer"),
           body = CalculatorExpression(
             operator = CalculatorOperator.Plus,
             left = FunctionCall(
               name = "verificationFunction.scoreSpecialCharacter",
               parameters = Seq(Reference("string", TypeReference("String"), verificationFunctionLocation(11, 25, 31))),
               generics = Seq.empty,
-              returnType = TypeReference("Number"),
+              returnType = TypeReference("Integer"),
               location = verificationFunctionLocation(11, 3, 32)
             ),
             right = AttributeCall(
               expression = Reference("string", TypeReference("String"), verificationFunctionLocation(11, 35, 41)),
               attribute = "length",
-              returnType = TypeReference("Number"),
+              returnType = TypeReference("Integer"),
               location = verificationFunctionLocation(11, 35, 48)
             ),
-            returnType = TypeReference("Number"),
+            returnType = TypeReference("Integer"),
             location = verificationFunctionLocation(11, 3, 48)
           ),
           location = verificationFunctionLocation(10, 1, 12, 2)
@@ -88,7 +88,7 @@ object VerificationFunctionSpec {
           fullName = "verificationFunction.scoreSpecialCharacter",
           genericTypes = Seq.empty,
           parameters = Seq(ParameterDefinition("string", TypeReference("String"), verificationFunctionLocation(14, 27, 41))),
-          returnType = TypeReference("Number"),
+          returnType = TypeReference("Integer"),
           body = Condition(
             condition = MethodCall(
               expression = Reference("string", TypeReference("String"), verificationFunctionLocation(15, 7, 13)),
@@ -98,9 +98,9 @@ object VerificationFunctionSpec {
               returnType = TypeReference("Boolean"),
               location = verificationFunctionLocation(15, 7, 41)
             ),
-            onTrue = NumberValue(20, TypeReference("Number"), verificationFunctionLocation(16, 5, 7)),
-            onFalse = Some(NumberValue(0, TypeReference("Number"), verificationFunctionLocation(18, 5, 6))),
-            returnType = TypeReference("Number"),
+            onTrue = IntegerValue(20, TypeReference("Integer"), verificationFunctionLocation(16, 5, 7)),
+            onFalse = Some(IntegerValue(0, TypeReference("Integer"), verificationFunctionLocation(18, 5, 6))),
+            returnType = TypeReference("Integer"),
             location = verificationFunctionLocation(15, 3, 19, 4)
           ),
           location = verificationFunctionLocation(14, 1, 20, 2)

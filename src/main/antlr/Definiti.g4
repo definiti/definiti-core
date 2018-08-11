@@ -17,7 +17,8 @@ KO           : 'ko';
 AS           : 'as';
 
 BOOLEAN                      : 'true' | 'false';
-NUMBER                       : [0-9]+('.'[0-9]+)?;
+NUMBER                       : [0-9]+'.'([0-9]+)?;
+INTEGER                      : [0-9]+;
 STRING                       : '"' ( '\\"' | . )*? '"';
 IDENTIFIER                   : [a-zA-Z0-9]+;
 CALCULATOR_OPERATOR_LEVEL_1  : ('*' | '/' | '%');
@@ -71,6 +72,7 @@ expression
 atomicExpression
   : booleanExpression=BOOLEAN
   | numberExpression=NUMBER
+  | integerExpression=INTEGER
   | stringExpression=STRING
   | referenceExpression=IDENTIFIER
   ;

@@ -49,7 +49,7 @@ class MethodParametersControlSpec extends EndToEndSpec {
   it should "invalidate a method call when the type reference does not match" in {
     val output = processFile("controls.methodParameters.invalidTypeReference", configuration)
     output should beResult(Ko[Root](
-      MethodParametersControl.invalidParameterType(Constants.string, Constants.number, invalidTypeReferenceLocation(2, 21, 24))
+      MethodParametersControl.invalidParameterType(Constants.string, Constants.integer, invalidTypeReferenceLocation(2, 21, 24))
     ))
   }
 

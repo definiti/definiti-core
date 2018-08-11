@@ -26,7 +26,7 @@ class TypeVerificationIsOkKoControlSpec extends EndToEndSpec {
       TypeVerificationIsOkKoControl.errorNotOkKo(
         "MyString",
         TypedMessage("error.short", Seq(Constants.string), numberLocation(4, 5, 35)),
-        Constants.number,
+        Constants.integer,
         numberLocation(5, 5, 7, 6)
       )
     )
@@ -54,7 +54,7 @@ class TypeVerificationIsOkKoControlSpec extends EndToEndSpec {
   it should "invalidate a KoValue with invalid types of parameters" in {
     val output = processFile("controls.typeVerificationIsOkKo.invalidTypes", configuration)
     output should beKo(
-      TypeVerificationIsOkKoControl.invalidType(Constants.string, Constants.number, invalidTypesLocation(6, 10, 13))
+      TypeVerificationIsOkKoControl.invalidType(Constants.string, Constants.integer, invalidTypesLocation(6, 10, 13))
     )
   }
 }

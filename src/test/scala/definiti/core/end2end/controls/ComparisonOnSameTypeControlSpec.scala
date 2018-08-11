@@ -23,15 +23,15 @@ class ComparisonOnSameTypeControlSpec extends EndToEndSpec {
   it should "invalidate an invalid expression in a condition" in {
     val output = processFile("controls.comparisonOnSameType.invalidCondition", configuration)
     output should beKo(
-      ComparisonOnSameTypeControl.errorDifferentTypes(Constants.number, Constants.string, invalidConditionLocation(2, 7, 37))
+      ComparisonOnSameTypeControl.errorDifferentTypes(Constants.integer, Constants.string, invalidConditionLocation(2, 7, 37))
     )
   }
 
   it should "invalidate a condition between an alias type and a type" in {
     val output = processFile("controls.comparisonOnSameType.invalidAliasType", configuration)
     output should beKo(
-      ComparisonOnSameTypeControl.errorDifferentTypes(TypeReference("Amount"), Constants.number, invalidAliasTypeLocation(4, 3, 13)),
-      ComparisonOnSameTypeControl.errorDifferentTypes(TypeReference("Amount"), Constants.number, invalidAliasTypeLocation(8, 3, 12))
+      ComparisonOnSameTypeControl.errorDifferentTypes(TypeReference("Amount"), Constants.number, invalidAliasTypeLocation(4, 3, 15)),
+      ComparisonOnSameTypeControl.errorDifferentTypes(TypeReference("Amount"), Constants.number, invalidAliasTypeLocation(8, 3, 14))
     )
   }
 

@@ -4,6 +4,7 @@ import definiti.common.ast.TypeReference
 
 object Constants {
   val boolean = TypeReference("Boolean")
+  val integer = TypeReference("Integer")
   val number = TypeReference("Number")
   val string = TypeReference("String")
   val unit = TypeReference("unit")

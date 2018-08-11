@@ -34,7 +34,7 @@ class NamedFunctionTypeControlSpec extends EndToEndSpec {
   it should "invalidate the type of a named function when types of list do not match" in {
     val output = processFile("controls.namedFunctionType.invalidList", configuration)
     output should beKo(
-      NamedFunctionTypeControl.errorDifferentType("myFunction", "List[String]", "List[Number]", invalidListLocation(1, 1, 3, 2))
+      NamedFunctionTypeControl.errorDifferentType("myFunction", "List[String]", "List[Integer]", invalidListLocation(1, 1, 3, 2))
     )
   }
 

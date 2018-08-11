@@ -1,9 +1,9 @@
 type Amount = Number
 
 def isNotZero(value: Amount): Boolean => {
-  value == 0
+  value == 0.0
 }
 
 def isPositive(value: Amount): Boolean => {
-  value > 0
+  value > 0.0
 }

@@ -33,6 +33,7 @@ private[core] class ExpressionTyping(context: Context) {
   def addTypeIntoAtomicExpression(expression: AtomicExpression): Validated[AtomicExpression] = {
     expression match {
       case booleanValue: BooleanValue => Valid(booleanValue.copy(returnType = boolean))
+      case integerValue: IntegerValue => Valid(integerValue.copy(returnType = integer))
       case numberValue: NumberValue => Valid(numberValue.copy(returnType = number))
       case quotedStringValue: QuotedStringValue => Valid(quotedStringValue.copy(returnType = string))
       case reference: Reference => addTypesIntoReference(reference)
@@ -56,7 +57,7 @@ private[core] class ExpressionTyping(context: Context) {
         calculatorExpression.copy(
           left = typedLeft,
           right = typedRight,
-          returnType = number
+          returnType = typedLeft.returnType
         )
       }
   }
@@ -341,6 +342,7 @@ object ExpressionTyping {
   type LeftRightExpressionConstructor = (Expression, Expression, TypeReference, Range) => Expression
 
   val boolean = TypeReference("Boolean", Seq.empty)
+  val integer = TypeReference("Integer", Seq.empty)
   val number = TypeReference("Number", Seq.empty)
   val string = TypeReference("String", Seq.empty)
   val okko = TypeReference("OkKo", Seq.empty)

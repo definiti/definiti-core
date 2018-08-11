@@ -9,12 +9,12 @@ type MyType {
   verify {
     "Some test"
     (value) => {
-      value.min < value.max + 1
+      value.min < value.max + 1.0
     }
   }
 }
 
-type MyAlias = Number {
+type MyAlias = Integer {
   verify {
     "Some test"
     (value) => {
@@ -26,6 +26,6 @@ type MyAlias = Number {
 verification MyVerification {
   "Some test"
   (value: Number) => {
-    value >= 15
+    value >= 15.5
   }
 }

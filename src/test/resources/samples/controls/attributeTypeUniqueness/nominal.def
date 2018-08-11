@@ -1,0 +1,5 @@
+type Travel {
+  id: String as Id
+  source: String as Source
+  destination: String as Destination
+}

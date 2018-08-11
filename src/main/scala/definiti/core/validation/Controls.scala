@@ -20,6 +20,7 @@ object Controls {
   lazy val all: Seq[Control[Root]] = Seq(
     AliasTypeTypeControl,
     AttributeTypeControl,
+    AttributeTypeUniquenessControl,
     CalculatorOperandsAreNumberControl,
     EnumerationUniquenessControl,
     ComparisonOnSameTypeControl,

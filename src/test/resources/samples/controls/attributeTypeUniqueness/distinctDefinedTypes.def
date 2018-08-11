@@ -1,0 +1,7 @@
+type Travel {
+  id: String as Id
+}
+
+type Fly {
+  id: String as Id
+}

@@ -42,6 +42,18 @@ class ComparisonOnSameTypeControlSpec extends EndToEndSpec {
       ComparisonOnSameTypeControl.errorDifferentTypes(TypeReference("Amount"), TypeReference("Rate"), invalidDoubleAliasTypeLocation(9, 3, 15))
     )
   }
+
+  it should "validate an expression between two attribute types" in {
+    val output = processFile("controls.comparisonOnSameType.validAttributeType", configuration)
+    output shouldBe ok[Root]
+  }
+
+  it should "invalidate an expression between an attribute type and another type" in {
+    val output = processFile("controls.comparisonOnSameType.invalidAttributeType", configuration)
+    output should beKo(
+      ComparisonOnSameTypeControl.errorDifferentTypes(TypeReference("Station.Name"), TypeReference("String"), invalidAttributeTypeLocation(6, 3, 23))
+    )
+  }
 }
 
 object ComparisonOnSameTypeControlSpec {
@@ -50,4 +62,5 @@ object ComparisonOnSameTypeControlSpec {
   val invalidConditionLocation = LocationPath.control(ComparisonOnSameTypeControl, "invalidCondition")
   val invalidAliasTypeLocation = LocationPath.control(ComparisonOnSameTypeControl, "invalidAliasType")
   val invalidDoubleAliasTypeLocation = LocationPath.control(ComparisonOnSameTypeControl, "invalidDoubleAliasType")
+  val invalidAttributeTypeLocation = LocationPath.control(ComparisonOnSameTypeControl, "invalidAttributeType")
 }

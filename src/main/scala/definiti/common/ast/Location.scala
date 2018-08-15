@@ -13,6 +13,10 @@ object Location {
   def apply(file: String, startLine: Int, startColumn: Int, endLine: Int, endColumn: Int): Location = {
     new Location(file, Range(startLine, startColumn, endLine, endColumn))
   }
+
+  def apply(file: String, start: Position, end: Position): Location = {
+    new Location(file, Range(start, end))
+  }
 }
 
 case class Range(

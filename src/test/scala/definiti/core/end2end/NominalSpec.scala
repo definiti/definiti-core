@@ -150,8 +150,9 @@ object NominalSpec {
   val extendedContext: Root = root(
     ExtendedContext(
       name = "dummyContext",
-      content = "Something here",
-      location = Location(extendedContextSrc, 2, 3, 2, 17)
+      content = "\n  Something here\n",
+      innerLocation = Location(extendedContextSrc, 1, 25, 3, 1),
+      location = Location(extendedContextSrc, 1, 1, 3, 4)
     )
   )
 

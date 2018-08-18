@@ -22,32 +22,6 @@ libraryDependencies += "io.github.definiti" % "api" % "0.3.1-SNAPSHOT" % "test"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-language:implicitConversions", "-feature")
 
-lazy val antlrDefiniti = TaskKey[Unit]("antlrDefiniti", "Build Antlr Definiti files")
-lazy val antlrCore = TaskKey[Unit]("antlrCore", "Build Antlr core definition files")
-lazy val antlr = TaskKey[Unit]("antlr", "Build Antlr files")
-
-lazy val classpathSeparator =
-  if (sys.props("os.name").toLowerCase.contains("windows")) ";"
-  else ":"
-
-antlr := {
-  import scala.sys.process._
-
-  val log = streams.value.log
-  val classpath = (dependencyClasspath in Compile).value.files.mkString(classpathSeparator)
-  val mainClass = "org.antlr.v4.Tool"
-  val destination = "src/main/java/definiti/core/parser/antlr"
-  val packageName = "definiti.core.parser.antlr"
-  val source = "src/main/antlr/Definiti.g4"
-
-  val command = s"""java -cp "$classpath" $mainClass -o $destination -package $packageName $source"""
-
-  log.info("Building antlr Definiti files")
-  command.!
-}
-
-compile in Compile := (compile in Compile).dependsOn(antlr).value
-
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
 pomIncludeRepository := { _ => false }

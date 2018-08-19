@@ -1,0 +1,6 @@
+verification IsNonEmpty {
+  "Should not be empty"
+  (string) {
+    string.nonEmpty()
+  }
+}

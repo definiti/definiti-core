@@ -1,0 +1,10 @@
+type MyAlias = String
+
+type MyDefined {
+  name: String as MyString
+}
+
+enum MyEnum {
+  One
+  Two
+}

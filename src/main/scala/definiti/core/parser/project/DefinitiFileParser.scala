@@ -185,10 +185,10 @@ class DefinitiFileParser(filename: String)
   def function: Parser[DefinedFunction] = {
     (
       rangedContainer(`[`, joinedElements(identifier, `,`), `]`).? ~
-        parameterListDefinition ~ `=>` ~
+        parameterListDefinition ~
         `{` ~ combinedExpression ~ `}`
       ) ^^ {
-      case generics ~ parameters ~ _ ~ _ ~ expression ~ lastToken =>
+      case generics ~ parameters ~ _ ~ expression ~ lastToken =>
         DefinedFunction(
           parameters = parameters.value,
           body = expression,
@@ -348,9 +348,9 @@ class DefinitiFileParser(filename: String)
 
   def typeVerificationFunction: Parser[DefinedFunction] = {
     (
-      rangedContainer(`(`, identifier, `)`) ~ `=>` ~ rangedContainer(`{`, combinedExpression, `}`)
+      rangedContainer(`(`, identifier, `)`) ~ rangedContainer(`{`, combinedExpression, `}`)
       ) ^^ {
-      case attributeName ~ _ ~ expression =>
+      case attributeName ~ expression =>
         DefinedFunction(
           parameters = Seq(ParameterDefinition(
             name = attributeName.value.value,
@@ -444,11 +444,11 @@ class DefinitiFileParser(filename: String)
     (
       `def` ~ identifier ~ container(`[`, joinedElements(identifier, `,`), `]`).? ~
         parameterListDefinition ~ `:` ~
-        typeReference ~ `=>` ~ namedFunctionBody
+        typeReference ~ namedFunctionBody
       ) ^^ {
       case firstToken ~ functionName ~ generics ~
         parameters ~ _ ~
-        typeReference ~ _ ~ body =>
+        typeReference ~ body =>
         NamedFunction(
           name = functionName.value,
           fullName = functionName.value,

@@ -1,4 +1,4 @@
-def anyFunction(string: String): Integer => {
+def anyFunction(string: String): Integer {
   if (string.length == string.trim()) {
     1
   } else {

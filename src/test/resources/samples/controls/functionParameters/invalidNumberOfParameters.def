@@ -1,7 +1,7 @@
-def isEmpty(string: String): Boolean => {
+def isEmpty(string: String): Boolean {
   string.nonEmpty()
 }
 
-def anyFunction(string: String): Boolean => {
+def anyFunction(string: String): Boolean {
   isEmpty(string, 1)
 }

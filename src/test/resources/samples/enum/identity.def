@@ -3,6 +3,6 @@ enum MyEnum {
   second
 }
 
-def identity(value: MyEnum): MyEnum => {
+def identity(value: MyEnum): MyEnum {
   value
 }

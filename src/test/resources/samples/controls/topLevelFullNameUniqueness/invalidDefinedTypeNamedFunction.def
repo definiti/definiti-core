@@ -2,6 +2,6 @@ type Duplicated {
   name: String
 }
 
-def Duplicated(): Boolean => {
+def Duplicated(): Boolean {
   true
 }

@@ -1,3 +1,3 @@
-def contains[A](list: List[B], element: C): Boolean => {
-  list.exists((item: D) => {item == element})
+def contains[A](list: List[B], element: C): Boolean {
+  list.exists((item: D) => item == element)
 }

@@ -5,7 +5,7 @@ type User {
 
 verification IsEmail {
   "Should be an email"
-  (email: String) => {
+  (email: String) {
     email.contains("@")
   }
 }

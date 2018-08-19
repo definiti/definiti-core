@@ -1,3 +1,3 @@
-def myFunction(): Number => {
+def myFunction(): Number {
   "A simple string"
 }

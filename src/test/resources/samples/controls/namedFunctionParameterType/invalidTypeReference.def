@@ -1,4 +1,4 @@
-def isEmpty(string: Unknown): Boolean => {
+def isEmpty(string: Unknown): Boolean {
   // Do not use the parameter because will break before the control
   true
 }

@@ -1,3 +1,3 @@
-def nonEmptyList[A](list: List[A]): Boolean => {
+def nonEmptyList[A](list: List[A]): Boolean {
   list.nonEmpty()
 }

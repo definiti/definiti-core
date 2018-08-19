@@ -2,7 +2,7 @@ type MyType = String verifying Unmatched
 
 verification Unmatched {
   "This verification does not match"
-  (value: Number) => {
+  (value: Number) {
     true
   }
 }

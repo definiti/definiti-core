@@ -88,23 +88,23 @@ object NamedFunctionSpec {
               left = Reference(
                 name = "item",
                 returnType = TypeReference("A"),
-                location = Location(validContainsSrc, 2, 29, 2, 33)
+                location = Location(validContainsSrc, 2, 28, 2, 32)
               ),
               right = Reference(
                 name = "element",
                 returnType = TypeReference("A"),
-                location = Location(validContainsSrc, 2, 37, 2, 44)
+                location = Location(validContainsSrc, 2, 36, 2, 43)
               ),
               returnType = TypeReference("Boolean"),
-              location = Location(validContainsSrc, 2, 29, 2, 44)
+              location = Location(validContainsSrc, 2, 28, 2, 43)
             ),
             returnType = TypeReference("Boolean"),
-            location = Location(validContainsSrc, 2, 15, 2, 45)
+            location = Location(validContainsSrc, 2, 15, 2, 43)
           )
         ),
         generics = Seq.empty,
         returnType = TypeReference("Boolean"),
-        location = Location(validContainsSrc, 2, 3, 2, 46)
+        location = Location(validContainsSrc, 2, 3, 2, 44)
       ),
       location = Location(validContainsSrc, 1, 1, 3, 2)
     )
@@ -177,30 +177,30 @@ object NamedFunctionSpec {
             parameterList = Seq(ParameterDefinition(
               name = "a",
               typeReference = TypeReference("A"),
-              location = Location(implicitLambdaParameterTypeSrc, 2, 16, 2, 17)
+              location = Location(implicitLambdaParameterTypeSrc, 2, 15, 2, 16)
             )),
             expression = LogicalExpression(
               operator = LogicalOperator.Equal,
               left = Reference(
                 name = "a",
                 returnType = TypeReference("A"),
-                location = Location(implicitLambdaParameterTypeSrc, 2, 23, 2, 24)
+                location = Location(implicitLambdaParameterTypeSrc, 2, 20, 2, 21)
               ),
               right = Reference(
                 name = "element",
                 returnType = TypeReference("A"),
-                location = Location(implicitLambdaParameterTypeSrc, 2, 28, 2, 35)
+                location = Location(implicitLambdaParameterTypeSrc, 2, 25, 2, 32)
               ),
               returnType = TypeReference("Boolean"),
-              location = Location(implicitLambdaParameterTypeSrc, 2, 23, 2, 35)
+              location = Location(implicitLambdaParameterTypeSrc, 2, 20, 2, 32)
             ),
             returnType = TypeReference("Boolean"),
-            location = Location(implicitLambdaParameterTypeSrc, 2, 15, 2, 36)
+            location = Location(implicitLambdaParameterTypeSrc, 2, 15, 2, 32)
           )
         ),
         generics = Seq.empty,
         returnType = TypeReference("Boolean"),
-        location = Location(implicitLambdaParameterTypeSrc, 2, 3, 2, 37)
+        location = Location(implicitLambdaParameterTypeSrc, 2, 3, 2, 33)
       ),
       location = Location(implicitLambdaParameterTypeSrc, 1, 1, 3, 2)
     )

@@ -6,7 +6,7 @@ type AnyType {
 
 verification LengthOf(anyAlias: AnyAlias, anyType: AnyType) {
   "This verification is invalid because parameters are not atomic types (boolean, number, string)"
-  (string: String) => {
+  (string: String) {
     true
   }
 }

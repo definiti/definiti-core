@@ -4,13 +4,13 @@ type MyType {
 
 type MyAlias = String
 
-def myFunction(): Boolean => {
+def myFunction(): Boolean {
   true
 }
 
 verification MyVerification {
   "Some verification"
-  (string: String) => {
+  (string: String) {
     string.nonEmpty()
   }
 }

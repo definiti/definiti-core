@@ -4,7 +4,7 @@ type Range {
 
   verify universe(minimal: Number) {
     message("range.after", Number)
-    (range) => {
+    (range) {
       if (range.start > minimal) {
         ok
       } else {
@@ -17,7 +17,7 @@ type Range {
 type OtherRange = Range {
   verify universe(maximal: Number) {
     message("range.before")
-    (range) => {
+    (range) {
       if (range.start < maximal) {
         ok
       } else {

@@ -1,6 +1,6 @@
 verification NonEmptyList {
   "The list should not be empty"
-  [A](list: List[A]) => {
+  [A](list: List[A]) {
     list.nonEmpty()
   }
 }

@@ -2,7 +2,7 @@ package packages.common.verifications
 
 verification IsNonBlank {
   "The field is required"
-  (string: String) => {
+  (string: String) {
     string.trim().nonEmpty()
   }
 }

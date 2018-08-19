@@ -1,7 +1,7 @@
 type InvalidNumber = String {
   verify {
     "This verification is invalid because returns a number"
-    (value) => {
+    (value) {
       value.length
     }
   }

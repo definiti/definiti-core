@@ -7,7 +7,7 @@ type StringOfLength(length: Number) = String verifying IsStringOfLength(length)
 
 verification IsStringOfLength(length: Number) {
   message("is.string.of.length", Number, Number)
-  (string: String) => {
+  (string: String) {
     if (string.length == length) {
       ok
     } else {
@@ -18,7 +18,7 @@ verification IsStringOfLength(length: Number) {
 
 verification IsListOfSize(size: Number) {
   message("is.list.of.size", Number, Number)
-  [A](list: List[A]) => {
+  [A](list: List[A]) {
     if (list.size == size) {
       ok
     } else {

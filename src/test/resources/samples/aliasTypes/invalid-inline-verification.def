@@ -1,7 +1,7 @@
 type RequiredString = String {
   verify {
     "The string should not be empty"
-    (string) => {
+    (string) {
       // missing parenthesis
       string.nonEmpty
     }

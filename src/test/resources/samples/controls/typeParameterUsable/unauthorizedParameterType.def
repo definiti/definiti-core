@@ -5,7 +5,7 @@ type Contact(numberOfPhones: AnotherNumber) {
 
   verify {
     message("contact.number.of.phones", Number, Number)
-    (contact) => {
+    (contact) {
       if (contact.phones.size == numberOfPhones) {
         ok
       } else {
@@ -18,7 +18,7 @@ type Contact(numberOfPhones: AnotherNumber) {
 type StringOfLength(length: AnotherNumber) = String {
   verify {
     message("string.of.size", Number, Number)
-    (string) => {
+    (string) {
       if (string.length == length) {
         ok
       } else {

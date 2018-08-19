@@ -3,7 +3,7 @@ type Contact {
   
   verify withConfiguration(minimalNumberOfPhones: Number) {
     "contact.minimal.number.of.phones"
-    (user) => {
+    (user) {
       user.phones.size >= minimalNumberOfPhones
     }
   }
@@ -12,7 +12,7 @@ type Contact {
 type ContactWithMaximalNumberOfPhones = Contact {
   verify withConfiguration(maximalNumberOfPhones: Number) {
     "contact.minimal.number.of.phones"
-    (user) => {
+    (user) {
       user.phones.size <= maximalNumberOfPhones
     }
   }

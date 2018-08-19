@@ -3,7 +3,7 @@ type InvalidNumber {
 
   verify {
     "This verification is invalid because returns a number"
-    (value) => {
+    (value) {
       value.name.length
     }
   }

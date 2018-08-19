@@ -10,7 +10,7 @@ type Blog {
 
   verify {
     "No tag can be empty"
-    (blog) => {
+    (blog) {
       if (blog.tags.nonEmpty()) {
         blog.tags.forAll((tag: String) => {
           tag.nonEmpty()

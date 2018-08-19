@@ -1,4 +1,4 @@
-def anyFunction(string: String): Boolean => {
+def anyFunction(string: String): Boolean {
   string.length * 1
 }
 
@@ -8,7 +8,7 @@ type MyType {
 
   verify {
     "Some test"
-    (value) => {
+    (value) {
       value.min - value.max + 1.8
     }
   }
@@ -17,7 +17,7 @@ type MyType {
 type MyAlias = Integer {
   verify {
     "Some test"
-    (value) => {
+    (value) {
       5 - value * value + 10
     }
   }
@@ -25,7 +25,7 @@ type MyAlias = Integer {
 
 verification MyVerification {
   "Some test"
-  (value: Integer) => {
+  (value: Integer) {
     value + 15 * 100
   }
 }

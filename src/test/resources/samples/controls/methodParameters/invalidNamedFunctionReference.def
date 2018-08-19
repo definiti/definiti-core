@@ -1,7 +1,7 @@
-def startsWithPrefix(string: String): Boolean => {
+def startsWithPrefix(string: String): Boolean {
   string.startsWith("prefix")
 }
 
-def anyFunction(list: List[Number]): Boolean => {
+def anyFunction(list: List[Number]): Boolean {
   list.forAll(startsWithPrefix)
 }

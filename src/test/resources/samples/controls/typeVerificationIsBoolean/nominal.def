@@ -3,7 +3,7 @@ type MyDefinedType {
 
   verify {
     "This type is valid"
-    (value) => {
+    (value) {
       value.name.nonEmpty()
     }
   }
@@ -12,7 +12,7 @@ type MyDefinedType {
 type MyAliasType = String {
   verify {
     "This type is valid"
-    (value) => {
+    (value) {
       value.nonEmpty()
     }
   }

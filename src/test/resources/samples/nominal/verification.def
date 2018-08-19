@@ -1,6 +1,6 @@
 verification AlwaysTrue {
   "Never fail"
-  (x: String) => {
+  (x: String) {
     true
   }
 }

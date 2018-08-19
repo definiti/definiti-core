@@ -1,4 +1,4 @@
-def anyFunction(string: String): Boolean => {
+def anyFunction(string: String): Boolean {
   string == string.length
 }
 
@@ -7,7 +7,7 @@ type MyType {
 
   verify {
     "Some test"
-    (value) => {
+    (value) {
       value.name.trim().nonEmpty() != value.name.length
     }
   }
@@ -16,7 +16,7 @@ type MyType {
 type MyAlias = String {
   verify {
     "Some test"
-    (value) => {
+    (value) {
       value.trim() == 5
     }
   }
@@ -24,7 +24,7 @@ type MyAlias = String {
 
 verification MyVerification {
   "Some test"
-  (value: String) => {
+  (value: String) {
     value.length + 5 != ""
   }
 }

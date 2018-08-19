@@ -34,6 +34,15 @@ trait ExpressionParser {
     combinationExpression
   }
 
+  lazy val rangedExpression: PackratParser[Ranged[Expression]] = {
+    expression.map { expression =>
+      Ranged(
+        value = expression,
+        range = expression.location.range
+      )
+    }
+  }
+
   lazy val combinationExpression: PackratParser[Expression] = {
     (logicalExpression ~ (logicalCombinationOperator ~ logicalExpression).+) ^^ {
       case left ~ stack =>
@@ -123,8 +132,8 @@ trait ExpressionParser {
 
   lazy val lambdaExpression: PackratParser[LambdaExpression] = {
     (
-      parameterListDefinition ~
-        `=>` ~ rangedContainer(`{`, expression, `}`)
+      (parameterListDefinition | directParameterDefinition) ~
+        `=>` ~ (rangedContainer(`{`, expression, `}`) | rangedExpression)
       ) ^^ {
       case parameters ~ _ ~ innerExpression =>
         LambdaExpression(
@@ -133,6 +142,19 @@ trait ExpressionParser {
           returnType = unset,
           location = location(range(parameters, innerExpression))
         )
+    }
+  }
+
+  lazy val directParameterDefinition: PackratParser[Ranged[Seq[ParameterDefinition]]] = {
+    identifier ^^ { parameterName =>
+      Ranged(
+        value = Seq(ParameterDefinition(
+          name = parameterName.value,
+          typeReference = TypeReference(typeName = parameterName.value.capitalize),
+          location = location(range(parameterName, parameterName))
+        )),
+        range = range(parameterName, parameterName)
+      )
     }
   }
 

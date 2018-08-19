@@ -4,7 +4,7 @@ type MyType {
   verify {
     // Will be translated into something like "String 'abcdefghijkl' is too long"
     message("error.short", String)
-    (value) => {
+    (value) {
       ko("two", 2)
     }
   }

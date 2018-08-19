@@ -14,11 +14,11 @@ case class LocationPath(path: String) {
 }
 
 object LocationPath {
-  def control(name: String, file: String): LocationPath = {
-    LocationPath(s"src/test/resources/samples/controls/${name}/${file}.def")
+  def control(control: Control[_], file: String): LocationPath = {
+    LocationPath(s"src/test/resources/samples/controls/${control.name}/${file}.def")
   }
 
-  def control(control: Control[_], file: String): LocationPath = {
-    LocationPath.control(control.name, file)
+  def controlNaming(control: Control[_], file: String): LocationPath = {
+    LocationPath(s"src/test/resources/samples/controls/naming/${control.name}/${file}.def")
   }
 }

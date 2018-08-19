@@ -348,9 +348,9 @@ class DefinitiFileParser(filename: String)
 
   def typeVerificationFunction: Parser[DefinedFunction] = {
     (
-      rangedContainer(`(`, identifier, `)`) ~ `=>` ~ rangedContainer(`{`, combinedExpression, `}`)
+      rangedContainer(`(`, identifier, `)`) ~ rangedContainer(`{`, combinedExpression, `}`)
       ) ^^ {
-      case attributeName ~ _ ~ expression =>
+      case attributeName ~ expression =>
         DefinedFunction(
           parameters = Seq(ParameterDefinition(
             name = attributeName.value.value,

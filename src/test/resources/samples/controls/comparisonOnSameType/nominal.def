@@ -7,7 +7,7 @@ type MyType {
 
   verify {
     "Some test"
-    (value) => {
+    (value) {
       value.name.trim().nonEmpty() != (value.name.length >= 5)
     }
   }
@@ -16,7 +16,7 @@ type MyType {
 type MyAlias = String {
   verify {
     "Some test"
-    (value) => {
+    (value) {
       value.length == 5
     }
   }

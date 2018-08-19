@@ -1,5 +1,5 @@
 type Substring = String
 
-def contains(substring: Substring): Boolean => {
+def contains(substring: Substring): Boolean {
   "Some text".contains(substring)
 }

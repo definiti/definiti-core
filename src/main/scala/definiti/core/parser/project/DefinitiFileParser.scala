@@ -444,11 +444,11 @@ class DefinitiFileParser(filename: String)
     (
       `def` ~ identifier ~ container(`[`, joinedElements(identifier, `,`), `]`).? ~
         parameterListDefinition ~ `:` ~
-        typeReference ~ `=>` ~ namedFunctionBody
+        typeReference ~ namedFunctionBody
       ) ^^ {
       case firstToken ~ functionName ~ generics ~
         parameters ~ _ ~
-        typeReference ~ _ ~ body =>
+        typeReference ~ body =>
         NamedFunction(
           name = functionName.value,
           fullName = functionName.value,

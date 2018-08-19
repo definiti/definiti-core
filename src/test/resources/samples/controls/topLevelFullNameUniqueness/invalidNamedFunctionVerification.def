@@ -1,4 +1,4 @@
-def Duplicated(): Boolean => {
+def Duplicated(): Boolean {
   true
 }
 

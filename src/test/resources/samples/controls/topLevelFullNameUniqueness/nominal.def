@@ -4,7 +4,7 @@ type MyType {
 
 type MyAlias = String
 
-def myFunction(): Boolean => {
+def myFunction(): Boolean {
   true
 }
 

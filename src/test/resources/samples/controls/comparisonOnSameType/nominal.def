@@ -1,4 +1,4 @@
-def anyFunction(string: String): Boolean => {
+def anyFunction(string: String): Boolean {
   string == string.trim()
 }
 
@@ -30,6 +30,6 @@ verification MyVerification {
 }
 
 type Amount = Number
-def amountLowerThan(amount: Amount, reference: Amount): Boolean => {
+def amountLowerThan(amount: Amount, reference: Amount): Boolean {
   amount < reference
 }

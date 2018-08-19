@@ -2,6 +2,6 @@ type Station {
   name: String as Name
 }
 
-def isStation(station: Station, name: Station.Name): Boolean => {
+def isStation(station: Station, name: Station.Name): Boolean {
   station.name == name
 }

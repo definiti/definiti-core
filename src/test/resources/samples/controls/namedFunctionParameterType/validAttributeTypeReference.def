@@ -2,7 +2,7 @@ type User {
   name: String as Name
 }
 
-def isUsernameCool(username: User.Name): Boolean => {
+def isUsernameCool(username: User.Name): Boolean {
   // Do not use the parameter because will break before the control
   username == "cool"
 }

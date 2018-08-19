@@ -1,4 +1,4 @@
-def anyFunction(string: String): Boolean => {
+def anyFunction(string: String): Boolean {
   !string
 }
 

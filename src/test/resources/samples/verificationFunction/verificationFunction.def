@@ -7,11 +7,11 @@ verification IsStrongPassword {
   }
 }
 
-def passwordScore(string: String): Integer => {
+def passwordScore(string: String): Integer {
   scoreSpecialCharacter(string) + string.length
 }
 
-def scoreSpecialCharacter(string: String): Integer => {
+def scoreSpecialCharacter(string: String): Integer {
   if (string.matches(".*[^a-zA-Z0-9].*")) {
     20
   } else {

@@ -3,6 +3,6 @@ enum MyEnum {
   second
 }
 
-def lastMyEnum(): MyEnum => {
+def lastMyEnum(): MyEnum {
   MyEnum.invalid
 }

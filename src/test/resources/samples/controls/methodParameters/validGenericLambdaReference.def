@@ -1,3 +1,3 @@
-def sum(values: List[Number]): Number => {
+def sum(values: List[Number]): Number {
   values.foldLeft[Number](0.0, (acc: Number, current: Number) => {acc + current})
 }

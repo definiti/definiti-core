@@ -25,7 +25,7 @@ type MyAlias = Number {
 
 verification MyVerification {
   "Some test"
-  (value: Number) => {
+  (value: Number) {
     value - ""
   }
 }

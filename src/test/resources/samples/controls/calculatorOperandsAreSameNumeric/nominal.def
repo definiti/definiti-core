@@ -25,7 +25,7 @@ type MyAlias = Integer {
 
 verification MyVerification {
   "Some test"
-  (value: Integer) => {
+  (value: Integer) {
     value + 15 * 100
   }
 }

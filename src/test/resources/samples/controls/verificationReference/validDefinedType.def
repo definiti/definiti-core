@@ -4,7 +4,7 @@ type MyType verifying MyTypeVerification {
 
 verification MyTypeVerification {
   "Some message"
-  (myType: MyType) => {
+  (myType: MyType) {
     true
   }
 }

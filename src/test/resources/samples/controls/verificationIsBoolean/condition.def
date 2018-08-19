@@ -1,6 +1,6 @@
 verification InvalidCondition {
   "This verification is invalid because does not return the same type on if and else so not a boolean"
-  (value: String) => {
+  (value: String) {
     if (value.trim().nonEmpty()) {
       value.length
     } else {

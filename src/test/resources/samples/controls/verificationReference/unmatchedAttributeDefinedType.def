@@ -9,7 +9,7 @@ type MyType {
 
 verification Unmatched {
   "This verification does not match"
-  (value: Number) => {
+  (value: Number) {
     true
   }
 }

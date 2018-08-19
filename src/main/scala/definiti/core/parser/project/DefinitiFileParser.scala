@@ -185,10 +185,10 @@ class DefinitiFileParser(filename: String)
   def function: Parser[DefinedFunction] = {
     (
       rangedContainer(`[`, joinedElements(identifier, `,`), `]`).? ~
-        parameterListDefinition ~ `=>` ~
+        parameterListDefinition ~
         `{` ~ combinedExpression ~ `}`
       ) ^^ {
-      case generics ~ parameters ~ _ ~ _ ~ expression ~ lastToken =>
+      case generics ~ parameters ~ _ ~ expression ~ lastToken =>
         DefinedFunction(
           parameters = parameters.value,
           body = expression,

@@ -10,7 +10,7 @@ def myFunction(): Boolean {
 
 verification MyVerification {
   "Some verification"
-  (string: String) => {
+  (string: String) {
     string.nonEmpty()
   }
 }

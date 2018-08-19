@@ -12,7 +12,7 @@ type Address {
 
 verification IsNonEmptyEmail {
   "Please give a non empty email"
-  (email: Email) => {
+  (email: Email) {
     email.nonEmpty()
   }
 }

@@ -7,7 +7,7 @@ type MyType {
 verification ShortName {
   // Will be translated into something like "String 'abcdefghijkl' is too long"
   message("error.short", MyType)
-  (value: MyType) => {
+  (value: MyType) {
     if (value.name.length < 10) {
       ok
     } else {

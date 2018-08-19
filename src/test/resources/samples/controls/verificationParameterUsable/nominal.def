@@ -1,6 +1,6 @@
 verification LengthOf(length: Number) {
   message("length.of", Number)
-  (string: String) => {
+  (string: String) {
     if (string.length == length) {
       ok
     } else {

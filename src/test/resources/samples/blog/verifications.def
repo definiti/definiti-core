@@ -2,14 +2,14 @@ package blog
 
 verification NonBlank {
   "The string should not be blank"
-  (string: String) => {
+  (string: String) {
     string.trim().nonEmpty()
   }
 }
 
 verification ShortString {
   "The string should not have more than 25 characters"
-  (string: String) => {
+  (string: String) {
     string.length <= 25
   }
 }

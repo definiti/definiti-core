@@ -2,7 +2,7 @@ package verificationFunction
 
 verification IsStrongPassword {
   "The password is too simple"
-  (string: String) => {
+  (string: String) {
     passwordScore(string) >= 30
   }
 }

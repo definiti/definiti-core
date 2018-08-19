@@ -24,7 +24,7 @@ type MyAlias = String {
 
 verification MyVerification {
   "Some test"
-  (value: String) => {
+  (value: String) {
     !(value.length + 5 != 5)
   }
 }

@@ -9,7 +9,7 @@ type MyType {
 
 verification NameVerification {
   "Some message"
-  (name: Name) => {
+  (name: Name) {
     true
   }
 }

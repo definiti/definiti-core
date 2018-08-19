@@ -4,7 +4,7 @@ type MyType {
 
 verification MyNameVerification {
   "Some message"
-  (string: String) => {
+  (string: String) {
     true
   }
 }

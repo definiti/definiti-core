@@ -4,7 +4,7 @@ def Duplicated(): Boolean {
 
 verification Duplicated {
   "Duplicated"
-  (string: String) => {
+  (string: String) {
     string.nonEmpty()
   }
 }

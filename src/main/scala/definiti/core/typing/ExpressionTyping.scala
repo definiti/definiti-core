@@ -189,8 +189,7 @@ private[core] class ExpressionTyping(context: Context) {
     classDefinition match {
       case nativeClassDefinition: NativeClassDefinition =>
         nativeClassDefinition.methods.find(_.name == method)
-      case aliasType: AliasType =>
-        context.findType(aliasType.alias.typeName).flatMap(getMethodOpt(_, method))
+
       case _ => None
     }
   }
@@ -237,10 +236,13 @@ private[core] class ExpressionTyping(context: Context) {
     classDefinition match {
       case nativeClassDefinition: NativeClassDefinition =>
         nativeClassDefinition.attributes.find(_.name == attribute)
-      case aliasType: AliasType =>
-        context.findType(aliasType.alias.typeName).flatMap(getAttributeOpt(_, attribute))
+
+      case _: AliasType =>
+        None
+
       case definedType: DefinedType =>
         definedType.attributes.find(_.name == attribute)
+
       case enum: Enum =>
         enum.cases
           .find(_.name == attribute)

@@ -45,13 +45,13 @@ object AliasTypeSpec {
         function = DefinedFunction(
           parameters = Seq(ParameterDefinition(
             name = "list",
-            typeReference = TypeReference("ListAlias", Seq(TypeReference("A"))),
+            typeReference = TypeReference("List", Seq(TypeReference("A"))),
             location = Location(inlineVerificationFile, 4, 6, 4, 10)
           )),
           body = MethodCall(
             expression = Reference(
               name = "list",
-              returnType = TypeReference("ListAlias", Seq(TypeReference("A"))),
+              returnType = TypeReference("List", Seq(TypeReference("A"))),
               location = Location(inlineVerificationFile, 5, 7, 5, 11)
             ),
             method = "nonEmpty",

@@ -1,9 +1,9 @@
 type Title = String
 
-def isEmptyTitle(title: Title): Boolean {
-  title.nonEmpty()
+def isOtherTitle(title: Title, otherTitle: Title): Boolean {
+  title == otherTitle
 }
 
-def isEmpty(string: String): Boolean {
-  isEmptyTitle(string)
+def isOther(string: String, otherTitle: Title): Boolean {
+  isOtherTitle(string, otherTitle)
 }

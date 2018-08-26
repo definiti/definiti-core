@@ -387,7 +387,7 @@ class DefinitiFileParser(filename: String)
             body
               .map(_.value)
               .getOrElse(Seq.empty)
-              .map(injectTypeIntoTypeVerification(_, typeName.value, genericTypes))
+              .map(injectTypeIntoTypeVerification(_, typeDeclaration.typeName, typeDeclaration.genericTypes.map(_.typeName)))
           },
           comment = docComment.map(_.value),
           location = location(Range(

@@ -17,12 +17,12 @@ private[core] object AttributeTypeUniquenessControl extends Control[Root] {
   private def controlDefinedType(definedType: DefinedType, library: Library): ControlResult = {
     ControlResult.squash {
       definedType.attributes.zipWithIndex.map { case (attribute, index) =>
-        attribute.typeName match {
-          case Some(typeName) =>
-            val indexOfAttribute = definedType.attributes.indexWhere(_.typeName.contains(typeName))
+        attribute.attributeType match {
+          case Some(attributeType) =>
+            val indexOfAttribute = definedType.attributes.indexWhere(_.attributeType.map(_.name).contains(attributeType.name))
             if (indexOfAttribute != index) {
               val otherAttribute = definedType.attributes(indexOfAttribute)
-              ControlResult(errorSameName(typeName, attribute.location, otherAttribute.location))
+              ControlResult(errorSameName(attributeType.name, attribute.location, otherAttribute.location))
             } else {
               OK
             }

@@ -38,7 +38,8 @@ private[core] trait RootJsonSerialization {
     Format("nativeClassDefinition", classOf[NativeClassDefinition])
   ))
   implicit lazy val definedTypeFormat: JsonFormat[DefinedType] = lazyFormat(jsonFormat9(DefinedType.apply))
-  implicit lazy val aliasTypeFormat: JsonFormat[AliasType] = lazyFormat(jsonFormat9(AliasType.apply))
+  implicit lazy val aliasTypeFormat: JsonFormat[AliasType] = lazyFormat(jsonFormat10(AliasType.apply))
+  implicit lazy val aliasTypeKindFormat: JsonFormat[AliasTypeKind.Value] = lazyFormat(enumerationFormat(AliasTypeKind))
   implicit lazy val nativeClassDefinitionFormat: JsonFormat[NativeClassDefinition] = lazyFormat(jsonFormat6(NativeClassDefinition.apply))
   implicit lazy val namedFunctionFormat: JsonFormat[NamedFunction] = lazyFormat(jsonFormat7(NamedFunction.apply))
 
@@ -52,6 +53,7 @@ private[core] trait RootJsonSerialization {
   implicit lazy val lambdaReferenceFormat: JsonFormat[LambdaReference] = lazyFormat(jsonFormat2(LambdaReference.apply))
   implicit lazy val namedFunctionReferenceFormat: JsonFormat[NamedFunctionReference] = lazyFormat(jsonFormat1(NamedFunctionReference.apply))
   implicit lazy val attributeDefinitionFormat: JsonFormat[AttributeDefinition] = lazyFormat(jsonFormat6(AttributeDefinition.apply))
+  implicit lazy val attributeTypeFormat: JsonFormat[AttributeType] = lazyFormat(jsonFormat2(AttributeType.apply))
   implicit lazy val parameterDefinitionFormat: JsonFormat[ParameterDefinition] = lazyFormat(jsonFormat3(ParameterDefinition.apply))
   implicit lazy val methodDefinitionFormat: JsonFormat[MethodDefinition] = lazyFormat(jsonFormat5(MethodDefinition.apply))
   implicit lazy val verificationReferenceFormat: JsonFormat[VerificationReference] = lazyFormat(jsonFormat3(VerificationReference.apply))

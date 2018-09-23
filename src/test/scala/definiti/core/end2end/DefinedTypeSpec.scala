@@ -52,7 +52,7 @@ object DefinedTypeSpec {
               location = implicitAttributeTypeLocation(2, 9, 34)
             )
           ),
-          typeName = None,
+          attributeType = None,
           location = implicitAttributeTypeLocation(2, 3, 34)
         ),
         AttributeDefinition(
@@ -60,7 +60,7 @@ object DefinedTypeSpec {
           typeDeclaration = TypeDeclaration("Address", Seq.empty, Seq.empty, implicitAttributeTypeLocation(3, 3, 10)),
           comment = None,
           verifications = Seq.empty,
-          typeName = None,
+          attributeType = None,
           location = implicitAttributeTypeLocation(3, 3, 10)
         )
       ),
@@ -70,6 +70,7 @@ object DefinedTypeSpec {
       location = implicitAttributeTypeLocation(1, 1, 4, 2)
     ),
     AliasType(
+      kind = AliasTypeKind.Closed,
       name = "Email",
       fullName = "Email",
       genericTypes = Seq.empty,
@@ -91,7 +92,7 @@ object DefinedTypeSpec {
           typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, implicitAttributeTypeLocation(9, 9, 15)),
           comment = None,
           verifications = Seq.empty,
-          typeName = None,
+          attributeType = None,
           location = implicitAttributeTypeLocation(9, 3, 15)
         ),
         AttributeDefinition(
@@ -99,7 +100,7 @@ object DefinedTypeSpec {
           typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, implicitAttributeTypeLocation(10, 12, 18)),
           comment = None,
           verifications = Seq.empty,
-          typeName = None,
+          attributeType = None,
           location = implicitAttributeTypeLocation(10, 3, 18)
         )
       ),
@@ -152,7 +153,7 @@ object DefinedTypeSpec {
           typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, attributeTypeNameLocation(2, 7, 13)),
           comment = None,
           verifications = Seq.empty,
-          typeName = Some("Id"),
+          attributeType = Some(AttributeType(AliasTypeKind.Closed, "Id")),
           location = attributeTypeNameLocation(2, 3, 19)
         ),
         AttributeDefinition(
@@ -166,7 +167,7 @@ object DefinedTypeSpec {
               location = attributeTypeNameLocation(3, 17, 34)
             )
           ),
-          typeName = Some("Email"),
+          attributeType = Some(AttributeType(AliasTypeKind.Closed, "Email")),
           location = attributeTypeNameLocation(3, 3, 43)
         )
       ),

@@ -25,6 +25,7 @@ object NamespaceSpec {
   val validSubnamespaceSrc = "src/test/resources/samples/namespace/subnamespace.def"
   val validSubnamespace = root(namespace("ns", "my.ns",
     AliasType(
+      kind = AliasTypeKind.Closed,
       name = "AliasString",
       fullName = "my.ns.AliasString",
       genericTypes = Seq.empty,
@@ -40,6 +41,7 @@ object NamespaceSpec {
   val validSub2namespaceSrc = "src/test/resources/samples/namespace/sub2namespace.def"
   val validSub2namespace = root(namespace("ns", "my.sub.ns",
     AliasType(
+      kind = AliasTypeKind.Closed,
       name = "AliasString",
       fullName = "my.sub.ns.AliasString",
       genericTypes = Seq.empty,

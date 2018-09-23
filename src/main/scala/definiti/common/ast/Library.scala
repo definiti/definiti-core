@@ -20,11 +20,12 @@ case class Library(root: Root, core: Seq[ClassDefinition]) {
     val attributeTypes = for {
       definedType <- definedTypes
       attribute <- definedType.attributes
-      typeName <- attribute.typeName.toSeq
+      attributeType <- attribute.attributeType.toSeq
     } yield {
-      val fullTypeName = s"${definedType.fullName}.${typeName}"
+      val fullTypeName = s"${definedType.fullName}.${attributeType.name}"
       val classDefinition = AliasType(
-        name = s"${definedType.name}.${typeName}",
+        kind = attributeType.kind,
+        name = s"${definedType.name}.${attributeType.name}",
         fullName = fullTypeName,
         genericTypes = Seq.empty,
         parameters = Seq.empty,

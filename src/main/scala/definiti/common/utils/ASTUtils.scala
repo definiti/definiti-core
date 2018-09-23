@@ -48,14 +48,14 @@ object ASTUtils {
     location: Location,
     comment: Option[String] = None,
     verifications: Seq[VerificationReference] = Seq.empty,
-    typeName: Option[String] = None
+    attributeType: Option[AttributeType] = None
   ): AttributeDefinition = {
     AttributeDefinition(
       name = name,
       typeDeclaration = typeDeclaration,
       comment = comment,
       verifications = verifications,
-      typeName = typeName,
+      attributeType = attributeType,
       location = location
     )
   }

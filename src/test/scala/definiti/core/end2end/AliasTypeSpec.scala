@@ -29,6 +29,7 @@ object AliasTypeSpec {
   val inlineVerificationFile = "src/test/resources/samples/aliasTypes/inline-verification.def"
   val inlineVerification = root(
     AliasType(
+      kind = AliasTypeKind.Closed,
       name = "ListAlias",
       fullName = "ListAlias",
       genericTypes = Seq("A"),

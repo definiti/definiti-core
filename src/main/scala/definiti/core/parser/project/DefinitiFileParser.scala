@@ -276,7 +276,7 @@ class DefinitiFileParser(filename: String)
   def attributeDefinition: Parser[AttributeDefinition] = {
     (
       docComment.? ~ identifier ~ (`:` ~ typeDeclaration).? ~
-        verificationReference.* ~ (`as` ~ identifier).?
+        verificationReference.* ~ (`as` ~ `transparent`.? ~ identifier).?
       ) ^^ {
       case docComment ~ attributeName ~ typeDeclarationOpt ~
         verifyingList ~ asOpt =>
@@ -291,11 +291,16 @@ class DefinitiFileParser(filename: String)
           },
           comment = docComment.map(_.value),
           verifications = verifyingList,
-          typeName = asOpt.map { case _ ~ typeName => typeName.value },
+          attributeType = asOpt.map { case _ ~ transparentOpt ~ typeName =>
+            AttributeType(
+              kind = transparentOpt.map(_ => AliasTypeKind.Transparent).getOrElse(AliasTypeKind.Closed),
+              name = typeName.value
+            )
+          },
           location = location(Range(
             start = position(docComment.getOrElse(attributeName).pos),
             end = asOpt
-              .map { case _ ~ token => position(token.posEnd) }
+              .map { case _ ~ _ ~ token => position(token.posEnd) }
               .orElse {
                 verifyingList.lastOption.map(_.location.range.end)
               }
@@ -367,16 +372,17 @@ class DefinitiFileParser(filename: String)
   def aliasType: Parser[AliasType] = {
     (
       docComment.? ~
-        `type` ~ identifier ~ container(`[`, joinedElements(identifier, `,`), `]`).? ~
+        `transparent`.? ~ `type` ~ identifier ~ container(`[`, joinedElements(identifier, `,`), `]`).? ~
         parameterListDefinition.? ~
         `=` ~ typeDeclaration ~ verificationReference.* ~ aliasTypeBody.?
       ) ^^ {
-      case docComment ~ firstToken ~ typeName ~ generics ~
+      case docComment ~ transparentOpt ~ firstToken ~ typeName ~ generics ~
         parameters ~
         _ ~ typeDeclaration ~ inherited ~ body =>
 
         val genericTypes = generics.getOrElse(Seq.empty).map(_.value)
         AliasType(
+          kind = transparentOpt.map(_ => AliasTypeKind.Transparent).getOrElse(AliasTypeKind.Closed),
           name = typeName.value,
           fullName = typeName.value,
           genericTypes = genericTypes,
@@ -391,7 +397,7 @@ class DefinitiFileParser(filename: String)
           },
           comment = docComment.map(_.value),
           location = location(Range(
-            start = position(docComment.getOrElse(firstToken).pos),
+            start = position(docComment.orElse(transparentOpt).getOrElse(firstToken).pos),
             end = body.map(_.range.end)
               .orElse(inherited.lastOption.map(_.location.range.end))
               .getOrElse(typeDeclaration.location.range.end)

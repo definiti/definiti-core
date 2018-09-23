@@ -27,12 +27,17 @@ class ComparisonOnSameTypeControlSpec extends EndToEndSpec {
     )
   }
 
-  it should "invalidate a condition between an alias type and a type" in {
+  it should "invalidate a condition between a closed type and a type" in {
     val output = processFile("controls.comparisonOnSameType.invalidAliasType", configuration)
     output should beKo(
       ComparisonOnSameTypeControl.errorDifferentTypes(TypeReference("Amount"), Constants.number, invalidAliasTypeLocation(4, 3, 15)),
       ComparisonOnSameTypeControl.errorDifferentTypes(TypeReference("Amount"), Constants.number, invalidAliasTypeLocation(8, 3, 14))
     )
+  }
+
+  it should "validate a condition between a transparent type and a type" in {
+    val output = processFile("controls.comparisonOnSameType.validTransparentType", configuration)
+    output shouldBe ok[Root]
   }
 
   it should "invalidate a condition between two alias types" in {
@@ -53,6 +58,11 @@ class ComparisonOnSameTypeControlSpec extends EndToEndSpec {
     output should beKo(
       ComparisonOnSameTypeControl.errorDifferentTypes(TypeReference("Station.Name"), TypeReference("String"), invalidAttributeTypeLocation(6, 3, 23))
     )
+  }
+
+  it should "validate an expression between a transparent attribute type and another type" in {
+    val output = processFile("controls.comparisonOnSameType.validTransparentAttributeType", configuration)
+    output shouldBe ok[Root]
   }
 }
 

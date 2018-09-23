@@ -3,7 +3,7 @@ type Person {
   address
 }
 
-type Email = String
+transparent type Email = String
 
 type Address {
   city: String

@@ -1,0 +1,5 @@
+transparent type Id = String
+
+def compare(left: Id, right: Id): Boolean {
+  left != right
+}

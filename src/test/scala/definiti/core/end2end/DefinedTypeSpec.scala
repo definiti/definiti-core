@@ -10,14 +10,11 @@ import definiti.core.validation.controls.{AttributeTypeControl, TypeDeclarationP
 class DefinedTypeSpec extends EndToEndSpec {
   import DefinedTypeSpec._
 
-  // TODO: We need transparent types for it to work again.
-  /*
   "Project.generatePublicAST" should "generate the AST with a defined type with implicit attribute types" in {
     val expected = Ok[Root](implicitAttributeType)
     val output = processFile("definedType.implicit-attribute-type")
     output should beResult(expected)
   }
-  */
 
   "Project.generatePublicAST" should "invalid the AST when an implicit type of an attribute does not exist" in {
     val expected = Ko[Root](invalidImplicitAttributeTypeErrors)
@@ -70,16 +67,16 @@ object DefinedTypeSpec {
       location = implicitAttributeTypeLocation(1, 1, 4, 2)
     ),
     AliasType(
-      kind = AliasTypeKind.Closed,
+      kind = AliasTypeKind.Transparent,
       name = "Email",
       fullName = "Email",
       genericTypes = Seq.empty,
       parameters = Seq.empty,
-      alias = TypeDeclaration("String", Seq.empty, Seq.empty, implicitAttributeTypeLocation(6, 14, 20)),
+      alias = TypeDeclaration("String", Seq.empty, Seq.empty, implicitAttributeTypeLocation(6, 26, 32)),
       inherited = Seq.empty,
       verifications = Seq.empty,
       comment = None,
-      location = implicitAttributeTypeLocation(6, 1, 20)
+      location = implicitAttributeTypeLocation(6, 1, 32)
     ),
     DefinedType(
       name = "Address",

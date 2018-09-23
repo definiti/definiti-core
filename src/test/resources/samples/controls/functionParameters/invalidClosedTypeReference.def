@@ -1,0 +1,10 @@
+type Title = String
+type Title2 = String
+
+def isOtherTitle(title: Title, otherTitle: Title): Boolean {
+  title == otherTitle
+}
+
+def isOther(title: Title, otherTitle: Title2): Boolean {
+  isOtherTitle(title, otherTitle)
+}

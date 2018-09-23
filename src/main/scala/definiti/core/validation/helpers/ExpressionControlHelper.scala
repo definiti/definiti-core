@@ -42,6 +42,9 @@ private[core] trait ExpressionControlHelper {
             )
           }
 
+        case not: Not =>
+          deepProcess(not.inner)
+
         case _ => OK
       }
       val directControl = op.applyOrElse(expression, (_: Expression) => OK)

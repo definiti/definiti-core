@@ -21,13 +21,10 @@ class VerificationTypeControlSpec extends EndToEndSpec {
     output shouldBe ok[Root]
   }
 
-  // TODO: We need transparent types for it to work again.
-  /*
   it should "validate a verification with a valid alias type" in {
     val output = processFile("controls.verificationType.aliasType", configuration)
     output shouldBe ok[Root]
   }
-  */
 
   it should "invalidate a verification with an unknown type" in {
     val output = processFile("controls.verificationType.unknownType", configuration)

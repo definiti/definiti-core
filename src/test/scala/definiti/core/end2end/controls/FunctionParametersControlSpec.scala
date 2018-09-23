@@ -36,6 +36,16 @@ class FunctionParametersControlSpec extends EndToEndSpec {
       FunctionParametersControl.invalidParameterType(TypeReference("Title"), Constants.string, invalidAliasTypeReferenceLocation(8, 16, 22))
     ))
   }
+
+  it should "invalidate a function call when the type reference targets the same alias type with closed types" in {
+    val output = processFile("controls.functionParameters.invalidClosedTypeReference", configuration)
+    output shouldBe ko[Root]
+  }
+
+  it should "validate a function call when the type reference targets the same alias type with transparent types" in {
+    val output = processFile("controls.functionParameters.validTransparentTypeReference", configuration)
+    output shouldBe ok[Root]
+  }
 }
 
 object FunctionParametersControlSpec {

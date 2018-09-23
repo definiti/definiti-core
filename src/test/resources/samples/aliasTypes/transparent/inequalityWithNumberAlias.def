@@ -1,0 +1,6 @@
+transparent type Size = Number
+transparent type Length = Number
+
+def isSmaller(size, length): Boolean {
+  size < length
+}

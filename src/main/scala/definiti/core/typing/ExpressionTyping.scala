@@ -240,11 +240,11 @@ private[core] class ExpressionTyping(context: Context) {
       case nativeClassDefinition: NativeClassDefinition =>
         nativeClassDefinition.attributes.find(_.name == attribute)
 
-      case aliasType: AliasType if aliasType.kind == AliasTypeKind.Closed =>
-        None
-
       case aliasType: AliasType if aliasType.kind == AliasTypeKind.Transparent =>
         context.findType(aliasType.alias.typeName).flatMap(getAttributeOpt(_, attribute))
+
+      case _: AliasType =>
+        None
 
       case definedType: DefinedType =>
         definedType.attributes.find(_.name == attribute)

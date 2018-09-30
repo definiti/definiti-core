@@ -1,4 +1,4 @@
-package definiti.core.end2end.aliasType.closed
+package definiti.core.end2end.aliasType
 
 import definiti.common.ast.Root
 import definiti.core.ProgramResultMatchers._

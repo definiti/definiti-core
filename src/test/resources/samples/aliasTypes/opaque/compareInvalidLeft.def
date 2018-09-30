@@ -1,0 +1,5 @@
+opaque type Id = String
+
+def compareInvalid(first: String, second: Id): Boolean {
+  first == second
+}

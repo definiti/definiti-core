@@ -44,4 +44,9 @@ class ClosedTypeSpec extends EndToEndSpec {
     val output = processFile("aliasTypes.closed.parameterTypeInvalid")
     output shouldBe ko[Root]
   }
+
+  it should "not accept a method for a closed type" in {
+    val output = processFile("aliasTypes.closed.methodNotAccepted")
+    output shouldBe ko[Root]
+  }
 }

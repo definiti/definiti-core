@@ -21,4 +21,8 @@ object LocationPath {
   def controlNaming(control: Control[_], file: String): LocationPath = {
     LocationPath(s"src/test/resources/samples/controls/naming/${control.name}/${file}.def")
   }
+
+  def controlAliasType(control: Control[_], file: String): LocationPath = {
+    LocationPath(s"src/test/resources/samples/controls/aliasType/${control.name}/${file}.def")
+  }
 }

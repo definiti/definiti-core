@@ -49,4 +49,9 @@ class TransparentTypeSpec extends EndToEndSpec {
     val output = processFile("aliasTypes.transparent.parameterSameAlias")
     output shouldBe ok[Root]
   }
+
+  it should "not accept a method for a transparent type" in {
+    val output = processFile("aliasTypes.transparent.methodNotAccepted")
+    output shouldBe ko[Root]
+  }
 }

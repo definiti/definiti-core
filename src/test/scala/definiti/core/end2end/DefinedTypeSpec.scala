@@ -75,6 +75,7 @@ object DefinedTypeSpec {
       alias = TypeDeclaration("String", Seq.empty, Seq.empty, implicitAttributeTypeLocation(6, 26, 32)),
       inherited = Seq.empty,
       verifications = Seq.empty,
+      methods = Seq.empty,
       comment = None,
       location = implicitAttributeTypeLocation(6, 1, 32)
     ),

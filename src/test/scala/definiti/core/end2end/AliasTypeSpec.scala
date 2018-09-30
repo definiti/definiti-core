@@ -66,6 +66,7 @@ object AliasTypeSpec {
         ),
         location = Location(inlineVerificationFile, 2, 3, 7, 4)
       )),
+      methods = Seq.empty,
       comment = None,
       location = Location(inlineVerificationFile, 1, 1, 8, 2)
     )

@@ -32,6 +32,7 @@ object NamespaceSpec {
       parameters = Seq.empty,
       alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validSubnamespaceSrc, 3, 20, 3, 26)),
       verifications = Seq.empty,
+      methods = Seq.empty,
       inherited = Seq.empty,
       comment = None,
       location = Location(validSubnamespaceSrc, 3, 1, 3, 26)
@@ -48,6 +49,7 @@ object NamespaceSpec {
       parameters = Seq.empty,
       alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(validSub2namespaceSrc, 3, 20, 3, 26)),
       verifications = Seq.empty,
+      methods = Seq.empty,
       inherited = Seq.empty,
       comment = None,
       location = Location(validSub2namespaceSrc, 3, 1, 3, 26)

@@ -35,6 +35,7 @@ case class AliasType(
   alias: TypeDeclaration,
   inherited: Seq[VerificationReference],
   verifications: Seq[TypeVerification],
+  methods: Seq[Method],
   comment: Option[String],
   location: Location
 ) extends ProjectClassDefinition
@@ -110,6 +111,16 @@ case class MethodDefinition(
   parameters: Seq[ParameterDefinition],
   returnType: TypeReference,
   comment: Option[String]
+)
+
+case class Method(
+  name: String,
+  genericTypes: Seq[String],
+  parameters: Seq[ParameterDefinition],
+  body: Expression,
+  returnType: TypeReference,
+  comment: Option[String],
+  location: Location
 )
 
 case class VerificationReference(

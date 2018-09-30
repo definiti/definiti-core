@@ -104,6 +104,7 @@ object NominalSpec {
       parameters = Seq.empty,
       alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(closedTypeSrc, 1, 20, 1, 26)),
       verifications = Seq.empty,
+      methods = Seq.empty,
       inherited = Seq.empty,
       comment = None,
       location = Location(closedTypeSrc, 1, 1, 1, 26)
@@ -120,6 +121,7 @@ object NominalSpec {
       parameters = Seq.empty,
       alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(transparentTypeSrc, 1, 32, 1, 38)),
       verifications = Seq.empty,
+      methods = Seq.empty,
       inherited = Seq.empty,
       comment = None,
       location = Location(transparentTypeSrc, 1, 1, 1, 38)
@@ -136,6 +138,7 @@ object NominalSpec {
       parameters = Seq.empty,
       alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(opaqueTypeSrc, 1, 27, 1, 33)),
       verifications = Seq.empty,
+      methods = Seq.empty,
       inherited = Seq.empty,
       comment = None,
       location = Location(opaqueTypeSrc, 1, 1, 1, 33)
@@ -211,6 +214,7 @@ object NominalSpec {
       parameters = Seq.empty,
       alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(packageAliasTypeSrc, 3, 20, 3, 26)),
       verifications = Seq.empty,
+      methods = Seq.empty,
       inherited = Seq.empty,
       comment = None,
       location = Location(packageAliasTypeSrc, 3, 1, 3, 26)

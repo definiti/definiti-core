@@ -32,6 +32,7 @@ case class Library(root: Root, core: Seq[ClassDefinition]) {
         alias = attribute.typeDeclaration,
         inherited = attribute.verifications,
         verifications = Seq.empty,
+        methods = Seq.empty,
         comment = attribute.comment,
         location = attribute.location
       )

@@ -44,4 +44,9 @@ class OpaqueTypeSpec extends EndToEndSpec {
     val output = processFile("aliasTypes.opaque.parameterTypeInvalid")
     output shouldBe ko[Root]
   }
+
+  it should "accept a valid method" in {
+    val output = processFile("aliasTypes.opaque.validMethod")
+    output shouldBe ok[Root]
+  }
 }

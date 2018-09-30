@@ -12,6 +12,8 @@ trait ProjectParserHelper {
   def `package`: Parser[PACKAGE] = accept("package", { case x: PACKAGE => x })
   def `import`: Parser[IMPORT] = accept("import", { case x: IMPORT => x })
   def `type`: Parser[TYPE] = accept("type", { case x: TYPE => x })
+  def `transparent`: Parser[TRANSPARENT] = accept("transparent", { case x: TRANSPARENT => x })
+  def `opaque`: Parser[OPAQUE] = accept("opaque", { case x: OPAQUE => x })
   def `if`: Parser[IF] = accept("if", { case x: IF => x })
   def `else`: Parser[ELSE] = accept("else", { case x: ELSE => x })
   def `verification`: Parser[VERIFICATION] = accept("verification", { case x: VERIFICATION => x })

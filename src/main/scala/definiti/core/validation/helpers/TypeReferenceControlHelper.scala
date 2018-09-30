@@ -27,6 +27,22 @@ private[core] trait TypeReferenceControlHelper {
     ControlResult(process(typeReference))
   }
 
+  def normalizeType(abstractTypeReference: AbstractTypeReference, library: Library): AbstractTypeReference = {
+    abstractTypeReference match {
+      case typeReference: TypeReference => normalizeType(typeReference, library)
+      case other => other
+    }
+  }
+
+  def normalizeType(typeReference: TypeReference, library: Library): TypeReference = {
+    library.typesMap.get(typeReference.typeName) match {
+      case Some(aliasType: AliasType) if aliasType.kind == AliasTypeKind.Transparent =>
+        normalizeType(aliasType.alias, library)
+
+      case _ => typeReference
+    }
+  }
+
   def errorUnknownType(typeName: String, location: Location): Alert = {
     alert(
       s"Unknown type ${typeName}",
@@ -63,7 +79,7 @@ private[core] trait TypeReferenceControlHelper {
   }
 
   def areTypeEqual(expectedType: AbstractTypeReference, gotType: AbstractTypeReference, library: Library): Boolean = {
-    expectedType == gotType
+    normalizeType(expectedType, library) == normalizeType(gotType, library)
   }
 
   def controlTypeEquality(expectedType: AbstractTypeReference, gotType: AbstractTypeReference, location: Location, library: Library): ControlResult = {

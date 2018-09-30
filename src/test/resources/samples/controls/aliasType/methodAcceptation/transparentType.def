@@ -1,0 +1,9 @@
+transparent type Amount = Number {
+  def plus(other: Amount): Amount {
+    this + other
+  }
+
+  def minus(other: Amount): Amount {
+    this - other
+  }
+}

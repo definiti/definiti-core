@@ -1,0 +1,5 @@
+type Amount = Number {
+  def plus(other: Amount): Amount {
+    this + other
+  }
+}

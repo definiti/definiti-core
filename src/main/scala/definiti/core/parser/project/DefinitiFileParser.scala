@@ -10,6 +10,7 @@ import scala.util.parsing.input.Reader
 class DefinitiFileParser(filename: String)
   extends PackratParsers
     with ProjectParserHelper
+    with AliasTypeParser
     with ExpressionParser {
 
   type Elem = TokenProject
@@ -276,7 +277,7 @@ class DefinitiFileParser(filename: String)
   def attributeDefinition: Parser[AttributeDefinition] = {
     (
       docComment.? ~ identifier ~ (`:` ~ typeDeclaration).? ~
-        verificationReference.* ~ (`as` ~ identifier).?
+        verificationReference.* ~ (`as` ~ `transparent`.? ~ identifier).?
       ) ^^ {
       case docComment ~ attributeName ~ typeDeclarationOpt ~
         verifyingList ~ asOpt =>
@@ -291,11 +292,16 @@ class DefinitiFileParser(filename: String)
           },
           comment = docComment.map(_.value),
           verifications = verifyingList,
-          typeName = asOpt.map { case _ ~ typeName => typeName.value },
+          attributeType = asOpt.map { case _ ~ transparentOpt ~ typeName =>
+            AttributeType(
+              kind = transparentOpt.map(_ => AliasTypeKind.Transparent).getOrElse(AliasTypeKind.Closed),
+              name = typeName.value
+            )
+          },
           location = location(Range(
             start = position(docComment.getOrElse(attributeName).pos),
             end = asOpt
-              .map { case _ ~ token => position(token.posEnd) }
+              .map { case _ ~ _ ~ token => position(token.posEnd) }
               .orElse {
                 verifyingList.lastOption.map(_.location.range.end)
               }
@@ -348,65 +354,20 @@ class DefinitiFileParser(filename: String)
 
   def typeVerificationFunction: Parser[DefinedFunction] = {
     (
-      rangedContainer(`(`, identifier, `)`) ~ rangedContainer(`{`, combinedExpression, `}`)
+      rangedContainer(`(`, identifier, `)`) ~ functionBody
       ) ^^ {
-      case attributeName ~ expression =>
+      case attributeName ~ body =>
         DefinedFunction(
           parameters = Seq(ParameterDefinition(
             name = attributeName.value.value,
             typeReference = unset,
             location = location(range(attributeName.value, attributeName.value))
           )),
-          body = expression.value,
+          body = body.value,
           genericTypes = Seq.empty,
-          location = location(range(attributeName, expression))
+          location = location(range(attributeName, body))
         )
     }
-  }
-
-  def aliasType: Parser[AliasType] = {
-    (
-      docComment.? ~
-        `type` ~ identifier ~ container(`[`, joinedElements(identifier, `,`), `]`).? ~
-        parameterListDefinition.? ~
-        `=` ~ typeDeclaration ~ verificationReference.* ~ aliasTypeBody.?
-      ) ^^ {
-      case docComment ~ firstToken ~ typeName ~ generics ~
-        parameters ~
-        _ ~ typeDeclaration ~ inherited ~ body =>
-
-        val genericTypes = generics.getOrElse(Seq.empty).map(_.value)
-        AliasType(
-          name = typeName.value,
-          fullName = typeName.value,
-          genericTypes = genericTypes,
-          parameters = parameters.map(_.value).getOrElse(Seq.empty),
-          alias = typeDeclaration,
-          inherited = inherited,
-          verifications = {
-            body
-              .map(_.value)
-              .getOrElse(Seq.empty)
-              .map(injectTypeIntoTypeVerification(_, typeName.value, genericTypes))
-          },
-          comment = docComment.map(_.value),
-          location = location(Range(
-            start = position(docComment.getOrElse(firstToken).pos),
-            end = body.map(_.range.end)
-              .orElse(inherited.lastOption.map(_.location.range.end))
-              .getOrElse(typeDeclaration.location.range.end)
-          ))
-        )
-    }
-  }
-
-  def aliasTypeBody: Parser[Ranged[Seq[TypeVerification]]] = {
-    rangedContainer(`{`, typeVerification.*, `}`)
-      .map { ranged =>
-        ranged.copy(
-          value = Seq(ranged.value: _*)
-        )
-      }
   }
 
   def enumType: Parser[Enum] = {
@@ -444,7 +405,7 @@ class DefinitiFileParser(filename: String)
     (
       `def` ~ identifier ~ container(`[`, joinedElements(identifier, `,`), `]`).? ~
         parameterListDefinition ~ `:` ~
-        typeReference ~ namedFunctionBody
+        typeReference ~ functionBody
       ) ^^ {
       case firstToken ~ functionName ~ generics ~
         parameters ~ _ ~
@@ -461,7 +422,7 @@ class DefinitiFileParser(filename: String)
     }
   }
 
-  def namedFunctionBody: Parser[Ranged[Expression]] = {
+  def functionBody: Parser[Ranged[Expression]] = {
     val chained: Parser[Ranged[Expression]] = {
       rangedContainer(`{`, combinedExpression, `}`)
         .map { chaine =>

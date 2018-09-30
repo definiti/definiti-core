@@ -14,9 +14,21 @@ class NominalSpec extends EndToEndSpec {
     output should beResult[Root](expected)
   }
 
-  it should "generate a valid AST for a valid alias type" in {
-    val expected = Ok(aliasType)
-    val output = processFile("nominal.aliasType")
+  it should "generate a valid AST for a valid closed type" in {
+    val expected = Ok(closedType)
+    val output = processFile("nominal.closedType")
+    output should beResult[Root](expected)
+  }
+
+  it should "generate a valid AST for a valid transparent type" in {
+    val expected = Ok(transparentType)
+    val output = processFile("nominal.transparentType")
+    output should beResult[Root](expected)
+  }
+
+  it should "generate a valid AST for a valid opaque type" in {
+    val expected = Ok(opaqueType)
+    val output = processFile("nominal.opaqueType")
     output should beResult[Root](expected)
   }
 
@@ -71,7 +83,7 @@ object NominalSpec {
           typeDeclaration = TypeDeclaration("String", Seq.empty, Seq.empty, Location(definedTypeSrc, 2, 16, 2, 22)),
           comment = None,
           verifications = Seq.empty,
-          typeName = None,
+          attributeType = None,
           location = Location(definedTypeSrc, 2, 3, 2, 22)
         )
       ),
@@ -82,18 +94,54 @@ object NominalSpec {
     )
   )
 
-  val aliasTypeSrc = "src/test/resources/samples/nominal/aliasType.def"
-  val aliasType: Root = root(
+  val closedTypeSrc = "src/test/resources/samples/nominal/closedType.def"
+  val closedType: Root = root(
     AliasType(
+      kind = AliasTypeKind.Closed,
       name = "AliasString",
       fullName = "AliasString",
       genericTypes = Seq.empty,
       parameters = Seq.empty,
-      alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(aliasTypeSrc, 1, 20, 1, 26)),
+      alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(closedTypeSrc, 1, 20, 1, 26)),
       verifications = Seq.empty,
+      methods = Seq.empty,
       inherited = Seq.empty,
       comment = None,
-      location = Location(aliasTypeSrc, 1, 1, 1, 26)
+      location = Location(closedTypeSrc, 1, 1, 1, 26)
+    )
+  )
+
+  val transparentTypeSrc = "src/test/resources/samples/nominal/transparentType.def"
+  val transparentType: Root = root(
+    AliasType(
+      kind = AliasTypeKind.Transparent,
+      name = "AliasString",
+      fullName = "AliasString",
+      genericTypes = Seq.empty,
+      parameters = Seq.empty,
+      alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(transparentTypeSrc, 1, 32, 1, 38)),
+      verifications = Seq.empty,
+      methods = Seq.empty,
+      inherited = Seq.empty,
+      comment = None,
+      location = Location(transparentTypeSrc, 1, 1, 1, 38)
+    )
+  )
+
+  val opaqueTypeSrc = "src/test/resources/samples/nominal/opaqueType.def"
+  val opaqueType: Root = root(
+    AliasType(
+      kind = AliasTypeKind.Opaque,
+      name = "AliasString",
+      fullName = "AliasString",
+      genericTypes = Seq.empty,
+      parameters = Seq.empty,
+      alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(opaqueTypeSrc, 1, 27, 1, 33)),
+      verifications = Seq.empty,
+      methods = Seq.empty,
+      inherited = Seq.empty,
+      comment = None,
+      location = Location(opaqueTypeSrc, 1, 1, 1, 33)
     )
   )
 
@@ -159,12 +207,14 @@ object NominalSpec {
   val packageAliasTypeSrc = "src/test/resources/samples/nominal/package.def"
   val packageAliasType: Root = root(namespace("tst", "tst",
     AliasType(
+      kind = AliasTypeKind.Closed,
       name = "AliasString",
       fullName = "tst.AliasString",
       genericTypes = Seq.empty,
       parameters = Seq.empty,
       alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(packageAliasTypeSrc, 3, 20, 3, 26)),
       verifications = Seq.empty,
+      methods = Seq.empty,
       inherited = Seq.empty,
       comment = None,
       location = Location(packageAliasTypeSrc, 3, 1, 3, 26)
@@ -201,7 +251,7 @@ object NominalSpec {
                 location = Location(packagesPageSrc, 6, 17, 6, 60)
               )
             ),
-            typeName = None,
+            attributeType = None,
             location = Location(packagesPageSrc, 6, 3, 6, 60)
           )
         ),

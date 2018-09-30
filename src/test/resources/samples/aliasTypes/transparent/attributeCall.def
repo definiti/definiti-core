@@ -1,0 +1,5 @@
+transparent type Id = String
+
+def length(id): Integer {
+  id.length
+}

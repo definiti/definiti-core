@@ -29,6 +29,7 @@ object AliasTypeSpec {
   val inlineVerificationFile = "src/test/resources/samples/aliasTypes/inline-verification.def"
   val inlineVerification = root(
     AliasType(
+      kind = AliasTypeKind.Closed,
       name = "ListAlias",
       fullName = "ListAlias",
       genericTypes = Seq("A"),
@@ -45,13 +46,13 @@ object AliasTypeSpec {
         function = DefinedFunction(
           parameters = Seq(ParameterDefinition(
             name = "list",
-            typeReference = TypeReference("ListAlias", Seq(TypeReference("A"))),
+            typeReference = TypeReference("List", Seq(TypeReference("A"))),
             location = Location(inlineVerificationFile, 4, 6, 4, 10)
           )),
           body = MethodCall(
             expression = Reference(
               name = "list",
-              returnType = TypeReference("ListAlias", Seq(TypeReference("A"))),
+              returnType = TypeReference("List", Seq(TypeReference("A"))),
               location = Location(inlineVerificationFile, 5, 7, 5, 11)
             ),
             method = "nonEmpty",
@@ -65,6 +66,7 @@ object AliasTypeSpec {
         ),
         location = Location(inlineVerificationFile, 2, 3, 7, 4)
       )),
+      methods = Seq.empty,
       comment = None,
       location = Location(inlineVerificationFile, 1, 1, 8, 2)
     )

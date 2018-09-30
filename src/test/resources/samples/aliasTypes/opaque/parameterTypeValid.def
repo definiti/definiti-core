@@ -1,0 +1,9 @@
+opaque type Id = String
+
+def compare(left: Id, right: Id): Boolean {
+  left == right
+}
+
+def compareNot(left: Id, right: Id): Boolean {
+  !compare(left, right)
+}

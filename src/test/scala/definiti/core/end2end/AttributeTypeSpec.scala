@@ -68,7 +68,7 @@ object AttributeTypeSpec {
           attributeDefinition(
             name = "id",
             typeDeclaration = typeDeclaration("String", userLocation(4, 7, 13)),
-            typeName = Some("Id"),
+            attributeType = Some(AttributeType(AliasTypeKind.Closed, "Id")),
             location = userLocation(4, 3, 19)
           )
         ),

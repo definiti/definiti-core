@@ -5,6 +5,7 @@ import definiti.common.control.{Control, ControlResult}
 import definiti.common.program.ProgramResult.NoResult
 import definiti.common.program.{Program, ProgramConfiguration}
 import definiti.core.validation.controls._
+import definiti.core.validation.controls.aliasType._
 import definiti.core.validation.controls.naming._
 
 class Controls(configuration: ProgramConfiguration) {
@@ -20,6 +21,7 @@ class Controls(configuration: ProgramConfiguration) {
 object Controls {
   lazy val all: Seq[Control[Root]] = Seq(
     root,
+    aliasType,
     naming
   ).flatten
 
@@ -51,6 +53,10 @@ object Controls {
     VerificationReferenceControl,
     VerificationReferenceParametersControl,
     VerificationTypeControl
+  )
+
+  private def aliasType: Seq[Control[Root]] = Seq(
+    MethodAcceptationControl
   )
 
   private def naming: Seq[Control[Root]] = Seq(

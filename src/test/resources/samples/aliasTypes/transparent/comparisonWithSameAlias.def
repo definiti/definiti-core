@@ -1,0 +1,6 @@
+transparent type Id = String
+transparent type Id2 = String
+
+def compare(left: Id, right: Id2): Boolean {
+  left == right
+}

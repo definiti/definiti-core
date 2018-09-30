@@ -1,4 +1,4 @@
-type MyType = String
+transparent type MyType = String
 
 verification MyTypeVerification {
   "MyType should not be empty"

@@ -86,7 +86,7 @@ class ParserCore(filename: String) extends Parsers {
           typeDeclaration = typeDeclaration,
           comment = docComment.map(_.value),
           verifications = Seq.empty,
-          typeName = None,
+          attributeType = None,
           location = Location(
             file = filename,
             start = docComment.getOrElse(attributeName).pos,

@@ -27,6 +27,7 @@ case class DefinedType(
 ) extends ProjectClassDefinition
 
 case class AliasType(
+  kind: AliasTypeKind.Value,
   name: String,
   fullName: String,
   genericTypes: Seq[String],
@@ -34,9 +35,14 @@ case class AliasType(
   alias: TypeDeclaration,
   inherited: Seq[VerificationReference],
   verifications: Seq[TypeVerification],
+  methods: Seq[Method],
   comment: Option[String],
   location: Location
 ) extends ProjectClassDefinition
+
+object AliasTypeKind extends Enumeration {
+  val Closed, Transparent, Opaque = Value
+}
 
 sealed trait TypeVerification {
   def message: VerificationMessage
@@ -90,8 +96,13 @@ case class AttributeDefinition(
   typeDeclaration: TypeDeclaration,
   comment: Option[String],
   verifications: Seq[VerificationReference],
-  typeName: Option[String],
+  attributeType: Option[AttributeType],
   location: Location
+)
+
+case class AttributeType(
+  kind: AliasTypeKind.Value,
+  name: String
 )
 
 case class MethodDefinition(
@@ -100,6 +111,16 @@ case class MethodDefinition(
   parameters: Seq[ParameterDefinition],
   returnType: TypeReference,
   comment: Option[String]
+)
+
+case class Method(
+  name: String,
+  genericTypes: Seq[String],
+  parameters: Seq[ParameterDefinition],
+  body: Expression,
+  returnType: TypeReference,
+  comment: Option[String],
+  location: Location
 )
 
 case class VerificationReference(

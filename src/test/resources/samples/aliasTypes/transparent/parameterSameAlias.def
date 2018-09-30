@@ -1,0 +1,10 @@
+transparent type Id = String
+transparent type Id2 = String
+
+def isEmpty(id): Boolean {
+  id.isEmpty()
+}
+
+def isNotEmpty(id2): Boolean {
+  !isEmpty(id2)
+}

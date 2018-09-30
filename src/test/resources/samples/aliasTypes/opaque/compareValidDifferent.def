@@ -1,0 +1,5 @@
+opaque type Id = String
+
+def compare(first: Id, second: Id): Boolean {
+  first != second
+}

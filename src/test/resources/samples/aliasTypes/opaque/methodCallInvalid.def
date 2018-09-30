@@ -1,0 +1,5 @@
+opaque type Id = String
+
+def isEmpty(id: Id): Boolean {
+  id.isEmpty()
+}

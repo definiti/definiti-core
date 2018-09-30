@@ -3,7 +3,7 @@ package my.test
 type MyString = String {
   verify {
     // Will be translated into something like "String 'abcdefghijkl' is too long"
-    message("error.short", MyString)
+    message("error.short", String)
     (value) {
       if (value.length < 10) {
         ok

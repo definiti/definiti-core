@@ -24,7 +24,9 @@ private[core] object ComparisonOnSameTypeControl extends Control[Root] with Expr
   }
 
   private def controlLogicalExpression(expression: LogicalExpression, library: Library): ControlResult = {
-    if (expression.left.returnType == expression.right.returnType) {
+    val leftType = normalizeType(expression.left.returnType, library)
+    val rightType = normalizeType(expression.right.returnType, library)
+    if (leftType == rightType) {
       OK
     } else {
       ControlResult(

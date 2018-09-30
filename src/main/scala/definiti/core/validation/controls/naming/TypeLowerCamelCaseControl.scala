@@ -23,7 +23,7 @@ object TypeLowerCamelCaseControl extends Control[Root] with NameFormatHelper {
       case definedType: DefinedType =>
         val nameControl = controlLowerCamelCaseFormat(definedType.name, definedType.location)
         val attributeTypeControls = definedType.attributes.flatMap { attribute =>
-          attribute.typeName.map(controlLowerCamelCaseFormat(_, attribute.location))
+          attribute.attributeType.map(x => controlLowerCamelCaseFormat(x.name, attribute.location))
         }
         nameControl +: attributeTypeControls
 

@@ -372,17 +372,21 @@ class DefinitiFileParser(filename: String)
   def aliasType: Parser[AliasType] = {
     (
       docComment.? ~
-        `transparent`.? ~ `type` ~ identifier ~ container(`[`, joinedElements(identifier, `,`), `]`).? ~
+        (`transparent` | `opaque`).? ~ `type` ~ identifier ~ container(`[`, joinedElements(identifier, `,`), `]`).? ~
         parameterListDefinition.? ~
         `=` ~ typeDeclaration ~ verificationReference.* ~ aliasTypeBody.?
       ) ^^ {
-      case docComment ~ transparentOpt ~ firstToken ~ typeName ~ generics ~
+      case docComment ~ kindOpt ~ firstToken ~ typeName ~ generics ~
         parameters ~
         _ ~ typeDeclaration ~ inherited ~ body =>
 
         val genericTypes = generics.getOrElse(Seq.empty).map(_.value)
         AliasType(
-          kind = transparentOpt.map(_ => AliasTypeKind.Transparent).getOrElse(AliasTypeKind.Closed),
+          kind = kindOpt match {
+            case Some(_: TRANSPARENT) => AliasTypeKind.Transparent
+            case Some(_: OPAQUE) => AliasTypeKind.Opaque
+            case _ => AliasTypeKind.Closed
+          },
           name = typeName.value,
           fullName = typeName.value,
           genericTypes = genericTypes,
@@ -397,7 +401,7 @@ class DefinitiFileParser(filename: String)
           },
           comment = docComment.map(_.value),
           location = location(Range(
-            start = position(docComment.orElse(transparentOpt).getOrElse(firstToken).pos),
+            start = position(docComment.orElse(kindOpt).getOrElse(firstToken).pos),
             end = body.map(_.range.end)
               .orElse(inherited.lastOption.map(_.location.range.end))
               .getOrElse(typeDeclaration.location.range.end)

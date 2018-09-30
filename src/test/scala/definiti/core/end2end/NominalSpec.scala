@@ -26,6 +26,12 @@ class NominalSpec extends EndToEndSpec {
     output should beResult[Root](expected)
   }
 
+  it should "generate a valid AST for a valid opaque type" in {
+    val expected = Ok(opaqueType)
+    val output = processFile("nominal.opaqueType")
+    output should beResult[Root](expected)
+  }
+
   it should "generate a valid AST for a valid enum" in {
     val expected = Ok(enum)
     val output = processFile("nominal.enum")
@@ -117,6 +123,22 @@ object NominalSpec {
       inherited = Seq.empty,
       comment = None,
       location = Location(transparentTypeSrc, 1, 1, 1, 38)
+    )
+  )
+
+  val opaqueTypeSrc = "src/test/resources/samples/nominal/opaqueType.def"
+  val opaqueType: Root = root(
+    AliasType(
+      kind = AliasTypeKind.Opaque,
+      name = "AliasString",
+      fullName = "AliasString",
+      genericTypes = Seq.empty,
+      parameters = Seq.empty,
+      alias = TypeDeclaration("String", Seq.empty, Seq.empty, Location(opaqueTypeSrc, 1, 27, 1, 33)),
+      verifications = Seq.empty,
+      inherited = Seq.empty,
+      comment = None,
+      location = Location(opaqueTypeSrc, 1, 1, 1, 33)
     )
   )
 

@@ -12,6 +12,7 @@ case class PACKAGE() extends TokenProject
 case class IMPORT() extends TokenProject
 case class TYPE() extends TokenProject
 case class TRANSPARENT() extends TokenProject
+case class OPAQUE() extends TokenProject
 case class IF() extends TokenProject
 case class ELSE() extends TokenProject
 case class VERIFICATION() extends TokenProject

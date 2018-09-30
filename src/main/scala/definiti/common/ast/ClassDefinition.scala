@@ -40,7 +40,7 @@ case class AliasType(
 ) extends ProjectClassDefinition
 
 object AliasTypeKind extends Enumeration {
-  val Closed, Transparent = Value
+  val Closed, Transparent, Opaque = Value
 }
 
 sealed trait TypeVerification {

@@ -40,6 +40,7 @@ class LexerProject(filename: String) extends RegexParsers {
         | token("import", IMPORT)
         | token("type", TYPE)
         | token("transparent", TRANSPARENT)
+        | token("opaque", OPAQUE)
         | token("if", IF)
         | token("else", ELSE)
         | token("verification", VERIFICATION)
